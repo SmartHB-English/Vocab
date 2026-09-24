@@ -916,11 +916,10 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
       <div class="sbrule"><i></i><b>단어는 매일, 조금씩</b><i></i></div>
     </div>
     <div class="card">
-      <label>반</label>
-      <select id="inClass"></select>
-      <div class="mt"></div>
       <label>이름</label>
-      <select id="inName"></select>
+      <input id="inName" type="text" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" maxlength="12"
+             placeholder="이름을 적어 주세요">
       <div class="mt"></div>
       <label>비밀번호</label>
       <input id="inPw" type="tel" inputmode="numeric" maxlength="8" placeholder="숫자 4자리">
@@ -1316,7 +1315,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-24b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-24c';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -1346,11 +1345,11 @@ var DEMO_VERBS = [
 var DEMO_시작일 = '';
 
 var DEMO_배정 = [
-  {행:2,반:'중2 A반',이름:'홍길동',학년구분:'초중등',학년:'중2',학교:'인왕중',단어장:[],
+  {행:2,이름:'홍길동',학년구분:'초중등',학년:'중2',학교:'인왕중',단어장:[],
    교재:['예시 단어장','불규칙 동사 50']},
-  {행:3,반:'중2 A반',이름:'김영희',학년구분:'초중등',학년:'중2',학교:'인왕중',단어장:['예시 단어장'],
+  {행:3,이름:'김영희',학년구분:'초중등',학년:'중2',학교:'인왕중',단어장:['예시 단어장'],
    교재:['예시 단어장']},
-  {행:4,반:'고3 B반',이름:'이철수',학년구분:'고등',학년:'고3',학교:'한성고',단어장:[],
+  {행:4,이름:'이철수',학년구분:'고등',학년:'고3',학교:'한성고',단어장:[],
    교재:['불규칙 동사 50']}
 ];
 
@@ -1366,89 +1365,87 @@ function DEMO_지난(일){
 function DEMO_종류(k){
   return (k==='보충'||k==='시험'||k==='기한') ? k : '당일';
 }
+/* 교재를 받은 학생 목록 — 진짜 앱에서 하는 것과 같은 방식 */
+function DEMO_교재학생(책){
+  return DEMO_배정.filter(function(x){ return (x.교재||[]).indexOf(책)>-1; })
+                  .map(function(x){ return x.이름; });
+}
+function DEMO_대상(h){
+  var 고른 = (h.학생||'').split(/\s*,\s*/).filter(String);
+  return 고른.length ? 고른 : DEMO_교재학생(h.단어장);
+}
 var DEMO_HW = [
-  {행:2,반:'중2 A반',단어장:'예시 단어장',시작:1,끝:10,유형:'스펠링',마감일:'2026-12-31',학생:'',색:'#FF7A3D',종류:'기한',지남:false,
+  {행:2,단어장:'예시 단어장',시작:1,끝:10,유형:'스펠링',마감일:'2026-12-31',학생:'',색:'#FF7A3D',종류:'기한',지남:false,
    대상수:2,한사람:['김영희'],안한사람:['홍길동'],모자란사람:['홍길동'],합격점:80},
-  {행:3,반:'중2 A반',단어장:'불규칙 동사 50',시작:1,끝:20,유형:'3단변화',마감일:'2026-12-31',학생:'홍길동',색:'#3B82F6',종류:'당일',지남:false,
+  {행:3,단어장:'불규칙 동사 50',시작:1,끝:20,유형:'3단변화',마감일:'2026-12-31',학생:'홍길동',색:'#3B82F6',종류:'당일',지남:false,
    대상수:1,한사람:[],안한사람:['홍길동']},
-  {행:4,반:'중2 A반',단어장:'예시 단어장',시작:11,끝:25,유형:'4지선다',마감일:'2026-12-25',학생:'',색:'#FF7A3D',종류:'기한',지남:false,
+  {행:4,단어장:'예시 단어장',시작:11,끝:25,유형:'4지선다',마감일:'2026-12-25',학생:'',색:'#FF7A3D',종류:'기한',지남:false,
    대상수:2,한사람:['홍길동','김영희'],안한사람:[]},
-  {행:5,반:'중2 A반',단어장:'예시 단어장',시작:21,끝:25,유형:'첫 글자',마감일:'2026-12-31',학생:'홍길동',색:'#FF7A3D',종류:'보충',지남:false,
+  {행:5,단어장:'예시 단어장',시작:21,끝:25,유형:'첫 글자',마감일:'2026-12-31',학생:'홍길동',색:'#FF7A3D',종류:'보충',지남:false,
    대상수:1,한사람:[],안한사람:['홍길동']},
-  {행:6,반:'중2 A반',단어장:'예시 단어장',시작:1,끝:25,유형:'스펠링',마감일:'2026-12-20',학생:'',색:'#FF7A3D',종류:'시험',지남:false,
+  {행:6,단어장:'예시 단어장',시작:1,끝:25,유형:'스펠링',마감일:'2026-12-20',학생:'',색:'#FF7A3D',종류:'시험',지남:false,
    대상수:2,한사람:[],안한사람:['홍길동','김영희']},
   /* 마감이 지난 것들 — 목록이 길어졌을 때를 보여 주려고 */
-  {행:7,반:'중2 A반',단어장:'예시 단어장',시작:1,끝:5,유형:'스펠링',마감일:DEMO_지난(3),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
+  {행:7,단어장:'예시 단어장',시작:1,끝:5,유형:'스펠링',마감일:DEMO_지난(3),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
    대상수:2,한사람:['김영희'],안한사람:['홍길동']},
-  {행:8,반:'중2 A반',단어장:'예시 단어장',시작:6,끝:10,유형:'첫 글자',마감일:DEMO_지난(9),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
+  {행:8,단어장:'예시 단어장',시작:6,끝:10,유형:'첫 글자',마감일:DEMO_지난(9),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
    대상수:2,한사람:[],안한사람:['홍길동','김영희']},
-  {행:9,반:'고3 B반',단어장:'불규칙 동사 50',시작:1,끝:10,유형:'3단변화',마감일:DEMO_지난(40),학생:'',색:'#3B82F6',종류:'기한',지남:true,
-   대상수:1,한사람:[],안한사람:['이철수']},
-  {행:10,반:'고3 B반',단어장:'예시 단어장',시작:11,끝:20,유형:'스펠링',마감일:DEMO_지난(70),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
-   대상수:1,한사람:[],안한사람:['이철수']},
-  /* 교재로 내서 반이 갈린 같은 숙제 — 한 줄로 묶여야 한다 */
-  {행:11,반:'중2 A반',단어장:'예시 단어장',시작:31,끝:40,유형:'스펠링',마감일:'2026-12-28',학생:'',색:'#FF7A3D',종류:'기한',지남:false,
+  {행:9,단어장:'불규칙 동사 50',시작:1,끝:10,유형:'3단변화',마감일:DEMO_지난(40),학생:'',색:'#3B82F6',종류:'기한',지남:true,
+   대상수:2,한사람:[],안한사람:['홍길동','이철수']},
+  {행:10,단어장:'예시 단어장',시작:11,끝:20,유형:'스펠링',마감일:DEMO_지난(70),학생:'김영희',색:'#FF7A3D',종류:'기한',지남:true,
+   대상수:1,한사람:[],안한사람:['김영희']},
+  /* 교재로 낸 숙제 — 그 교재를 받은 학생 전원에게 한 줄로 나간다 */
+  {행:11,단어장:'예시 단어장',시작:31,끝:40,유형:'스펠링',마감일:'2026-12-28',학생:'',색:'#FF7A3D',종류:'기한',지남:false,
    대상수:2,한사람:['김영희'],안한사람:['홍길동']},
-  {행:12,반:'고3 B반',단어장:'예시 단어장',시작:31,끝:40,유형:'스펠링',마감일:'2026-12-28',학생:'',색:'#FF7A3D',종류:'기한',지남:false,
-   대상수:1,한사람:[],안한사람:['이철수']},
-  /* 학생을 골라 내서 사람마다 갈린 같은 숙제 */
-  {행:13,반:'중2 A반',단어장:'예시 단어장',시작:41,끝:50,유형:'첫 글자',마감일:'2026-12-29',학생:'홍길동',색:'#FF7A3D',종류:'기한',지남:false,
+  /* 학생을 골라서 낸 숙제 */
+  {행:12,단어장:'예시 단어장',시작:41,끝:50,유형:'첫 글자',마감일:'2026-12-29',학생:'홍길동',색:'#FF7A3D',종류:'기한',지남:false,
    대상수:1,한사람:[],안한사람:['홍길동']},
-  {행:14,반:'중2 A반',단어장:'예시 단어장',시작:41,끝:50,유형:'첫 글자',마감일:'2026-12-29',학생:'김영희',색:'#FF7A3D',종류:'기한',지남:false,
-   대상수:1,한사람:['김영희'],안한사람:[]}
+  {행:13,단어장:'예시 단어장',시작:41,끝:50,유형:'첫 글자',마감일:'2026-12-29',학생:'김영희',색:'#FF7A3D',종류:'기한',지남:false,
+   대상수:1,한사람:[],안한사람:['김영희']}
 ];
-var DEMO_HW다음행 = 15;
+var DEMO_HW다음행 = 14;
 
 var DEMO_공지 = [
-  {키:'n1', 반:'', 제목:'추석 연휴 휴강 안내',
+  {키:'n1', 제목:'추석 연휴 휴강 안내',
    내용:'9월 28일(월)부터 30일(수)까지 학원이 쉽니다.\n숙제는 미리 내 두었으니 연휴 동안 틈틈이 해 주세요.',
    끝나는날:'2026-09-30', 켬:true},
-  {키:'n2', 반:'중2 A반', 제목:'금요일 단어 시험',
+  {키:'n2', 제목:'금요일 단어 시험',
    내용:'이번 주 금요일에 1~50번 전체 시험을 봅니다.',
    끝나는날:'', 켬:true}
 ];
 
 /* 미리보기용 — 휴대폰 알림을 켠 학생 (진짜로는 시트에 쌓인다) */
 var DEMO_구독 = [
-  {행:2, 반:'중2 A반', 이름:'홍길동', 주소:'https://fcm.example/1', 기기:'안드로이드', 켠때:'2026-09-23'},
-  {행:3, 반:'중2 A반', 이름:'김영희', 주소:'https://fcm.example/2', 기기:'아이폰', 켠때:'2026-09-23'}
+  {행:2, 이름:'홍길동', 주소:'https://fcm.example/1', 기기:'안드로이드', 켠때:'2026-09-23'},
+  {행:3, 이름:'김영희', 주소:'https://fcm.example/2', 기기:'아이폰', 켠때:'2026-09-23'}
 ];
 var DEMO_열쇠 = {공개키:'', 비밀키:''};
 
-function DEMO_반(){
-  var 순서=[], 맵={};
-  DEMO_배정.forEach(function(x){
-    if(!맵[x.반]){ 맵[x.반]=[]; 순서.push(x.반); }
-    맵[x.반].push(x.이름);
-  });
-  return {반목록:순서, 반별학생:맵};
-}
-
 var DEMO = {
   시작정보: function(){
-    var r=DEMO_반();
     return {
       학원이름:'홍제인왕해법영어',
-      반목록:r.반목록,
-      반별학생:r.반별학생,
       합격점:80,
       단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']}]
     };
   },
-  로그인:function(c,n){
+  로그인:function(n){
     var 전체=[{이름:'예시 단어장',개수:25,레슨:DEMO_레슨['예시 단어장']},
                {이름:'불규칙 동사 50',개수:5,종류:'3단변화',레슨:DEMO_레슨['불규칙 동사 50']}];
-    var me=null; DEMO_배정.forEach(function(x){ if(x.반===c&&x.이름===n) me=x; });
-    var 책 = (me && me.단어장.length)
+    var 찾을것=String(n||'').replace(/\s+/g,'');
+    var me=null;
+    DEMO_배정.forEach(function(x){ if(x.이름.replace(/\s+/g,'')===찾을것) me=x; });
+    if(!me) return {ok:false, 메시지:'명단에 없는 이름이에요. 선생님께 말씀드리세요.'};
+    var 책 = me.단어장.length
       ? 전체.filter(function(b){return me.단어장.indexOf(b.이름)>-1;})
       : 전체;
-    return {ok:true, 학생:{반:c,이름:n,학년구분:c.indexOf('고')===0?'고등':'초중등'}, 단어장목록:책};},
+    return {ok:true, 학생:{이름:me.이름, 학년구분:me.학년구분}, 단어장목록:책};},
   단어가져오기:function(name){
     if(name && name.indexOf('불규칙')>=0) return DEMO_VERBS.map(function(w,i){
       return {no:i+1, en:w[0], ko:w[1], 종류:'3단변화'};});
     return DEMO_WORDS;
   },
-  숙제가져오기:function(반,이름){
+  숙제가져오기:function(이름){
     var t=new Date(), z=function(n){return n<10?'0'+n:''+n;};
     var 오늘=t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate());
     var d3=new Date(t.getTime()+3*86400000);
@@ -1475,17 +1472,17 @@ var DEMO = {
   시상집계:function(pw,ym){
     ym = ym || '2026-09';
     var 줄=[
-      {반:'중2 A반',이름:'홍길동',숙제수:8,낸수:8,제출률:100,건수:8,평균:92,시험건수:2,시험평균:86,만점:4,지난평균:78,향상:14},
-      {반:'중2 A반',이름:'김영희',숙제수:8,낸수:7,제출률:88,건수:7,평균:95,시험건수:2,시험평균:91,만점:5,지난평균:93,향상:2},
-      {반:'고3 B반',이름:'이철수',숙제수:5,낸수:3,제출률:60,건수:3,평균:71,시험건수:1,시험평균:64,만점:0,지난평균:80,향상:-9},
-      {반:'고3 B반',이름:'박지훈',숙제수:5,낸수:4,제출률:80,건수:4,평균:84,시험건수:0,시험평균:null,만점:1,지난평균:62,향상:22}
+      {이름:'홍길동',숙제수:8,낸수:8,제출률:100,건수:8,평균:92,시험건수:2,시험평균:86,만점:4,지난평균:78,향상:14},
+      {이름:'김영희',숙제수:8,낸수:7,제출률:88,건수:7,평균:95,시험건수:2,시험평균:91,만점:5,지난평균:93,향상:2},
+      {이름:'이철수',숙제수:5,낸수:3,제출률:60,건수:3,평균:71,시험건수:1,시험평균:64,만점:0,지난평균:80,향상:-9},
+      {이름:'박지훈',숙제수:5,낸수:4,제출률:80,건수:4,평균:84,시험건수:0,시험평균:null,만점:1,지난평균:62,향상:22}
     ];
     function 상만들기(키,값뽑기){
       var 후보=줄.filter(function(r){var v=값뽑기(r);return v!==null&&v>=1;});
       if(!후보.length) return null;
       var 최대=Math.max.apply(null,후보.map(값뽑기));
       var 동점=후보.filter(function(r){return 값뽑기(r)===최대;});
-      return {값:최대,주인공:동점[0],동점:동점.map(function(r){return {반:r.반,이름:r.이름};})};
+      return {값:최대,주인공:동점[0],동점:동점.map(function(r){return {이름:r.이름};})};
     }
     return {ok:true, 년월:ym, 지난달:'2026-08',
       상:{
@@ -1495,25 +1492,8 @@ var DEMO = {
       },
       줄:줄.slice().sort(function(a,b){return b.평균-a.평균;}), 숙제수:13, 시작일:DEMO_시작일,
       항목:DEMO_항목.slice(), 항목전체:['숙제','시험','보충','오답노트']};},
-  반이름변경:function(pw,옛,새){
-    var 옛이름=[],새이름=[];
-    DEMO_배정.forEach(function(x){ if(x.반===옛) 옛이름.push(x.이름); else if(x.반===새) 새이름.push(x.이름); });
-    if(!옛이름.length) return {ok:false,메시지:'그 반에 학생이 없습니다.'};
-    var 겹=옛이름.filter(function(n){return 새이름.indexOf(n)>-1;});
-    if(겹.length) return {ok:false,메시지:'“'+새+'”에 같은 이름이 있어 합칠 수 없습니다: '+겹.join(', ')};
-    var n=0;
-    DEMO_배정.forEach(function(x){ if(x.반===옛){ x.반=새; n++; } });
-    DEMO_HW.forEach(function(h){ if(h.반===옛) h.반=새; });
-    return {ok:true,인원:n,기록:0,합침:새이름.length>0};},
-  반삭제:function(pw,반,옮길){
-    if(옮길) return DEMO.반이름변경(pw,반,옮길);
-    var n=DEMO_배정.length;
-    DEMO_배정=DEMO_배정.filter(function(x){return x.반!==반;});
-    var h=DEMO_HW.length;
-    DEMO_HW=DEMO_HW.filter(function(x){return x.반!==반;});
-    return {ok:true,지운학생:n-DEMO_배정.length,지운숙제:h-DEMO_HW.length};},
   명단가져오기:function(){return {ok:true, 학생:DEMO_배정.map(function(x){
-    return {행:x.행,반:x.반,이름:x.이름,비밀번호:'1234',학년구분:x.학년구분,
+    return {행:x.행,이름:x.이름,비밀번호:x.비밀번호||'1234',학년구분:x.학년구분,
             학년:x.학년||'',학교:x.학교||'',교재:(x.교재||[]).slice()};})};},
   교재일괄:function(pw,행들,교재들,방식){
     var 고른=교재목록(교재들), 바뀐=0;
@@ -1529,21 +1509,21 @@ var DEMO = {
     });
     return {ok:true, 인원:바뀐, 방식:방식, 교재:고른,
       학생:DEMO_배정.map(function(x){
-        return {행:x.행,반:x.반,이름:x.이름,비밀번호:'1234',학년구분:x.학년구분,
+        return {행:x.행,이름:x.이름,비밀번호:'1234',학년구분:x.학년구분,
                 학년:x.학년||'',학교:x.학교||'',교재:(x.교재||[]).slice()};})};},
   학생수정:function(pw,행,v){
     var 옛=null; DEMO_배정.forEach(function(x){ if(x.행===Number(행)) 옛=x; });
     if(!옛) return {ok:false,메시지:'이미 지워진 학생입니다.'};
     var 겹침=DEMO_배정.some(function(x){
-      return x.행!==Number(행) && x.반===v.반 && x.이름===v.이름; });
-    if(겹침) return {ok:false,메시지:'“'+v.반+'”에 같은 이름의 학생이 이미 있습니다.'};
-    옛.반=v.반; 옛.이름=v.이름; 옛.학년=v.학년; 옛.학교=v.학교; 옛.학년구분=v.학년구분;
+      return x.행!==Number(행) && x.이름===v.이름; });
+    if(겹침) return {ok:false,메시지:'“'+v.이름+'” 은 이미 있는 이름입니다.'};
+    옛.이름=v.이름; 옛.학년=v.학년; 옛.학교=v.학교; 옛.학년구분=v.학년구분;
     if(v.교재!==undefined) 옛.교재=교재목록(v.교재);
     return {ok:true, 옮긴기록:0, 학생:DEMO_배정.map(function(x){
-      return {행:x.행,반:x.반,이름:x.이름,비밀번호:'1234',학년구분:x.학년구분,
+      return {행:x.행,이름:x.이름,비밀번호:'1234',학년구분:x.학년구분,
               학년:x.학년||'',학교:x.학교||'',교재:(x.교재||[]).slice()};})};},
   배정가져오기:function(){return {ok:true,
-    학생:DEMO_배정.map(function(x){return {행:x.행,반:x.반,이름:x.이름,학년구분:x.학년구분,
+    학생:DEMO_배정.map(function(x){return {행:x.행,이름:x.이름,학년구분:x.학년구분,
       전부:!x.단어장.length, 단어장:x.단어장.slice()};}),
     단어장목록:[{이름:'예시 단어장',개수:25,레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',레슨:DEMO_레슨['불규칙 동사 50']}]};},
   배정저장:function(pw,목록){
@@ -1554,51 +1534,48 @@ var DEMO = {
     });
     return {ok:true,개수:(목록||[]).length};},
   게임저장:function(p){
-    DEMO_게임.push({게임:p.게임, 반:p.반, 이름:p.이름, 점수:Number(p.점수)||0, 기록:p.기록||''});
+    DEMO_게임.push({게임:p.게임, 이름:p.이름, 점수:Number(p.점수)||0, 기록:p.기록||''});
     return {ok:true}; },
-  게임순위:function(반,이름){
+  게임순위:function(이름){
     function 줄(목록){
       var 등수=0, 앞=null;
       return 목록.map(function(x,i){
         if(x.점수!==앞){ 등수=i+1; 앞=x.점수; }
-        return {이름:x.이름,반:x.반,점수:x.점수,기록:x.기록||'',등수:등수,
-                나:(x.반===반&&x.이름===이름)};
+        return {이름:x.이름,점수:x.점수,기록:x.기록||'',등수:등수,나:(x.이름===이름)};
       });
     }
-    var 짝=[{이름:'김영희',반:'중2 A반',점수:820,기록:'22초 / 19번'},
-            {이름:'홍길동',반:'중2 A반',점수:640,기록:'31초 / 24번'},
-            {이름:'이철수',반:'고3 B반',점수:590,기록:'35초 / 22번'}];
-    var 퍼즐=[{이름:'이철수',반:'고3 B반',점수:410,기록:'12단어 / 88초'},
-              {이름:'홍길동',반:'중2 A반',점수:260,기록:'8단어 / 61초'}];
+    var 짝=[{이름:'김영희',점수:820,기록:'22초 / 19번'},
+            {이름:'홍길동',점수:640,기록:'31초 / 24번'},
+            {이름:'이철수',점수:590,기록:'35초 / 22번'}];
+    var 퍼즐=[{이름:'이철수',점수:410,기록:'12단어 / 88초'},
+              {이름:'홍길동',점수:260,기록:'8단어 / 61초'}];
     /* 방금 저장한 판도 반영한다 (한 사람당 제일 잘한 판만) */
     DEMO_게임.forEach(function(g){
       var 목록 = g.게임==='짝' ? 짝 : 퍼즐;
-      var 있 = 목록.filter(function(x){return x.반===g.반&&x.이름===g.이름;})[0];
+      var 있 = 목록.filter(function(x){return x.이름===g.이름;})[0];
       if(있){ if(g.점수>있.점수){ 있.점수=g.점수; 있.기록=g.기록; } }
-      else 목록.push({이름:g.이름,반:g.반,점수:g.점수,기록:g.기록});
+      else 목록.push({이름:g.이름,점수:g.점수,기록:g.기록});
     });
     짝.sort(function(a,b){return b.점수-a.점수;});
     퍼즐.sort(function(a,b){return b.점수-a.점수;});
     function 내점(목록){
-      var v=목록.filter(function(x){return x.반===반&&x.이름===이름;})[0];
+      var v=목록.filter(function(x){return x.이름===이름;})[0];
       return v?v.점수:0;
     }
     return {ok:true, 오늘판:1, 게임:[
-      {키:'짝',이름:'짝 맞추기',내최고:내점(짝),
-       우리반:줄(짝.filter(function(x){return x.반===반;})), 전체:줄(짝)},
-      {키:'퍼즐',이름:'글자 퍼즐',내최고:내점(퍼즐),
-       우리반:줄(퍼즐.filter(function(x){return x.반===반;})), 전체:줄(퍼즐)}
+      {키:'짝',이름:'짝 맞추기',내최고:내점(짝),전체:줄(짝)},
+      {키:'퍼즐',이름:'글자 퍼즐',내최고:내점(퍼즐),전체:줄(퍼즐)}
     ]};},
-  공지가져오기:function(반){
-    return DEMO_공지.filter(function(n){ return !n.반 || n.반===반; })
-      .map(function(n){ return {키:n.키, 제목:n.제목, 내용:n.내용, 반:n.반, 만든날:'2026-09-23'}; });
+  공지가져오기:function(){
+    return DEMO_공지.map(function(n){
+      return {키:n.키, 제목:n.제목, 내용:n.내용, 만든날:'2026-09-23'}; });
   },
   공지목록:function(){ return {ok:true, 공지:DEMO_공지.map(function(n,i){
-    return {행:i+2, 키:n.키, 반:n.반, 제목:n.제목, 내용:n.내용,
+    return {행:i+2, 키:n.키, 제목:n.제목, 내용:n.내용,
             끝나는날:n.끝나는날||'', 켬:n.켬!==false, 만든날:'2026-09-23', 지남:false};
   })};},
   공지등록:function(pw,v){
-    DEMO_공지.unshift({키:String(Date.now()), 반:v.반||'', 제목:v.제목||'', 내용:v.내용||'',
+    DEMO_공지.unshift({키:String(Date.now()), 제목:v.제목||'', 내용:v.내용||'',
                        끝나는날:v.끝나는날||'', 켬:true});
     return DEMO.공지목록(pw);
   },
@@ -1618,31 +1595,27 @@ var DEMO = {
   },
   구독등록:function(){ return {ok:true}; },
   구독해제:function(){ return {ok:true}; },
-  구독목록:function(pw,반){
-    return {ok:true, 구독:DEMO_구독.filter(function(x){ return !반 || x.반===반; })};
+  구독목록:function(pw,이름들){
+    var 고른=(이름들||[]).slice();
+    return {ok:true, 구독:DEMO_구독.filter(function(x){
+      return !고른.length || 고른.indexOf(x.이름)>-1; })};
   },
   구독현황:function(){
     var 켠사람={};
-    DEMO_구독.forEach(function(x){ 켠사람[x.반+'|'+x.이름]=1; });
-    var 반별={}, 안켠=[];
-    DEMO_배정.forEach(function(x){
-      if(!반별[x.반]) 반별[x.반]={반:x.반, 전체:0, 켬:0};
-      반별[x.반].전체++;
-      if(켠사람[x.반+'|'+x.이름]) 반별[x.반].켬++;
-      else 안켠.push({반:x.반, 이름:x.이름});
-    });
-    var 줄=[]; for(var k in 반별) 줄.push(반별[k]);
+    DEMO_구독.forEach(function(x){ 켠사람[x.이름]=1; });
+    var 안켠=[];
+    DEMO_배정.forEach(function(x){ if(!켠사람[x.이름]) 안켠.push({이름:x.이름}); });
     return {ok:true, 전체:DEMO_배정.length, 켬:Object.keys(켠사람).length,
-            반별:줄, 안켠:안켠, 열쇠있나:!!DEMO_열쇠.공개키};
+            안켠:안켠, 열쇠있나:!!DEMO_열쇠.공개키};
   },
-  연속가져오기:function(반,이름){
+  연속가져오기:function(이름){
     var 사람=[
-      {이름:'김영희',반:'중2 A반',연속:12},
-      {이름:'홍길동',반:'중2 A반',연속:5},
-      {이름:'박하늘',반:'중2 A반',연속:5},
-      {이름:'최연우',반:'중2 A반',연속:0},
-      {이름:'이철수',반:'고3 B반',연속:8},
-      {이름:'박지훈',반:'고3 B반',연속:3}
+      {이름:'김영희',연속:12},
+      {이름:'홍길동',연속:5},
+      {이름:'박하늘',연속:5},
+      {이름:'최연우',연속:0},
+      {이름:'이철수',연속:8},
+      {이름:'박지훈',연속:3}
     ];
     function 줄세우기(목록){
       목록=목록.slice().sort(function(a,b){
@@ -1651,13 +1624,12 @@ var DEMO = {
       var 등수=0, 앞=null;
       return 목록.map(function(x,i){
         if(x.연속!==앞){ 등수=i+1; 앞=x.연속; }
-        return {이름:x.이름,반:x.반,연속:x.연속,등수:등수,나:(x.반===반&&x.이름===이름)};
+        return {이름:x.이름,연속:x.연속,등수:등수,나:(x.이름===이름)};
       });
     }
-    var 나=사람.filter(function(x){return x.반===반&&x.이름===이름;})[0];
+    var 나=사람.filter(function(x){return x.이름===이름;})[0];
     return {ok:true, 연속:(나?나.연속:5), 최고:14, 오늘남음:true,
       시작일:'2026-09-15',
-      반순위:줄세우기(사람.filter(function(x){return x.반===반;})),
       전체순위:줄세우기(사람)};},
   내기록:function(){return [{시각:'09/06 18:20',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:10,정답수:8,점수:80,게임점수:2400}];},
   월간순위:function(){return {
@@ -1668,22 +1640,21 @@ var DEMO = {
   선생님로그인:function(pw){return {ok:pw==='1234'};},
   선생님요약:function(){return {ok:true,
     시험목록:[
-      {키:1,시각:'09/06 18:20',반:'중2 A반',이름:'홍길동',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:10,정답수:8,점수:80,게임점수:2400,소요초:95,숙제:true,재시험:false,구분:'숙제',틀린단어:'analyze, assume'},
-      {키:3,시각:'09/06 18:24',반:'중2 A반',이름:'홍길동',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:2,정답수:1,점수:50,게임점수:100,소요초:20,숙제:false,재시험:true,구분:'오답 재시험',틀린단어:'assume'},
-      {키:2,시각:'09/05 17:40',반:'고3 B반',이름:'이철수',단어장:'예시 단어장',범위:'1~25',유형:'첫 글자',문항수:25,정답수:19,점수:76,게임점수:3100,소요초:210,숙제:true,재시험:false,구분:'숙제',틀린단어:'acquire, alter, assess, compensate, distinguish, restrict'},
-      {키:4,시각:'09/07 16:00',반:'중2 A반',이름:'김영희',단어장:'예시 단어장',범위:'1~25',유형:'스펠링',문항수:25,정답수:22,점수:88,게임점수:2200,소요초:300,숙제:true,재시험:false,구분:'시험',틀린단어:'alter, assess, restrict'}
+      {키:1,시각:'09/06 18:20',이름:'홍길동',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:10,정답수:8,점수:80,게임점수:2400,소요초:95,숙제:true,재시험:false,구분:'숙제',틀린단어:'analyze, assume'},
+      {키:3,시각:'09/06 18:24',이름:'홍길동',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:2,정답수:1,점수:50,게임점수:100,소요초:20,숙제:false,재시험:true,구분:'오답 재시험',틀린단어:'assume'},
+      {키:2,시각:'09/05 17:40',이름:'이철수',단어장:'예시 단어장',범위:'1~25',유형:'첫 글자',문항수:25,정답수:19,점수:76,게임점수:3100,소요초:210,숙제:true,재시험:false,구분:'숙제',틀린단어:'acquire, alter, assess, compensate, distinguish, restrict'},
+      {키:4,시각:'09/07 16:00',이름:'김영희',단어장:'예시 단어장',범위:'1~25',유형:'스펠링',문항수:25,정답수:22,점수:88,게임점수:2200,소요초:300,숙제:true,재시험:false,구분:'시험',틀린단어:'alter, assess, restrict'}
     ].map(function(t){
       t.제외=!!DEMO_제외[t.키];
-      DEMO_배정.forEach(function(x){ if(x.반===t.반 && x.이름===t.이름) t.교재=(x.교재||[]).slice(); });
+      DEMO_배정.forEach(function(x){ if(x.이름===t.이름) t.교재=(x.교재||[]).slice(); });
       return t;
     }),
-    학생별:[{반:'중2 A반',이름:'홍길동',교재:['예시 단어장','불규칙 동사 50'],횟수:1,오답노트:1,보충:2,시험:1,못낸:0,평균:80,시험평균:72,최근:'09/06 18:20'},
-            {반:'고3 B반',이름:'이철수',교재:['불규칙 동사 50'],횟수:1,오답노트:0,보충:0,시험:0,못낸:1,평균:38,시험평균:null,최근:'09/05 17:40'},
-            {반:'중2 A반',이름:'김영희',교재:['예시 단어장'],횟수:0,오답노트:0,보충:1,시험:1,못낸:0,평균:null,시험평균:88,최근:'09/06 19:00'}],
-    미응시:[{반:'중2 A반',이름:'김영희',교재:['예시 단어장']}],
+    학생별:[{이름:'홍길동',교재:['예시 단어장','불규칙 동사 50'],횟수:1,오답노트:1,보충:2,시험:1,못낸:0,평균:80,시험평균:72,최근:'09/06 18:20'},
+            {이름:'이철수',교재:['불규칙 동사 50'],횟수:1,오답노트:0,보충:0,시험:0,못낸:1,평균:38,시험평균:null,최근:'09/05 17:40'},
+            {이름:'김영희',교재:['예시 단어장'],횟수:0,오답노트:0,보충:1,시험:1,못낸:0,평균:null,시험평균:88,최근:'09/06 19:00'}],
+    미응시:[{이름:'김영희',학년구분:'초중등',교재:['예시 단어장']}],
     오답:[{단어:'analyze',횟수:1},{단어:'assume',횟수:1}],
-    반목록:DEMO_반().반목록,
-    반별학생:DEMO_반().반별학생,
+    학생목록:DEMO_배정.map(function(x){return x.이름;}),
     단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']}],
     시상항목:DEMO_항목.slice(),
     합격점:80,
@@ -1702,39 +1673,21 @@ var DEMO = {
     var 종류=DEMO_종류(h.종류);
     var t=new Date(), z=function(n){return n<10?'0'+n:''+n;};
     var 오늘=t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate());
-    function 넣기(반, 이름, 대상들){
-      DEMO_HW.push({행:DEMO_HW다음행++,반:반,단어장:h.단어장,
-        시작:Number(h.시작)||1,끝:Number(h.끝)||0,유형:h.유형,
-        마감일:(종류==='기한'||종류==='시험')?h.마감일:오늘,학생:이름,
-        색:색맵[h.단어장]||'',종류:종류,지남:false,
-        대상수:대상들.length,한사람:[],안한사람:대상들.slice()});
-    }
-    var 센것=0;
-    if(h && h.교재){
-      var r=DEMO.교재대상(pw,h.교재);
-      if(!r.인원) return {ok:false,메시지:'“'+h.교재+'” 교재를 배우는 학생이 없습니다.'};
-      r.반.forEach(function(x){
-        if(x.전원){ 넣기(x.반,'',x.학생); 센것++; }
-        else x.학생.forEach(function(n){ 넣기(x.반,n,[n]); 센것++; });
-      });
-    } else {
-      var 반원=DEMO_배정.filter(function(x){return x.반===h.반;}).map(function(x){return x.이름;});
-      ((h&&h.학생들&&h.학생들.length)?h.학생들:['']).forEach(function(n){
-        넣기(h.반, n, n?[n]:반원); 센것++;
-      });
-    }
-    return {ok:true,개수:센것,숙제목록:DEMO_HW.slice()};},
+    var 책=h.단어장||h.교재;
+    if(!책) return {ok:false,메시지:'단어장을 골라 주세요.'};
+    var 고른=(h.학생들||[]).filter(String);
+    var 대상들 = 고른.length ? 고른.slice() : DEMO_교재학생(책);
+    if(!대상들.length) return {ok:false,
+      메시지:'“'+책+'” 을(를) 배우는 학생이 없습니다. 학생 명단에서 교재를 먼저 주시거나, 받을 학생을 골라 주세요.'};
+    DEMO_HW.push({행:DEMO_HW다음행++,단어장:책,
+      시작:Number(h.시작)||1,끝:Number(h.끝)||0,유형:h.유형,
+      마감일:(종류==='기한'||종류==='시험')?h.마감일:오늘,학생:고른.join(', '),
+      색:색맵[책]||'',종류:종류,지남:false,
+      대상수:대상들.length,한사람:[],안한사람:대상들.slice()});
+    return {ok:true,개수:1,대상:대상들.length,숙제목록:DEMO_HW.slice()};},
   교재대상:function(pw,교재){
-    var 반전체={}, 고름={};
-    DEMO_배정.forEach(function(x){
-      (반전체[x.반]=반전체[x.반]||[]).push(x.이름);
-      if(교재목록(x.교재).indexOf(교재)>-1) (고름[x.반]=고름[x.반]||[]).push(x.이름);
-    });
-    var 줄=Object.keys(고름).map(function(c){
-      return {반:c, 학생:고름[c], 전원:고름[c].length===(반전체[c]||[]).length};
-    });
-    return {ok:true, 교재:교재,
-      인원:줄.reduce(function(a,x){return a+x.학생.length;},0), 반:줄};},
+    var 학생=DEMO_교재학생(교재);
+    return {ok:true, 교재:교재, 인원:학생.length, 학생:학생};},
   숙제삭제:function(pw,행){
     DEMO_HW=DEMO_HW.filter(function(h){return h.행!==Number(행);});
     return {ok:true,숙제목록:DEMO_HW.slice()};},
@@ -1761,7 +1714,22 @@ var DEMO = {
     대상.색=색맵[h.단어장]||'';
     return {ok:true,숙제목록:DEMO_HW.slice()};},
   단어붙여넣기:function(){return {ok:true,개수:0,메시지:'미리보기에서는 저장되지 않습니다.'};},
-  학생붙여넣기:function(){return {ok:true,개수:0};},
+  학생붙여넣기:function(pw,본문,기본비번,학년구분,학년,학교,교재){
+    var 있는것={}; DEMO_배정.forEach(function(x){ 있는것[x.이름]=1; });
+    var 겹침=[], 넣음=0;
+    String(본문||'').split(/[\n,]/).forEach(function(줄){
+      var t=줄.trim(); if(!t) return;
+      var p=t.split(/\s+/), 이름=p[0];
+      if(있는것[이름]){ 겹침.push(이름); return; }
+      있는것[이름]=1; 넣음++;
+      DEMO_배정.push({행:DEMO_배정.length+2, 이름:이름,
+        학년구분:(학년구분==='고등'?'고등':'초중등'),
+        학년:학년||'', 학교:학교||'', 단어장:[],
+        교재:교재목록(교재), 비밀번호:(p[1]||기본비번||'1234')});
+    });
+    if(!넣음) return {ok:false, 메시지: 겹침.length
+      ? '이미 있는 이름뿐입니다: '+겹침.join(', ') : '이름이 없습니다.'};
+    return {ok:true, 개수:넣음, 겹침:겹침};},
   단어목록:function(){return {ok:true,단어들:DEMO_WORDS.map(function(w,i){
       return {행:i+2,번호:i+1,en:w.en,ko:w.ko};})};},
   단어수정:function(pw,책,행,en,ko){var i=Number(행)-2; if(DEMO_WORDS[i]){DEMO_WORDS[i].en=en;DEMO_WORDS[i].ko=ko;} return {ok:true};},
@@ -1927,38 +1895,31 @@ function 반짝(emoji){
 var 시작정보 = null;
 function initLogin(){
   if(!GAS) $('demoBadge').classList.remove('hide');
+  /* 지난번에 들어온 이름은 적어 둔다 — 아이가 매번 다시 안 쳐도 되게 */
+  try{
+    var last=JSON.parse(localStorage.getItem('hb_last')||'null');
+    if(last && last.이름) $('inName').value=last.이름;
+  }catch(e){}
   api('시작정보').then(function(d){
     시작정보 = d;
     $('academyName').textContent = d.학원이름 || '홍제인왕해법영어';
-    var sc=$('inClass');
-    sc.innerHTML = (d.반목록||[]).map(function(c){return '<option>'+esc(c)+'</option>';}).join('');
-    sc.onchange = fillNames;
-    fillNames();
-    try{
-      var last=JSON.parse(localStorage.getItem('hb_last')||'null');
-      if(last && last.반){ sc.value=last.반; fillNames(); $('inName').value=last.이름; }
-    }catch(e){}
-  }).catch(function(e){ $('loginMsg').textContent='명단을 불러오지 못했습니다. '+e; });
-}
-function fillNames(){
-  var c=$('inClass').value;
-  var names=(시작정보.반별학생||{})[c]||[];
-  $('inName').innerHTML = names.map(function(n){return '<option>'+esc(n)+'</option>';}).join('');
+  }).catch(function(e){ $('loginMsg').textContent='앱을 불러오지 못했습니다. '+e; });
 }
 $('btnLogin').onclick = function(){
-  var c=$('inClass').value, n=$('inName').value, p=$('inPw').value;
-  if(!n){ $('loginMsg').textContent='이름을 골라 주세요.'; return; }
+  var n=$('inName').value.trim(), p=$('inPw').value;
+  if(!n){ $('loginMsg').textContent='이름을 적어 주세요.'; $('inName').focus(); return; }
   $('loginMsg').textContent='확인 중…';
-  api('로그인',c,n,p).then(function(r){
+  api('로그인',n,p).then(function(r){
     if(!r.ok){ $('loginMsg').textContent=r.메시지; return; }
     S.학생=r.학생;
     S.내단어장 = r.단어장목록 || null;   // 선생님이 지정한 것만. 없으면 전부
-    try{localStorage.setItem('hb_last',JSON.stringify({반:c,이름:n}));}catch(e){}
+    try{localStorage.setItem('hb_last',JSON.stringify({이름:r.학생.이름}));}catch(e){}
     var saved=null; try{saved=localStorage.getItem('hb_theme');}catch(e){}
     setTheme(saved || (r.학생.학년구분==='고등'?'high':'kid'));
     enterHome();
-  });
+  }).catch(function(e){ $('loginMsg').textContent='들어가지 못했습니다. '+e; });
 };
+$('inName').addEventListener('keydown',function(e){ if(e.key==='Enter') $('inPw').focus(); });
 $('inPw').addEventListener('keydown',function(e){ if(e.key==='Enter') $('btnLogin').click(); });
 $('btnTeacherGo').onclick=function(){ show('teacher'); };
 
@@ -1980,7 +1941,7 @@ function 내책들(){
 
 function enterHome(){
   $('hiName').textContent = S.학생.이름 + ' 학생';
-  $('hiClass').textContent = S.학생.반;
+  $('hiClass').textContent = (S.학생.학년구분 === '고등') ? '고등부' : '초중등부';
   var 책들=내책들();
   var sel=$('selBook');
   var box=$('bookWrap');
@@ -2004,17 +1965,17 @@ function enterHome(){
     S.알림준비[무엇]=1;
     if(S.알림준비.숙제 && S.알림준비.공지) 알림보이기();
   }
-  api('공지가져오기',S.학생.반).then(function(n){
+  api('공지가져오기').then(function(n){
     S.공지=n||[]; 그리기_공지줄(); 알림채비('공지');
   }).catch(function(){ S.공지=[]; 알림채비('공지'); });
-  api('숙제가져오기',S.학생.반,S.학생.이름).then(function(h){
+  api('숙제가져오기',S.학생.이름).then(function(h){
     S.숙제=h||[]; drawHw(); drawToday(); 알림채비('숙제');
   }).catch(function(){ 알림채비('숙제'); });
-  api('월간순위',S.학생.반).then(function(r){ S.순위=r; drawTrophy(); });
-  api('연속가져오기',S.학생.반,S.학생.이름)
+  api('월간순위').then(function(r){ S.순위=r; drawTrophy(); });
+  api('연속가져오기',S.학생.이름)
     .then(function(r){ S.연속=r; drawStreak(); drawToday(); })
     .catch(function(){ S.연속=null; drawStreak(); drawToday(); });
-  api('게임순위',S.학생.반,S.학생.이름)
+  api('게임순위',S.학생.이름)
     .then(function(r){ S.게임=r; })
     .catch(function(){ S.게임=null; });
   drawToday();
@@ -2224,7 +2185,7 @@ function drawGames(){
 function 게임점수저장(게임, 점수, 기록){
   if(!S.학생) return;
   api('게임저장',{
-    반:S.학생.반, 이름:S.학생.이름, 게임:게임,
+    이름:S.학생.이름, 게임:게임,
     점수:점수, 기록:기록, 단어장:S.게임책이름||''
   }).then(function(r){
     if(r && r.ok===false) toast(r.메시지 || '점수를 순위에 못 올렸어요');
@@ -2235,7 +2196,7 @@ function 게임점수저장(게임, 점수, 기록){
 /* 게임 순위를 다시 받아 온다. 순위 화면을 보고 있으면 그 자리에서 다시 그린다. */
 function 게임순위새로(){
   if(!S.학생) return Promise.resolve(null);
-  return api('게임순위',S.학생.반,S.학생.이름).then(function(r){
+  return api('게임순위',S.학생.이름).then(function(r){
     if(r && r.ok){
       S.게임=r;
       if(S.순위탭==='게임' && $('s-streak').classList.contains('on')) drawGameRank();
@@ -2552,12 +2513,12 @@ function 시험지종이(낱말들, 옵션, 정답){
   }).join('');
 }
 
-/* 상장 한 장 — {상, 이름, 반, 문구, 달} */
+/* 상장 한 장 — {상, 이름, 문구, 달} */
 function 상장종이(수상){
   return 종이_('<div class="pcert">'+
     '<div class="ct">상 장</div>'+
     '<div style="font-size:15px;color:#555;letter-spacing:4px">'+esc(수상.달)+'</div>'+
-    '<div class="cwho">'+esc(수상.반)+' &nbsp; '+esc(수상.이름)+'</div>'+
+    '<div class="cwho">'+esc(수상.이름)+'</div>'+
     '<div class="cbody">위 학생은 '+esc(수상.달)+' 한 달 동안<br>'+
       esc(수상.문구)+'<br>그 노력과 꾸준함을 칭찬하여 이 상을 줍니다.</div>'+
     '<div class="cprize">'+esc(수상.상)+'</div>'+
@@ -2584,7 +2545,7 @@ function 안내문종이(r, 달, 시험들){
   return 종이_(
     종이머리_(달+' 영어 단어 학습 안내', '', '', '')+
     '<div class="pnbody">'+
-    '<div class="pto">'+esc(r.반)+' '+esc(r.이름)+' 학생'+
+    '<div class="pto">'+esc(r.이름)+' 학생'+
       '<small>학부모님께 · 한 달 동안의 단어 학습 결과를 알려 드립니다.</small></div>'+
     '<div class="psum">'+
       칸('숙제 제출률', (r.제출률===null||r.제출률===undefined?'-':r.제출률), '%',
@@ -2678,28 +2639,22 @@ function drawGameRank(){
   }
   var 고른 = S.게임탭 || g.게임[0].키;
   if(!g.게임.some(function(x){return x.키===고른;})) 고른 = g.게임[0].키;
-  var 넓게 = S.게임범위==='전체';
 
   $('skTabs').innerHTML = g.게임.map(function(x){
     return '<button class="chip'+(고른===x.키?' on':'')+'" data-gr="'+x.키+'">'+esc(x.이름)+'</button>';
-  }).join('')+
-    '<button class="chip'+(넓게?' on':'')+'" data-gscope="1" style="margin-left:auto">'+
-      (넓게?'학원 전체':'우리 반')+'</button>';
+  }).join('');
   qsa('[data-gr]').forEach(function(b){
     b.onclick=function(){ S.게임탭=b.dataset.gr; drawRank(); };
   });
-  var sc=document.querySelector('[data-gscope]');
-  if(sc) sc.onclick=function(){ S.게임범위 = 넓게?'반':'전체'; drawRank(); };
 
   var 이것 = g.게임.filter(function(x){return x.키===고른;})[0];
-  var 목록 = 넓게 ? 이것.전체 : 이것.우리반;
+  var 목록 = 이것.전체 || [];
   var 메달=['🥇','🥈','🥉'];
   $('skList').innerHTML = 목록.length
     ? '<div class="card">'+목록.map(function(x){
         return '<div class="skrow'+(x.나?' me':'')+'">'+
           '<span class="rk">'+(x.등수<=3?메달[x.등수-1]:x.등수)+'</span>'+
-          '<span class="nm">'+esc(x.이름)+(x.나?' (나)':'')+
-            (넓게?' <span class="sub" style="font-size:11px">'+esc(x.반)+'</span>':'')+'</span>'+
+          '<span class="nm">'+esc(x.이름)+(x.나?' (나)':'')+'</span>'+
           '<span class="st">'+x.점수+'점</span></div>';
       }).join('')+'</div>'
     : '<div class="card center sub">아직 이 게임을 한 사람이 없어요.</div>';
@@ -2709,10 +2664,7 @@ function drawGameRank(){
 
 function drawStreakRank(){
   var r=S.연속; if(!r) return;
-  var 전체있나 = (r.전체순위||[]).length > (r.반순위||[]).length;
-  if(S.순위칸==='전체' && !전체있나) S.순위칸='반';
-  var 칸 = S.순위칸==='전체' ? '전체' : '반';
-  var 목록 = 칸==='전체' ? (r.전체순위||[]) : (r.반순위||[]);
+  var 목록 = r.전체순위||[];
 
   $('skWho').innerHTML =
     '<div class="card center">'+
@@ -2723,19 +2675,14 @@ function drawStreakRank(){
     '</div>';
 
   $('skTabs').innerHTML =
-    '<button class="chip'+(칸==='반'?' on':'')+'" data-sk="반">우리 반</button>'+
-    (전체있나 ? '<button class="chip'+(칸==='전체'?' on':'')+'" data-sk="전체">학원 전체</button>' : '');
-  qsa('[data-sk]').forEach(function(b){
-    b.onclick=function(){ S.순위칸=b.dataset.sk; drawStreakRank(); };
-  });
+    '<button class="chip on" data-sk="전체">학원 전체</button>';
 
   var 메달=['🥇','🥈','🥉'];
   $('skList').innerHTML = 목록.length
     ? '<div class="card">'+목록.map(function(x){
         return '<div class="skrow'+(x.나?' me':'')+(x.연속?'':' zero')+'">'+
           '<span class="rk">'+((x.연속 && x.등수<=3) ? 메달[x.등수-1] : x.등수)+'</span>'+
-          '<span class="nm">'+esc(x.이름)+(x.나?' (나)':'')+
-            (칸==='전체'?' <span class="sub" style="font-size:11px">'+esc(x.반)+'</span>':'')+'</span>'+
+          '<span class="nm">'+esc(x.이름)+(x.나?' (나)':'')+'</span>'+
           '<span class="st">'+(x.연속?'🔥 '+x.연속+'일':'-')+'</span>'+
         '</div>';
       }).join('')+'</div>'
@@ -2955,7 +2902,7 @@ function 숙제냈음(점수){
   drawHw(); drawToday();
   /* 불꽃이 늘었는지 다시 물어본다 */
   if(S.학생){
-    api('연속가져오기',S.학생.반,S.학생.이름).then(function(r){
+    api('연속가져오기',S.학생.이름).then(function(r){
       var 전 = S.연속 ? S.연속.연속 : 0;
       S.연속 = r; drawStreak(); drawToday();
       if(r && r.ok && r.연속 > 전) 반짝('🔥');
@@ -2981,7 +2928,7 @@ function 알림아이콘_(k){
     (알림아이콘[k]||알림아이콘.오늘)+'</svg>';
 }
 function 내열쇠_(){
-  return S.학생 ? (S.학생.반+'|'+S.학생.이름) : '';
+  return S.학생 ? S.학생.이름 : '';
 }
 function 저장읽기_(키, 기본){
   try{ var v=localStorage.getItem(키); return v==null?기본:JSON.parse(v); }catch(e){ return 기본; }
@@ -3157,7 +3104,7 @@ function 내정보보내기_(){
   navigator.serviceWorker.ready.then(function(r){
     if(!r.active) return;
     r.active.postMessage({ 무엇:'내정보', 값:{
-      반:S.학생.반, 이름:S.학생.이름, 창구: 안쪽 ? '' : 창구주소
+      이름:S.학생.이름, 창구: 안쪽 ? '' : 창구주소
     }});
   }).catch(function(){});
 }
@@ -3179,7 +3126,7 @@ function 알림켜기(){
         });
       }).then(function(sub){
         var j = sub.toJSON();
-        return api('구독등록', S.학생.반, S.학생.이름, {
+        return api('구독등록', S.학생.이름, {
           주소: sub.endpoint,
           p256dh: (j.keys&&j.keys.p256dh)||'',
           auth: (j.keys&&j.keys.auth)||''
@@ -3805,7 +3752,7 @@ function finishQuiz(){
   $('rCombo').textContent=S.최고콤보;          $('rComboL').textContent='최고 콤보';
   $('rTime').textContent=초+'초';
   $('rGame').textContent='연습 점수 '+S.게임점수.toLocaleString()+'점';
-  $('rGameNote').textContent='연습 점수는 반 순위에 들어가지 않아요';
+  $('rGameNote').textContent='연습 점수는 순위에 들어가지 않아요';
   drawWrongList(S.오답);
   결과합격표시(점수);
   show('result');
@@ -3820,7 +3767,7 @@ function finishQuiz(){
 
   $('rSaved').textContent='기록 저장 중…';
   api('결과저장',{
-    반:S.학생.반, 이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:유형이름,
+    이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:유형이름,
     문항수:총, 정답수:S.정답수, 점수:점수, 게임점수:S.게임점수,
     최고콤보:S.최고콤보, 소요초:초, 숙제여부:!S.재시험,
     구분: 기록구분(),
@@ -4012,7 +3959,7 @@ function finishVerb(){
   }
   $('rSaved').textContent='기록 저장 중…';
   api('결과저장',{
-    반:S.학생.반, 이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:'3단변화',
+    이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:'3단변화',
     문항수:총, 정답수:S.칸정답, 점수:점수, 게임점수:0,
     최고콤보:0, 소요초:초, 숙제여부:!S.재시험,
     구분: 기록구분(),
@@ -4058,7 +4005,7 @@ $('btnRecords').onclick=function(){
   $('recTitle').textContent='내 숙제 기록';
   $('recBody').textContent='불러오는 중…';
   show('records');
-  api('내기록',S.학생.반,S.학생.이름).then(function(r){
+  api('내기록',S.학생.이름).then(function(r){
     if(!r||!r.length){ $('recBody').textContent='아직 끝낸 숙제가 없어요.'; return; }
     $('recBody').innerHTML='<div class="scroll"><table><tr><th>날짜</th><th>범위</th><th>유형</th><th>맞은 개수</th></tr>'+
       r.map(function(x){
@@ -4067,14 +4014,14 @@ $('btnRecords').onclick=function(){
           '<br><span class="sub">연습 '+(x.게임점수||0).toLocaleString()+'점</span></td></tr>';
       }).join('')+'</table></div>'+
       '<div class="sub mt2" style="font-size:12px">끝까지 푼 숙제만 여기에 남아요. 혼자 연습한 건 남지 않아요.<br>'+
-      '반 순위는 학원에서 본 시험 점수로 따로 매겨져요.</div>';
+      '순위는 학원에서 본 시험 점수로 따로 매겨져요.</div>';
   });
 };
 function 월간순위보기(){
-  $('recTitle').textContent='우리 반 순위';
+  $('recTitle').textContent='이번 달 순위';
   $('recBody').textContent='불러오는 중…';
   show('records');
-  api('월간순위',S.학생.반).then(function(r){
+  api('월간순위').then(function(r){
     S.순위=r;
     var medal=['🥇','🥈','🥉'];
     var html='';
@@ -4211,7 +4158,7 @@ function 숙제묶기(list){
       맵[k] = {
         키:k, 단어장:h.단어장, 시작:h.시작, 끝:h.끝, 유형:h.유형,
         종류:h.종류, 마감일:h.마감일, 색:h.색,
-        한:0, 대상:0, 안한:[], 모자람:[], 반들:[], 줄들:[], 행들:[]
+        한:0, 대상:0, 안한:[], 모자람:[], 줄들:[], 행들:[]
       };
       차례.push(맵[k]);
     }
@@ -4221,14 +4168,12 @@ function 숙제묶기(list){
     g.대상 += (h.대상수 || (안.length + 한));
     g.안한 = g.안한.concat(안);
     g.모자람 = g.모자람.concat(h.모자란사람||[]);
-    if(g.반들.indexOf(h.반)<0) g.반들.push(h.반);
     g.줄들.push(h);
     if(h.행) g.행들.push(h.행);
   });
   차례.forEach(function(g){
-    g.대상글 = g.반들.length===1
-      ? g.반들[0] + (g.줄들.length>1 && g.줄들[0].학생 ? ' · 고른 학생' : '')
-      : g.반들[0] + ' 외 ' + (g.반들.length-1) + '개 반';
+    var 고른 = g.줄들.some(function(x){ return x.학생; });
+    g.대상글 = 고른 ? '고른 학생 ' + g.대상 + '명' : g.단어장 + ' 배우는 ' + g.대상 + '명';
   });
   return 차례;
 }
@@ -4337,18 +4282,18 @@ function 알림쏘기(구독들, 열쇠){
   }
   return 한줄(0).then(function(){ return {보냄:보냄, 실패:실패, 죽은주소:죽음}; });
 }
-/* 공지 하나를 알림으로 보내기 (반을 주면 그 반만) */
-function 공지알림보내기(반){
+/* 공지 하나를 알림으로 보내기 (이름들을 주면 그 학생들만) */
+function 공지알림보내기(이름들){
   /* 미리보기에서는 진짜로 쏘지 않는다 — 몇 명에게 갈지만 보여 준다 */
   if(!GAS){
-    return api('구독목록', T.pw, 반||'').then(function(r){
+    return api('구독목록', T.pw, 이름들||[]).then(function(r){
       var n=((r&&r.구독)||[]).length;
       return {보냄:n, 실패:0, 죽은주소:[], 대상:n};
     });
   }
   return api('푸시열쇠', T.pw).then(function(k){
     if(!k || !k.ok || !k.공개키 || !k.비밀키) throw new Error('열쇠 없음');
-    return api('구독목록', T.pw, 반||'').then(function(r){
+    return api('구독목록', T.pw, 이름들||[]).then(function(r){
       var 구독 = (r && r.구독) || [];
       if(!구독.length) return {보냄:0, 실패:0, 죽은주소:[], 대상:0};
       return 알림쏘기(구독, k).then(function(결과){
@@ -4365,8 +4310,8 @@ function 밀린사람들(숙제들){
   var 사람={}, 차례=[];
   (숙제들||[]).forEach(function(h){
     (h.안한사람||[]).forEach(function(n){
-      var k=h.반+'|'+n;
-      if(!사람[k]){ 사람[k]={반:h.반, 이름:n, 건:[], 모자람:0, 행들:[]}; 차례.push(사람[k]); }
+      var k=n;
+      if(!사람[k]){ 사람[k]={이름:n, 건:[], 모자람:0, 행들:[]}; 차례.push(사람[k]); }
       var p=사람[k];
       p.건.push(h);
       if((h.모자란사람||[]).indexOf(n)>-1) p.모자람++;
@@ -4389,11 +4334,10 @@ function 밀린줄(p, 최대){
     '<div class="mn">'+p.건.length+'</div>'+
     '<div class="mb">'+
       '<div class="mh"><span class="name">'+esc(p.이름)+'</span>'+
-        '<span class="muted">'+esc(p.반)+'</span>'+
         '<span class="mcnt">'+p.건.length+'건 밀림'+
           (p.모자람?' · '+p.모자람+'건은 점수 모자람':'')+'</span></div>'+
       '<div class="mchips">'+칩들+더+'</div>'+
-      '<div class="mact"><button class="btn line sm" data-bochung="'+esc(p.반+'|'+p.이름)+'">'+
+      '<div class="mact"><button class="btn line sm" data-bochung="'+esc(p.이름)+'">'+
         '보충으로 다시 내기</button></div>'+
     '</div></div>';
 }
@@ -4403,7 +4347,7 @@ function 보충손잡이(사람들){
     btn.onclick=function(e){
       e.stopPropagation();
       var 키=btn.dataset.bochung;
-      var p=null; 사람들.forEach(function(x){ if(x.반+'|'+x.이름===키) p=x; });
+      var p=null; 사람들.forEach(function(x){ if(x.이름===키) p=x; });
       if(!p || !p.건.length) return;
       var 대상=p.건.slice(0,6);
       if(!confirm(p.이름+' 학생에게 안 낸 숙제 '+대상.length+'건을 '+
@@ -4412,8 +4356,8 @@ function 보충손잡이(사람들){
       var 남음=대상.length, 된것=0;
       대상.forEach(function(h){
         api('숙제등록',T.pw,{
-          반:p.반, 단어장:h.단어장, 시작:h.시작, 끝:h.끝,
-          유형:h.유형, 마감일:'', 종류:'보충', 학생들:[p.이름], 교재:''
+          단어장:h.단어장, 시작:h.시작, 끝:h.끝,
+          유형:h.유형, 마감일:'', 종류:'보충', 학생들:[p.이름]
         }).then(function(r){
           if(r&&r.ok){ 된것++; if(r.숙제목록) T.data.숙제목록=r.숙제목록; }
         }).catch(function(){}).then(function(){
@@ -4499,12 +4443,6 @@ function 막대(n){
   var c = n>=80?'var(--ok)':(n>=60?'var(--warn)':'var(--ng)');
   return '<div class="bar"><i style="width:'+Math.max(2,Math.min(100,n))+'%;background:'+c+'"></i></div>';
 }
-function 반옵션(sel){
-  return '<option value="">전체 반</option>'+
-    ((T.data&&T.data.반목록)||[]).map(function(c){
-      return '<option'+(sel===c?' selected':'')+'>'+esc(c)+'</option>';
-    }).join('');
-}
 /* 교재 고르개 — 단어장 목록 + 아직 교재를 안 정한 학생 */
 function 교재옵션(sel){
   return '<option value="">전체 교재</option>'+
@@ -4557,7 +4495,7 @@ function drawTab(){
     var 본시험 = L.filter(function(t){return t.숙제;});   // 평균은 숙제만
     var 평균 = 본시험.length
       ? Math.round(본시험.reduce(function(a,t){return a+t.점수;},0)/본시험.length) : null;
-    var 사람 = {}; 오늘것.forEach(function(t){ 사람[t.반+'|'+t.이름]=1; });
+    var 사람 = {}; 오늘것.forEach(function(t){ 사람[t.이름]=1; });
     var 숙제 = (d.숙제목록||[]);
     var 진행 = 숙제.filter(function(h){return !h.지남;});
     var 안낸건 = 진행.filter(function(h){return (h.안한사람||[]).length;});
@@ -4600,34 +4538,38 @@ function drawTab(){
               오늘것.map(function(t){
                 return '<tr><td class="nw muted">'+esc(t.시각).slice(6)+'</td>'+
                   '<td class="nw"><span class="name">'+esc(t.이름)+'</span> '+
-                    '<span class="muted">'+esc(t.반)+'</span></td>'+
-                  '<td class="nw">'+책칩(t.단어장)+' <span class="muted">'+esc(t.범위)+'</span>'+
+                          '<td class="nw">'+책칩(t.단어장)+' <span class="muted">'+esc(t.범위)+'</span>'+
                     (t.재시험?' <span class="pill note">오답노트</span>':'')+'</td>'+
                   '<td class="num">'+점수칸(t.점수)+'</td></tr>';
               }).join('')+'</tbody></table>'
             : 빈칸('오늘은 아직 시험 본 학생이 없습니다.'), true)+
 
-        /* 반마다 지금 어떤 상태인지 한 줄씩 */
+        /* 교재마다 지금 어떤 상태인지 한 줄씩 */
         (function(){
-          var 반들 = d.반목록||[];
-          if(!반들.length) return '';
-          var 명단 = d.반별학생||{};
-          var 줄들 = 반들.map(function(c){
-            var 학생수 = (명단[c]||[]).length;
-            var 반숙제 = 진행.filter(function(h){ return h.반===c; });
-            var 안낸 = 0, 안낸이름 = {};
-            반숙제.forEach(function(h){
-              (h.안한사람||[]).forEach(function(n){ 안낸이름[n]=1; });
-              안낸 += (h.안한사람||[]).length;
+          var 책들 = (d.단어장목록||[]).map(function(x){ return x.이름; });
+          if(!책들.length) return '';
+          var 배운사람 = {};
+          (d.학생별||[]).forEach(function(st){
+            교재목록(st.교재).forEach(function(t){
+              (배운사람[t] = 배운사람[t] || {})[st.이름] = 1;
             });
-            var 반시험 = 본시험.filter(function(t){ return t.반===c; });
-            var 반평균 = 반시험.length
-              ? Math.round(반시험.reduce(function(a,t){return a+t.점수;},0)/반시험.length) : null;
+          });
+          var 줄들 = 책들.map(function(c){
+            var 학생수 = Object.keys(배운사람[c]||{}).length;
+            var 책숙제 = 진행.filter(function(h){ return h.단어장===c; });
+            if(!학생수 && !책숙제.length) return '';
+            var 안낸이름 = {};
+            책숙제.forEach(function(h){
+              (h.안한사람||[]).forEach(function(n){ 안낸이름[n]=1; });
+            });
+            var 책시험 = 본시험.filter(function(t){ return t.단어장===c; });
+            var 책평균 = 책시험.length
+              ? Math.round(책시험.reduce(function(a,t){return a+t.점수;},0)/책시험.length) : null;
             var 안낸명수 = Object.keys(안낸이름).length;
-            var 다냄 = 반숙제.length && !안낸명수;
+            var 다냄 = 책숙제.length && !안낸명수;
             return '<tr><td class="nw"><span class="name">'+esc(c)+'</span>'+
-                '<div class="muted">학생 '+학생수+'명</div></td>'+
-              '<td class="num">'+반숙제.length+
+                '<div class="muted">배우는 학생 '+학생수+'명</div></td>'+
+              '<td class="num">'+책숙제.length+
                 '<span class="muted" style="font-weight:600;font-size:11.5px">건</span></td>'+
               '<td class="num">'+
                 (안낸명수
@@ -4635,10 +4577,11 @@ function drawTab(){
                     '<span class="muted" style="font-weight:600;font-size:11.5px">명</span>'
                   : (다냄 ? '<span class="pill ok">다 냄</span>' : '<span class="muted">-</span>'))+
               '</td>'+
-              '<td class="num">'+(반평균===null?'<span class="muted">-</span>':점수칸(반평균))+'</td></tr>';
+              '<td class="num">'+(책평균===null?'<span class="muted">-</span>':점수칸(책평균))+'</td></tr>';
           }).join('');
-          return 판('반별 현황', '<span class="sub">최근 7일</span>',
-            '<table class="tb"><thead><tr><th>반</th><th class="num">진행 숙제</th>'+
+          if(!줄들) return '';
+          return 판('교재별 현황', '<span class="sub">최근 7일</span>',
+            '<table class="tb"><thead><tr><th>교재</th><th class="num">진행 숙제</th>'+
             '<th class="num">안 낸 학생</th><th class="num">평균</th></tr></thead><tbody>'+
             줄들+'</tbody></table>', true);
         })()+
@@ -4682,7 +4625,6 @@ function drawTab(){
     var 보임 = L.filter(function(t){
       if(T.필터 && t.단어장!==T.필터) return false;
       if(!교재맞나(t.교재)) return false;
-      if(T.반필터 && t.반!==T.반필터) return false;
       if(T.찾기){
         var q=T.찾기.toLowerCase();
         if(String(t.이름).toLowerCase().indexOf(q)<0) return false;
@@ -4697,7 +4639,6 @@ function drawTab(){
 
       '<div class="tbar">'+
         '<div class="f"><label>교재</label><select id="fText">'+교재옵션(T.교재필터)+'</select></div>'+
-        '<div class="f"><label>반</label><select id="fClass">'+반옵션(T.반필터)+'</select></div>'+
         '<div class="f"><label>본 단어장</label><select id="fBook">'+책옵션(T.필터)+'</select></div>'+
         '<div class="f"><label>학생 이름</label><input id="fName" placeholder="이름으로 찾기" value="'+esc(T.찾기||'')+'"></div>'+
         '<label style="margin:0 0 9px 4px;font-size:13px;font-weight:700;color:var(--text)">'+
@@ -4714,7 +4655,7 @@ function drawTab(){
         보임.length
         ? '<table class="tb"><thead><tr>'+
           '<th class="w"><input type="checkbox" id="chkAll"></th>'+
-          '<th>시각</th><th>학생</th><th>교재</th><th>반</th><th>단어장</th><th>범위 / 유형</th>'+
+          '<th>시각</th><th>학생</th><th>교재</th><th>단어장</th><th>범위 / 유형</th>'+
           '<th class="num">점수</th><th class="num">맞은 개수</th><th>구분</th>'+
           '<th class="ctr">집계</th>'+
           '</tr></thead><tbody>'+
@@ -4724,7 +4665,6 @@ function drawTab(){
               '<td class="nw muted">'+esc(t.시각)+'</td>'+
               '<td class="nw name">'+esc(t.이름)+'</td>'+
               '<td class="nw">'+교재칩(t.교재)+'</td>'+
-              '<td class="nw muted">'+esc(t.반)+'</td>'+
               '<td class="nw">'+책칩(t.단어장)+'</td>'+
               '<td class="nw muted">'+esc(t.범위)+' · '+esc(t.유형)+'</td>'+
               '<td class="num">'+점수칸(t.점수)+'</td>'+
@@ -4739,7 +4679,6 @@ function drawTab(){
 
     $('fText').onchange=function(){ T.교재필터=this.value; drawTab(); };
     $('fBook').onchange=function(){ T.필터=this.value; drawTab(); };
-    $('fClass').onchange=function(){ T.반필터=this.value; drawTab(); };
     $('fHw').onchange=function(){ T.숙제만=this.checked; drawTab(); };
     var ti;
     $('fName').oninput=function(){
@@ -4799,7 +4738,6 @@ function drawTab(){
     var 학생 = d.학생별||[];
     var 보임2 = 학생.filter(function(s){
       if(!교재맞나(s.교재)) return false;
-      if(T.반필터 && s.반!==T.반필터) return false;
       return true;
     });
 
@@ -4809,13 +4747,12 @@ function drawTab(){
         '마감이 지나도록 <b>손도 안 댄 숙제는 0점</b>으로 함께 셉니다.')+
       '<div class="tbar">'+
         '<div class="f"><label>교재</label><select id="fText2">'+교재옵션(T.교재필터)+'</select></div>'+
-        '<div class="f"><label>반</label><select id="fClass2">'+반옵션(T.반필터)+'</select></div>'+
       '</div>'+
       '<div class="cols c73">'+
         '<div>'+
         판('학생 '+보임2.length+'명', '',
           보임2.length
-          ? '<table class="tb"><thead><tr><th>이름</th><th>교재</th><th>반</th>'+
+          ? '<table class="tb"><thead><tr><th>이름</th><th>교재</th>'+
             '<th class="num">숙제</th><th class="num">0점</th><th class="num">숙제 평균</th>'+
             '<th class="num">시험</th><th class="num">시험 평균</th>'+
             '<th class="num">오답노트</th><th class="num">보충</th>'+
@@ -4823,8 +4760,7 @@ function drawTab(){
             보임2.map(function(s){
               return '<tr><td class="nw name">'+esc(s.이름)+'</td>'+
                 '<td class="nw">'+교재칩(s.교재)+'</td>'+
-                '<td class="nw muted">'+esc(s.반)+'</td>'+
-                '<td class="num">'+s.횟수+'회</td>'+
+                  '<td class="num">'+s.횟수+'회</td>'+
                 '<td class="num">'+(s.못낸
                     ? '<span class="pill fail" title="마감이 지나도록 손도 안 댄 숙제">'+s.못낸+'건</span>'
                     : '<span class="muted">-</span>')+'</td>'+
@@ -4843,18 +4779,17 @@ function drawTab(){
           '<span class="pill '+((d.미응시||[]).length?'miss':'ok')+'">'+(d.미응시||[]).length+'명</span>',
           (d.미응시||[]).length
           ? '<table class="tb"><tbody>'+(d.미응시||[]).filter(function(m){
-              return 교재맞나(m.교재) && (!T.반필터 || m.반===T.반필터);
+              return 교재맞나(m.교재);
             }).map(function(m){
               return '<tr><td class="name">'+esc(m.이름)+'</td>'+
                 '<td class="nw">'+교재칩(m.교재)+'</td>'+
-                '<td class="muted num">'+esc(m.반)+'</td></tr>';
+                '<td class="muted num">'+esc((m.학년구분==='고등')?'고등부':'초중등부')+'</td></tr>';
             }).join('')+'</tbody></table>'
           : 빈칸('모두 한 번은 했습니다. 👏'), true)+
         '</div>'+
       '</div>';
 
     $('fText2').onchange=function(){ T.교재필터=this.value; drawTab(); };
-    $('fClass2').onchange=function(){ T.반필터=this.value; drawTab(); };
   }
 
   /* ---------------- 시상 ---------------- */
@@ -4928,7 +4863,7 @@ function drawTab(){
         '성실': '내준 숙제를 빠짐없이 해내어 제출률 '+w.값+'%를 기록했습니다.',
         '발전': '지난달보다 평균을 '+w.값+'점이나 끌어올렸습니다.'
       }[x.키] || '가장 뛰어난 모습을 보였습니다.';
-      return { 상:x.이름, 이름:r.이름, 반:r.반, 문구:문구, 달:달이름(A.년월) };
+      return { 상:x.이름, 이름:r.이름, 문구:문구, 달:달이름(A.년월) };
     }
 
     function 상카드(x){
@@ -4943,7 +4878,7 @@ function drawTab(){
         '<div class="awtop"><span class="awicon">'+x.아이콘+'</span>'+
           '<b style="color:'+x.색+'">'+x.이름+'</b></div>'+
         '<div class="awname">'+esc(r.이름)+
-          ' <span class="sub" style="font-weight:700">'+esc(r.반)+'</span></div>'+
+          '</div>'+
         '<div class="awval">'+x.값글(w.값, r)+'</div>'+
         '<div class="sub mt">'+x.설명+'</div>'+
         (여럿
@@ -4997,7 +4932,7 @@ function drawTab(){
         '<span class="sub">숙제 평균이 높은 순 · 상은 숙제 평균 기준 · 시험은 따로 셉니다</span>',
         줄a.length
         ? '<table class="tb"><thead><tr>'+
-          '<th>학생</th><th>반</th>'+
+          '<th>학생</th>'+
           '<th class="num">숙제</th><th class="num">제출률</th>'+
           '<th class="num">숙제 평균</th><th class="num">시험 평균</th>'+
           '<th class="num">지난달</th>'+
@@ -5008,12 +4943,11 @@ function drawTab(){
             var 받는상=[];
             상표.forEach(function(x){
               var w=A.상?A.상[x.키]:null;
-              if(w && w.주인공.반===r.반 && w.주인공.이름===r.이름) 받는상.push(x);
+              if(w && w.주인공.이름===r.이름) 받는상.push(x);
             });
             return '<tr'+(받는상.length?' style="background:var(--primary-soft)"':'')+'>'+
               '<td class="nw name">'+esc(r.이름)+'</td>'+
-              '<td class="nw muted">'+esc(r.반)+'</td>'+
-              '<td class="num muted">'+(r.숙제수?r.낸수+' / '+r.숙제수:'-')+'</td>'+
+                '<td class="num muted">'+(r.숙제수?r.낸수+' / '+r.숙제수:'-')+'</td>'+
               '<td class="num">'+(r.제출률===null?'<span class="muted">-</span>'
                 :'<span class="sc '+(r.제출률>=100?'good':(r.제출률>=60?'mid':'bad'))+'">'+r.제출률+'%</span>')+'</td>'+
               '<td class="num">'+(r.평균===null?'<span class="muted">-</span>':점수칸(r.평균))+'</td>'+
@@ -5028,7 +4962,7 @@ function drawTab(){
               '<td class="nw">'+받는상.map(function(x){
                 return '<span class="pill" style="background:'+x.색+';color:#fff">'+x.아이콘+' '+x.이름+'</span>';
               }).join(' ')+'</td>'+
-              '<td class="w"><button class="btn line sm" data-note="'+esc(r.반+'|'+r.이름)+'"'+
+              '<td class="w"><button class="btn line sm" data-note="'+esc(r.이름)+'"'+
                 ' style="width:auto;padding:6px 11px">🖨</button></td>'+
             '</tr>';
           }).join('')+'</tbody></table>'
@@ -5053,16 +4987,16 @@ function drawTab(){
       '</div></div>';
 
     /* 학부모 안내문 */
-    function 그학생시험(반, 이름){
+    function 그학생시험(이름){
       return (T.data.시험목록||[]).filter(function(t){
-        return t.반===반 && t.이름===이름 && !t.재시험;
+        return t.이름===이름 && !t.재시험;
       });
     }
-    function 안내문(r){ return 안내문종이(r, 달이름(A.년월), 그학생시험(r.반, r.이름)); }
+    function 안내문(r){ return 안내문종이(r, 달이름(A.년월), 그학생시험(r.이름)); }
     qsa('[data-note]').forEach(function(btn){
       btn.onclick=function(){
-        var 키=btn.dataset.note.split('|');
-        var r=줄a.filter(function(x){ return x.반===키[0] && x.이름===키[1]; })[0];
+        var 키=btn.dataset.note;
+        var r=줄a.filter(function(x){ return x.이름===키; })[0];
         if(!r){ toast('학생을 찾지 못했습니다'); return; }
         인쇄하기(안내문(r));
       };
@@ -5168,24 +5102,13 @@ function drawTab(){
         '<div class="panel-b">'+
           '<div class="hwbar">'+
 
-            '<div class="ff" style="min-width:210px">'+
+            '<div class="ff" style="min-width:190px">'+
               '<label>누구에게</label>'+
               '<div class="rchips">'+
-                '<label><input type="radio" name="hwTarget" value="text" checked><span>교재로</span></label>'+
-                '<label><input type="radio" name="hwTarget" value="all"><span>반 전체</span></label>'+
+                '<label><input type="radio" name="hwTarget" value="text" checked><span>이 교재 배우는 학생</span></label>'+
                 '<label><input type="radio" name="hwTarget" value="some"><span>고른 학생</span></label>'+
               '</div>'+
             '</div>'+
-
-            '<div class="ff" id="hwTextWrap" style="width:190px"><label>교재</label>'+
-              '<select id="hwText">'+
-                ((d.단어장목록)||[]).map(function(x){return '<option>'+esc(x.이름)+'</option>';}).join('')+
-              '</select></div>'+
-
-            '<div class="ff hide" id="hwClassWrap" style="width:170px"><label>반</label>'+
-              '<select id="hwClass">'+
-                (d.반목록||[]).map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+
-              '</select></div>'+
 
             '<div class="ff" style="width:190px"><label>단어장</label>'+
               '<select id="hwBook">'+
@@ -5259,15 +5182,15 @@ function drawTab(){
         api('구독현황',T.pw).catch(function(){ return null; })
       ]).then(function(둘){
         var r=둘[0];
-        T.알림현황 = 둘[1] && 둘[1].ok ? 둘[1] : {전체:0, 켬:0, 반별:[], 안켠:[], 열쇠있나:false};
+        T.알림현황 = 둘[1] && 둘[1].ok ? 둘[1] : {전체:0, 켬:0, 안켠:[], 열쇠있나:false};
         if(r&&r.ok){ T.공지=r.공지||[]; drawTab(); }
         else { T.공지=[]; toast((r&&r.메시지)||'불러오지 못했습니다'); drawTab(); }
-      }).catch(function(){ T.공지=[]; T.알림현황={전체:0,켬:0,반별:[],안켠:[],열쇠있나:false}; drawTab(); });
+      }).catch(function(){ T.공지=[]; T.알림현황={전체:0,켬:0,안켠:[],열쇠있나:false}; drawTab(); });
       return;
     }
     var 공지들 = T.공지||[];
     var 살아있는 = 공지들.filter(function(n){ return n.켬 && !n.지남; });
-    var 현황 = T.알림현황 || {전체:0, 켬:0, 반별:[], 안켠:[], 열쇠있나:false};
+    var 현황 = T.알림현황 || {전체:0, 켬:0, 안켠:[], 열쇠있나:false};
     var 켤수있나 = !!(현황.열쇠있나 && 현황.켬);
 
     b.innerHTML =
@@ -5279,11 +5202,7 @@ function drawTab(){
         '<div>'+
         판('새 공지 적기','',
           '<div class="panel-b tform">'+
-            '<label>누구에게</label>'+
-            '<select id="ncClass">'+
-              '<option value="">학원 전체</option>'+
-              (d.반목록||[]).map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+
-            '</select>'+
+            '<div class="sub">학원 <b>모든 학생</b>에게 갑니다.</div>'+
             '<div class="mt"><label>제목</label>'+
               '<input id="ncTitle" placeholder="예: 추석 연휴 휴강 안내" maxlength="40"></div>'+
             '<div class="mt"><label>내용</label>'+
@@ -5310,15 +5229,10 @@ function drawTab(){
               ? '<div class="bigno">'+현황.켬+' <span class="sub">/ '+현황.전체+'명 켬</span></div>'+
                 '<div class="pbar"><i style="width:'+
                   (현황.전체? Math.round(현황.켬/현황.전체*100):0)+'%"></i></div>'+
-                (현황.반별||[]).map(function(c){
-                  return '<div class="prow"><span>'+esc(c.반)+'</span>'+
-                    '<b'+(c.켬<c.전체?' class="muted"':'')+'>'+c.켬+' / '+c.전체+'</b></div>';
-                }).join('')+
                 ((현황.안켠||[]).length
                   ? '<div class="mt2 sub">아직 안 켠 학생</div>'+
                     '<div class="nochips">'+(현황.안켠||[]).slice(0,40).map(function(x){
-                      return '<span class="nochip">'+esc(x.이름)+
-                        ' <span class="muted">'+esc(x.반)+'</span></span>';
+                      return '<span class="nochip">'+esc(x.이름)+'</span>';
                     }).join('')+'</div>'+
                     '<div class="sub" style="margin-top:8px">수업 때 붙잡고 앱에서 '+
                       '「알림 켜기」를 한 번 눌러 주면 됩니다.</div>'
@@ -5337,7 +5251,7 @@ function drawTab(){
         '<div>'+
         판('올린 공지 '+공지들.length+'개','',
           공지들.length
-          ? '<table class="tb"><thead><tr><th>공지</th><th>대상</th><th>언제까지</th>'+
+          ? '<table class="tb"><thead><tr><th>공지</th><th>언제까지</th>'+
             '<th class="w">　</th></tr></thead><tbody>'+
             공지들.map(function(n){
               var 뜨나 = n.켬 && !n.지남;
@@ -5346,8 +5260,6 @@ function drawTab(){
                   (n.내용?'<div class="muted" style="white-space:pre-line;margin-top:3px">'+
                     esc(n.내용.length>90?n.내용.slice(0,90)+'…':n.내용)+'</div>':'')+
                   '<div class="muted" style="margin-top:3px">'+esc(n.만든날)+' 올림</div></td>'+
-                '<td class="nw">'+(n.반?'<span class="pill hw">'+esc(n.반)+'</span>'
-                                       :'<span class="pill ok">학원 전체</span>')+'</td>'+
                 '<td class="nw muted">'+(n.끝나는날
                     ? esc(n.끝나는날)+(n.지남?' <span class="pill off">지남</span>':'')
                     : '계속')+'</td>'+
@@ -5366,17 +5278,16 @@ function drawTab(){
     $('btnNcAdd').onclick=function(){
       var 제목=$('ncTitle').value.trim(), 내용=$('ncBody').value.trim();
       if(!제목 && !내용){ toast('내용을 적어 주세요'); return; }
-      var 반 = $('ncClass').value;
       var 쏠까 = !!($('ncPush') && $('ncPush').checked && !$('ncPush').disabled);
       var btn=this; btn.disabled=true; btn.textContent='올리는 중…';
-      api('공지등록',T.pw,{반:반, 제목:제목, 내용:내용,
+      api('공지등록',T.pw,{제목:제목, 내용:내용,
                           끝나는날:$('ncUntil').value}).then(function(r){
         if(!(r&&r.ok)){ btn.disabled=false; btn.textContent='공지 올리기';
                         toast((r&&r.메시지)||'올리지 못했습니다'); return; }
         T.공지=r.공지||[];
         if(!쏠까){ toast('공지를 올렸습니다 — 학생이 앱을 열면 뜹니다'); drawTab(); return; }
         btn.textContent='알림 보내는 중…';
-        공지알림보내기(반).then(function(k){
+        공지알림보내기([]).then(function(k){
           toast(k.보냄
             ? '공지를 올리고 '+k.보냄+'명에게 알림을 보냈습니다'
             : '공지는 올렸지만 알림은 가지 않았습니다 — 켠 학생이 없습니다');
@@ -5440,8 +5351,8 @@ function drawTab(){
     var 사람 = {};
     function 담기(h, 지났나){
       (h.안한사람||[]).forEach(function(n){
-        var k=h.반+'|'+n;
-        if(!사람[k]) 사람[k]={반:h.반,이름:n,건:[],지난건:0,모자람:0,행들:[]};
+        var k=n;
+        if(!사람[k]) 사람[k]={이름:n,건:[],지난건:0,모자람:0,행들:[]};
         if(지났나){ 사람[k].지난건++; return; }
         사람[k].건.push(h);
         if((h.모자란사람||[]).indexOf(n)>-1) 사람[k].모자람++;
@@ -5457,7 +5368,7 @@ function drawTab(){
       });
     var 총명 = 0; 진행m.forEach(function(h){ 총명 += h.안한사람.length; });
     var 지난명 = {}; 지난보임.forEach(function(h){
-      (h.안한사람||[]).forEach(function(n){ 지난명[h.반+'|'+n]=1; });
+      (h.안한사람||[]).forEach(function(n){ 지난명[n]=1; });
     });
 
     function 미제출표(list, 이름표){
@@ -5483,7 +5394,7 @@ function drawTab(){
               '<div class="misslist">'+g.줄들.map(function(h){
                 var 안=h.안한사람||[], 한h=(h.한사람||[]).length;
                 var 모=h.모자란사람||[];
-                return '<div><b>'+esc(h.반)+(h.학생?' · '+esc(h.학생):'')+'</b> — '+
+                return '<div><b>'+esc(h.학생||h.단어장)+'</b> — '+
                   한h+' / '+(h.대상수||(안.length+한h))+' 냄'+
                   (안.length?' · 안 낸 학생 '+안.map(esc).join(', '):' · 다 냈어요')+
                   (모.length?' <span class="pill fail">점수 모자람: '+모.map(esc).join(', ')+'</span>':'')+
@@ -5512,7 +5423,7 @@ function drawTab(){
 
       '<div class="cols c73">'+
         '<div>'+
-        판('숙제별', '<span class="sub">같은 숙제는 한 줄로 · 묶인 줄을 누르면 반별로 펼쳐집니다</span>',
+        판('숙제별', '<span class="sub">같은 숙제는 한 줄로 · 묶인 줄을 누르면 펼쳐집니다</span>',
           진행m.length ? 미제출표(진행m,'now') : 빈칸('모두 냈습니다. 👏'), true)+
 
         (지난m.length ? 판(
@@ -5617,9 +5528,13 @@ function drawTab(){
 
     var 책들 = T.배정.단어장목록||[];
     var 전원 = T.배정.학생||[];
-    var 반들 = [];
-    전원.forEach(function(x){ if(반들.indexOf(x.반)<0) 반들.push(x.반); });
-    if(T.배정반 && 반들.indexOf(T.배정반)<0) T.배정반='';
+    function 학년글(x){ return (x.학년구분==='고등') ? '고등부' : '초중등부'; }
+    var 학년들 = [];
+    전원.forEach(function(x){
+      var g = 학년글(x);
+      if(학년들.indexOf(g)<0) 학년들.push(g);
+    });
+    if(T.배정반 && 학년들.indexOf(T.배정반)<0) T.배정반='';
 
     if(!책들.length){
       b.innerHTML = 머리('단어장 배정','') + 빈칸('단어장을 먼저 만들어 주세요.');
@@ -5634,7 +5549,7 @@ function drawTab(){
     function 고침(행, v){ T.배정변경[행] = v; }
 
     var 보임 = 전원.filter(function(x){
-      if(T.배정반 && x.반!==T.배정반) return false;
+      if(T.배정반 && 학년글(x)!==T.배정반) return false;
       if(T.배정찾기 && x.이름.toLowerCase().indexOf(T.배정찾기.toLowerCase())<0) return false;
       return true;
     });
@@ -5657,7 +5572,7 @@ function drawTab(){
         (뽑힘?';background:var(--primary-soft)':'')+'">'+
         '<td><span class="name">'+esc(st.이름)+'</span>'+
           '<span class="pill hw gmark"'+(바뀜?'':' style="visibility:hidden"')+'>바뀜</span>'+
-          '<div class="muted">'+esc(st.반)+'</div></td>'+
+          '<div class="muted">'+esc(학년글(st))+'</div></td>'+
         '<td class="num gsum">'+요약(st)+'</td></tr>';
     }
 
@@ -5668,7 +5583,7 @@ function drawTab(){
       return '<div class="panel-b">'+
         '<div class="row" style="justify-content:space-between;align-items:baseline">'+
           '<div style="font-size:17px;font-weight:900">'+esc(st.이름)+
-            ' <span class="sub" style="font-weight:700">'+esc(st.반)+'</span></div>'+
+            ' <span class="sub" style="font-weight:700">'+esc(학년글(st))+'</span></div>'+
           (T.배정변경[st.행]?'<span class="pill hw">저장 안 됨</span>':'')+
         '</div>'+
         '<label class="gbig mt2"><input type="checkbox" id="gAllOne"'+(c.전부?' checked':'')+'>'+
@@ -5705,13 +5620,14 @@ function drawTab(){
             '<button class="btn sm" id="btnGiveSave" style="width:auto;padding:9px 18px;margin:0;border-radius:9px">저장</button>'
           : '<span class="sub" style="padding-bottom:9px">바꾼 내용 없음</span>')+'</span>')+
 
-      판('반에 한꺼번에 주기',
-        '<span class="sub">먼저 반으로 깔고, 다른 아이 몇 명만 하나씩 고치세요</span>',
+      판('한꺼번에 주기',
+        '<span class="sub">먼저 한꺼번에 깔고, 다른 아이 몇 명만 하나씩 고치세요</span>',
         '<div class="panel-b">'+
           '<div class="tbar" style="margin:0">'+
-            '<div class="f"><label>어느 반에</label><select id="gBulkClass">'+
-              반들.map(function(c){
-                return '<option'+((T.배정반||반들[0])===c?' selected':'')+'>'+esc(c)+'</option>';
+            '<div class="f"><label>누구에게</label><select id="gBulkClass">'+
+              '<option value="">지금 보이는 '+보임.length+'명</option>'+
+              학년들.map(function(c){
+                return '<option'+(T.배정반===c?' selected':'')+'>'+esc(c)+'</option>';
               }).join('')+
             '</select></div>'+
             '<div class="grow"><label>어떤 단어장을</label>'+
@@ -5727,7 +5643,7 @@ function drawTab(){
               '</div></div>'+
           '</div>'+
           '<div class="row mt" style="gap:10px">'+
-            '<button class="btn sm" id="btnBulk" style="width:auto;padding:10px 20px;margin:0">이 반 전체에 적용</button>'+
+            '<button class="btn sm" id="btnBulk" style="width:auto;padding:10px 20px;margin:0">한꺼번에 적용</button>'+
             '<span class="sub" id="gBulkMsg"></span>'+
           '</div>'+
         '</div>')+
@@ -5738,9 +5654,9 @@ function drawTab(){
           '<span class="sub">누르면 오른쪽에서 고칩니다</span>',
           '<div class="panel-b" style="padding-bottom:6px">'+
             '<div class="tbar" style="margin:0">'+
-              '<div class="f"><label>반</label><select id="gClass">'+
-                '<option value="">전체 반</option>'+
-                반들.map(function(c){
+              '<div class="f"><label>학년</label><select id="gClass">'+
+                '<option value="">전체</option>'+
+                학년들.map(function(c){
                   return '<option'+(T.배정반===c?' selected':'')+'>'+esc(c)+'</option>';
                 }).join('')+
               '</select></div>'+
@@ -5854,15 +5770,15 @@ function drawTab(){
     };
 
     $('btnBulk').onclick=function(){
-      var 반=$('gBulkClass').value;
+      var 골라 = $('gBulkClass').value;
       var 전부 = $('gBulkAll').checked;
       var 고른책 = qsa('.gBulkBook').filter(function(x){return x.checked;}).map(function(x){return x.value;});
       if(!전부 && !고른책.length){ toast('단어장을 고르거나 “전부 보기로”를 켜 주세요'); return; }
-      var 대상 = 전원.filter(function(st){ return st.반===반; });
-      if(!대상.length){ toast('그 반에 학생이 없습니다'); return; }
-      if(!confirm('“'+반+'” '+대상.length+'명을 '+
+      var 대상 = 골라 ? 전원.filter(function(st){ return 학년글(st)===골라; }) : 보임.slice();
+      if(!대상.length){ toast('해당하는 학생이 없습니다'); return; }
+      if(!confirm((골라||'지금 보이는')+' 학생 '+대상.length+'명을 '+
         (전부 ? '전부 보기로 바꿉니다.' : 고른책.join(', ')+' 만 보이도록 바꿉니다.')+
-        '\n지금 그 반 아이들의 배정은 덮어써집니다. 계속할까요?')) return;
+        '\n그 아이들의 지금 배정은 덮어써집니다. 계속할까요?')) return;
       대상.forEach(function(st){
         고침(st.행, 전부 ? { 전부:true, 단어장:상태(st).단어장 }
                         : { 전부:false, 단어장:고른책.slice() });
@@ -6238,13 +6154,15 @@ function drawTab(){
     }
 
     var 전체명단 = T.명단||[];
-    var 반목록 = [];
-    전체명단.forEach(function(x){ if(반목록.indexOf(x.반)<0) 반목록.push(x.반); });
-    (d.반목록||[]).forEach(function(c){ if(반목록.indexOf(c)<0) 반목록.push(c); });
+    function 학년글s(x){ return (x.학년구분==='고등') ? '고등부' : '초중등부'; }
+    var 학년목록 = [];
+    전체명단.forEach(function(x){
+      var g=학년글s(x); if(학년목록.indexOf(g)<0) 학년목록.push(g);
+    });
 
     var 보임s = 전체명단.filter(function(x){
       if(T.명단교재 && !교재맞나(x.교재, T.명단교재)) return false;
-      if(T.명단반 && x.반!==T.명단반) return false;
+      if(T.명단반 && 학년글s(x)!==T.명단반) return false;
       if(T.명단찾기){
         var q=T.명단찾기.toLowerCase();
         if(x.이름.toLowerCase().indexOf(q)<0 && x.학교.toLowerCase().indexOf(q)<0) return false;
@@ -6252,21 +6170,10 @@ function drawTab(){
       return true;
     });
 
-    function 반고르개(id, 지금){
-      return '<select class="'+id+'">'+
-        반목록.map(function(c){
-          return '<option'+(지금===c?' selected':'')+'>'+esc(c)+'</option>';
-        }).join('')+
-        '<option value="__new__">+ 새 반 만들기</option>'+
-      '</select>';
-    }
-
     function 수정줄s(st){
       return '<tr class="stediting"><td colspan="9" style="padding:0">'+
         '<div class="hwedit">'+
           '<div class="row wrap" style="gap:10px;align-items:flex-end">'+
-            '<div style="min-width:150px"><label>반</label>'+반고르개('sBan', st.반)+
-              '<div class="sNewWrap hide mt"><input class="sNew" placeholder="새 반 이름"></div></div>'+
             '<div style="min-width:120px"><label>이름</label>'+
               '<input class="sName" value="'+esc(st.이름)+'"></div>'+
             '<div style="width:100px"><label>학년</label>'+
@@ -6297,7 +6204,8 @@ function drawTab(){
                 : '<span class="sub">아직 단어장이 없습니다.</span>')+
             '</div>'+
           '</div>'+
-          '<div class="sub mt">반이나 이름을 바꾸면 <b>이미 쌓인 시험 기록·숙제·점수의 이름도 같이</b> 바뀝니다.</div>'+
+          '<div class="sub mt">이름을 바꾸면 <b>이미 쌓인 시험 기록·숙제·점수의 이름도 같이</b> 바뀝니다. '+
+            '이름으로 로그인하니 <b>같은 이름은 둘 수 없습니다.</b></div>'+
         '</div></td></tr>';
     }
 
@@ -6308,7 +6216,6 @@ function drawTab(){
         '<td class="w"><input type="checkbox" class="stPick" data-row="'+st.행+'"'+
           (T.명단선택[st.행]?' checked':'')+'></td>'+
         '<td class="nw">'+교재칩(st.교재)+'</td>'+
-        '<td class="nw muted">'+esc(st.반)+'</td>'+
         '<td class="nw name">'+esc(st.이름)+'</td>'+
         '<td class="nw">'+(st.학년?esc(st.학년):'<span class="muted">-</span>')+'</td>'+
         '<td class="nw">'+(st.학교?esc(st.학교):'<span class="muted">-</span>')+'</td>'+
@@ -6321,7 +6228,7 @@ function drawTab(){
 
     b.innerHTML =
       머리('학생 명단', '<b>교재</b>로 묶어 봅니다 · 줄 끝 <b>수정</b> 을 누르면 그 자리에서 고칩니다',
-        '<span class="sub">'+전체명단.length+'명 · '+반목록.length+'개 반</span>')+
+        '<span class="sub">'+전체명단.length+'명</span>')+
 
       '<div class="cols c73">'+
         '<div>'+
@@ -6335,10 +6242,9 @@ function drawTab(){
             }).join('')+
             '<option value="(없음)"'+(T.명단교재==='(없음)'?' selected':'')+'>교재 없음</option>'+
           '</select></div>'+
-          '<div class="f"><label>반</label><select id="stFClass">'+
-            '<option value="">전체 반</option>'+
-            반목록.map(function(c){
-              var n=전체명단.filter(function(x){return x.반===c;}).length;
+          '<div class="f"><label>학년</label><select id="stFClass">'+
+            '<option value="">전체</option>'+
+            학년목록.map(function(c){
               return '<option'+(T.명단반===c?' selected':'')+'>'+esc(c)+'</option>';
             }).join('')+
           '</select></div>'+
@@ -6382,37 +6288,16 @@ function drawTab(){
           보임s.length
           ? '<table class="tb"><thead><tr>'+
             '<th class="w"><input type="checkbox" id="stPickAll"></th>'+
-            '<th>교재</th><th>반</th><th>이름</th><th>학년</th><th>학교</th><th>학생 화면</th>'+
+            '<th>교재</th><th>이름</th><th>학년</th><th>학교</th><th>학생 화면</th>'+
             '<th>비밀번호</th><th class="w">　</th></tr></thead><tbody>'+
             보임s.map(줄s).join('')+'</tbody></table>'
           : 빈칸('해당하는 학생이 없습니다.'), true)+
         '</div>'+
 
         '<div>'+
-        판('반 관리','<span class="sub">이름을 바꾸면 그 반 전원이 한 번에 옮겨집니다</span>',
-          반목록.length
-          ? '<table class="tb"><thead><tr><th>반</th><th class="w">　</th></tr></thead><tbody>'+
-            반목록.map(function(c){
-              var n=전체명단.filter(function(x){return x.반===c;}).length;
-              var h=((T.data&&T.data.숙제목록)||[]).filter(function(x){return x.반===c;}).length;
-              return '<tr><td><span class="name">'+esc(c)+'</span>'+
-                '<div class="muted">학생 '+n+'명 · 숙제 '+h+'건</div></td>'+
-                '<td class="nw w" style="text-align:right">'+
-                '<button class="btn line sm" style="width:auto;padding:5px 9px;margin:0" '+
-                  'data-cren="'+esc(c)+'">이름</button> '+
-                '<button class="btn line sm" style="width:auto;padding:5px 9px;margin:0;color:var(--ng)" '+
-                  'data-cdel="'+esc(c)+'">삭제</button></td></tr>';
-            }).join('')+'</tbody></table>'
-          : 빈칸('아직 반이 없습니다.'))+
         판('명단 넣기','',
           '<div class="panel-b tform">'+
           '<div class="sub mb">한 줄에 한 명. 이름 뒤에 비밀번호를 적으면 그 번호로 들어갑니다. (예: 홍길동 1234)</div>'+
-          '<label>반</label>'+
-          '<select id="stClass">'+
-            반목록.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+
-            '<option value="__new__">+ 새 반 만들기</option>'+
-          '</select>'+
-          '<div id="stNewWrap" class="mt hide"><input id="stNew" placeholder="새 반 이름 (예: 중2 A반)"></div>'+
           '<div class="miniform mt">'+
             '<div><label>학년</label><input id="stGrade" placeholder="중2"></div>'+
             '<div><label>학교</label><input id="stSchool" placeholder="인왕중"></div>'+
@@ -6427,7 +6312,7 @@ function drawTab(){
         '<div class="panel"><div class="panel-b sub" style="line-height:1.7">'+
           '<b>학년</b>과 <b>학교</b>는 기록용입니다. 학생 화면 모양은 <b>학생 화면</b> 칸이 정해요 '+
           '(초중등은 말랑한 화면, 고등은 담백한 화면).<br>'+
-          '<b>반 이름 바꾸기</b>는 이미 있는 반 이름으로 바꾸면 <b>두 반이 합쳐집니다.</b><br>'+
+          '아이는 <b>이름과 비밀번호</b>만으로 들어옵니다. 그래서 <b>같은 이름은 둘 수 없습니다.</b><br>'+
           '학생 한 명만 지우는 것은 스프레드시트 <b>학생</b> 시트에서 그 줄을 삭제하세요.'+
         '</div></div>'+
         '</div>'+
@@ -6505,26 +6390,14 @@ function drawTab(){
     qsa('[data-scancel]').forEach(function(x){
       x.onclick=function(){ T.학생수정=null; drawTab(); };
     });
-    qsa('.stediting').forEach(function(box){
-      var sel=box.querySelector('.sBan');
-      var wrap=box.querySelector('.sNewWrap');
-      sel.onchange=function(){
-        var 새=this.value==='__new__';
-        wrap.classList.toggle('hide',!새);
-        if(새) setTimeout(function(){ try{box.querySelector('.sNew').focus();}catch(e){} },30);
-      };
-    });
     qsa('[data-ssave]').forEach(function(btn){
       btn.onclick=function(){
         var box=btn.closest('.stediting');
-        var sel=box.querySelector('.sBan');
-        var 반 = sel.value==='__new__' ? box.querySelector('.sNew').value.trim() : sel.value;
         var 이름 = box.querySelector('.sName').value.trim();
-        if(!반){ toast('반 이름을 적어 주세요'); return; }
         if(!이름){ toast('이름을 적어 주세요'); return; }
         btn.disabled=true; btn.textContent='저장 중…';
         api('학생수정',T.pw,Number(btn.dataset.ssave),{
-          반:반, 이름:이름,
+          이름:이름,
           학년: box.querySelector('.sGrade').value.trim(),
           학교: box.querySelector('.sSchool').value.trim(),
           비밀번호: box.querySelector('.sPw').value.trim(),
@@ -6544,73 +6417,15 @@ function drawTab(){
       };
     });
 
-    /* --- 반 관리 --- */
-    qsa('[data-cren]').forEach(function(x){
-      x.onclick=function(){
-        var 옛=x.dataset.cren;
-        var 새=prompt('“'+옛+'” 을 어떤 이름으로 바꿀까요?\n\n'+
-          '이미 있는 반 이름을 적으면 두 반이 합쳐집니다.', 옛);
-        if(새===null) return;
-        새=새.trim();
-        if(!새 || 새===옛) return;
-        api('반이름변경',T.pw,옛,새).then(function(r){
-          if(r&&r.ok){
-            toast(r.합침 ? '“'+새+'” 에 '+r.인원+'명을 합쳤습니다'
-                         : r.인원+'명을 “'+새+'” 으로 옮겼습니다');
-            T.명단=null; T.배정=null; T.명단반=''; loadTeacher();
-          } else toast((r&&r.메시지)||'바꾸지 못했습니다');
-        }).catch(function(e){ toast(String((e&&(e.message||e))||'바꾸지 못했습니다')); });
-      };
-    });
-    qsa('[data-cdel]').forEach(function(x){
-      x.onclick=function(){
-        var 반=x.dataset.cdel;
-        var 인원=전체명단.filter(function(y){return y.반===반;}).length;
-        var 남은반=반목록.filter(function(c){return c!==반;});
-        var 옮길='';
-        if(인원 && 남은반.length){
-          var 답=prompt('“'+반+'” 학생 '+인원+'명을 어떻게 할까요?\n\n'+
-            '· 옮길 반 이름을 적으면 그리로 옮깁니다\n'+
-            '   (' + 남은반.join(', ') + ')\n'+
-            '· 그냥 비우고 확인을 누르면 학생을 지웁니다', 남은반[0]);
-          if(답===null) return;
-          옮길=답.trim();
-          if(옮길 && 남은반.indexOf(옮길)<0){ toast('“'+옮길+'” 이라는 반이 없습니다'); return; }
-        }
-        if(!옮길){
-          if(!confirm('“'+반+'” 을 지웁니다.\n'+
-            '학생 '+인원+'명과 이 반에 낸 숙제가 사라집니다.\n'+
-            '(이미 본 시험 기록은 그대로 남습니다)\n\n되돌릴 수 없습니다. 계속할까요?')) return;
-        }
-        api('반삭제',T.pw,반,옮길).then(function(r){
-          if(r&&r.ok){
-            toast(옮길 ? r.인원+'명을 “'+옮길+'” 으로 옮겼습니다'
-                       : '학생 '+r.지운학생+'명, 숙제 '+r.지운숙제+'건을 지웠습니다');
-            T.명단=null; T.배정=null; T.명단반=''; loadTeacher();
-          } else toast((r&&r.메시지)||'지우지 못했습니다');
-        }).catch(function(e){ toast(String((e&&(e.message||e))||'지우지 못했습니다')); });
-      };
-    });
-
     /* --- 명단 넣기 --- */
-    if(!반목록.length){
-      $('stClass').value='__new__';
-      $('stNewWrap').classList.remove('hide');
-    }
-    $('stClass').onchange=function(){
-      var 새=this.value==='__new__';
-      $('stNewWrap').classList.toggle('hide',!새);
-      if(새) setTimeout(function(){ try{$('stNew').focus();}catch(e){} },30);
-    };
     $('btnSt').onclick=function(){
-      var 반 = $('stClass').value==='__new__' ? $('stNew').value.trim() : $('stClass').value;
-      if(!반){ toast('반 이름을 적어 주세요'); return; }
       if(!$('stText').value.trim()){ toast('이름을 적어 주세요'); return; }
-      api('학생붙여넣기',T.pw,반,$('stText').value,$('stPw').value,$('stLv').value,
+      api('학생붙여넣기',T.pw,$('stText').value,$('stPw').value,$('stLv').value,
           $('stGrade').value.trim(),$('stSchool').value.trim()).then(function(r){
         if(r.ok){
-          toast('"'+반+'"에 '+r.개수+'명을 넣었습니다');
-          $('stText').value=''; $('stNew').value='';
+          toast(r.개수+'명을 넣었습니다'+
+            ((r.겹침&&r.겹침.length)?' (이미 있는 이름은 건너뜀: '+r.겹침.join(', ')+')':''));
+          $('stText').value='';
           T.명단=null; T.배정=null;
           loadTeacher();
         }
@@ -6655,8 +6470,8 @@ function 숙제표(list){
     var 종류지금 = (h.종류==='보충'||h.종류==='기한'||h.종류==='시험') ? h.종류 : '당일';
     return '<tr class="hwediting"><td colspan="8" style="padding:0">'+
       '<div class="hwedit">'+
-        '<div class="sub mb">'+esc(h.반)+' · '+(h.학생?esc(h.학생)+' 학생':'반 전체')+
-          ' — 반·대상은 못 바꿉니다. 바꾸려면 지우고 새로 내세요</div>'+
+        '<div class="sub mb">'+(h.학생?esc(h.학생)+' 학생':esc(h.단어장)+' 배우는 학생 전원')+
+          ' — 대상은 못 바꿉니다. 바꾸려면 지우고 새로 내세요</div>'+
         '<div class="row wrap" style="gap:10px;align-items:flex-end">'+
           '<div style="min-width:190px"><label>단어장</label><select class="eBook">'+
             책들.map(function(x){
@@ -6705,8 +6520,10 @@ function 숙제표(list){
         ' onclick="event.stopPropagation()"></td>'+
       '<td class="nw">'+종류칩(h.종류)+'</td>'+
       '<td class="nw">'+책칩(h.단어장)+' <span class="muted">'+h.시작+'~'+h.끝+'번</span></td>'+
-      '<td class="nw muted">'+esc(h.반)+
-        (h.학생?' <span class="pill hw">'+esc(h.학생)+'</span>':'')+'</td>'+
+      '<td class="nw muted">'+(h.학생
+        ? '<span class="pill hw">'+esc(h.학생)+'</span>'
+        : '<span class="pill ok">교재 전원</span>')+
+        ' <span class="muted">'+(h.대상수||0)+'명</span></td>'+
       '<td class="nw muted">'+esc(h.유형)+'</td>'+
       '<td class="nw muted">'+(h.종류==='기한'||h.종류==='시험'
         ? esc(h.마감일||'기한 없음') : '오늘까지')+'</td>'+
@@ -6740,7 +6557,7 @@ function 숙제표(list){
 
   var 묶음 = 숙제묶기(list);
   return '<table class="tb"><thead><tr>'+
-    '<th class="w">　</th><th>종류</th><th>단어장 / 범위</th><th>반 / 대상</th>'+
+    '<th class="w">　</th><th>종류</th><th>단어장 / 범위</th><th>대상</th>'+
     '<th>유형</th><th>마감</th><th>제출</th><th class="w">　</th></tr></thead><tbody>'+
     묶음.map(function(g,i){
       return g.줄들.length > 1 ? 묶음줄(g,i) : 줄(g.줄들[0]);
@@ -6751,14 +6568,13 @@ function 숙제표(list){
 var 숙제레슨다시 = null;
 function 숙제손잡이(d){
   function 학생칸그리기(){
-    var 반=$('hwClass').value;
-    var 명단=(d.반별학생||{})[반]||[];
+    var 명단=(d.학생목록)||[];
     $('hwStuWrap').innerHTML = 명단.length
       ? '<div class="row wrap" style="gap:8px 14px">'+명단.map(function(n){
           return '<label style="margin:0;font-size:13px;font-weight:700;color:var(--text)">'+
             '<input type="checkbox" class="hwStu" value="'+esc(n)+'">'+esc(n)+'</label>';
         }).join('')+'</div>'
-      : '<div class="sub">이 반에 등록된 학생이 없습니다.</div>';
+      : '<div class="sub">아직 등록된 학생이 없습니다.</div>';
   }
   function 대상값(){
     var r=document.querySelector('input[name=hwTarget]:checked');
@@ -6782,9 +6598,15 @@ function 숙제손잡이(d){
   /* 교재를 고르면 몇 명에게 나가는지 미리 보여 준다 */
   var 교재세기시계=null;
   function 교재대상보기(){
-    var 교재=$('hwText').value;
+    var 교재=$('hwBook')?$('hwBook').value:'';
     var 칸=$('hwTextWho');
-    if(!교재){ 칸.innerHTML='<span class="muted">교재를 골라 주세요</span>'; return; }
+    if(대상값()!=='text'){
+      var 고름=qsa('.hwStu:checked').length;
+      칸.innerHTML = 고름 ? '<b>'+고름+'명</b>에게 나갑니다'
+                          : '<span class="muted">받을 학생을 골라 주세요</span>';
+      return;
+    }
+    if(!교재){ 칸.innerHTML='<span class="muted">단어장을 골라 주세요</span>'; return; }
     칸.textContent='세는 중…';
     clearTimeout(교재세기시계);
     교재세기시계=setTimeout(function(){
@@ -6796,20 +6618,20 @@ function 숙제손잡이(d){
           return;
         }
         칸.innerHTML='<b>'+r.인원+'명</b>에게 나갑니다 · '+
-          r.반.map(function(x){
-            return esc(x.반)+' '+x.학생.length+'명'+(x.전원?' <span class="pill ok">반 전체</span>':'');
-          }).join(' · ');
+          (r.학생||[]).slice(0,12).map(esc).join(', ')+
+          ((r.학생||[]).length>12 ? ' 외 '+((r.학생||[]).length-12)+'명' : '');
       }).catch(function(){ 칸.innerHTML='<span style="color:var(--ng)">세지 못했습니다</span>'; });
     },120);
   }
   qsa('input[name=hwTarget]').forEach(function(r){
     r.onchange=function(){
       var v = 대상값();
-      $('hwTextWrap').classList.toggle('hide', v!=='text');
-      $('hwClassWrap').classList.toggle('hide', v==='text');
       $('hwStuWrap').classList.toggle('hide', v!=='some');
-      if(v==='some') 학생칸그리기();
-      if(v==='text') 교재대상보기();
+      if(v==='some'){
+        학생칸그리기();
+        qsa('.hwStu').forEach(function(c){ c.onchange=교재대상보기; });
+      }
+      교재대상보기();
     };
   });
   /* ---- 레슨 고르개 ---- */
@@ -6863,6 +6685,7 @@ function 숙제손잡이(d){
     $('hwFrom').value=1;
     $('hwTo').value=Math.min(i.묶음, i.총||i.묶음)||i.묶음;
     숙제레슨그리기();
+    교재대상보기();
   };
   if($('btnHwHand')) $('btnHwHand').onclick=function(){
     var 열림 = $('hwHand').classList.toggle('hide') === false;
@@ -6879,36 +6702,34 @@ function 숙제손잡이(d){
   }
   지난숙제손잡이((d && d.숙제목록) || []);
 
-  $('hwText').onchange=교재대상보기;
   교재대상보기();
-  $('hwClass').onchange=function(){ if(대상값()==='some') 학생칸그리기(); };
 
   $('btnHwAdd').onclick=function(){
     var 종 = 종류값();
     if((종==='기한'||종==='시험') && !$('hwDue').value){
       toast(종==='시험'?'시험 날짜를 골라 주세요':'마감일을 골라 주세요'); return;
     }
+    var 책 = $('hwBook').value;
+    if(!책){ toast('단어장을 골라 주세요'); return; }
     var 대상 = 대상값();
     var 학생들=[];
     if(대상==='some'){
       학생들=qsa('.hwStu').filter(function(x){return x.checked;}).map(function(x){return x.value;});
       if(!학생들.length){ toast('학생을 골라 주세요'); return; }
     }
-    var 교재 = (대상==='text') ? $('hwText').value : '';
-    if(대상==='text' && !교재){ toast('교재를 골라 주세요'); return; }
 
     api('숙제등록',T.pw,{
-      반:$('hwClass').value, 단어장:$('hwBook').value,
+      단어장:책,
       시작:$('hwFrom').value, 끝:$('hwTo').value,
       유형:$('hwType').value, 마감일:$('hwDue').value,
-      종류:종류값(), 학생들:학생들, 교재:교재
+      종류:종류값(), 학생들:학생들
     }).then(function(r){
-      if(r.ok){
-        toast(교재 ? '“'+교재+'” 배우는 학생에게 냈습니다 ('+r.개수+'건)'
-          : (학생들.length? 학생들.length+'명에게 냈습니다' : '반 전체에 냈습니다'));
-        T.data.숙제목록=r.숙제목록; 사이드배지(); drawTab();
-      }
-    });
+      if(!r.ok){ toast(r.메시지||'내지 못했습니다'); return; }
+      toast(학생들.length
+        ? 학생들.length+'명에게 냈습니다'
+        : '“'+책+'” 배우는 '+(r.대상||0)+'명에게 냈습니다');
+      T.data.숙제목록=r.숙제목록; 사이드배지(); drawTab();
+    }).catch(function(){ toast('내지 못했습니다'); });
   };
   if($('btnOldHw')) $('btnOldHw').onclick=function(){ T.지난숙제=!T.지난숙제; drawTab(); };
 
@@ -6944,7 +6765,7 @@ function 숙제손잡이(d){
       버튼갱신();
     };
   });
-  /* 묶인 줄을 누르면 반별로 펼친다 */
+  /* 묶인 줄을 누르면 하나씩 펼친다 */
   qsa('#tBody [data-mg]').forEach(function(tr){
     tr.onclick=function(){
       T.펼친묶음 = (T.펼친묶음===tr.dataset.mg) ? null : tr.dataset.mg;
