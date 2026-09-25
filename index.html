@@ -1324,7 +1324,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-25a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-25b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -4266,9 +4266,8 @@ function 알림열쇠만들기(){
     });
 }
 /* 표(JWT) 하나 만들기 — 어느 알림 서버에 보낼지에 따라 달라진다 */
-function 알림표_(비밀키글, 주소){
+function 알림표_(비밀키글, 집){
   var jwk = JSON.parse(비밀키글);
-  var 집 = new URL(주소).origin;
   var 머리 = b64url_(new TextEncoder().encode(JSON.stringify({typ:'JWT', alg:'ES256'})));
   var 속 = b64url_(new TextEncoder().encode(JSON.stringify({
     aud: 집,
@@ -4286,7 +4285,8 @@ function 알림표_(비밀키글, 주소){
 /* 어디가 잘못됐는지 사람 말로 */
 function 알림탈_(상태, 글){
   if(상태===201||상태===200||상태===202) return {ok:true, 말:'보냄'};
-  if(상태===0)   return {ok:false, 말:'브라우저가 막음 (CORS)', 고칠것:'cors'};
+  if(상태===0)   return {ok:false, 말:'보내지 못함 · ' + String(글||'').slice(0,50),
+                         고칠것:'서버'};
   if(상태===400) return {ok:false, 말:'400 · 보낸 모양이 틀림'};
   if(상태===401||상태===403) return {ok:false, 말:상태+' · 열쇠가 안 맞음', 고칠것:'열쇠'};
   if(상태===404||상태===410) return {ok:false, 말:상태+' · 그 휴대폰 구독이 끝남', 죽음:true};
@@ -4294,45 +4294,43 @@ function 알림탈_(상태, 글){
   if(상태===429) return {ok:false, 말:'429 · 너무 자주 보냄'};
   return {ok:false, 말:상태+(글?' · '+String(글).slice(0,60):'')};
 }
-/* 고른 사람들에게 알림을 쏜다 → {보냄, 실패, 죽은주소[], 줄[]} */
+/* 고른 사람들에게 알림을 쏜다 → {보냄, 실패, 죽은주소[], 줄[]}
+   표(JWT)는 여기서 만들고, 실제로 보내는 일은 앱스 스크립트가 한다.
+   브라우저에서 알림 서버로 바로 보내면 CORS 로 막히기 때문이다. */
 function 알림쏘기(구독들, 열쇠){
-  var 보냄=0, 실패=0, 죽음=[], 줄=[];
-  var 차례 = 구독들.map(function(sub){
-    return function(){
-      return 알림표_(열쇠.비밀키, sub.주소).then(function(표){
-        return fetch(sub.주소, {
-          method:'POST',
-          headers:{
-            'TTL':'86400',
-            'Authorization':'vapid t='+표+', k='+열쇠.공개키
-          }
-        });
-      }).then(function(r){
-        return r.text().catch(function(){return '';}).then(function(글){
-          return { 상태:r.status, 글:글 };
-        });
-      }).then(function(v){
+  /* 표는 '알림 서버 주소(origin)' 마다 하나면 된다 — 한 번만 만들어 돌려 쓴다 */
+  var 집들 = {};
+  구독들.forEach(function(sub){
+    try { 집들[new URL(sub.주소).origin] = 1; } catch(e){}
+  });
+  var 이름들 = Object.keys(집들);
+  if(!이름들.length) return Promise.resolve({보냄:0, 실패:0, 죽은주소:[], 줄:[]});
+
+  return Promise.all(이름들.map(function(집){
+    return 알림표_(열쇠.비밀키, 집).then(function(표){ return {집:집, 표:표}; });
+  })).then(function(표들){
+    var 표맵 = {};
+    표들.forEach(function(x){ 표맵[x.집] = x.표; });
+
+    var 보낼것 = [], 짝 = [];
+    구독들.forEach(function(sub){
+      var 집 = '';
+      try { 집 = new URL(sub.주소).origin; } catch(e){ return; }
+      보낼것.push({ 주소:sub.주소, 표:표맵[집], 공개키:열쇠.공개키 });
+      짝.push(sub);
+    });
+
+    return api('푸시전송', T.pw, 보낼것).then(function(r){
+      var 답 = (r && r.줄) || [];
+      var 보냄=0, 실패=0, 죽음=[], 줄=[];
+      답.forEach(function(v, i){
+        var sub = 짝[i] || {};
         var t = 알림탈_(v.상태, v.글);
         if(t.ok) 보냄++; else { 실패++; if(t.죽음) 죽음.push(sub.주소); }
         줄.push({ 이름:sub.이름, 기기:짧은기기_(sub.기기), ok:t.ok, 말:t.말, 고칠것:t.고칠것 });
-      }).catch(function(e){
-        /* fetch 자체가 안 된 것 — 거의 브라우저가 막은 경우다 */
-        실패++;
-        var 막힘 = (e && e.name==='TypeError');
-        줄.push({ 이름:sub.이름, 기기:짧은기기_(sub.기기), ok:false,
-                  말: 막힘 ? '브라우저가 막음 (CORS)' : String((e&&e.message)||e).slice(0,60),
-                  고칠것: 막힘 ? 'cors' : '' });
       });
-    };
-  });
-  /* 한 번에 6개씩 — 너무 몰아치지 않게 */
-  function 한줄(i){
-    if(i>=차례.length) return Promise.resolve();
-    return Promise.all(차례.slice(i,i+6).map(function(f){return f();}))
-      .then(function(){ return 한줄(i+6); });
-  }
-  return 한줄(0).then(function(){
-    return {보냄:보냄, 실패:실패, 죽은주소:죽음, 줄:줄};
+      return {보냄:보냄, 실패:실패, 죽은주소:죽음, 줄:줄};
+    });
   });
 }
 /* 기기 글을 짧게 — 아이폰 / 안드로이드 / 컴퓨터 */
@@ -4376,7 +4374,7 @@ function 알림결과글_(k){
     return '<div class="plog warn"><b>보낼 곳이 없습니다</b>'+
       '<div>알림을 켠 학생이 아직 없습니다. 아이 휴대폰에서 <b>「켜기」</b> 를 먼저 눌러야 합니다.</div></div>';
   }
-  var 막힘 = 줄.filter(function(x){ return x.고칠것==='cors'; }).length;
+  var 막힘 = 줄.filter(function(x){ return x.고칠것==='서버'; }).length;
   var 열쇠 = 줄.filter(function(x){ return x.고칠것==='열쇠'; }).length;
   var 머리 = k.보냄
     ? '<div class="plog good"><b>'+k.보냄+'명에게 보냈습니다</b>'+
@@ -4385,10 +4383,10 @@ function 알림결과글_(k){
     : '<div class="plog bad"><b>한 명도 못 갔습니다</b><div>아래에 이유가 있습니다.</div></div>';
 
   var 도움 = '';
-  if(막힘) 도움 += '<div class="plog bad"><b>브라우저가 막았습니다 (CORS)</b>'+
-    '<div>선생님 화면(브라우저)에서 알림 서버로 바로 보내는 길이 막힌 것입니다. '+
-    '이건 아이들 문제가 아니라 <b>보내는 쪽 구조 문제</b>라 고쳐야 합니다. '+
-    '이 글을 그대로 알려 주세요.</div></div>';
+  if(막힘) 도움 += '<div class="plog bad"><b>보내는 데서 막혔습니다</b>'+
+    '<div>앱스 스크립트가 알림 서버로 보내다가 걸렸습니다. '+
+    '<b>Code.gs 를 최신 것으로 바꾸고 다시 배포</b>하셨는지 확인해 주세요. '+
+    '그래도 같으면 위 글을 그대로 알려 주세요.</div></div>';
   if(열쇠) 도움 += '<div class="plog bad"><b>열쇠가 안 맞습니다</b>'+
     '<div>아이들이 <b>지금 열쇠가 아닌 예전 열쇠</b>로 켜 두었습니다. '+
     '아이들이 앱에서 알림을 껐다 다시 켜야 합니다.</div></div>';
