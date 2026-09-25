@@ -1324,7 +1324,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-25d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-25e';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3098,14 +3098,55 @@ function b64로_(buf){
 /* 일꾼을 등록하고 지금 상태를 알아 둔다 */
 function 알림채비_(){
   if(!('serviceWorker' in navigator)) { 알림.지금='안됨'; return Promise.resolve(); }
+  var 일꾼 = null;
   return navigator.serviceWorker.register('sw.js')
-    .then(function(r){ 알림.일꾼=r; return r.pushManager.getSubscription(); })
+    .then(function(r){ 알림.일꾼=r; 일꾼=r; return r.pushManager.getSubscription(); })
+    .then(function(sub){
+      /* 선생님이 열쇠를 새로 만들었으면, 예전 열쇠로 켜 둔 것은 안 먹는다.
+         아이에게 다시 켜라고 하지 말고 앱이 알아서 맞춘다. */
+      if(!sub) return null;
+      return api('푸시공개키').then(function(k){
+        알림.공개키 = String(k||'');
+        if(!알림.공개키 || 열쇠같나_(sub, 알림.공개키)) return sub;
+        return 열쇠다시맞추기_(일꾼, sub);
+      }).catch(function(){ return sub; });
+    })
     .then(function(sub){
       알림.됨 = !!sub;
       알림.지금 = sub ? '켬' : (Notification.permission==='denied' ? '막힘' : '끔');
       내정보보내기_();
     })
     .catch(function(){ 알림.지금='안됨'; });
+}
+/* 켜 둔 구독이 지금 열쇠로 만든 것인가 — 글자가 아니라 바이트로 견준다 */
+function 열쇠같나_(sub, 공개키){
+  try {
+    var k = sub && sub.options && sub.options.applicationServerKey;
+    if(!k) return true;                       // 알 수 없으면 건드리지 않는다
+    var A = new Uint8Array(k);
+    var B = b64키_(String(공개키));
+    if(A.length !== B.length) return false;
+    for(var i=0;i<A.length;i++) if(A[i] !== B[i]) return false;
+    return true;
+  } catch(e){ return true; }
+}
+/* 예전 열쇠로 켜 둔 것을 지금 열쇠로 조용히 바꿔 준다 */
+function 열쇠다시맞추기_(일꾼, 예전){
+  var 옛주소 = 예전.endpoint;
+  return 예전.unsubscribe().catch(function(){}).then(function(){
+    return 일꾼.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey: b64키_(알림.공개키)
+    });
+  }).then(function(새것){
+    var j = 새것.toJSON();
+    api('구독해제', 옛주소).catch(function(){});
+    return api('구독등록', S.학생 ? S.학생.이름 : '', {
+      주소: 새것.endpoint,
+      p256dh: (j.keys&&j.keys.p256dh)||'',
+      auth: (j.keys&&j.keys.auth)||''
+    }, navigator.userAgent.slice(0,80)).then(function(){ return 새것; });
+  }).catch(function(){ return null; });       // 실패하면 꺼진 것으로 두고 다시 켜게 한다
 }
 /* 일꾼이 알림을 받았을 때 무엇을 물어볼지 적어 둔다 */
 function 내정보보내기_(){
@@ -4265,6 +4306,13 @@ function 알림열쇠만들기(){
       return api('푸시열쇠저장', T.pw, b64url_(둘[0]), JSON.stringify(둘[1]));
     });
 }
+/* 알림 서버에 알려 줄 '보내는 곳' — http(s) 주소여야 한다 */
+function 알림연락처_(){
+  try {
+    if(/^https?:$/.test(location.protocol)) return location.origin + location.pathname;
+  } catch(e){}
+  return 'mailto:teacher@example.com';
+}
 /* 표(JWT) 하나 만들기 — 어느 알림 서버에 보낼지에 따라 달라진다 */
 function 알림표_(비밀키글, 집){
   var jwk = JSON.parse(비밀키글);
@@ -4272,7 +4320,7 @@ function 알림표_(비밀키글, 집){
   var 속 = b64url_(new TextEncoder().encode(JSON.stringify({
     aud: 집,
     exp: Math.floor(Date.now()/1000) + 60*60*11,
-    sub: 'mailto:teacher@haebeop.local'
+    sub: 알림연락처_()
   })));
   var 몸 = 머리+'.'+속;
   return crypto.subtle.importKey('jwk', jwk, {name:'ECDSA', namedCurve:'P-256'}, false, ['sign'])
@@ -4403,9 +4451,12 @@ function 알림결과글_(k){
     '먼저 스프레드시트 메뉴 <b>해법 영단어 → 알림 보낼 권한 확인</b> 을 한 번 눌러 보세요.</div></div>';
   if(원문) 도움 += '<div class="plog warn"><b>서버가 남긴 말 (그대로 알려 주세요)</b>'+
     '<div style="word-break:break-all;font-weight:500">'+esc(원문)+'</div></div>';
-  if(열쇠) 도움 += '<div class="plog bad"><b>열쇠가 안 맞습니다</b>'+
-    '<div>아이들이 <b>지금 열쇠가 아닌 예전 열쇠</b>로 켜 두었습니다. '+
-    '아이들이 앱에서 알림을 껐다 다시 켜야 합니다.</div></div>';
+  if(열쇠) 도움 += '<div class="plog warn"><b>열쇠가 안 맞습니다 — 곧 저절로 풀립니다</b>'+
+    '<div><b>「알림 다시 준비하기」</b> 를 누르면 열쇠가 새로 만들어져서, '+
+    '그 전에 켜 둔 아이들 것이 한 번 안 맞게 됩니다.<br>'+
+    '이제는 <b>아이가 앱을 다시 열기만 하면 앱이 알아서 새 열쇠로 맞춥니다.</b> '+
+    '아이들에게 껐다 켜라고 하실 필요 없습니다.<br>'+
+    '아이들이 앱을 한 번씩 연 뒤에 다시 시험해 보세요.</div></div>';
 
   return 머리 + 도움 +
     '<table class="tb" style="margin-top:10px"><tbody>'+
@@ -5357,8 +5408,9 @@ function drawTab(){
                 '<div id="pushLog"></div>'+
                 '<div class="mt2"></div>'+
                 '<button class="btn line" id="btnPushKey">알림 다시 준비하기</button>'+
-                '<div class="sub" style="margin-top:6px">다시 준비하면 지금 켠 학생들이 '+
-                  '모두 다시 켜야 합니다 — 웬만하면 누르지 마세요.</div>'
+                '<div class="sub" style="margin-top:6px">다시 준비하면 열쇠가 새로 만들어집니다. '+
+                  '켠 학생들은 <b>앱을 다시 열 때 앱이 알아서 맞춰 주지만</b>, '+
+                  '그전까지는 알림이 안 갑니다 — 웬만하면 누르지 마세요.</div>'
               : '<div class="sub">한 번만 준비해 두면, 그 뒤로는 공지를 올릴 때 '+
                   '학생 휴대폰으로도 알림을 보낼 수 있습니다.</div>'+
                 '<div class="mt2"></div>'+
