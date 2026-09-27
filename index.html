@@ -50,6 +50,28 @@
 .qtable .qx{width:34px;padding:0 0 3px 10px;text-align:right}
 .qtable .qx i{display:inline-block;width:22px;height:22px;border:1px solid #AAA;border-radius:4px;
   background:#fff;vertical-align:bottom}
+/* 불규칙 동사 3단변화 전용 시험지 — 원형을 주고 과거·과거분사를 쓰게 한다 */
+.vtable{width:100%;border-collapse:collapse;margin-top:6px;table-layout:fixed}
+.vtable td{padding:0;border:0;vertical-align:bottom}
+.vtable tr{height:30px}
+.vtable tr.vhead{height:26px}
+.vtable tr.vhead td{font-size:10.5px;font-weight:800;color:#555;letter-spacing:.5px;
+  padding:0 0 4px 6px;border-bottom:1.5px solid #333 !important;vertical-align:bottom}
+.vtable tr.vhead td.qn{padding-left:0}
+.vtable .qn{width:26px;font-size:12px;color:#333;font-weight:800;text-align:right;padding:0 8px 4px 0}
+.vtable .vk{width:20%;font-size:12.5px;font-weight:600;padding:0 10px 4px 0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vtable .v1{width:18%;font-size:13.5px;font-weight:700;padding:0 10px 4px 6px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 두 빈칸 사이를 벌려 놓는다 — 붙어 있으면 한 줄로 보인다 */
+.vtable .vsp{width:4%}
+.vtable .vb{width:24%;border-bottom:1.2px solid #8A8A8A}
+.vtable .vb.ans{border-bottom:1px solid #D5D5D5;font-size:13.5px;font-weight:700;
+  padding:0 0 4px 6px;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vtable tr.dim td{background:#F4F4F4}
+.vtable .qx{width:34px;padding:0 0 4px 10px;text-align:right}
+.vtable .qx i{display:inline-block;width:20px;height:20px;border:1px solid #AAA;border-radius:4px;
+  background:#fff;vertical-align:bottom}
 .pfoot{margin-top:12px;font-size:10.5px;color:#888;display:flex;justify-content:space-between}
 /* 학부모 안내문 */
 .pto{font-size:14.5px;font-weight:800;margin:12px 0 2px}
@@ -1324,7 +1346,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-25e';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-27a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2517,6 +2539,54 @@ function 시험지종이(낱말들, 옵션, 정답){
         옵션.범위글 + (쪽.length>1 ? '   ·   '+(k+1)+' / '+쪽.length+'쪽' : ''),
         칸, 정답 ? '' : '뜻을 보고 영어 단어를 쓰세요. 오른쪽 네모는 채점 칸입니다.')+
       '<table class="qtable">'+줄들+'</table>'+
+      '<div class="pfoot"><span>'+esc(학원이름_())+'</span>'+
+        '<span>'+(쪽.length>1 ? (k+1)+' / '+쪽.length+'쪽 · ' : '')+오늘값()+'</span></div>');
+  }).join('');
+}
+
+/* "go - went - gone" 을 원형·과거·과거분사 세 칸으로 나눈다.
+   "be - was/were - been" 처럼 빗금이 들어 있어도 그대로 한 칸에 둔다. */
+function 삼단쪼개기_(en){
+  var 조각 = String(en||'').split(/\s*[\-\u2013\u2014]\s*/)
+    .map(function(x){ return x.trim(); }).filter(String);
+  if(조각.length >= 3) return [조각[0], 조각[1], 조각.slice(2).join(' - ')];
+  if(조각.length === 2) return [조각[0], 조각[1], ''];
+  return [조각[0] || '', '', ''];
+}
+
+/* 불규칙 동사 전용 시험지 — 원형을 주고 과거·과거분사를 쓴다. 한 쪽에 25문제. */
+var 불규칙한쪽 = 25;
+function 불규칙시험지종이(낱말들, 옵션, 정답){
+  var 쪽=[];
+  for(var i=0;i<낱말들.length;i+=불규칙한쪽) 쪽.push(낱말들.slice(i,i+불규칙한쪽));
+  if(!쪽.length) return '';
+  return 쪽.map(function(묶음, k){
+    var 머리줄 = '<tr class="vhead">'+
+      '<td class="qn"></td><td class="vk">뜻</td><td class="v1">원형</td>'+
+      '<td class="vb">과거</td><td class="vsp"></td><td class="vb">과거분사</td>'+
+      (정답?'':'<td class="qx"></td>')+'</tr>';
+    var 줄들 = 묶음.map(function(w,i){
+      var 셋 = 삼단쪼개기_(w.en);
+      return '<tr'+(i%2?' class="dim"':'')+'>'+
+        '<td class="qn">'+(k*불규칙한쪽+i+1)+'</td>'+
+        '<td class="vk">'+esc(w.ko)+'</td>'+
+        '<td class="v1">'+esc(셋[0])+'</td>'+
+        '<td class="vb'+(정답?' ans':'')+'">'+(정답?esc(셋[1]):'')+'</td>'+
+        '<td class="vsp"></td>'+
+        '<td class="vb'+(정답?' ans':'')+'">'+(정답?esc(셋[2]):'')+'</td>'+
+        (정답?'':'<td class="qx"><i></i></td>')+'</tr>';
+    }).join('');
+    /* 점수는 시험 전체 문항 수로 매긴다 — 쪽마다 나누면 한 시험이 둘이 돼 버린다 */
+    var 칸 = 정답
+      ? '<span><i>선생님용</i>정답지</span>'+
+        '<span><i>문항</i>모두 '+낱말들.length+'문제'+
+          (쪽.length>1 ? ' <small style="color:#777">(이 쪽 '+묶음.length+'문제)</small>' : '')+'</span>'
+      : '<span><i>이름</i>________________________</span>';
+    return 종이_(
+      종이머리_((정답?'[정답지] ':'')+옵션.제목,
+        옵션.범위글 + (쪽.length>1 ? '   ·   '+(k+1)+' / '+쪽.length+'쪽' : ''),
+        칸, 정답 ? '' : '원형을 보고 과거형과 과거분사를 쓰세요. 오른쪽 네모는 채점 칸입니다.')+
+      '<table class="vtable">'+머리줄+줄들+'</table>'+
       '<div class="pfoot"><span>'+esc(학원이름_())+'</span>'+
         '<span>'+(쪽.length>1 ? (k+1)+' / '+쪽.length+'쪽 · ' : '')+오늘값()+'</span></div>');
   }).join('');
@@ -6148,7 +6218,7 @@ function drawTab(){
     }
 
     b.innerHTML =
-      머리('시험지 뽑기', '레슨을 고르고 인쇄하면 A4 종이 시험지가 나옵니다 · 한 장에 20문제')+
+      머리('시험지 뽑기', '레슨을 고르고 인쇄하면 A4 종이 시험지가 나옵니다')+
       '<div class="cols c37">'+
         '<div>'+
         판('무엇을 뽑을까요','',
@@ -6178,8 +6248,7 @@ function drawTab(){
                 '<label style="margin:0;font-size:13px;font-weight:700;color:var(--text)">'+
                   '<input type="radio" name="ppOrder" value="섞기"'+(T.종이.순서==='섞기'?' checked':'')+'>섞어서</label>'+
               '</div>'+
-              '<div class="sub" style="margin-top:5px">뜻을 보고 영어를 쓰는 시험지입니다. '+
-                '정답지는 따로 뽑습니다.</div></div>'+
+              '<div class="sub" id="ppKind" style="margin-top:5px;line-height:1.75"></div></div>'+
             '<div class="mt2"></div>'+
             '<button class="btn" id="btnPpPrint">🖨 시험지 인쇄</button>'+
             '<div class="mt"></div>'+
@@ -6220,14 +6289,27 @@ function drawTab(){
         var 채움 = document.createElement('button');
         채움.className='foldbtn';
         채움.id='btnPpFill';
-        채움.textContent='＋ 여기서부터 한 장 채우기 (40문제)';
+        채움.textContent='＋ 여기서부터 한 장 채우기 ('+(쪽당()*2)+'문제)';
         w.appendChild(채움);
         채움.onclick=function(){
           var i2=책정보p();
-          T.종이.끝 = Math.min(i2.총, Number(T.종이.시작) + 39);
+          T.종이.끝 = Math.min(i2.총, Number(T.종이.시작) + 쪽당()*2 - 1);
           $('ppFrom').value=T.종이.시작; $('ppTo').value=T.종이.끝;
           미리보기p();
         };
+      }
+      /* 「3단변화」 단어장이면 불규칙 동사 전용 시험지로 자동으로 바뀐다 */
+      function 삼단책(){
+        var 됨=false;
+        (d.단어장목록||[]).forEach(function(x){
+          if(x.이름===T.종이.책 && String(x.종류||'')==='3단변화') 됨=true;
+        });
+        return 됨;
+      }
+      function 쪽당(){ return 삼단책() ? 불규칙한쪽 : 20; }
+      function 종이만들기(낱, 정답){
+        return 삼단책() ? 불규칙시험지종이(낱, 종이설정(), 정답)
+                        : 시험지종이(낱, 종이설정(), 정답);
       }
       function 낱말p(){
         var 말=T.책단어[T.종이.책];
@@ -6243,7 +6325,12 @@ function drawTab(){
         if(e) e.textContent = 말 ? 첫끝말(말, T.종이.시작, T.종이.끝) : '';
         if(!말){ $('ppPrev').innerHTML='<div class="sub">단어를 불러오는 중…</div>'; return; }
         var 낱=낱말p()||[];
-        var 쪽수 = Math.max(1, Math.ceil(낱.length/20));
+        var 안내e = $('ppKind');
+        if(안내e) 안내e.innerHTML = 삼단책()
+          ? '<b>불규칙 동사 전용 시험지</b>입니다. 원형을 주고 <b>과거·과거분사</b>를 쓰게 합니다.'+
+            '<br>한 쪽에 '+불규칙한쪽+'문제 · 정답지는 따로 뽑습니다.'
+          : '뜻을 보고 영어를 쓰는 시험지입니다.<br>한 쪽에 20문제 · 정답지는 따로 뽑습니다.';
+        var 쪽수 = Math.max(1, Math.ceil(낱.length/쪽당()));
         var 양면 = T.종이.양면 !== false;
         var 장수 = 양면 ? Math.ceil(쪽수/2) : 쪽수;
         $('ppCnt').textContent = 낱.length+'문제 · '+쪽수+'쪽 · 종이 '+장수+'장'+(양면?' (양면)':'');
@@ -6252,7 +6339,7 @@ function drawTab(){
           $('ppPrev').innerHTML='<div class="sub">고른 범위에 단어가 없습니다.</div>';
           return;
         }
-        $('ppPrev').innerHTML = 시험지종이(낱, 종이설정());
+        $('ppPrev').innerHTML = 종이만들기(낱);
       }
       function 종이설정(){
         return {
@@ -6298,12 +6385,12 @@ function drawTab(){
       $('btnPpPrint').onclick=function(){
         var 낱=낱말p();
         if(!낱 || !낱.length){ toast('뽑을 단어가 없습니다'); return; }
-        인쇄하기(시험지종이(낱, 종이설정()), T.종이.양면!==false);
+        인쇄하기(종이만들기(낱), T.종이.양면!==false);
       };
       $('btnPpAns').onclick=function(){
         var 낱=낱말p();
         if(!낱 || !낱.length){ toast('뽑을 단어가 없습니다'); return; }
-        인쇄하기(시험지종이(낱, 종이설정(), true), T.종이.양면!==false);
+        인쇄하기(종이만들기(낱, true), T.종이.양면!==false);
       };
       단어챙기기(미리보기p);
     })();
