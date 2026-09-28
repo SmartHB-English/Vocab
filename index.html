@@ -758,6 +758,24 @@ body.hastab #app{padding-bottom:96px}
 html[data-theme="high"] .tabbar{box-shadow:0 -4px 16px rgba(0,0,0,.28)}
 @media print{ .tabbar{display:none!important} }
 
+/* ===================== 태블릿 가로 =====================
+   짧은 쪽이 600px 을 넘고 가로로 누웠을 때만 넓혀 쓴다.
+   휴대폰 가로(짧은 쪽 ~400px)는 걸리지 않는다.
+   선생님 화면(body.desk)은 원래 넓게 쓰므로 건드리지 않는다. */
+@media (orientation:landscape) and (min-height:600px) and (min-width:900px){
+  body:not(.desk) #app{max-width:860px}
+
+  /* 시험지는 두 줄로 — 한 화면에 훨씬 많이 보인다 */
+  body:not(.desk) #shList{
+    display:grid;grid-template-columns:1fr 1fr;gap:0 14px;align-items:start
+  }
+  body:not(.desk) .sheetbar .inner{max-width:860px}
+
+  /* 한 문제씩 푸는 화면은 글씨를 키워 멀리서도 보이게 */
+  body:not(.desk) .qcard{min-height:230px;padding:34px 22px}
+  body:not(.desk) .vrow label{flex-basis:90px;font-size:14px}
+}
+
 /* ===== 홈 머리 ===== */
 .hhead{display:flex;align-items:center;gap:2px;padding:4px 2px 12px}
 .hwho{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -1346,7 +1364,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-27a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-28b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -1883,6 +1901,42 @@ function 오늘값(){
   return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
 }
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+/* 화면 방향 —
+   설치할 때 manifest 의 orientation 이 기기에 굳어 버린다. 그래서 manifest 만 고쳐서는
+   이미 깔아 둔 아이들 화면이 안 돌아간다. 다시 깔지 않아도 되도록 앱이 열릴 때마다
+   코드로 다시 정해 준다.
+     태블릿(짧은 쪽 600px 이상) → 아무 방향이나 (lock('any'))
+     휴대폰                      → 세로로 잠근다
+   설치형이 아니거나 이 기능이 없는 기기(아이폰)에서는 조용히 넘어간다. */
+function 태블릿인가_(){
+  try{ return Math.min(screen.width || 0, screen.height || 0) >= 600; }
+  catch(e){ return false; }
+}
+function 방향정하기_(){
+  var o;
+  try{ o = screen.orientation; }catch(e){ return; }
+  if(!o || typeof o.lock !== 'function') return;
+  var 원하는 = 태블릿인가_() ? 'any' : 'portrait';
+  try{
+    var p = o.lock(원하는);
+    if(p && p.catch) p.catch(function(){
+      /* lock('any') 를 안 받아 주는 기기는 잠금을 푸는 쪽으로 한 번 더 */
+      if(원하는 !== 'any') return;
+      try{ if(typeof o.unlock === 'function') o.unlock(); }catch(e){}
+    });
+  }catch(e){
+    if(원하는 !== 'any') return;
+    try{ if(typeof o.unlock === 'function') o.unlock(); }catch(e2){}
+  }
+}
+try{ 방향정하기_(); }catch(e){}
+/* 태블릿을 세워 두었다가 눕히는 경우가 있어, 화면을 다시 볼 때 한 번 더 정한다 */
+try{
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden) 방향정하기_();
+  });
+}catch(e){}
+
 function setTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   try{localStorage.setItem('hb_theme',t);}catch(e){}
