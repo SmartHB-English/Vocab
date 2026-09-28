@@ -1367,7 +1367,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-28c';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-28d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -1941,11 +1941,72 @@ function 방향정하기_(){
     풀기();
   }
 }
+/* 설치형(홈 화면 아이콘)으로 열었는지 */
+function 설치형인가_(){
+  try{
+    return matchMedia('(display-mode: standalone)').matches
+        || matchMedia('(display-mode: fullscreen)').matches
+        || matchMedia('(display-mode: minimal-ui)').matches
+        || navigator.standalone === true;
+  }catch(e){ return false; }
+}
+function 전체화면인가_(){
+  try{ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  catch(e){ return false; }
+}
+
+/* 크롬은 설치형 앱에서 「전체화면일 때만」 방향을 바꾸게 해 준다
+   (SecurityError: The page needs to be fullscreen ...).
+   그래서 태블릿이면 첫 터치에 전체화면으로 들어간 뒤 가로를 푼다.
+   전체화면에 들어가려면 반드시 사람이 화면을 건드린 순간이어야 한다. */
+function 가로풀기_(){
+  if(!태블릿인가_() || !설치형인가_()) return;
+  if(전체화면인가_()){ 방향정하기_(); return; }
+  var el = document.documentElement;
+  var 부르기 = el.requestFullscreen || el.webkitRequestFullscreen;
+  if(!부르기){ 적기_('전체화면 기능 없음'); return; }
+  try{
+    var p = 부르기.call(el, { navigationUI:'hide' });
+    if(p && p.then) p.then(function(){ 적기_('전체화면 들어감'); 방향정하기_(); },
+      function(e){ 적기_('전체화면 거절: '+(e && (e.name+' / '+e.message))); });
+    else { 적기_('전체화면 불렀음'); setTimeout(방향정하기_, 250); }
+  }catch(e){ 적기_('전체화면 터짐: '+(e && (e.name+' / '+e.message))); }
+}
+
+/* 사람이 처음 화면을 건드릴 때 한 번 시도한다 */
+var 가로채비중_ = false;
+function 가로채비_(){
+  if(가로채비중_) return;
+  if(!태블릿인가_() || !설치형인가_()) return;
+  가로채비중_ = true;
+  function 한번(){
+    가로채비중_ = false;
+    document.removeEventListener('pointerdown', 한번, true);
+    document.removeEventListener('touchend', 한번, true);
+    document.removeEventListener('click', 한번, true);
+    가로풀기_();
+  }
+  document.addEventListener('pointerdown', 한번, true);
+  document.addEventListener('touchend', 한번, true);
+  document.addEventListener('click', 한번, true);
+}
+
 try{ 방향정하기_(); }catch(e){}
+try{ 가로채비_(); }catch(e){}
+
 /* 태블릿을 세워 두었다가 눕히는 경우가 있어, 화면을 다시 볼 때 한 번 더 정한다 */
 try{
   document.addEventListener('visibilitychange', function(){
-    if(!document.hidden) 방향정하기_();
+    if(document.hidden) return;
+    방향정하기_();
+    가로채비_();                       // 전체화면에서 빠져나와 있으면 다시 채비
+  });
+}catch(e){}
+/* 아이가 위에서 쓸어내려 전체화면을 빠져나오면, 다음 터치에 다시 들어가게 해 둔다 */
+try{
+  document.addEventListener('fullscreenchange', function(){
+    if(전체화면인가_()) 방향정하기_();
+    else 가로채비_();
   });
 }catch(e){}
 
@@ -1964,6 +2025,11 @@ function 진단열기_(){
        matchMedia('(display-mode: minimal-ui)').matches ? '예(minimal-ui)' : '아니오(브라우저)'));
   }catch(e){ 넣기('설치형인가', '모름'); }
   try{ 넣기('아이폰용 standalone', String(navigator.standalone)); }catch(e){}
+  넣기('전체화면인가', 전체화면인가_() ? '예' : '아니오');
+  try{
+    var el = document.documentElement;
+    넣기('전체화면 기능', (el.requestFullscreen || el.webkitRequestFullscreen) ? '있음' : '없음');
+  }catch(e){}
   try{ 넣기('기기 화면', screen.width+' x '+screen.height+'  (짧은 쪽 '+
     Math.min(screen.width,screen.height)+')'); }catch(e){}
   try{ 넣기('창 크기', window.innerWidth+' x '+window.innerHeight); }catch(e){}
