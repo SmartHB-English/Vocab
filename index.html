@@ -1367,7 +1367,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-28d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-28e';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -1968,27 +1968,33 @@ function 가로풀기_(){
   try{
     var p = 부르기.call(el, { navigationUI:'hide' });
     if(p && p.then) p.then(function(){ 적기_('전체화면 들어감'); 방향정하기_(); },
-      function(e){ 적기_('전체화면 거절: '+(e && (e.name+' / '+e.message))); });
+      function(e){
+        적기_('전체화면 거절: '+(e && (e.name+' / '+e.message)));
+        setTimeout(가로채비_, 400);       // 같은 손가락질에 두 번 부르지 않게 쉬었다가
+      });
     else { 적기_('전체화면 불렀음'); setTimeout(방향정하기_, 250); }
-  }catch(e){ 적기_('전체화면 터짐: '+(e && (e.name+' / '+e.message))); }
+  }catch(e){
+    적기_('전체화면 터짐: '+(e && (e.name+' / '+e.message)));
+    setTimeout(가로채비_, 400);
+  }
 }
 
-/* 사람이 처음 화면을 건드릴 때 한 번 시도한다 */
+/* 사람이 처음 화면을 건드릴 때 한 번 시도한다.
+   손을 「대는」 순간(pointerdown·touchstart)에는 브라우저가 아직 권한을 안 준다
+   (TypeError: Permissions check failed). 손을 「떼는」 순간에 불러야 한다. */
+var 가로문_ = ['click', 'touchend', 'pointerup'];
 var 가로채비중_ = false;
 function 가로채비_(){
   if(가로채비중_) return;
   if(!태블릿인가_() || !설치형인가_()) return;
+  if(전체화면인가_()) return;
   가로채비중_ = true;
   function 한번(){
     가로채비중_ = false;
-    document.removeEventListener('pointerdown', 한번, true);
-    document.removeEventListener('touchend', 한번, true);
-    document.removeEventListener('click', 한번, true);
+    가로문_.forEach(function(k){ document.removeEventListener(k, 한번, true); });
     가로풀기_();
   }
-  document.addEventListener('pointerdown', 한번, true);
-  document.addEventListener('touchend', 한번, true);
-  document.addEventListener('click', 한번, true);
+  가로문_.forEach(function(k){ document.addEventListener(k, 한번, true); });
 }
 
 try{ 방향정하기_(); }catch(e){}
