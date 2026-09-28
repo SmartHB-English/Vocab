@@ -361,6 +361,7 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .vrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .vrow label{flex:0 0 74px;margin:0;font-size:13px;text-align:right;color:var(--sub)}
 .vin{flex:1;font-size:19px;font-weight:700;padding:13px;text-align:center}
+.vin.need{border-color:var(--warn)}
 .vin.ok{border-color:var(--ok);color:var(--ok)}
 .vin.ng{border-color:var(--ng);color:var(--ng)}
 .vmark{flex:0 0 22px;font-size:19px;font-weight:900;text-align:center}
@@ -1346,7 +1347,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-27a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-28a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -4015,9 +4016,11 @@ function renderVerb(){
   qsa('.vans').forEach(function(x){ x.remove(); });
   V_ID.forEach(function(id,i){
     var el=$(id); el.value=''; el.className='vin';
+    el.readOnly=false;
     var mk=$('vMark'+i); mk.textContent=''; mk.className='vmark';
   });
   $('vMsg').textContent='';
+  $('vMsg').style.color='';
   $('vSubmit').textContent='확인';
   $('vProg').textContent=(S.idx+1)+' / '+S.문제.length;
   $('vBar').style.width=(S.idx/S.문제.length*100)+'%';
@@ -4056,19 +4059,53 @@ function judgeVerb(){
     beep('ok'); 반짝('⭐');
   }
   S.v상태='feedback';
+  /* 칸을 잠가 자판을 닫는다. 이래야 「완료」를 연달아 눌러 단어가 훅훅 넘어가지 않는다 */
+  V_ID.forEach(function(id){
+    var el=$(id); el.readOnly=true; el.classList.remove('need');
+  });
+  try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
   $('vSubmit').textContent = (S.idx+1>=S.문제.length) ? '결과 보기' : '다음 문제';
 }
 
+/* 아직 안 쓴 칸을 찾는다. 정답이 없는 칸(자료가 두 개뿐인 동사)은 안 따진다. */
+function 안쓴칸_(){
+  var w = S.문제[S.idx];
+  if(!w) return [];
+  var f = 세형태(w.en), 정답들 = [f.원형, f.과거, f.분사], 빈것 = [];
+  V_ID.forEach(function(id, i){
+    if(!정답들[i]) return;                                   // 이 칸은 답이 없다
+    if(!String(($(id).value)||'').trim()) 빈것.push(i);
+  });
+  return 빈것;
+}
+
+/* 확인을 누르면 세 칸을 다 썼는지 먼저 본다 */
+function 확인해보기_(){
+  var 빈것 = 안쓴칸_();
+  V_ID.forEach(function(id){ $(id).classList.remove('need'); });
+  if(!빈것.length){ judgeVerb(); return; }
+  빈것.forEach(function(i){ $(V_ID[i]).classList.add('need'); });
+  var 말 = (빈것.length === 1)
+    ? V_이름[빈것[0]] + ' 을(를) 아직 안 썼어요'
+    : '아직 ' + 빈것.length + '칸이 비어 있어요';
+  $('vMsg').textContent = 말 + ' — 다 써야 넘어가요';
+  $('vMsg').style.color = 'var(--warn)';
+  beep('ng');
+  try{ $(V_ID[빈것[0]]).focus(); }catch(e){}
+}
+
 function verbNext(){
-  if(S.v상태==='input'){ judgeVerb(); }
+  if(S.v상태==='input'){ 확인해보기_(); }
   else { S.idx++; renderVerb(); }
 }
 $('vSubmit').onclick=verbNext;
 V_ID.forEach(function(id,i){
+  $(id).addEventListener('input',function(){ this.classList.remove('need'); });
   $(id).addEventListener('keydown',function(e){
     if(e.key!=='Enter') return;
     e.preventDefault();
-    if(S.v상태==='feedback'){ verbNext(); return; }
+    /* 채점이 끝난 뒤엔 자판으로 넘어가지 못한다 — 「다음 문제」를 눌러야 한다 */
+    if(S.v상태==='feedback') return;
     if(i<2){ try{$(V_ID[i+1]).focus();}catch(err){} }
     else verbNext();
   });
