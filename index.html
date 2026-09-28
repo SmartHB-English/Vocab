@@ -168,6 +168,11 @@ button{font-family:inherit;cursor:pointer;border:0}
   box-shadow:0 4px 0 var(--primary-d); transition:transform .06s, box-shadow .06s;
 }
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--primary-d)}
+/* 3단변화 시험 — 「확인」과 「다음 문제」를 다른 자리에 둔다.
+   같은 자리면 아이가 톡톡 두 번 눌러 단어를 건너뛴다.
+   「확인」은 사라져도 자리를 차지한 채 숨어야 「다음 문제」가 위로 올라오지 않는다. */
+#vSubmit.gone{visibility:hidden}
+#vNext{margin-top:26px}
 .btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:none}
 .btn.ghost:active{transform:none;background:var(--primary-soft)}
 .btn.accent{background:var(--accent);box-shadow:0 4px 0 rgba(0,0,0,.18)}
@@ -1219,6 +1224,7 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
     <div class="ansline center" id="vMsg"></div>
     <div class="mt"></div>
     <button class="btn" id="vSubmit">확인</button>
+    <button class="btn hide" id="vNext">다음 문제</button>
   </section>
 
   <!-- ========================= 결과 ========================= -->
@@ -1347,7 +1353,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-28a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-28b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -4022,6 +4028,8 @@ function renderVerb(){
   $('vMsg').textContent='';
   $('vMsg').style.color='';
   $('vSubmit').textContent='확인';
+  $('vSubmit').classList.remove('gone');
+  $('vNext').classList.add('hide');
   $('vProg').textContent=(S.idx+1)+' / '+S.문제.length;
   $('vBar').style.width=(S.idx/S.문제.length*100)+'%';
   S.v상태='input';
@@ -4064,7 +4072,9 @@ function judgeVerb(){
     var el=$(id); el.readOnly=true; el.classList.remove('need');
   });
   try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
-  $('vSubmit').textContent = (S.idx+1>=S.문제.length) ? '결과 보기' : '다음 문제';
+  $('vSubmit').classList.add('gone');
+  $('vNext').textContent = (S.idx+1>=S.문제.length) ? '결과 보기' : '다음 문제';
+  $('vNext').classList.remove('hide');
 }
 
 /* 아직 안 쓴 칸을 찾는다. 정답이 없는 칸(자료가 두 개뿐인 동사)은 안 따진다. */
@@ -4098,7 +4108,8 @@ function verbNext(){
   if(S.v상태==='input'){ 확인해보기_(); }
   else { S.idx++; renderVerb(); }
 }
-$('vSubmit').onclick=verbNext;
+$('vSubmit').onclick=function(){ if(S.v상태==='input') 확인해보기_(); };
+$('vNext').onclick=function(){ if(S.v상태==='feedback'){ S.idx++; renderVerb(); } };
 V_ID.forEach(function(id,i){
   $(id).addEventListener('input',function(){ this.classList.remove('need'); });
   $(id).addEventListener('keydown',function(e){
