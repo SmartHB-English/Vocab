@@ -119,11 +119,11 @@
 }
 /* 초중등 : 밝고 말랑 */
 html[data-theme="kid"]{
-  --bg:#FFF3E2; --bg2:#FFE3C2;
-  --card:#FFFFFF; --line:#F2E2CE;
-  --text:#3A2A1B; --sub:#9A8570;
-  --primary:#FF7A3D; --primary-d:#E85F22; --primary-soft:#FFEADF;
-  --accent:#3B7DFF; --accent-soft:#E7F0FF;
+  --bg:#F4F5F7; --bg2:#F4F5F7;
+  --card:#FFFFFF; --line:#E3E6EB;
+  --text:#15181E; --sub:#6B7280;
+  --primary:#E8651A; --primary-d:#C2410C; --primary-soft:#FFF1E4;
+  --accent:#2F6FE0; --accent-soft:#E7EEFC; --ok:#15803D;
   --qsize:42px; --btn:19px; --radius:26px;
 }
 /* 고등 : 담백하고 진지 */
@@ -138,8 +138,7 @@ html[data-theme="high"]{
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%}
 body{
-  background:linear-gradient(170deg,var(--bg),var(--bg2));
-  background-attachment:fixed;
+  background:var(--bg);
   color:var(--text); font-family:var(--font);
   font-size:16px; line-height:1.5;
   -webkit-font-smoothing:antialiased;
@@ -966,6 +965,224 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
 .smode i{font-style:normal;font-size:11px;font-weight:600;color:var(--sub)}
 .demo{background:var(--warn);color:#fff;padding:7px 12px;border-radius:10px;font-size:12px;font-weight:700;margin-bottom:10px}
 .foot{text-align:center;color:var(--sub);font-size:11px;margin-top:22px}
+
+/* ===================== 재디자인 1b (2026-09-29c) ===================== */
+.btn{min-height:56px;padding:15px 16px;border-radius:16px;font-size:18px;font-weight:800;
+  box-shadow:none;transition:transform .06s,background .1s}
+.btn:active{transform:scale(.985);box-shadow:none;background:var(--primary-d)}
+.btn.ghost:active{background:var(--line)}
+.btn.sm{min-height:44px;font-size:15px;border-radius:12px}
+.btn.line{border-radius:12px}
+.tmain .btn,.hwtool .btn,.mact .btn,.panel-h .btn,.tbar .btn,.hwbar .ff .btn{min-height:0}
+.card{border-radius:20px;border-color:transparent}
+html[data-theme="kid"] .card,html[data-theme="kid"] .hubcard{box-shadow:none}
+input,select,textarea{border-radius:14px}
+.hwbar .ff select,.hwbar .ff input{padding-top:0;padding-bottom:0}
+.iconbtn{min-height:44px;padding:10px 12px;font-size:15px;color:var(--sub)}
+.top{padding:4px 0 12px}
+.chip{padding:10px 15px;font-size:15px}
+.chip.on{background:var(--text);border-color:var(--text);color:#fff}
+
+/* 로그인 */
+.signboard{text-align:left;padding:34px 4px 22px}
+.sbname{letter-spacing:2px;text-indent:0}
+.sbtitle{font-size:32px;letter-spacing:-1px}
+.sbrule{margin:8px 0 0;max-width:none}
+.sbrule i{display:none}
+.sbrule b{font-size:15px}
+.pwin{font-size:26px;font-weight:800;letter-spacing:10px;text-align:center;
+  -webkit-text-security:disc;caret-color:transparent}
+.pwin::placeholder{font-size:15px;letter-spacing:0;font-weight:600}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.keypad button{height:58px;border-radius:14px;background:var(--bg);color:var(--text);
+  font-family:inherit;font-size:24px;font-weight:700}
+.keypad button:active{background:var(--line)}
+.keypad button.kf{background:transparent;font-size:14px;color:var(--sub)}
+#s-login .btn.line{background:none;border:0;color:var(--sub);font-weight:700;min-height:44px}
+
+/* 홈 — 체크리스트 */
+.hhead{padding:6px 2px 14px}
+.hwho b{font-size:26px;letter-spacing:-.7px}
+.hwho span{order:-1;font-size:14px;font-weight:700}
+.tdcard{flex-direction:row;padding:12px 14px;border:0;border-radius:16px;margin-bottom:12px;box-shadow:none}
+.tdcard .tnum,.tdcard .tbar{display:none}
+.tdcard .tline{flex:1}
+.tdcard .tmsg{font-size:14px}
+.saybar{background:var(--text);border:0;border-radius:16px}
+.saybar svg{stroke:#F29B63}
+.saybar b{color:#fff;font-size:14.5px}
+.saybar span{color:#F29B63}
+.cklist{background:var(--card);border-radius:20px;padding:2px 16px;margin-bottom:14px}
+.ckhead{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 0 12px;border-bottom:1px solid var(--line)}
+.ckhead b{font-size:16px;font-weight:900}
+.ckbar{width:92px;height:8px;border-radius:99px;background:var(--line);overflow:hidden;flex:none}
+.ckbar i{display:block;height:100%;background:var(--ok);border-radius:99px}
+.ckrow{display:flex;align-items:center;flex-wrap:wrap;gap:12px;width:100%;padding:15px 0;
+  border:0;border-bottom:1px solid var(--line);background:none;text-align:left;
+  font-family:inherit;color:var(--text);cursor:pointer}
+.ckrow.done{cursor:default}
+.ckrow:last-child{border-bottom:0}
+.ckc{flex:none;width:28px;height:28px;border-radius:50%;border:2.5px solid #C8CDD5;
+  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff}
+.ckt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ckt b{font-size:16.5px;font-weight:800;letter-spacing:-.3px}
+.ckt i{font-style:normal;font-size:13px;font-weight:600;color:var(--sub)}
+.ckar{color:#C8CDD5;font-size:22px}
+.ckrow.done .ckc{background:var(--ok);border-color:var(--ok)}
+.ckrow.done .ckt b{color:#9CA3AF;text-decoration:line-through}
+.ckrow.now .ckc{border-color:var(--primary)}
+.ckrow.now .ckt b{font-size:17.5px;font-weight:900}
+.ckrow.now .ckt i{color:var(--primary-d);font-weight:700}
+.ckrow.fail .ckt i{color:#B91C1C}
+.ckgo{flex:0 0 calc(100% - 40px);margin-left:40px;height:52px;border-radius:14px;
+  background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:900}
+.ckrow:active .ckgo{background:var(--primary-d)}
+.leftover,.bellbar{border-radius:16px;padding:14px 16px;border:0}
+.streak{background:var(--card);border-color:var(--line)}
+
+/* 연습 — 한 목록에서 고르고 시작 */
+.bookchips button.on{background:var(--text);border-color:var(--text)}
+.mlist{display:flex;flex-direction:column;margin-top:2px}
+.mlist .mrow{display:flex;flex-direction:row;align-items:center;gap:12px;width:100%;
+  border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;
+  padding:12px 2px;min-height:60px;color:var(--text);font-family:inherit;text-align:left;cursor:pointer}
+.mlist .mrow.hide{display:none}
+.mlist > .mrow:last-child{border-bottom:0}
+.mlist .mrow:active{transform:none;background:var(--bg)}
+.mr{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid #C8CDD5;background:#fff;box-sizing:border-box}
+.mlist .mrow.on .mr{border:7px solid var(--primary)}
+.mlist .mrow .mt1{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.mlist .mrow b{font-size:16px;font-weight:800}
+.mlist .mrow i{font-style:normal;font-size:13px;font-weight:600;color:var(--sub)}
+.mlist .mrow.on b{color:var(--text);font-weight:900}
+.mtag{flex:none;font-size:11.5px;font-weight:800;color:var(--sub)}
+.startbar{position:sticky;bottom:calc(78px + env(safe-area-inset-bottom));z-index:8;
+  padding:10px 0 6px;background:var(--bg)}
+.startbar .btn{background:var(--text)}
+.startbar .btn:active{background:#000}
+
+/* 문제 */
+.qcard{background:transparent;border:0;align-items:flex-start;text-align:left;padding:20px 4px;min-height:160px}
+.qcard.flash{background:var(--card);border-radius:20px;align-items:center;text-align:center}
+.q{letter-spacing:-1.2px}
+.answer-in{height:64px;font-size:28px;text-align:left;border:0;border-bottom:3px solid var(--text);
+  border-radius:0;background:transparent;padding:10px 4px}
+.answer-in:focus{border-bottom-color:var(--primary)}
+.choice{border-radius:14px;font-size:18px;min-height:56px;border-width:1px}
+
+/* 결과 */
+#s-result > .card.center{text-align:left}
+#s-result .score{font-size:68px}
+#s-result .stat{text-align:left}
+.stat div{background:none;padding:10px 0 0;border-top:1px solid var(--line);border-radius:0}
+.stat b{font-size:20px}
+.stat span{font-size:12px;font-weight:700}
+.item.wr{flex-direction:column;align-items:flex-start;gap:4px;padding:12px 2px}
+.item.wr .ko{font-size:13px;font-weight:700}
+.item.wr .fix{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item.wr s{color:var(--ng);font-weight:700;font-size:15px}
+.item.wr em{font-style:normal;color:#9CA3AF}
+.item.wr b{color:var(--ok);font-size:17px}
+
+/* 단어장 — 아래 도구막대 */
+#s-book.screen{animation:none}
+#s-book .wblist{padding-bottom:110px}
+.wbrow{border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;padding:13px 4px;margin:0}
+.wbrow.on{border-color:var(--line);background:#FFFBEB}
+#wbChips{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:520px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(4,1fr) 1.3fr;gap:6px !important;
+  padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line)}
+#wbChips .chip{min-height:52px;border-radius:12px;padding:0 4px;font-size:13px;font-weight:800;line-height:1.2}
+#wbChips .wbgo{background:var(--primary);border-color:var(--primary);color:#fff}
+
+/* 순위 — 내 줄은 아래에 붙어 있다 */
+.skrow.me{position:sticky;bottom:calc(80px + env(safe-area-inset-bottom));z-index:3;
+  background:var(--primary-soft);border:1.5px solid var(--primary);border-radius:14px}
+
+/* 아래 탭 */
+.tabbar{border-top:1px solid var(--line);box-shadow:none}
+.tabbar button svg{width:25px;height:25px}
+.tabbar button span{font-size:12.5px}
+.tabbar button.on{color:var(--text)}
+.tabbar button.on svg{stroke:var(--primary)}
+
+/* 선생님 — 위쪽 네 묶음 + 아래 칸 */
+.tshell{grid-template-columns:1fr;grid-template-rows:auto 1fr;background:var(--bg)}
+.tside{position:sticky;top:0;z-index:30;height:auto;overflow:visible;flex-direction:row;flex-wrap:wrap;
+  align-items:center;gap:0 22px;padding:0 24px;background:#fff;border-right:0;border-bottom:1px solid var(--line)}
+.tbrand{order:1;padding:14px 0;display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.tbrand #tAcademy{display:none}
+.tbrand small{display:inline;margin:0;color:var(--primary);font-weight:800}
+.tnav{display:contents}
+.tgrps{order:2;display:flex;gap:2px;align-self:stretch}
+.tnav .tgrp{width:auto;background:none;border:0;border-bottom:3px solid transparent;border-radius:0;
+  font-family:inherit;font-size:15.5px;font-weight:700;color:var(--sub);padding:0 14px;min-height:56px;cursor:pointer}
+.tnav .tgrp:hover{color:var(--text);background:none}
+.tside-f{order:3;margin:0 0 0 auto;padding:0;border:0;display:flex;gap:4px}
+.tside-f button{width:auto;white-space:nowrap}
+.tsubs{order:4;flex:0 0 100%;display:flex;gap:6px;flex-wrap:wrap;padding:10px 0 12px;border-top:1px solid var(--line)}
+.tnav .tsubs button{display:none;width:auto;padding:9px 14px;border-radius:99px;font-size:14px;
+  font-weight:700;background:var(--bg);color:var(--text)}
+.tnav .tsubs button:hover{background:var(--line)}
+.tnav .tsubs button.on{background:var(--text);color:#fff}
+.tnav:has([data-g="오늘"].on) .tsubs [data-g="오늘"],
+.tnav:has([data-g="숙제"].on) .tsubs [data-g="숙제"],
+.tnav:has([data-g="학생"].on) .tsubs [data-g="학생"],
+.tnav:has([data-g="자료"].on) .tsubs [data-g="자료"]{display:inline-flex}
+.tnav:has([data-g="오늘"].on) .tgrp[data-grp="오늘"],
+.tnav:has([data-g="숙제"].on) .tgrp[data-grp="숙제"],
+.tnav:has([data-g="학생"].on) .tgrp[data-grp="학생"],
+.tnav:has([data-g="자료"].on) .tgrp[data-grp="자료"]{color:var(--text);font-weight:900;border-bottom-color:var(--primary)}
+.tmain{background:var(--bg);padding:24px 28px 60px}
+.kpi,.panel{border-radius:16px;border-color:transparent}
+.tb th{background:#fff}
+
+/* 선생님 — 학생 한 명씩 */
+.pp{display:grid;grid-template-columns:290px minmax(0,1fr) 270px;gap:16px;align-items:start}
+.pp .panel + .panel{margin-top:0}
+.ppmid{display:flex;flex-direction:column;gap:16px;min-width:0}
+.ppright{display:flex;flex-direction:column;gap:12px;position:sticky;top:130px}
+.ppleft{position:sticky;top:130px;max-height:calc(100vh - 150px);display:flex;flex-direction:column}
+.ppfil{display:flex;gap:6px;flex-wrap:wrap;padding:14px 14px 10px}
+.ppf{padding:7px 12px;border-radius:99px;background:var(--bg);color:var(--text);font-family:inherit;font-size:13px;font-weight:700}
+.ppf.on{background:var(--text);color:#fff}
+.ppsearch{padding:0 14px 10px}
+.ppsearch input{padding:9px 12px;font-size:14px;border-radius:10px}
+.pplist{overflow:auto;border-top:1px solid var(--line)}
+.pprow{display:flex;align-items:center;gap:10px;width:100%;padding:11px 16px;background:none;border:0;
+  border-bottom:1px solid var(--line);font-family:inherit;color:var(--text);text-align:left;cursor:pointer}
+.pprow:hover{background:var(--bg)}
+.pprow.on{background:var(--primary-soft)}
+.ppdot{width:9px;height:9px;border-radius:50%;flex:none}
+.pprow b{flex:1;min-width:0;font-size:15px;font-weight:800}
+.ppinfo{font-size:12.5px;font-weight:700;color:var(--sub);white-space:nowrap}
+.pphead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  background:var(--card);border-radius:16px;padding:18px 20px}
+.ppname{font-size:26px;font-weight:900;letter-spacing:-.6px}
+.ppsub{margin-top:4px}
+.ppstats{display:flex;gap:22px}
+.ppstats div{display:flex;flex-direction:column;gap:2px}
+.ppstats span{font-size:12px;font-weight:700;color:var(--sub)}
+.ppstats b{font-size:22px;font-weight:900}
+.ppbars{display:flex;align-items:flex-end;gap:8px;height:150px;padding:14px 16px 8px}
+.ppbar{flex:1;max-width:44px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ppbar span{font-size:11px;font-weight:800;color:var(--sub)}
+.ppbar i{display:block;width:100%;border-radius:5px}
+.ppbar em{font-style:normal;font-size:10.5px;color:var(--sub)}
+.ppact .panel-b{display:flex;flex-direction:column;gap:8px}
+.ppact-t{font-size:13px;font-weight:800;color:var(--sub);margin-bottom:2px}
+.tmain .ppact .btn{width:100%;text-align:left;padding:13px 16px}
+.ppnote{font-size:12px;color:var(--sub);margin:4px 0 0;line-height:1.5}
+@media (max-width:1180px){
+  .pp{grid-template-columns:260px minmax(0,1fr)}
+  .ppright{grid-column:1 / -1;position:static;flex-direction:row;flex-wrap:wrap}
+}
+@media (max-width:980px){
+  .pp{grid-template-columns:1fr}
+  .ppleft,.ppright{position:static;max-height:none}
+}
 </style>
 </head>
 <body>
@@ -986,7 +1203,13 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
              placeholder="이름을 적어 주세요">
       <div class="mt"></div>
       <label>비밀번호</label>
-      <input id="inPw" type="tel" inputmode="numeric" maxlength="8" placeholder="숫자 4자리">
+      <input id="inPw" class="pwin" type="tel" inputmode="none" maxlength="8" autocomplete="off" placeholder="아래 숫자를 누르세요">
+      <div class="keypad" id="keypad">
+        <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+        <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+        <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+        <button type="button" class="kf" data-k="clr">다 지우기</button><button type="button" data-k="0">0</button><button type="button" class="kf" data-k="del">⌫</button>
+      </div>
       <div class="mt2"></div>
       <button class="btn" id="btnLogin">시작하기</button>
       <div id="loginMsg" class="center sub mt"></div>
@@ -1003,7 +1226,7 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
         <b id="hiName"></b>
         <span id="hiClass"></span>
       </div>
-      <button class="iconbtn" id="btnTheme">테마</button>
+      <button class="iconbtn hide" id="btnTheme">테마</button>
       <button class="iconbtn" id="btnLogout">나가기</button>
     </header>
 
@@ -1059,26 +1282,18 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
         </div>
       </div>
 
-      <button class="bigmode hide" id="btnVerbTest" data-mode="verb">
-        <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></span>
-        <span class="mt1"><b>3단변화 시험</b><i>원형 · 과거형 · 과거분사형</i></span>
-        <span class="mgo">›</span>
-      </button>
-      <div id="normalModes">
-        <button class="bigmode" data-mode="spell">
-          <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></span>
-          <span class="mt1"><b>스펠링 시험</b><i>가장 많이 하는 것</i></span>
-          <span class="mgo">›</span>
-        </button>
-      </div>
-      <div class="modegrid mt">
-        <button class="smode" data-mode="flash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 10h8M8 14h5"/></svg><b>플래시카드</b><i>먼저 외우기</i></button>
-        <button class="smode" data-mode="choice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.6 12.2l2.3 2.3 4.5-4.7"/></svg><b>4지선다</b><i>뜻 고르기</i></button>
-        <button class="smode" data-mode="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9"/><path d="M8 12h1.5M13 12h3"/></svg><b>첫 글자 힌트</b><i>어려울 때</i></button>
-        <button class="smode" data-mode="time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4.2l2.8 1.6M9.5 3h5"/></svg><b>타임어택</b><i>60초 게임</i></button>
-        <button class="smode" data-mode="book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H20v14H5.5A1.5 1.5 0 0 0 4 19.5z"/><path d="M8 8.5h7M8 12h5"/></svg><b>단어장 보기</b><i>쭉 읽으며 외우기</i></button>
+      <div class="mlist">
+        <button class="smode mrow hide" id="btnVerbTest" data-mode="verb" type="button"><span class="mr"></span><span class="mt1"><b>3단변화 시험</b><i>원형 · 과거형 · 과거분사형</i></span></button>
+        <div id="normalModes"><button class="smode mrow" data-mode="spell" type="button"><span class="mr"></span><span class="mt1"><b>스펠링 시험</b><i>뜻 보고 영어 쓰기 · 가장 많이 하는 것</i></span></button></div>
+        <button class="smode mrow" data-mode="flash" type="button"><span class="mr"></span><span class="mt1"><b>플래시카드</b><i>먼저 외우기</i></span></button>
+        <button class="smode mrow" data-mode="choice" type="button"><span class="mr"></span><span class="mt1"><b>4지선다</b><i>뜻 고르기</i></span></button>
+        <button class="smode mrow" data-mode="hint" type="button"><span class="mr"></span><span class="mt1"><b>첫 글자 힌트</b><i>어려울 때</i></span></button>
+        <button class="smode mrow" data-mode="time" type="button"><span class="mr"></span><span class="mt1"><b>타임어택</b><i>60초 게임</i></span><span class="mtag">게임</span></button>
+        <button class="smode mrow" data-mode="book" type="button"><span class="mr"></span><span class="mt1"><b>단어장 보기</b><i>쭉 읽으며 외우기</i></span></button>
+        <button class="smode mrow" id="btnStudyGames" data-mode="games" type="button"><span class="mr"></span><span class="mt1"><b>짝 맞추기 · 글자 퍼즐</b><i>점수는 게임 순위에만</i></span><span class="mtag">게임</span></button>
       </div>
     </div>
+    <div class="startbar"><button class="btn" id="btnStartMode" type="button">스펠링 시험 시작</button></div>
 
     <div class="row mt">
       <button class="btn line grow sm" id="btnRecords">내 숙제 기록</button>
@@ -1269,6 +1484,7 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
         <button class="chip" data-wb="ko">뜻 가리기</button>
         <button class="chip" data-wb="en">영어 가리기</button>
         <button class="chip" id="wbStarOnly">★ 별표만</button>
+        <button class="chip wbgo" id="wbTest" type="button">시험 보기</button>
       </div>
     </div>
 
@@ -1334,19 +1550,27 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
         <aside class="tside">
           <div class="tbrand"><span id="tAcademy">홍제인왕해법영어</span>해법 영단어<small id="tBrandSub">선생님 화면</small></div>
           <nav class="tnav">
-            <button class="on" data-tab="sum">오늘 한눈에</button>
-            <button data-tab="hw">숙제 내주기 <span class="nbadge hide" id="navHw"></span></button>
-            <button data-tab="miss">안 한 학생 <span class="nbadge warn hide" id="navMiss"></span></button>
-            <button data-tab="notice">공지 보내기</button>
-            <button data-tab="today">시험 결과</button>
-            <button data-tab="paper">시험지 뽑기</button>
-            <div class="tnav-h">관리</div>
-            <button data-tab="students">학생별 성적</button>
-            <button data-tab="award">이달의 시상</button>
-            <button data-tab="wrong">많이 틀린 단어</button>
-            <button data-tab="book">단어장</button>
-            <button data-tab="give">단어장 배정</button>
-            <button data-tab="roster">학생 명단</button>
+            <div class="tgrps">
+              <button type="button" class="tgrp" data-grp="학생">학생</button>
+              <button type="button" class="tgrp" data-grp="오늘">오늘</button>
+              <button type="button" class="tgrp" data-grp="숙제">숙제</button>
+              <button type="button" class="tgrp" data-grp="자료">자료</button>
+            </div>
+            <div class="tsubs">
+              <button data-tab="people" data-g="학생" class="on">학생 한 명씩</button>
+              <button data-tab="sum" data-g="오늘">오늘 한눈에</button>
+              <button data-tab="today" data-g="오늘">시험 결과</button>
+              <button data-tab="notice" data-g="오늘">공지 보내기</button>
+              <button data-tab="hw" data-g="숙제">숙제 내주기 <span class="nbadge hide" id="navHw"></span></button>
+              <button data-tab="miss" data-g="숙제">안 한 학생 <span class="nbadge warn hide" id="navMiss"></span></button>
+              <button data-tab="paper" data-g="숙제">시험지 뽑기</button>
+              <button data-tab="students" data-g="학생">학생별 성적</button>
+              <button data-tab="award" data-g="학생">이달의 시상</button>
+              <button data-tab="wrong" data-g="학생">많이 틀린 단어</button>
+              <button data-tab="book" data-g="자료">단어장</button>
+              <button data-tab="give" data-g="자료">단어장 배정</button>
+              <button data-tab="roster" data-g="자료">학생 명단</button>
+            </div>
           </nav>
           <div class="tside-f">
             <button id="btnReload">↻ 새로고침</button>
@@ -1363,7 +1587,6 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
 <nav class="tabbar hide" id="tabbar">
   <button data-tab2="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15.5H6.5A1.5 1.5 0 0 0 5 20z"/><path d="M9 8h6M9 12h4"/></svg><span>숙제</span><i class="tbadge hide" id="tbHw"></i></button>
   <button data-tab2="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13"/><path d="M4 19a2 2 0 0 0 2 2h14"/><path d="M8.5 9.5l2.5 2.5-2.5 2.5M13 15h3"/></svg><span>연습</span></button>
-  <button data-tab2="games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="19" height="10.5" rx="4.5"/><path d="M7 10.5v3M5.5 12h3M15.8 11.2h.01M18 13.4h.01"/></svg><span>게임</span></button>
   <button data-tab2="streak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 5.5H5A2.5 2.5 0 0 0 7.5 9M16.5 5.5H19A2.5 2.5 0 0 1 16.5 9"/><path d="M12 13.5V17M9 20h6"/></svg><span>순위</span></button>
 </nav>
 
@@ -1401,7 +1624,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-29a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-29d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -1888,7 +2111,7 @@ function 칠하기_탭(name){
   document.body.classList.toggle('hastab', 보임);
   if(!보임) return;
   qsa('[data-tab2]').forEach(function(b){
-    b.classList.toggle('on', b.dataset.tab2===name);
+    b.classList.toggle('on', b.dataset.tab2===name || (name==='games' && b.dataset.tab2==='study'));
   });
   var 남은 = (S.숙제||[]).filter(function(h){return !h.완료;}).length;
   var bd=$('tbHw');
@@ -1939,6 +2162,7 @@ function 오늘값(){
 }
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function setTheme(t){
+  t='kid';   /* 재디자인 — 테마는 하나로 통일 */
   document.documentElement.setAttribute('data-theme',t);
   try{localStorage.setItem('hb_theme',t);}catch(e){}
 }
@@ -2008,6 +2232,15 @@ $('btnLogin').onclick = function(){
 $('inName').addEventListener('keydown',function(e){ if(e.key==='Enter') $('inPw').focus(); });
 $('inPw').addEventListener('keydown',function(e){ if(e.key==='Enter') $('btnLogin').click(); });
 $('btnTeacherGo').onclick=function(){ show('teacher'); };
+qsa('#keypad [data-k]').forEach(function(b){
+  b.onclick=function(){
+    var p=$('inPw'), k=b.dataset.k;
+    if(k==='del') p.value=p.value.slice(0,-1);
+    else if(k==='clr') p.value='';
+    else if(p.value.length<8) p.value+=k;
+    $('loginMsg').textContent='';
+  };
+});
 
 function 사용법열기(){
   if(!앱주소){ toast('구글에 올린 뒤에 열 수 있어요'); return; }
@@ -2026,8 +2259,9 @@ function 내책들(){
 }
 
 function enterHome(){
-  $('hiName').textContent = S.학생.이름 + ' 학생';
-  $('hiClass').textContent = (S.학생.학년구분 === '고등') ? '고등부' : '초중등부';
+  $('hiName').textContent = S.학생.이름 + '의 오늘';
+  var 오늘d=new Date();
+  $('hiClass').textContent = (오늘d.getMonth()+1)+'월 '+오늘d.getDate()+'일 '+'일월화수목금토'.charAt(오늘d.getDay())+'요일';
   var 책들=내책들();
   var sel=$('selBook');
   var box=$('bookWrap');
@@ -2899,6 +3133,10 @@ function 모드박스(){
   ['choice','hint','time'].forEach(function(m){
     qsa('.smode[data-mode="'+m+'"]').forEach(function(x){ x.classList.toggle('hide', v); });
   });
+  var 전 = S.고른방법;
+  if(v) 방법고르기('verb');
+  else if(!전 || 전==='verb') 방법고르기('spell');
+  else 방법고르기(전);
 }
 if($('btnHandRange')) $('btnHandRange').onclick=function(){
   var 열림 = $('handRange').classList.toggle('hide') === false;
@@ -3398,99 +3636,37 @@ function drawHw(){
     return;
   }
 
-  // 낸 숙제는 카드에서 빼고 아래 한 줄로만 알려 준다
+  /* 1b — 오늘 숙제를 체크리스트 한 장으로. 끝낸 것은 ✓, 맨 위 남은 것에 「시작」 */
   var 남은것=S.숙제.filter(function(h){return !h.완료;});
   var 낸것=S.숙제.filter(function(h){return h.완료;});
-  var 당일=남은것.filter(function(h){return h.종류==='당일'||h.종류==='보충';});
-  var 기한=남은것.filter(function(h){return h.종류==='기한';});
-
-  function 남은배지(h){
-    if(h.종류==='보충') return '<span class="pill bochung">보충 · 오늘까지</span>';
-    if(h.종류==='당일') return '<span class="pill today">오늘까지</span>';
-    if(h.종류==='시험') return '<span class="pill siheom">시험 · 한 번만</span>';
+  function 순(h){ return (h.종류==='보충'||h.종류==='당일') ? 0 : (h.종류==='시험' ? 1 : 2); }
+  남은것.sort(function(a,b){ return 순(a)-순(b) || (Number(a.남은일수)||0)-(Number(b.남은일수)||0); });
+  function 언제(h){
+    if(h.종류==='보충') return '보충 · 오늘까지';
+    if(h.종류==='당일') return '오늘까지';
+    if(h.종류==='시험') return '시험 · 한 번만';
     var d=h.남은일수;
-    if(d===undefined || d===null || isNaN(d)){
-      if(!h.마감일) return '<span class="pill later">기한 없음</span>';
-      var m=String(h.마감일).slice(0,10).split('-');
-      if(m.length<3) return '<span class="pill later">기한 없음</span>';
-      var t=new Date(); t.setHours(0,0,0,0);
-      d=Math.round((new Date(+m[0],+m[1]-1,+m[2])-t)/86400000);
-    }
-    if(d<=0)  return '<span class="pill today">오늘까지</span>';
-    if(d===1) return '<span class="pill soon">내일까지</span>';
-    return '<span class="pill later">'+d+'일 남음</span>';
+    if(d===0) return '오늘까지';
+    if(d===1) return '내일까지';
+    if(d>1) return d+'일 남음';
+    return '기한 없음';
   }
-
-  /* 숙제 한 건 = 한 줄. 줄 전체가 시작 단추다. */
-  function 카드(h,i){
-    var c=h.색||'';
-    return '<button class="hwrow" data-hw="'+i+'"'+(c?' style="border-left-color:'+c+'"':'')+'>'+
-      '<span class="hwmid">'+
-        '<span class="hwline1">'+
-          (c?'<span class="dot" style="background:'+c+'"></span>':'')+
-          esc(h.단어장)+'<i>'+h.시작+'~'+h.끝+'번</i>'+
-        '</span>'+
-        '<span class="hwline2">'+
-          남은배지(h)+
-          (h.개별?'<span class="pill me">나만</span>':'')+
-          (h.모자람?'<span class="pill fail">'+(Number(h.점수)||0)+'점 · 다시</span>':'')+
-          '<span>'+esc(h.유형)+' 시험</span>'+
-        '</span>'+
-      '</span>'+
-      '<span class="hwgo">▶</span>'+
-    '</button>';
-  }
-
-  function 섹션(제목, 목록, 클래스){
-    if(!목록.length) return '';
-    return '<div class="hwsec '+클래스+'">'+
-      '<div class="hwsec-t">'+제목+
-        '<span class="sub">'+목록.length+'개 남음</span></div>'+
-      목록.map(function(h){ return 카드(h, S.숙제.indexOf(h)); }).join('')+
-    '</div>';
-  }
-
-  var 낸줄 = 낸것.length
-    ? '<div class="hwdone">✓ 낸 숙제 '+낸것.length+'건 — 선생님께 잘 전송됐어요</div>' : '';
-
-  if(!남은것.length){
-    box.innerHTML = 낸것.length
-      ? '<div class="card hwclear"><div class="hwclear-t">숙제 다 했어요! 🎉</div>'+
-        '<div class="sub">낸 숙제 '+낸것.length+'건 · 남은 숙제 없음</div></div>'
-      : '';
-    return;
-  }
-
-  /* 맨 위 하나만 크게 — 아이가 무엇을 누를지 고민하지 않게 */
-  var 지금 = 당일[0] || 남은것.filter(function(h){return h.종류==='시험';})[0] || 기한[0];
-  function 히어로(h){
-    var i=S.숙제.indexOf(h);
-    var 언제 = (h.종류==='보충') ? '보충 · 오늘까지'
-             : (h.종류==='당일') ? '오늘까지'
-             : (h.종류==='시험') ? '시험 · 한 번만 볼 수 있어요'
-             : (h.남은일수===0 ? '오늘까지'
-                : (h.남은일수===1 ? '내일까지'
-                   : (h.남은일수>1 ? h.남은일수+'일 남음' : '기한 없음')));
-    return '<button class="hwhero" data-hw="'+i+'">'+
-      '<span class="hh">'+
-        '<span class="hk">'+(h.모자람 ? '다시 풀어야 해요' : '지금 할 것')+'</span>'+
-        '<span class="ht">'+esc(h.단어장)+' '+h.시작+'~'+h.끝+'번</span>'+
-        '<span class="hd">'+esc(h.유형)+' 시험 · '+언제+
-          (h.개별?' · 나만':'')+
-          (h.모자람?' · 지난번 '+(Number(h.점수)||0)+'점':'')+'</span>'+
-      '</span>'+
-      '<span class="hp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg></span>'+
-    '</button>';
-  }
-  var 나머지 = 남은것.filter(function(h){ return h!==지금; });
-  var 나머지당일 = 나머지.filter(function(h){return h.종류==='당일'||h.종류==='보충';});
-  var 나머지시험 = 나머지.filter(function(h){return h.종류==='시험';});
-  var 나머지기한 = 나머지.filter(function(h){return h.종류==='기한';});
-
-  box.innerHTML = (지금 ? 히어로(지금) : '') +
-                  섹션('오늘 끝낼 숙제', 나머지당일, 'today') +
-                  섹션('시험', 나머지시험, 'siheom') +
-                  섹션('기한 있는 숙제', 나머지기한, 'later') + 낸줄;
+  function 이름(h){ return esc(h.단어장)+' '+h.시작+'~'+h.끝+'번'; }
+  var 전체=S.숙제.length, 낸수=낸것.length;
+  var 머리='<div class="ckhead"><b>'+(남은것.length ? '숙제 '+전체+'개 중 '+낸수+'개 끝' : '숙제 다 했어요!')+'</b>'+
+    '<span class="ckbar"><i style="width:'+Math.round(낸수/전체*100)+'%"></i></span></div>';
+  var 줄들 = 낸것.map(function(h){
+    return '<div class="ckrow done"><span class="ckc">✓</span><span class="ckt"><b>'+이름(h)+'</b>'+
+      '<i>'+esc(h.유형)+' · '+(Number(h.점수)||0)+'점 · 냈어요</i></span></div>';
+  }).join('') + 남은것.map(function(h,k){
+    var i=S.숙제.indexOf(h), 지금=(k===0);
+    var 말=언제(h)+' · '+esc(h.유형)+' 시험'+(h.개별?' · 나만':'')+
+      (h.모자람?' · 지난번 '+(Number(h.점수)||0)+'점, 다시':'');
+    return '<button class="ckrow'+(지금?' now':'')+(h.모자람?' fail':'')+'" data-hw="'+i+'" type="button">'+
+      '<span class="ckc"></span><span class="ckt"><b>'+이름(h)+'</b><i>'+말+'</i></span>'+
+      (지금?'<span class="ckgo">시작</span>':'<span class="ckar">›</span>')+'</button>';
+  }).join('');
+  box.innerHTML='<div class="cklist">'+머리+줄들+'</div>';
 
   qsa('[data-hw]').forEach(function(b){
     b.onclick=function(){
@@ -3513,14 +3689,35 @@ function drawHw(){
   });
 }
 
+/* 1b — 방법은 눌러서 고르고, 아래 「시작」 하나로 들어간다 */
+var 방법이름={verb:'3단변화 시험',spell:'스펠링 시험',flash:'플래시카드',choice:'4지선다',
+  hint:'첫 글자 힌트',time:'타임어택',book:'단어장 보기',games:'게임'};
+function 방법고르기(m){
+  S.고른방법=m;
+  qsa('[data-mode]').forEach(function(x){ x.classList.toggle('on', x.dataset.mode===m); });
+  var b=$('btnStartMode'); if(b) b.textContent=(방법이름[m]||'연습')+' 시작';
+}
+function 방법시작(m){
+  S.현재숙제=null; S.돌아갈곳='study';
+  if(m==='games'){ 게임책고르기(null, function(){ drawGames(); }); show('games'); return; }
+  if(m==='book') startBook();
+  else if(m==='flash') startFlash();
+  else if(m==='verb') startVerb();
+  else startQuiz(m);
+}
 qsa('[data-mode]').forEach(function(b){
-  b.onclick=function(){
-    S.현재숙제=null; S.돌아갈곳='study';
-    var m=b.dataset.mode;
-    if(m==='book') startBook();
-    else if(m==='flash') startFlash();
-    else if(m==='verb') startVerb();
-    else startQuiz(m);
+  b.onclick=function(){ 방법고르기(b.dataset.mode); };
+});
+if($('btnStartMode')) $('btnStartMode').onclick=function(){
+  var v=삼단변화(), m=S.고른방법||(v?'verb':'spell');
+  if(v && ['spell','choice','hint','time'].indexOf(m)>=0) m='verb';
+  if(!v && m==='verb') m='spell';
+  방법시작(m);
+};
+/* 선생님 — 위 묶음 단추를 누르면 그 묶음의 첫 칸으로 */
+qsa('.tgrp').forEach(function(g){
+  g.onclick=function(){
+    var f=document.querySelector('.tsubs [data-g="'+g.dataset.grp+'"]'); if(f) f.click();
   };
 });
 qsa('[data-back]').forEach(function(b){
@@ -3536,6 +3733,10 @@ qsa('[data-back]').forEach(function(b){
   };
 });
 $('btnLogout').onclick=function(){ S.학생=null; show('login'); };
+if($('wbTest')) $('wbTest').onclick=function(){
+  S.현재숙제=null; S.돌아갈곳='study';
+  if(삼단변화()) startVerb(); else startQuiz('spell');
+};
 $('btnTheme').onclick=function(){
   var cur=document.documentElement.getAttribute('data-theme');
   setTheme(cur==='kid'?'high':'kid');
@@ -4145,8 +4346,8 @@ function drawWrongList(list){
   $('rWrongBox').classList.remove('hide');
   $('btnRetryWrong').classList.remove('hide');
   box.innerHTML=list.map(function(w){
-    return '<div class="item"><span class="en">'+esc(w.en)+'</span>'+
-      '<span class="ko">'+esc(w.ko)+(w.mine?' <span style="color:var(--ng)">('+esc(w.mine)+')</span>':'')+'</span></div>';
+    return '<div class="item wr"><span class="ko">'+esc(w.ko)+'</span>'+
+      '<span class="fix">'+(w.mine?'<s>'+esc(w.mine)+'</s><em>→</em>':'')+'<b>'+esc(w.en)+'</b></span></div>';
   }).join('');
 }
 $('btnRetryWrong').onclick=function(){
@@ -4414,7 +4615,7 @@ function 월간순위보기(){
 /* ================================================================
    선생님 화면
 ================================================================ */
-var T={pw:'',data:null,tab:'sum',선택숙제:{},수정숙제:null,배정:null,배정변경:{},배정반:'',배정선택:null,배정찾기:'',명단:null,학생수정:null,명단반:'',명단찾기:'',시상:null,시상달:'',시상달목록:null,책단어:{},종이:null};
+var T={pw:'',data:null,tab:'people',선택숙제:{},수정숙제:null,배정:null,배정변경:{},배정반:'',배정선택:null,배정찾기:'',명단:null,학생수정:null,명단반:'',명단찾기:'',시상:null,시상달:'',시상달목록:null,책단어:{},종이:null};
 $('btnTLogin').onclick=function(){
   var pw=$('tPw').value;
   $('tMsg').textContent='확인 중…';
@@ -5067,6 +5268,145 @@ function drawTab(){
         T.tab=t; drawTab(); window.scrollTo(0,0);
       };
     });
+  }
+
+  /* ---------------- 학생 한 명씩 (1b) — 누르면 그 학생 것만 한곳에 ---------------- */
+  else if(T.tab==='people'){
+    var 진행p=(d.숙제목록||[]).filter(function(h){return !h.지남;});
+    var 시험p=d.시험목록||[];
+    var 성적={}; (d.학생별||[]).forEach(function(x){ 성적[x.이름]=x; });
+    var 안본={}; (d.미응시||[]).forEach(function(m){ 안본[m.이름]=m; });
+    var 이름들=[], 있나={};
+    function 넣기(n){ n=String(n||'').trim(); if(n && !있나[n]){ 있나[n]=1; 이름들.push(n); } }
+    (d.학생별||[]).forEach(function(x){ 넣기(x.이름); });
+    (d.미응시||[]).forEach(function(m){ 넣기(m.이름); });
+    진행p.forEach(function(h){ (h.안한사람||[]).forEach(넣기); (h.한사람||[]).forEach(넣기); });
+    var 컷=합격점();
+    var 사람들=이름들.map(function(n){
+      var 밀림=진행p.filter(function(h){ return (h.안한사람||[]).indexOf(n)>-1; });
+      var 성=성적[n]||{};
+      var 평=(성.평균===null||성.평균===undefined)?null:성.평균;
+      var 상태 = 밀림.length ? 'miss' : (안본[n] ? 'idle' : ((평!==null && 평<컷) ? 'low' : 'ok'));
+      return {이름:n, 밀림:밀림, 평균:평, 성:성, 상태:상태};
+    });
+    var 순서={miss:0, idle:1, low:2, ok:3};
+    사람들.sort(function(a,b){
+      return 순서[a.상태]-순서[b.상태] || b.밀림.length-a.밀림.length || (a.이름<b.이름?-1:1);
+    });
+    var 수={miss:0, low:0, all:사람들.length};
+    사람들.forEach(function(x){ if(x.상태==='miss') 수.miss++; if(x.상태==='low') 수.low++; });
+    if(!T.p필터) T.p필터 = 수.miss ? 'miss' : 'all';
+    var 보임p=사람들.filter(function(x){ return T.p필터==='all' || x.상태===T.p필터; });
+    var 고른=null; 사람들.forEach(function(x){ if(x.이름===T.p고름) 고른=x; });
+    if(!고른 || (보임p.length && 보임p.indexOf(고른)<0)) 고른 = 보임p[0] || 사람들[0] || null;
+    T.p고름 = 고른 ? 고른.이름 : '';
+
+    var 점색={miss:'var(--ng)', idle:'var(--ng)', low:'var(--warn)', ok:'var(--ok)'};
+    function 한줄(x){
+      var 말 = x.상태==='miss' ? x.밀림.length+'건 안 냄'
+        : x.상태==='idle' ? '7일째 안 함'
+        : (x.평균===null ? '기록 없음' : '평균 '+x.평균+'점');
+      return '<button type="button" class="pprow'+(고른 && x.이름===고른.이름?' on':'')+'" data-pp="'+esc(x.이름)+'">'+
+        '<span class="ppdot" style="background:'+점색[x.상태]+'"></span>'+
+        '<b>'+esc(x.이름)+'</b><span class="ppinfo">'+말+'</span></button>';
+    }
+    var 왼 = '<div class="panel ppleft">'+
+      '<div class="ppfil">'+
+        [['miss','안 낸 학생',수.miss],['low',컷+'점 미만',수.low],['all','전체',수.all]].map(function(f){
+          return '<button type="button" class="ppf'+(T.p필터===f[0]?' on':'')+'" data-ppf="'+f[0]+'">'+f[1]+' '+f[2]+'</button>';
+        }).join('')+'</div>'+
+      '<div class="ppsearch"><input id="ppFind" type="text" placeholder="이름 찾기 (전체에서)" autocomplete="off"></div>'+
+      '<div class="pplist" id="ppList">'+(보임p.length ? 보임p.map(한줄).join('') : 빈칸('해당하는 학생이 없습니다.'))+'</div>'+
+    '</div>';
+
+    var 가운데='', 오른='';
+    if(!고른){ 가운데 = 빈칸('학생이 없습니다.'); }
+    else{
+      var n=고른.이름, 성=고른.성;
+      var 걸린=진행p.filter(function(h){
+        return (h.안한사람||[]).indexOf(n)>-1 || (h.한사람||[]).indexOf(n)>-1;
+      });
+      var 내시험=시험p.filter(function(t){ return t.이름===n; })
+        .sort(function(a,b){ return String(b.시각)<String(a.시각) ? -1 : 1; });
+      var 막대들=내시험.slice(0,12).reverse();
+      가운데 =
+        '<div class="pphead"><div><div class="ppname">'+esc(n)+'</div>'+
+          '<div class="ppsub">'+교재칩(성.교재,3)+'</div></div>'+
+          '<div class="ppstats">'+
+            '<div><span>숙제 평균</span><b>'+(고른.평균===null?'-':점수칸(고른.평균))+'</b></div>'+
+            '<div><span>학원 시험 평균</span><b>'+((성.시험평균===null||성.시험평균===undefined)?'-':점수칸(성.시험평균))+'</b></div>'+
+            '<div><span>안 낸 숙제</span><b>'+(고른.밀림.length?'<span class="sc bad">'+고른.밀림.length+'</span>':'0')+'</b></div>'+
+          '</div></div>'+
+        판('지금 걸린 숙제', '<span class="sub">'+걸린.length+'건</span>',
+          걸린.length ? '<table class="tb"><tbody>'+걸린.map(function(h){
+              var 안=(h.안한사람||[]).indexOf(n)>-1, 모=(h.모자란사람||[]).indexOf(n)>-1;
+              return '<tr><td class="nw">'+책칩(h.단어장)+' <span class="muted">'+h.시작+'~'+h.끝+'번</span></td>'+
+                '<td class="nw muted">'+esc(h.유형)+'</td><td class="nw">'+마감칩(h)+'</td>'+
+                '<td class="num">'+(안 ? (모 ? '<span class="pill fail">점수 모자람</span>' : '<span class="pill miss">안 함</span>')
+                                      : '<span class="pill ok">냄</span>')+'</td></tr>';
+            }).join('')+'</tbody></table>'
+          : 빈칸('지금 걸린 숙제가 없습니다.'))+
+        판('최근 점수', '<span class="sub">최근 7일 · '+내시험.length+'번</span>',
+          막대들.length ? '<div class="ppbars">'+막대들.map(function(t){
+              var v=Number(t.점수)||0, c=v>=80?'var(--ok)':(v>=60?'var(--warn)':'var(--ng)');
+              return '<div class="ppbar" title="'+esc(t.시각+' '+t.단어장+' '+t.범위)+'"><span>'+v+'</span>'+
+                '<i style="height:'+Math.max(4,Math.round(v*1.1))+'px;background:'+c+'"></i>'+
+                '<em>'+esc(String(t.시각).slice(0,5))+'</em></div>';
+            }).join('')+'</div>'+
+            '<table class="tb"><tbody>'+내시험.slice(0,6).map(function(t){
+              return '<tr><td class="nw muted">'+esc(t.시각)+'</td>'+
+                '<td class="nw">'+책칩(t.단어장)+' <span class="muted">'+esc(t.범위)+'</span>'+
+                  (t.재시험?' <span class="pill note">오답노트</span>':'')+'</td>'+
+                '<td class="num">'+점수칸(t.점수)+'</td></tr>';
+            }).join('')+'</tbody></table>'
+          : 빈칸('최근 7일 동안 본 시험이 없습니다.'));
+      오른 =
+        '<div class="panel ppact"><div class="panel-b">'+
+          '<div class="ppact-t">'+esc(n)+' 학생에게</div>'+
+          '<button class="btn" id="ppPush" type="button">휴대폰 알림 보내기</button>'+
+          (고른.밀림.length ? '<button class="btn line" data-bochung="'+esc(n)+'" type="button">안 낸 숙제 보충으로 다시 내기</button>' : '')+
+          '<button class="btn line" id="ppHw" type="button">숙제 따로 내주기</button>'+
+          '<p class="ppnote">알림은 아이가 휴대폰에서 알림을 켜 두었을 때만 갑니다.</p>'+
+        '</div></div>'+
+        (수.miss>1 ? '<div class="panel ppact"><div class="panel-b">'+
+          '<div class="ppact-t">안 낸 학생 '+수.miss+'명 모두에게</div>'+
+          '<button class="btn line" id="ppPushAll" type="button">한 번에 알림 보내기</button></div></div>' : '');
+    }
+
+    b.innerHTML = 머리('학생 한 명씩', '왼쪽에서 학생을 누르면 그 학생의 숙제 · 점수 · 할 일이 한곳에 모입니다')+
+      '<div class="pp">'+왼+'<div class="ppmid">'+가운데+'</div><div class="ppright">'+오른+'</div></div>';
+
+    qsa('[data-ppf]').forEach(function(x){ x.onclick=function(){ T.p필터=x.dataset.ppf; drawTab(); }; });
+    function 줄손잡이(){
+      qsa('[data-pp]').forEach(function(x){ x.onclick=function(){ T.p고름=x.dataset.pp; drawTab(); }; });
+    }
+    줄손잡이();
+    $('ppFind').oninput=function(){
+      var q=this.value.trim();
+      var 목록 = q ? 사람들.filter(function(x){ return x.이름.indexOf(q)>-1; }) : 보임p;
+      $('ppList').innerHTML = 목록.length ? 목록.map(한줄).join('') : 빈칸('찾는 학생이 없습니다.');
+      줄손잡이();
+    };
+    보충손잡이(밀린사람들(진행p));
+    function 쏘기(btn, 명단){
+      var 글=btn.textContent; btn.disabled=true; btn.textContent='보내는 중…';
+      공지알림보내기(명단).then(function(r){
+        toast(r && r.보냄 ? '휴대폰 '+r.보냄+'대에 보냈습니다' : '알림을 켠 휴대폰이 없습니다');
+      }).catch(function(){ toast('보내지 못했습니다'); })
+        .then(function(){ btn.disabled=false; btn.textContent=글; });
+    }
+    if($('ppPush')) $('ppPush').onclick=function(){ 쏘기(this, [T.p고름]); };
+    if($('ppPushAll')) $('ppPushAll').onclick=function(){
+      var 명=사람들.filter(function(x){ return x.상태==='miss'; }).map(function(x){ return x.이름; });
+      if(!confirm('안 낸 학생 '+명.length+'명에게 알림을 보낼까요?')) return;
+      쏘기(this, 명);
+    };
+    if($('ppHw')) $('ppHw').onclick=function(){
+      var 누구=T.p고름;
+      qsa('[data-tab]').forEach(function(y){ y.classList.toggle('on', y.dataset.tab==='hw'); });
+      T.tab='hw'; drawTab(); window.scrollTo(0,0);
+      toast(누구+' 학생을 골라 숙제를 내 주세요');
+    };
   }
 
   /* ---------------- 시험 결과 ---------------- */
