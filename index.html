@@ -197,7 +197,15 @@ button{font-family:inherit;cursor:pointer;border:0}
   user-select:none
 }
 .wbempty{text-align:center;color:var(--sub);font-size:13px;font-weight:600;padding:26px 0}
-#vSubmit.gone{visibility:hidden}
+/* 채점이 끝난 「확인」 — 사라지지 않고, 눌린 채로 흐려진다.
+   자리를 그대로 지키므로 아래의 「다음 문제」가 위로 올라오지 않는다. */
+#vSubmit.gone{
+  opacity:.4;
+  transform:scale(.985);
+  background:var(--primary-d);
+  pointer-events:none;
+  cursor:default;
+}
 #vNext{margin-top:26px}
 .btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:none}
 .btn.ghost:active{transform:none;background:var(--primary-soft)}
@@ -1624,7 +1632,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-29d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-29f';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3670,6 +3678,11 @@ function drawHw(){
 
   qsa('[data-hw]').forEach(function(b){
     b.onclick=function(){
+      /* 아이가 조급해서 두 번 누르면 단어 불러오기가 두 번 돈다.
+         늦게 온 대답이 이미 풀고 있는 시험을 통째로 갈아엎으면
+         화면의 뜻이 바뀌면서 멀쩡히 쓴 답이 틀린 것이 된다.
+         그래서 마지막으로 누른 것만 살린다. */
+      var 표 = ++숙제열기표_;
       var h=S.숙제[+b.dataset.hw];
       S.현재숙제=h; S.돌아갈곳='home';
       if($('selBook')) $('selBook').value=h.단어장;
@@ -3678,6 +3691,7 @@ function drawHw(){
       후보.forEach(function(x){ if(x.이름===h.단어장) S.종류=x.종류||''; });
       모드박스();
       api('단어가져오기',h.단어장).then(function(w){
+        if(표 !== 숙제열기표_) return;              // 그 사이 다시 눌렀다 — 이건 버린다
         S.단어=w||[]; S.단어장=h.단어장;
         $('inFrom').value=h.시작; $('inTo').value=h.끝||S.단어.length;
         drawQuick();
@@ -3688,6 +3702,9 @@ function drawHw(){
     };
   });
 }
+
+/* 숙제를 몇 번째로 열었는지 세는 표 — 늦게 온 대답을 가려내는 데 쓴다 */
+var 숙제열기표_ = 0;
 
 /* 1b — 방법은 눌러서 고르고, 아래 「시작」 하나로 들어간다 */
 var 방법이름={verb:'3단변화 시험',spell:'스펠링 시험',flash:'플래시카드',choice:'4지선다',
@@ -4387,6 +4404,9 @@ function startVerb(){
 function renderVerb(){
   if(S.idx>=S.문제.length){ finishVerb(); return; }
   var w=S.문제[S.idx];
+  /* 채점·빈칸 검사는 이 단어로만 한다.
+     혹시 S.문제나 S.idx 가 뒤에서 바뀌어도, 아이가 화면에서 본 단어로 채점된다. */
+  S.본문제 = w;
   $('vQ').textContent=w.ko;
   qsa('.vans').forEach(function(x){ x.remove(); });
   V_ID.forEach(function(id,i){
@@ -4406,7 +4426,9 @@ function renderVerb(){
 }
 
 function judgeVerb(){
-  var w=S.문제[S.idx], f=세형태(w.en);
+  var w=S.본문제 || S.문제[S.idx];
+  if(!w) return;
+  var f=세형태(w.en);
   var 정답들=[f.원형,f.과거,f.분사];
   var 입력=[$('vBase').value,$('vPast').value,$('vPp').value];
   var 틀린=[];
@@ -4448,7 +4470,7 @@ function judgeVerb(){
 
 /* 아직 안 쓴 칸을 찾는다. 정답이 없는 칸(자료가 두 개뿐인 동사)은 안 따진다. */
 function 안쓴칸_(){
-  var w = S.문제[S.idx];
+  var w = S.본문제 || S.문제[S.idx];
   if(!w) return [];
   var f = 세형태(w.en), 정답들 = [f.원형, f.과거, f.분사], 빈것 = [];
   V_ID.forEach(function(id, i){
