@@ -171,6 +171,33 @@ button{font-family:inherit;cursor:pointer;border:0}
 /* 3단변화 시험 — 「확인」과 「다음 문제」를 다른 자리에 둔다.
    같은 자리면 아이가 톡톡 두 번 눌러 단어를 건너뛴다.
    「확인」은 사라져도 자리를 차지한 채 숨어야 「다음 문제」가 위로 올라오지 않는다. */
+/* ===================== 단어장 보기 ===================== */
+.wbtop{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0 10px;
+  border-bottom:1px solid var(--line);margin-bottom:10px}
+.wbname{font-size:14px;font-weight:800;letter-spacing:-.3px;margin-bottom:9px}
+.wbname small{display:block;font-size:11.5px;font-weight:600;color:var(--sub);margin-top:2px}
+.wblist{padding-bottom:30px}
+.wbrow{display:flex;align-items:center;gap:10px;background:var(--card);
+  border:1.5px solid var(--line);border-radius:13px;padding:11px 12px;margin-bottom:8px}
+.wbrow .wbno{flex:0 0 26px;font-size:11.5px;font-weight:800;color:var(--sub);text-align:right}
+.wbrow .wben{flex:0 0 42%;text-align:left;font-size:17px;font-weight:800;
+  letter-spacing:-.2px;word-break:break-word;background:none;color:var(--text);padding:0}
+.wbrow .wbko{flex:1;font-size:14px;font-weight:600;color:var(--sub);word-break:break-word}
+/* 3단변화 단어장은 영어가 길다 — 영어 칸을 넓게 */
+.wblist.verb .wbrow .wben{flex:0 0 56%;font-size:16px}
+.wblist.verb .wbrow .wbko{font-size:13px}
+.wbrow .wbstar{flex:0 0 30px;font-size:19px;line-height:1;color:var(--line);
+  background:none;padding:0;text-align:center}
+.wbrow.on .wbstar{color:var(--warn)}
+.wbrow.on{border-color:var(--warn)}
+.wbrow .wben.say{color:var(--accent)}
+/* 가리기 — 덮인 칸은 회색 띠로 보인다. 줄을 누르면 그 줄만 열린다 */
+.wblist.hideko .wbrow:not(.open) .wbko,
+.wblist.hideen .wbrow:not(.open) .wben{
+  color:transparent;background:var(--line);border-radius:7px;min-height:20px;
+  user-select:none
+}
+.wbempty{text-align:center;color:var(--sub);font-size:13px;font-weight:600;padding:26px 0}
 #vSubmit.gone{visibility:hidden}
 #vNext{margin-top:26px}
 .btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:none}
@@ -1049,6 +1076,7 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
         <button class="smode" data-mode="choice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.6 12.2l2.3 2.3 4.5-4.7"/></svg><b>4지선다</b><i>뜻 고르기</i></button>
         <button class="smode" data-mode="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9"/><path d="M8 12h1.5M13 12h3"/></svg><b>첫 글자 힌트</b><i>어려울 때</i></button>
         <button class="smode" data-mode="time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4.2l2.8 1.6M9.5 3h5"/></svg><b>타임어택</b><i>60초 게임</i></button>
+        <button class="smode" data-mode="book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H20v14H5.5A1.5 1.5 0 0 0 4 19.5z"/><path d="M8 8.5h7M8 12h5"/></svg><b>단어장 보기</b><i>쭉 읽으며 외우기</i></button>
       </div>
     </div>
 
@@ -1227,6 +1255,26 @@ html[data-theme="high"] .bellbar.on{background:#1C3126;border-color:#2F6B47}
     <button class="btn hide" id="vNext">다음 문제</button>
   </section>
 
+  <!-- ========================= 단어장 보기 ========================= -->
+  <section id="s-book" class="screen">
+    <div class="top">
+      <button class="iconbtn" data-back="home">← 그만</button>
+      <div class="hud"><span id="wbCnt"></span></div>
+    </div>
+
+    <div class="wbtop">
+      <div class="wbname" id="wbName"></div>
+      <div class="row wrap" id="wbChips" style="gap:7px">
+        <button class="chip on" data-wb="all">모두 보기</button>
+        <button class="chip" data-wb="ko">뜻 가리기</button>
+        <button class="chip" data-wb="en">영어 가리기</button>
+        <button class="chip" id="wbStarOnly">★ 별표만</button>
+      </div>
+    </div>
+
+    <div class="wblist" id="wbList"></div>
+  </section>
+
   <!-- ========================= 결과 ========================= -->
   <section id="s-result" class="screen">
     <div class="card center">
@@ -1353,7 +1401,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-28b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-29a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3469,7 +3517,8 @@ qsa('[data-mode]').forEach(function(b){
   b.onclick=function(){
     S.현재숙제=null; S.돌아갈곳='study';
     var m=b.dataset.mode;
-    if(m==='flash') startFlash();
+    if(m==='book') startBook();
+    else if(m==='flash') startFlash();
     else if(m==='verb') startVerb();
     else startQuiz(m);
   };
@@ -3510,6 +3559,125 @@ function 범위단어(){
   if(a>b){var t=a;a=b;b=t;}
   return {a:a,b:b,list:S.단어.slice(a-1,b)};
 }
+
+/* ================================================================
+   단어장 보기 — 종이 단어장처럼 쭉 읽으며 외운다
+   · 뜻 가리기 / 영어 가리기 로 스스로 확인
+   · 별표는 그 휴대폰에만 남는다 (선생님께 가지 않는다)
+   · 단어를 누르면 읽어 준다
+================================================================ */
+function 별표열쇠_(){ return '별표_' + (S.단어장 || '') ; }
+function 별표읽기_(){
+  var v = 저장읽기_(별표열쇠_(), []);
+  return Array.isArray(v) ? v : [];
+}
+function 별표인가_(no){ return 별표읽기_().indexOf(String(no)) > -1; }
+function 별표뒤집기_(no){
+  var 것 = 별표읽기_(), k = String(no), i = 것.indexOf(k);
+  if(i > -1) 것.splice(i, 1); else 것.push(k);
+  저장쓰기_(별표열쇠_(), 것);
+  return i < 0;
+}
+
+function 읽어주기_(글){
+  try{
+    if(!('speechSynthesis' in window)) return false;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(String(글||'').replace(/\s*[\-–—]\s*/g, ', '));
+    u.lang = 'en-US'; u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+    return true;
+  }catch(e){ return false; }
+}
+
+function startBook(){
+  var r = 범위단어();
+  if(!r.list.length){ toast('단어가 없습니다'); return; }
+  S.책 = { 목록: r.list, 가리기: 'all', 별표만: false, 범위: r.a + '~' + r.b };
+  show('book'); renderBook();
+}
+
+function renderBook(){
+  var B = S.책; if(!B) return;
+  var 칸 = $('wbList');
+  var 별 = 별표읽기_();
+  var 볼것 = B.별표만
+    ? B.목록.filter(function(w, i){ return 별.indexOf(String(w.no || (i+1))) > -1; })
+    : B.목록;
+
+  $('wbName').innerHTML = esc(S.단어장) +
+    '<small>' + esc(B.범위) + '번 · 모두 ' + B.목록.length + '개' +
+    (별.length ? ' · 별표 ' + 별.length + '개' : '') + '</small>';
+  $('wbCnt').textContent = 볼것.length + '개';
+
+  qsa('#wbChips [data-wb]').forEach(function(b){
+    b.classList.toggle('on', b.dataset.wb === B.가리기);
+  });
+  $('wbStarOnly').classList.toggle('on', !!B.별표만);
+
+  칸.classList.toggle('hideko', B.가리기 === 'ko');
+  칸.classList.toggle('hideen', B.가리기 === 'en');
+  칸.classList.toggle('verb', 삼단변화());
+
+  if(!볼것.length){
+    칸.innerHTML = '<div class="wbempty">' +
+      (B.별표만 ? '별표한 단어가 아직 없어요.<br>단어 옆 ★ 을 눌러 표시해 두세요.'
+                : '보여 줄 단어가 없어요.') + '</div>';
+    return;
+  }
+
+  칸.innerHTML = 볼것.map(function(w, i){
+    var no = w.no || (i + 1);
+    return '<div class="wbrow' + (별.indexOf(String(no)) > -1 ? ' on' : '') + '" data-no="' + esc(no) + '">' +
+      '<span class="wbno">' + esc(no) + '</span>' +
+      '<button class="wben">' + esc(w.en) + '</button>' +
+      '<span class="wbko">' + esc(w.ko) + '</span>' +
+      '<button class="wbstar" aria-label="별표">★</button>' +
+    '</div>';
+  }).join('');
+
+  qsa('#wbList .wbrow').forEach(function(줄){
+    var 영 = 줄.querySelector('.wben'), 별단추 = 줄.querySelector('.wbstar');
+    별단추.onclick = function(e){
+      e.stopPropagation();
+      var 켰나 = 별표뒤집기_(줄.dataset.no);
+      줄.classList.toggle('on', 켰나);
+      beep(켰나 ? 'ok' : 'ng');
+      if(B.별표만 && !켰나) renderBook();
+      else {
+        var 별2 = 별표읽기_();
+        $('wbName').innerHTML = esc(S.단어장) +
+          '<small>' + esc(B.범위) + '번 · 모두 ' + B.목록.length + '개' +
+          (별2.length ? ' · 별표 ' + 별2.length + '개' : '') + '</small>';
+      }
+    };
+    영.onclick = function(e){
+      e.stopPropagation();
+      /* 영어가 가려져 있으면 먼저 열고, 보이는 상태면 읽어 준다 */
+      if(B.가리기 === 'en' && !줄.classList.contains('open')){ 줄.classList.add('open'); return; }
+      영.classList.add('say');
+      setTimeout(function(){ 영.classList.remove('say'); }, 600);
+      읽어주기_(영.textContent);
+    };
+    줄.onclick = function(){
+      if(B.가리기 === 'all') return;
+      줄.classList.toggle('open');
+    };
+  });
+}
+
+qsa('#wbChips [data-wb]').forEach(function(b){
+  b.onclick = function(){
+    if(!S.책) return;
+    S.책.가리기 = b.dataset.wb;
+    renderBook();
+  };
+});
+$('wbStarOnly').onclick = function(){
+  if(!S.책) return;
+  S.책.별표만 = !S.책.별표만;
+  renderBook();
+};
 
 /* ================================================================
    플래시카드
