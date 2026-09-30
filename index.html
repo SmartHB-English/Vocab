@@ -197,7 +197,15 @@ button{font-family:inherit;cursor:pointer;border:0}
   user-select:none
 }
 .wbempty{text-align:center;color:var(--sub);font-size:13px;font-weight:600;padding:26px 0}
-#vSubmit.gone{visibility:hidden}
+/* 채점이 끝난 「확인」 — 사라지지 않고, 눌린 채로 흐려진다.
+   자리를 그대로 지키므로 아래의 「다음 문제」가 위로 올라오지 않는다. */
+#vSubmit.gone{
+  opacity:.4;
+  transform:scale(.985);
+  background:var(--primary-d);
+  pointer-events:none;
+  cursor:default;
+}
 #vNext{margin-top:26px}
 .btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:none}
 .btn.ghost:active{transform:none;background:var(--primary-soft)}
@@ -368,6 +376,24 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .top{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 12px}
 .top .who{font-size:13px;color:var(--sub)}
 .iconbtn{background:transparent;color:var(--sub);font-size:13px;padding:6px 10px;border-radius:10px;font-weight:700}
+.rotbtn{margin-left:auto;white-space:nowrap}
+
+/* ===== 불러오는 중 표시 ===== */
+#loadBar{position:fixed;left:0;top:0;height:3px;width:100%;z-index:120;
+  pointer-events:none;opacity:0;transition:opacity .18s}
+#loadBar.on{opacity:1}
+#loadBar > i{display:block;height:100%;width:38%;border-radius:0 3px 3px 0;
+  background:var(--primary);animation:ldbar 1.05s ease-in-out infinite}
+@keyframes ldbar{0%{margin-left:-38%}100%{margin-left:100%}}
+#btnRefresh{font-size:16px;line-height:1}
+#btnRefresh.doing{animation:도는것 .9s linear infinite;color:var(--primary)}
+@keyframes 도는것{to{transform:rotate(360deg)}}
+.skl{height:13px;border-radius:7px;margin:10px 0;
+  background:linear-gradient(90deg,var(--line) 25%,rgba(255,255,255,.85) 50%,var(--line) 75%);
+  background-size:300% 100%;animation:빛나기 1.15s linear infinite}
+@keyframes 빛나기{from{background-position:100% 0}to{background-position:-100% 0}}
+.skl.w90{width:90%}.skl.w75{width:75%}.skl.w60{width:60%}.skl.w45{width:45%}
+.loading{padding:22px 0;text-align:center;color:var(--sub);font-size:13px;font-weight:700}
 
 /* 진행 바 */
 .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
@@ -1183,33 +1209,14 @@ input,select,textarea{border-radius:14px}
   .pp{grid-template-columns:1fr}
   .ppleft,.ppright{position:static;max-height:none}
 }
-/* 선생님 — 모바일 보기 */
-body.tmob{background:#E9EBEF}
-body.tmob .tshell{max-width:480px;margin:0 auto;box-shadow:0 0 0 1px var(--line),0 10px 40px rgba(0,0,0,.08)}
-body.tmob .tside{padding:0 14px;gap:0 10px}
-body.tmob .tbrand{padding:12px 0;font-size:15px}
-body.tmob .tbrand small{display:none}
-body.tmob .tside-f{order:2}
-body.tmob .tside-f button{font-size:13px;padding:8px 10px;min-height:40px}
-body.tmob .tgrps{order:3;flex:0 0 100%;justify-content:space-between;border-top:1px solid var(--line)}
-body.tmob .tnav .tgrp{flex:1;padding:0 4px;min-height:48px;font-size:15px}
-body.tmob .tsubs{flex-wrap:nowrap;overflow-x:auto;padding:8px 0 10px;scrollbar-width:none}
-body.tmob .tnav .tsubs button{flex:none;font-size:13.5px;padding:9px 13px}
-body.tmob .tmain{padding:16px 12px 50px}
-body.tmob .kpis{grid-template-columns:repeat(2,1fr)}
-body.tmob .cols.c2,body.tmob .cols.c37,body.tmob .cols.c73{grid-template-columns:1fr}
-body.tmob .pp{grid-template-columns:1fr}
-body.tmob .ppleft,body.tmob .ppright{position:static;max-height:none}
-body.tmob .ppright{flex-direction:column}
-body.tmob .awgrid,body.tmob .miniform{grid-template-columns:1fr}
-body.tmob .tscroll{max-height:none}
-body.tmob .thead{flex-wrap:wrap;gap:10px}
 </style>
 </head>
 <body>
 <div id="app">
 
   <!-- ========================= 로그인 ========================= -->
+  <div id="loadBar" aria-hidden="true"><i></i></div>
+
   <section id="s-login" class="screen on">
     <div id="demoBadge" class="demo hide">미리보기 모드입니다 — 예시 자료로 돌아갑니다. 구글에 올리면 실제 명단과 단어장이 뜹니다.</div>
     <div class="signboard">
@@ -1248,6 +1255,8 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
         <span id="hiClass"></span>
       </div>
       <button class="iconbtn hide" id="btnTheme">테마</button>
+      <button class="iconbtn" id="btnRefresh" aria-label="새로 불러오기" title="새로 불러오기">↻</button>
+      <button class="iconbtn rotbtn hide" id="btnRotate" aria-label="화면 돌리기">⟳ 가로</button>
       <button class="iconbtn" id="btnLogout">나가기</button>
     </header>
 
@@ -1265,6 +1274,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who">연습하기</div>
       <span class="sub" style="margin-left:auto;font-size:11px">숙제 아님 · 기록에 안 남아요</span>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
 
     <div class="card" id="bookWrap">
@@ -1328,6 +1338,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 그만</button>
       <div class="who"><span id="fProg"></span></div>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
     <div class="bar"><i id="fBar"></i></div>
     <div class="qwrap">
@@ -1352,6 +1363,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
         <span class="timer" id="qTimer"></span>
         <span id="qProg"></span>
       </div>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
     <div class="bar"><i id="qBar"></i></div>
     <div class="qwrap">
@@ -1377,6 +1389,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who">게임</div>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
     <div id="gmPick"></div>
     <div id="gmList"></div>
@@ -1395,6 +1408,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
         <span id="mtPair"></span>
         <span class="timer" id="mtTime"></span>
       </div>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
     <div id="mtBoard" class="mtboard"></div>
     <div id="mtEnd"></div>
@@ -1409,6 +1423,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
         <span id="pzScore"></span>
         <span class="timer" id="pzTime"></span>
       </div>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
     <div class="card center mt">
       <div class="sub" id="pzNo"></div>
@@ -1427,6 +1442,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who">순위</div>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
     <div id="trophyBox"></div>
     <div class="tabs" id="rkTabs"></div>
@@ -1446,6 +1462,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
         <div class="st1">
           <button class="iconbtn" id="shBack">← 그만</button>
           <span class="stCnt" id="shCnt"></span>
+          <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
         </div>
         <div class="stName" id="shName" style="margin-top:6px"></div>
         <div class="bar"><i id="shBar"></i></div>
@@ -1466,6 +1483,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 그만</button>
       <div class="hud"><span id="vProg"></span></div>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
     <div class="bar"><i id="vBar"></i></div>
 
@@ -1496,6 +1514,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 그만</button>
       <div class="hud"><span id="wbCnt"></span></div>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
 
     <div class="wbtop">
@@ -1514,6 +1533,9 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
 
   <!-- ========================= 결과 ========================= -->
   <section id="s-result" class="screen">
+    <div class="top" style="justify-content:flex-end;padding-bottom:6px">
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+    </div>
     <div class="card center">
       <div class="sub" id="rTitle"></div>
       <div class="score mt"><span id="rScore">0</span><small>점</small></div>
@@ -1547,6 +1569,7 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who" id="recTitle"></div>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
     </div>
     <div class="card"><div id="recBody" class="sub">불러오는 중…</div></div>
   </section>
@@ -1594,7 +1617,6 @@ body.tmob .thead{flex-wrap:wrap;gap:10px}
             </div>
           </nav>
           <div class="tside-f">
-            <button id="btnView">모바일 보기</button>
             <button id="btnReload">↻ 새로고침</button>
             <button data-back="login">← 학생 화면으로</button>
           </div>
@@ -1646,7 +1668,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-29d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-30a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2077,8 +2099,20 @@ var DEMO = {
   단어장삭제:function(){return {ok:true,단어:DEMO_WORDS.length,숙제:0,단어장목록:[]};}
 };
 
+var 부르는중_ = 0;
+function 부르는중그리기_(){
+  var b = $('loadBar'); if(b) b.classList.toggle('on', 부르는중_ > 0);
+  var r = $('btnRefresh'); if(r) r.classList.toggle('doing', 부르는중_ > 0);
+}
 function api(fn){
   var args = [].slice.call(arguments,1);
+  부르는중_++; 부르는중그리기_();
+  function 끝_(){ if(부르는중_ > 0) 부르는중_--; 부르는중그리기_(); }
+  return 부르기_(fn, args).then(
+    function(v){ 끝_(); return v; },
+    function(e){ 끝_(); throw e; });
+}
+function 부르기_(fn, args){
   return new Promise(function(res,rej){
     if(!GAS){
       var d = DEMO[fn];
@@ -2123,6 +2157,11 @@ function show(name){
   qsa('.screen').forEach(function(el){el.classList.remove('on');});
   var t = $('s-'+name); if(t) t.classList.add('on');
   칠하기_탭(name);
+  try{ 돌리기단추그리기_(); }catch(e){}
+  /* 그 화면에 있어야 할 자료는 그 화면을 열 때 받는다 */
+  if(name === 'study') try{ 연습자료받기_(); }catch(e){}
+  if(name === 'streak') try{ 순위자료받기_(); }catch(e){}
+  if(name === 'games') try{ 게임자료받기_(); }catch(e){}
   window.scrollTo(0,0);
 }
 /* 학생 화면 네 곳에서만 아래 탭바가 보인다 */
@@ -2282,6 +2321,7 @@ function 내책들(){
 
 function enterHome(){
   $('hiName').textContent = S.학생.이름 + '의 오늘';
+  try{ 돌리기단추그리기_(); }catch(e){}
   var 오늘d=new Date();
   $('hiClass').textContent = (오늘d.getMonth()+1)+'월 '+오늘d.getDate()+'일 '+'일월화수목금토'.charAt(오늘d.getDay())+'요일';
   var 책들=내책들();
@@ -2297,32 +2337,92 @@ function enterHome(){
       return '<option value="'+esc(b.이름)+'">'+esc(b.이름)+' ('+b.개수+'개)</option>';
     }).join('');
     sel.onchange=loadBook;
-    loadBook();
     그리기_책칩();
   }
   var f=$('homeFoot'); if(f) f.textContent = (시작정보 && 시작정보.학원이름) || '';
-  S.공지=[]; S.알림준비={};
+  받은것_ = {};
   알림채비_().then(그리기_알림줄);
+  집자료받기_();
+  show('home');
+}
+
+/* ================================================================
+   화면마다 필요한 것만 그때 받아 온다 — 처음 들어올 때 덜 기다리게
+================================================================ */
+var 받은것_ = {};
+
+/* 숙제 화면 뼈대 — 자료가 오기 전에 빈 화면을 보여 주지 않는다 */
+function 뼈대_집(){
+  var t=$('todayBox');
+  if(t) t.innerHTML='<div class="card"><div class="skl w45"></div><div class="skl w75"></div></div>';
+  var h=$('hwBox');
+  if(h) h.innerHTML='<div class="card"><div class="skl w60"></div><div class="skl w90"></div>'+
+    '<div class="skl w75"></div><div class="skl w90"></div></div>';
+}
+
+function 집자료받기_(다시){
+  if(!S.학생) return;
+  if(받은것_.집 && !다시) return;
+  받은것_.집 = 1;
+  S.공지=[]; S.알림준비={};
+  뼈대_집();
   function 알림채비(무엇){
     S.알림준비[무엇]=1;
     if(S.알림준비.숙제 && S.알림준비.공지) 알림보이기();
   }
   api('공지가져오기').then(function(n){
     S.공지=n||[]; 그리기_공지줄(); 알림채비('공지');
-  }).catch(function(){ S.공지=[]; 알림채비('공지'); });
+  }).catch(function(){ S.공지=[]; 그리기_공지줄(); 알림채비('공지'); });
   api('숙제가져오기',S.학생.이름).then(function(h){
     S.숙제=h||[]; drawHw(); drawToday(); 알림채비('숙제');
-  }).catch(function(){ 알림채비('숙제'); });
-  api('월간순위').then(function(r){ S.순위=r; drawTrophy(); });
+  }).catch(function(){ drawHw(); drawToday(); 알림채비('숙제'); });
   api('연속가져오기',S.학생.이름)
-    .then(function(r){ S.연속=r; drawStreak(); drawToday(); })
-    .catch(function(){ S.연속=null; drawStreak(); drawToday(); });
-  api('게임순위',S.학생.이름)
-    .then(function(r){ S.게임=r; })
-    .catch(function(){ S.게임=null; });
-  drawToday();
-  show('home');
+    .then(function(r){ S.연속=r; drawToday(); })
+    .catch(function(){ S.연속=null; drawToday(); });
 }
+
+/* 연습 화면 — 단어는 연습 화면을 열 때 받는다 */
+function 연습자료받기_(다시){
+  if(!S.학생) return;
+  if(받은것_.연습 && !다시) return;
+  받은것_.연습 = 1;
+  if(!내책들().length) return;
+  loadBook();
+}
+
+/* 순위 화면 — 이달의 점수와 게임 순위는 순위 화면을 열 때 받는다 */
+function 순위자료받기_(다시){
+  if(!S.학생) return;
+  if(받은것_.순위 && !다시) return;
+  받은것_.순위 = 1;
+  api('월간순위').then(function(r){
+    S.순위 = r || null; drawTrophy();
+    if($('s-streak').classList.contains('on') && (S.순위탭||'불꽃')==='이달의 점수') drawMonthRank();
+  }).catch(function(){ S.순위 = null; });
+  게임자료받기_(다시);
+}
+
+/* 게임 최고 점수 — 게임 칸이나 순위 화면을 열 때 받는다 */
+function 게임자료받기_(다시){
+  if(!S.학생) return;
+  if(받은것_.게임 && !다시) return;
+  받은것_.게임 = 1;
+  게임순위새로().then(function(){
+    if(S.게임 === undefined) S.게임 = null;
+    if($('s-games').classList.contains('on')) drawGames();
+    if($('s-streak').classList.contains('on') && (S.순위탭||'불꽃')==='게임') drawGameRank();
+  });
+}
+
+/* 숙제 화면의 ↻ — 지금 화면 것을 다시 받고, 나머지는 열 때 다시 받게 둔다 */
+function 새로불러오기_(){
+  if(!S.학생) return;
+  if(부르는중_ > 0) return;
+  받은것_ = {};
+  집자료받기_(true);
+  toast('새로 불러오는 중…');
+}
+if($('btnRefresh')) $('btnRefresh').onclick = 새로불러오기_;
 
 /* ================================================================
    홈 맨 위 한 줄 — 불꽃과 남은 숙제를 한눈에
@@ -3000,6 +3100,11 @@ function drawMonthRank(){
   var r = S.순위;
   $('skWho').innerHTML='';
   $('skTabs').innerHTML='';
+  if(r === undefined){
+    $('skList').innerHTML='<div class="card"><div class="skl w60"></div><div class="skl w90"></div><div class="skl w75"></div></div>';
+    $('skHelp').innerHTML='';
+    return;
+  }
   if(!r || !(r.순위||[]).length){
     $('skList').innerHTML='<div class="card center sub">이번 달 점수가 아직 없어요.</div>';
     $('skHelp').innerHTML='선생님이 <b>점수</b> 시트에 넣어 주시는 시험 점수로 만든 순위입니다.';
@@ -3021,6 +3126,12 @@ function drawMonthRank(){
 function drawGameRank(){
   var g = S.게임;
   $('skWho').innerHTML='';
+  if(g === undefined){
+    $('skTabs').innerHTML='';
+    $('skList').innerHTML='<div class="card"><div class="skl w60"></div><div class="skl w90"></div><div class="skl w75"></div></div>';
+    $('skHelp').innerHTML='';
+    return;
+  }
   if(!g || !(g.게임||[]).length){
     $('skTabs').innerHTML='';
     $('skList').innerHTML='<div class="card center sub">아직 게임 기록이 없어요.<br>게임을 한 판 해 보세요!</div>';
@@ -3128,6 +3239,7 @@ function 그리기_책칩(){
 function loadBook(){
   var name=$('selBook').value;
   if(!name){ S.단어=[]; return; }
+  var q=$('rangeQuick'); if(q) q.innerHTML='<div class="loading">단어를 불러오는 중…</div>';
   S.단어장=name;
   S.종류='';
   내책들().forEach(function(b){ if(b.이름===name) S.종류=b.종류||''; });
@@ -3692,6 +3804,11 @@ function drawHw(){
 
   qsa('[data-hw]').forEach(function(b){
     b.onclick=function(){
+      /* 아이가 조급해서 두 번 누르면 단어 불러오기가 두 번 돈다.
+         늦게 온 대답이 이미 풀고 있는 시험을 통째로 갈아엎으면
+         화면의 뜻이 바뀌면서 멀쩡히 쓴 답이 틀린 것이 된다.
+         그래서 마지막으로 누른 것만 살린다. */
+      var 표 = ++숙제열기표_;
       var h=S.숙제[+b.dataset.hw];
       S.현재숙제=h; S.돌아갈곳='home';
       if($('selBook')) $('selBook').value=h.단어장;
@@ -3700,6 +3817,7 @@ function drawHw(){
       후보.forEach(function(x){ if(x.이름===h.단어장) S.종류=x.종류||''; });
       모드박스();
       api('단어가져오기',h.단어장).then(function(w){
+        if(표 !== 숙제열기표_) return;              // 그 사이 다시 눌렀다 — 이건 버린다
         S.단어=w||[]; S.단어장=h.단어장;
         $('inFrom').value=h.시작; $('inTo').value=h.끝||S.단어.length;
         drawQuick();
@@ -3710,6 +3828,87 @@ function drawHw(){
     };
   });
 }
+
+/* ================================================================
+   화면 돌리기 — 아이가 「⟳ 가로」 를 눌러 가로/세로를 바꾼다
+   설치한 앱에서 크롬은 「전체화면일 때만」 방향을 바꾸게 해 준다
+   (SecurityError: The page needs to be fullscreen ...).
+   단추를 누른 그 순간이 사람이 건드린 순간이라 전체화면을 받을 수 있다.
+   아이폰은 이 기능 자체가 없어 단추를 아예 숨긴다.
+================================================================ */
+function 돌릴수있나_(){
+  try{
+    var o = screen.orientation;
+    if(!o || typeof o.lock !== 'function') return false;
+    var el = document.documentElement;
+    return !!(el.requestFullscreen || el.webkitRequestFullscreen);
+  }catch(e){ return false; }
+}
+function 전체화면중_(){
+  try{ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  catch(e){ return false; }
+}
+function 가로인가_(){
+  try{
+    var o = screen.orientation;
+    if(o && o.type) return o.type.indexOf('landscape') === 0;
+  }catch(e){}
+  return window.innerWidth > window.innerHeight;
+}
+function 돌리기단추그리기_(){
+  var 숨길까 = !돌릴수있나_() || !S.학생;
+  var 글 = 가로인가_() ? '⟳ 세로' : '⟳ 가로';
+  qsa('.rotbtn').forEach(function(b){
+    b.classList.toggle('hide', 숨길까);
+    if(!숨길까) b.textContent = 글;
+  });
+}
+function 전체화면나가기_(){
+  try{
+    if(document.exitFullscreen) return document.exitFullscreen();
+    if(document.webkitExitFullscreen) return document.webkitExitFullscreen();
+  }catch(e){}
+  return Promise.resolve();
+}
+function 화면돌리기_(){
+  var o; try{ o = screen.orientation; }catch(e){ return; }
+  if(!o || typeof o.lock !== 'function'){ toast('이 기기에서는 돌릴 수 없어요'); return; }
+
+  if(가로인가_()){
+    /* 세로로 되돌리기 — 잠금을 풀고 전체화면에서 나온다 */
+    try{ if(o.unlock) o.unlock(); }catch(e){}
+    Promise.resolve(전체화면나가기_()).catch(function(){}).then(function(){
+      setTimeout(돌리기단추그리기_, 350);
+    });
+    return;
+  }
+
+  var el = document.documentElement;
+  var 부르기 = el.requestFullscreen || el.webkitRequestFullscreen;
+  if(!부르기){ toast('이 기기에서는 돌릴 수 없어요'); return; }
+  var 켜기 = function(){
+    var p = o.lock('landscape');
+    if(p && p.catch) p.catch(function(){ toast('이 기기에서는 돌릴 수 없어요'); });
+    setTimeout(돌리기단추그리기_, 400);
+  };
+  try{
+    var f = 부르기.call(el, { navigationUI:'hide' });
+    if(f && f.then) f.then(켜기, function(){ toast('화면을 돌리지 못했어요'); });
+    else setTimeout(켜기, 250);
+  }catch(e){ toast('화면을 돌리지 못했어요'); }
+}
+document.addEventListener('click', function(e){
+  var b = e.target && e.target.closest && e.target.closest('.rotbtn');
+  if(b) 화면돌리기_();
+});
+try{
+  if(screen.orientation && screen.orientation.addEventListener)
+    screen.orientation.addEventListener('change', 돌리기단추그리기_);
+  document.addEventListener('fullscreenchange', 돌리기단추그리기_);
+}catch(e){}
+
+/* 숙제를 몇 번째로 열었는지 세는 표 — 늦게 온 대답을 가려내는 데 쓴다 */
+var 숙제열기표_ = 0;
 
 /* 1b — 방법은 눌러서 고르고, 아래 「시작」 하나로 들어간다 */
 var 방법이름={verb:'3단변화 시험',spell:'스펠링 시험',flash:'플래시카드',choice:'4지선다',
@@ -3748,7 +3947,7 @@ qsa('[data-back]').forEach(function(b){
     if(t==='home') t = S.돌아갈곳 || 'home';        // 연습으로 들어왔으면 연습으로
     if((t==='home'||t==='study') && !S.학생) t='login';
     if(t==='login'){
-      document.body.classList.remove('desk','tmob');
+      document.body.classList.remove('desk');
       var top=document.querySelector('#s-teacher .top'); if(top) top.classList.remove('hide');
     }
     show(t);
@@ -4409,6 +4608,9 @@ function startVerb(){
 function renderVerb(){
   if(S.idx>=S.문제.length){ finishVerb(); return; }
   var w=S.문제[S.idx];
+  /* 채점·빈칸 검사는 이 단어로만 한다.
+     혹시 S.문제나 S.idx 가 뒤에서 바뀌어도, 아이가 화면에서 본 단어로 채점된다. */
+  S.본문제 = w;
   $('vQ').textContent=w.ko;
   qsa('.vans').forEach(function(x){ x.remove(); });
   V_ID.forEach(function(id,i){
@@ -4428,7 +4630,9 @@ function renderVerb(){
 }
 
 function judgeVerb(){
-  var w=S.문제[S.idx], f=세형태(w.en);
+  var w=S.본문제 || S.문제[S.idx];
+  if(!w) return;
+  var f=세형태(w.en);
   var 정답들=[f.원형,f.과거,f.분사];
   var 입력=[$('vBase').value,$('vPast').value,$('vPp').value];
   var 틀린=[];
@@ -4470,7 +4674,7 @@ function judgeVerb(){
 
 /* 아직 안 쓴 칸을 찾는다. 정답이 없는 칸(자료가 두 개뿐인 동사)은 안 따진다. */
 function 안쓴칸_(){
-  var w = S.문제[S.idx];
+  var w = S.본문제 || S.문제[S.idx];
   if(!w) return [];
   var f = 세형태(w.en), 정답들 = [f.원형, f.과거, f.분사], 빈것 = [];
   V_ID.forEach(function(id, i){
@@ -4646,22 +4850,12 @@ $('btnTLogin').onclick=function(){
     T.pw=pw; $('tMsg').textContent='';
     $('tLogin').classList.add('hide'); $('tMain').classList.remove('hide');
     document.body.classList.add('desk');
-    보기설정();
     document.querySelector('#s-teacher .top').classList.add('hide');
     setTheme('high');
     loadTeacher();
   });
 };
 $('tPw').addEventListener('keydown',function(e){ if(e.key==='Enter') $('btnTLogin').click(); });
-function 보기설정(v){
-  if(v) try{localStorage.setItem('tView',v)}catch(e){}
-  var m; try{m=localStorage.getItem('tView')}catch(e){}
-  if(!m) m = window.innerWidth<700 ? 'mob' : 'pc';
-  document.body.classList.toggle('tmob', m==='mob');
-  var b=$('btnView'); if(b) b.textContent = m==='mob' ? 'PC 보기' : '모바일 보기';
-  window.scrollTo(0,0);
-}
-$('btnView').onclick=function(){ 보기설정(document.body.classList.contains('tmob')?'pc':'mob'); };
 $('btnReload').onclick=function(){ loadTeacher(); toast('새로 불러왔습니다'); };
 
 function loadTeacher(){
