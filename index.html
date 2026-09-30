@@ -376,15 +376,12 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .top{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 12px}
 .top .who{font-size:13px;color:var(--sub)}
 .iconbtn{background:transparent;color:var(--sub);font-size:13px;padding:6px 10px;border-radius:10px;font-weight:700}
-.rotbtn{margin-left:auto;white-space:nowrap}
+.rotbtn{margin-left:auto;white-space:nowrap;
+  border:1.5px solid var(--line);background:transparent;color:var(--text);
+  font-size:12.5px;font-weight:800;padding:6px 14px;border-radius:99px;min-width:54px}
+.rotbtn:active{background:var(--line)}
 
 /* ===== 불러오는 중 표시 ===== */
-#loadBar{position:fixed;left:0;top:0;height:3px;width:100%;z-index:120;
-  pointer-events:none;opacity:0;transition:opacity .18s}
-#loadBar.on{opacity:1}
-#loadBar > i{display:block;height:100%;width:38%;border-radius:0 3px 3px 0;
-  background:var(--primary);animation:ldbar 1.05s ease-in-out infinite}
-@keyframes ldbar{0%{margin-left:-38%}100%{margin-left:100%}}
 #btnRefresh{font-size:16px;line-height:1}
 #btnRefresh.doing{animation:도는것 .9s linear infinite;color:var(--primary)}
 @keyframes 도는것{to{transform:rotate(360deg)}}
@@ -1215,8 +1212,6 @@ input,select,textarea{border-radius:14px}
 <div id="app">
 
   <!-- ========================= 로그인 ========================= -->
-  <div id="loadBar" aria-hidden="true"><i></i></div>
-
   <section id="s-login" class="screen on">
     <div id="demoBadge" class="demo hide">미리보기 모드입니다 — 예시 자료로 돌아갑니다. 구글에 올리면 실제 명단과 단어장이 뜹니다.</div>
     <div class="signboard">
@@ -1256,7 +1251,7 @@ input,select,textarea{border-radius:14px}
       </div>
       <button class="iconbtn hide" id="btnTheme">테마</button>
       <button class="iconbtn" id="btnRefresh" aria-label="새로 불러오기" title="새로 불러오기">↻</button>
-      <button class="iconbtn rotbtn hide" id="btnRotate" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" id="btnRotate" aria-label="화면 돌리기">가로</button>
       <button class="iconbtn" id="btnLogout">나가기</button>
     </header>
 
@@ -1274,7 +1269,7 @@ input,select,textarea{border-radius:14px}
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who">연습하기</div>
       <span class="sub" style="margin-left:auto;font-size:11px">숙제 아님 · 기록에 안 남아요</span>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
 
     <div class="card" id="bookWrap">
@@ -1338,7 +1333,7 @@ input,select,textarea{border-radius:14px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 그만</button>
       <div class="who"><span id="fProg"></span></div>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div class="bar"><i id="fBar"></i></div>
     <div class="qwrap">
@@ -1363,7 +1358,7 @@ input,select,textarea{border-radius:14px}
         <span class="timer" id="qTimer"></span>
         <span id="qProg"></span>
       </div>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div class="bar"><i id="qBar"></i></div>
     <div class="qwrap">
@@ -1389,7 +1384,7 @@ input,select,textarea{border-radius:14px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who">게임</div>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div id="gmPick"></div>
     <div id="gmList"></div>
@@ -1408,7 +1403,7 @@ input,select,textarea{border-radius:14px}
         <span id="mtPair"></span>
         <span class="timer" id="mtTime"></span>
       </div>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div id="mtBoard" class="mtboard"></div>
     <div id="mtEnd"></div>
@@ -1423,7 +1418,7 @@ input,select,textarea{border-radius:14px}
         <span id="pzScore"></span>
         <span class="timer" id="pzTime"></span>
       </div>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div class="card center mt">
       <div class="sub" id="pzNo"></div>
@@ -1442,7 +1437,7 @@ input,select,textarea{border-radius:14px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who">순위</div>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div id="trophyBox"></div>
     <div class="tabs" id="rkTabs"></div>
@@ -1462,7 +1457,7 @@ input,select,textarea{border-radius:14px}
         <div class="st1">
           <button class="iconbtn" id="shBack">← 그만</button>
           <span class="stCnt" id="shCnt"></span>
-          <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+          <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
         </div>
         <div class="stName" id="shName" style="margin-top:6px"></div>
         <div class="bar"><i id="shBar"></i></div>
@@ -1483,7 +1478,7 @@ input,select,textarea{border-radius:14px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 그만</button>
       <div class="hud"><span id="vProg"></span></div>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div class="bar"><i id="vBar"></i></div>
 
@@ -1514,7 +1509,7 @@ input,select,textarea{border-radius:14px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 그만</button>
       <div class="hud"><span id="wbCnt"></span></div>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
 
     <div class="wbtop">
@@ -1534,7 +1529,7 @@ input,select,textarea{border-radius:14px}
   <!-- ========================= 결과 ========================= -->
   <section id="s-result" class="screen">
     <div class="top" style="justify-content:flex-end;padding-bottom:6px">
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div class="card center">
       <div class="sub" id="rTitle"></div>
@@ -1569,7 +1564,7 @@ input,select,textarea{border-radius:14px}
     <div class="top">
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who" id="recTitle"></div>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">⟳ 가로</button>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div class="card"><div id="recBody" class="sub">불러오는 중…</div></div>
   </section>
@@ -1668,7 +1663,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-30a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-30c';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2101,7 +2096,6 @@ var DEMO = {
 
 var 부르는중_ = 0;
 function 부르는중그리기_(){
-  var b = $('loadBar'); if(b) b.classList.toggle('on', 부르는중_ > 0);
   var r = $('btnRefresh'); if(r) r.classList.toggle('doing', 부르는중_ > 0);
 }
 function api(fn){
@@ -3830,7 +3824,7 @@ function drawHw(){
 }
 
 /* ================================================================
-   화면 돌리기 — 아이가 「⟳ 가로」 를 눌러 가로/세로를 바꾼다
+   화면 돌리기 — 아이가 「가로」 단추를 눌러 가로/세로를 바꾼다
    설치한 앱에서 크롬은 「전체화면일 때만」 방향을 바꾸게 해 준다
    (SecurityError: The page needs to be fullscreen ...).
    단추를 누른 그 순간이 사람이 건드린 순간이라 전체화면을 받을 수 있다.
@@ -3857,7 +3851,7 @@ function 가로인가_(){
 }
 function 돌리기단추그리기_(){
   var 숨길까 = !돌릴수있나_() || !S.학생;
-  var 글 = 가로인가_() ? '⟳ 세로' : '⟳ 가로';
+  var 글 = 가로인가_() ? '세로' : '가로';
   qsa('.rotbtn').forEach(function(b){
     b.classList.toggle('hide', 숨길까);
     if(!숨길까) b.textContent = 글;
