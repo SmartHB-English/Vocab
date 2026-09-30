@@ -1630,7 +1630,6 @@ input,select,textarea{border-radius:14px}
       <span class="kpill"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.6 9l6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 20l1.1-6L3.4 9.8 9.4 9Z" fill="#F0A017"></path></svg><b id="kStar">0</b></span>
       <span class="kpill"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5 14.4 9.4l5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4L4.2 10.2l5.4-.8Z" fill="#E8651A"></path></svg><b id="kStick">0</b></span>
       <span style="margin-left:auto"></span>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
       <button class="iconbtn" id="kOut">나가기</button>
     </div>
     <div class="kidhi">
@@ -1701,8 +1700,6 @@ input,select,textarea{border-radius:14px}
   <section id="s-kidst" class="screen kidwrap">
     <div class="kidtop">
       <button class="iconbtn" id="kStBack">← 뒤로</button>
-      <span style="margin-left:auto"></span>
-      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div style="font-size:28px">내 스티커판</div>
     <div class="sub" id="kStMsg" style="margin-top:4px"></div>
@@ -1892,7 +1889,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-01a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-01b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3604,6 +3601,22 @@ var 유치판 = null;   /* {숙제, 문제[], idx, 맞은수, 상태} */
 
 function 유치인가_(){ return !!(S.학생 && S.학생.학년구분 === '유치'); }
 
+/* 유치부는 성을 떼고 이름만 부른다 — 「최아람」 → 「아람아」, 「김서연」 → 「서연아」,
+   받침이 없으면 「야」 가 붙는다 — 「박지수」 → 「지수야」 */
+function 부를이름_(전체){
+  var n = String(전체 || '').trim();
+  return (n.length >= 2) ? n.slice(1) : n;
+}
+function 아야_(이름){
+  var c = 이름.charCodeAt(이름.length - 1);
+  if(c >= 0xAC00 && c <= 0xD7A3) return ((c - 0xAC00) % 28) ? '아' : '야';
+  return '아';
+}
+function 얘야_(전체){
+  var n = 부를이름_(전체);
+  return n ? (n + 아야_(n)) : '';
+}
+
 function 유치별열쇠_(){ return '유치별_' + ((S.학생 && S.학생.이름) || ''); }
 function 유치스티커열쇠_(){ return '유치스티커_' + ((S.학생 && S.학생.이름) || ''); }
 function 유치별_(){ return Number(저장읽기_(유치별열쇠_(), 0)) || 0; }
@@ -3621,7 +3634,7 @@ function 유치상주기_(별, 이름){
 /* ---------- 오늘의 길 ---------- */
 function 유치들어가기_(){
   if(!유치인가_()) return;
-  $('kHi').textContent = S.학생.이름 + '아, 오늘도 해 볼까?';
+  $('kHi').textContent = 얘야_(S.학생.이름) + ', 오늘도 해 볼까?';
   유치길그리기_();
   show('kid');
 }
