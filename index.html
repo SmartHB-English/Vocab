@@ -376,6 +376,22 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .top{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 12px}
 .top .who{font-size:13px;color:var(--sub)}
 .iconbtn{background:transparent;color:var(--sub);font-size:13px;padding:6px 10px;border-radius:10px;font-weight:700}
+.setbox{padding:2px 2px 4px}
+.setrow{display:flex;align-items:center;gap:14px;padding:12px 2px;border-bottom:1px solid var(--line)}
+.setrow:last-child{border-bottom:0}
+.setl{flex:1;min-width:0}
+.setl b{display:block;font-size:14.5px;font-weight:800}
+.setl i{display:block;font-size:12px;color:var(--sub);font-style:normal;margin-top:3px;line-height:1.45}
+.setr{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.setr input{width:88px;text-align:right;font-size:16px;font-weight:800;
+  padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:var(--text)}
+.setr span{font-size:13px;font-weight:700;color:var(--sub)}
+.clock{font-variant-numeric:tabular-nums;font-weight:900;font-size:14px;
+  letter-spacing:.3px;color:var(--text);background:var(--line);
+  padding:4px 10px;border-radius:99px;white-space:nowrap}
+.clock.soon{color:#fff;background:var(--warn,#F59E0B)}
+.clock.over{color:#fff;background:#DC2626;animation:시계깜빡 1s step-end infinite}
+@keyframes 시계깜빡{50%{opacity:.45}}
 .rotbtn{margin-left:auto;white-space:nowrap;
   border:1.5px solid var(--line);background:transparent;color:var(--text);
   font-size:12.5px;font-weight:800;padding:6px 14px;border-radius:99px;min-width:54px}
@@ -1457,6 +1473,7 @@ input,select,textarea{border-radius:14px}
         <div class="st1">
           <button class="iconbtn" id="shBack">← 그만</button>
           <span class="stCnt" id="shCnt"></span>
+          <span class="clock hide" id="shClock"></span>
           <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
         </div>
         <div class="stName" id="shName" style="margin-top:6px"></div>
@@ -1477,7 +1494,7 @@ input,select,textarea{border-radius:14px}
   <section id="s-verb" class="screen">
     <div class="top">
       <button class="iconbtn" data-back="home">← 그만</button>
-      <div class="hud"><span id="vProg"></span></div>
+      <div class="hud"><span id="vProg"></span><span class="clock hide" id="vClock"></span></div>
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div class="bar"><i id="vBar"></i></div>
@@ -1609,6 +1626,7 @@ input,select,textarea{border-radius:14px}
               <button data-tab="book" data-g="자료">단어장</button>
               <button data-tab="give" data-g="자료">단어장 배정</button>
               <button data-tab="roster" data-g="자료">학생 명단</button>
+              <button data-tab="setting" data-g="자료">설정</button>
             </div>
           </nav>
           <div class="tside-f">
@@ -1663,7 +1681,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-30c';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-30d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -1769,11 +1787,35 @@ var DEMO_구독 = [
 ];
 var DEMO_열쇠 = {공개키:'', 비밀키:''};
 
+var DEMO_설정 = { 합격점:80, 연습분:5, 시험분:20 };
+
 var DEMO = {
+  설정가져오기: function(){
+    return {ok:true, 합격점:DEMO_설정.합격점, 연습분:DEMO_설정.연습분, 시험분:DEMO_설정.시험분};
+  },
+  설정저장: function(pw, 값){
+    값 = 값 || {};
+    var 끝 = {합격점:100, 연습분:180, 시험분:180};
+    var 말 = {합격점:'합격점은 0에서 100 사이로 넣어 주세요.',
+              연습분:'제한 시간은 0에서 180분 사이로 넣어 주세요. (0이면 제한 없음)',
+              시험분:'제한 시간은 0에서 180분 사이로 넣어 주세요. (0이면 제한 없음)'};
+    var 새것 = {}, 나쁨 = '';
+    ['합격점','연습분','시험분'].forEach(function(k){
+      if(나쁨 || 값[k]===undefined || 값[k]==='') return;
+      var n = Math.round(Number(값[k]));
+      if(!isFinite(n) || n < 0 || n > 끝[k]){ 나쁨 = 말[k]; return; }
+      새것[k] = n;
+    });
+    if(나쁨) return {ok:false, 메시지:나쁨};
+    for(var k in 새것) DEMO_설정[k] = 새것[k];
+    return {ok:true, 합격점:DEMO_설정.합격점, 연습분:DEMO_설정.연습분, 시험분:DEMO_설정.시험분};
+  },
   시작정보: function(){
     return {
       학원이름:'홍제인왕해법영어',
       합격점:80,
+      연습분:DEMO_설정.연습분,
+      시험분:DEMO_설정.시험분,
       단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']}]
     };
   },
@@ -3937,7 +3979,7 @@ qsa('.tgrp').forEach(function(g){
 });
 qsa('[data-back]').forEach(function(b){
   b.onclick=function(){
-    stopTimer(); var t=b.dataset.back;
+    stopTimer(); 제한멈춤_(); var t=b.dataset.back;
     if(t==='home') t = S.돌아갈곳 || 'home';        // 연습으로 들어왔으면 연습으로
     if((t==='home'||t==='study') && !S.학생) t='login';
     if(t==='login'){
@@ -4181,6 +4223,66 @@ function startTimer(){
 }
 function stopTimer(){ if(S.타이머){clearInterval(S.타이머);S.타이머=null;} }
 
+/* ================================================================
+   제한 시간 — 연습 시험과 「시험」 숙제에 건다
+   · 남은 시간은 「끝날 시각」 으로 센다. 앱을 잠깐 내려놓아도 시계는 간다.
+   · 다 되면 그때까지 쓴 것만으로 저절로 제출된다.
+   · 설정 시트의 '연습제한분' · '시험제한분' 으로 바꾼다. 0 이면 제한이 없다.
+================================================================ */
+var 제한 = { 시계:null, 끝날때:0, 어디:'', 예고함:false };
+
+function 제한분_(){
+  var i = 시작정보 || {};
+  if(S.현재숙제) return (S.현재숙제.종류 === '시험') ? (Number(i.시험분)||0) : 0;
+  return Number(i.연습분) || 0;
+}
+
+function 시각글_(초){
+  if(초 < 0) 초 = 0;
+  var m = Math.floor(초/60), x = 초%60;
+  return m + ':' + (x < 10 ? '0'+x : x);
+}
+
+function 제한그리기_(){
+  var el = $(제한.어디); if(!el) return;
+  var 남 = Math.ceil((제한.끝날때 - Date.now())/1000);
+  el.textContent = '⏱ ' + 시각글_(남);
+  el.classList.toggle('soon', 남 <= 60 && 남 > 0);
+  el.classList.toggle('over', 남 <= 0);
+}
+
+function 제한멈춤_(){
+  if(제한.시계){ clearInterval(제한.시계); 제한.시계 = null; }
+  ['shClock','vClock'].forEach(function(id){
+    var el = $(id); if(el){ el.classList.add('hide'); el.classList.remove('soon','over'); }
+  });
+  제한.어디 = ''; 제한.끝날때 = 0; 제한.예고함 = false;
+}
+
+function 제한시작_(어디, 다됐을때){
+  제한멈춤_();
+  var 분 = 제한분_();
+  if(!분) return;                       /* 0 이면 시간을 안 잰다 */
+  제한.어디 = 어디;
+  제한.끝날때 = Date.now() + 분*60000;
+  var el = $(어디); if(el) el.classList.remove('hide');
+  제한그리기_();
+  제한.시계 = setInterval(function(){
+    var 남 = Math.ceil((제한.끝날때 - Date.now())/1000);
+    제한그리기_();
+    if(남 === 60 && !제한.예고함){
+      제한.예고함 = true;
+      toast('1분 남았어요 — 곧 저절로 제출돼요');
+      try{ beep('ng'); }catch(e){}
+    }
+    if(남 <= 0){
+      제한멈춤_();
+      toast('시간이 다 됐어요 — 여기까지 채점합니다');
+      try{ 다됐을때(); }catch(e){}
+    }
+  }, 1000);
+}
+
 function renderQ(){
   if(S.모드==='time'){
     if(S.idx>=S.문제.length){ S.문제=S.문제.concat(shuffle(S.문제)); }
@@ -4304,6 +4406,7 @@ function startSheet(mode, list, 범위){
   보기만들기();
   drawSheet();
   show('sheet');
+  제한시작_('shClock', function(){ if(!S.채점됨) 채점하기(); });
   try{ window.scrollTo(0,0); }catch(e){}
 }
 
@@ -4405,7 +4508,7 @@ $('shBack').onclick=function(){
   if(!S.채점됨 && S.답.some(function(v){return String(v||'').trim();})){
     if(!confirm('지금 그만두면 쓴 답이 사라집니다. 그만둘까요?')) return;
   }
-  stopTimer();
+  stopTimer(); 제한멈춤_();
   show(S.학생 ? (S.돌아갈곳||'home') : 'login');
 };
 
@@ -4417,6 +4520,7 @@ $('shSubmit').onclick=function(){
 };
 
 function 채점하기(){
+  제한멈춤_();
   S.정답수=0; S.오답=[]; S.진행중=false;
   var 연속=0;
   S.문제.forEach(function(w,i){
@@ -4466,7 +4570,7 @@ function 채점하기(){
 $('btnSeeSheet').onclick=function(){ show('sheet'); };
 
 function finishQuiz(){
-  stopTimer(); S.진행중=false;
+  stopTimer(); 제한멈춤_(); S.진행중=false;
   var 총 = S.모드==='time' ? (S.정답수+S.오답.length) : S.문제.length;
   총 = 총 || 1;
   var 점수 = Math.round(S.정답수/총*100);
@@ -4597,6 +4701,26 @@ function startVerb(){
   S.게임점수=0; S.최고콤보=0; S.콤보=0;
   S.시작시각=Date.now();
   show('verb'); renderVerb();
+  제한시작_('vClock', 시간끝_3단_);
+}
+
+/* 시간이 다 됐을 때 — 아직 안 푼 동사는 통째로 틀린 것으로 둔다 */
+function 시간끝_3단_(){
+  /* 지금 쓰고 있던 것은 쓴 만큼 채점해 준다 */
+  if(S.v상태 === 'input' && S.본문제){ try{ judgeVerb(); }catch(e){} }
+  for(var i = S.idx; i < S.문제.length; i++){
+    var w = S.문제[i];
+    if(i === S.idx && S.v상태 === 'feedback') continue;   /* 지금 것은 방금 채점했다 */
+    var f = 세형태(w.en), 정답들 = [f.원형, f.과거, f.분사], 틀린 = [];
+    정답들.forEach(function(정답, k){
+      if(!정답) return;
+      S.칸수++;
+      틀린.push({칸:V_이름[k], 정답:정답, 내답:''});
+    });
+    if(틀린.length) S.오답.push({en:w.en, ko:w.ko, 틀린:틀린});
+  }
+  S.idx = S.문제.length;
+  finishVerb();
 }
 
 function renderVerb(){
@@ -4712,6 +4836,7 @@ V_ID.forEach(function(id,i){
 });
 
 function finishVerb(){
+  제한멈춤_();
   var 총=S.칸수||1;
   var 점수=Math.round(S.칸정답/총*100);
   var 초=Math.round((Date.now()-S.시작시각)/1000);
@@ -4853,7 +4978,7 @@ $('tPw').addEventListener('keydown',function(e){ if(e.key==='Enter') $('btnTLogi
 $('btnReload').onclick=function(){ loadTeacher(); toast('새로 불러왔습니다'); };
 
 function loadTeacher(){
-  T.배정=null; T.배정변경={}; T.명단=null; T.시상=null;
+  T.배정=null; T.배정변경={}; T.명단=null; T.시상=null; T.설정=null;
   $('tBody').innerHTML='<div class="empty">불러오는 중…</div>';
   api('선생님요약',T.pw,7).then(function(d){
     if(!d.ok){ $('tBody').innerHTML='<div class="empty">권한이 없습니다.</div>'; return; }
@@ -6842,7 +6967,7 @@ function drawTab(){
         api('배정저장',T.pw,목록).then(function(r){
           if(r&&r.ok){
             toast(r.개수+'명의 단어장을 바꿨습니다');
-            T.배정=null; T.배정변경={}; T.명단=null; T.시상=null;
+            T.배정=null; T.배정변경={}; T.명단=null; T.시상=null; T.설정=null;
             drawTab();
           } else { btn.disabled=false; btn.textContent='저장'; toast((r&&r.메시지)||'저장하지 못했습니다'); }
         });
@@ -7480,6 +7605,56 @@ function drawTab(){
         }
         else toast(r.메시지||'실패했습니다');
       });
+    };
+  }
+
+  /* ---------------- 설정 ---------------- */
+  else if(T.tab==='setting'){
+    if(!T.설정){
+      b.innerHTML = 머리('설정','') + 빈칸('불러오는 중…');
+      api('설정가져오기', T.pw).then(function(r){
+        if(!r || !r.ok){ $('tBody').innerHTML = 머리('설정','') + 빈칸(r&&r.메시지||'불러오지 못했습니다'); return; }
+        T.설정 = r; drawTab();
+      }).catch(function(){ $('tBody').innerHTML = 머리('설정','') + 빈칸('불러오지 못했습니다'); });
+      return;
+    }
+    var C = T.설정;
+    function 줄_(이름, id, 값, 설명, 뒤){
+      return '<div class="setrow">'+
+        '<div class="setl"><b>'+이름+'</b><i>'+설명+'</i></div>'+
+        '<div class="setr"><input id="'+id+'" type="number" inputmode="numeric" value="'+
+          (값===''||값===null||값===undefined?'':값)+'"><span>'+뒤+'</span></div></div>';
+    }
+    b.innerHTML =
+      머리('설정','바꾼 뒤 「저장」 을 누르세요. 학생 앱에는 다음에 들어올 때부터 적용됩니다.') +
+      판('시험 제한 시간','',
+        '<div class="setbox">'+
+          줄_('연습 제한 시간','setPr',C.연습분,
+              '학생이 연습 화면에서 스스로 보는 시험','분')+
+          줄_('시험 제한 시간','setEx',C.시험분,
+              '종류가 「시험」 인 숙제 (당일·기간·보충 숙제는 제한 없음)','분')+
+          '<div class="sub" style="padding:2px 2px 10px">0 을 넣으면 시간을 재지 않습니다. '+
+            '시간이 다 되면 그때까지 쓴 것만으로 저절로 제출됩니다. 1분 전에 미리 알려 줍니다.<br>'+
+            '플래시카드·단어장 보기·게임에는 시간을 재지 않습니다.</div>'+
+        '</div>') +
+      판('숙제 합격점','',
+        '<div class="setbox">'+
+          줄_('숙제 합격점','setPass',C.합격점,
+              '이 점수를 넘겨야 숙제를 낸 것으로 칩니다 (시험은 점수와 상관없이 인정)','점')+
+        '</div>') +
+      '<div style="max-width:420px"><button class="btn" id="btnSetSave">저장</button></div>';
+
+    $('btnSetSave').onclick=function(){
+      var 값 = { 연습분:$('setPr').value, 시험분:$('setEx').value, 합격점:$('setPass').value };
+      $('btnSetSave').disabled=true;
+      api('설정저장', T.pw, 값).then(function(r){
+        $('btnSetSave').disabled=false;
+        if(!r || !r.ok){ toast(r&&r.메시지||'저장하지 못했습니다'); return; }
+        T.설정 = r;
+        if(시작정보){ 시작정보.연습분=r.연습분; 시작정보.시험분=r.시험분; 시작정보.합격점=r.합격점; }
+        toast('저장했습니다');
+        drawTab();
+      }).catch(function(){ $('btnSetSave').disabled=false; toast('저장하지 못했습니다'); });
     };
   }
 }
