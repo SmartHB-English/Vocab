@@ -382,9 +382,26 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .top .who{font-size:13px;color:var(--sub)}
 .iconbtn{background:transparent;color:var(--sub);font-size:13px;padding:6px 10px;border-radius:10px;font-weight:700}
 /* ===== 시험 탭 ===== */
-.nextbar .agchip i{font-style:normal;color:var(--sub);font-size:11.5px;margin-left:6px}
-.nextbar .agchip.done{opacity:.5}
-.nextbar .agl{background:var(--primary-soft);color:var(--primary-d);padding:4px 10px;border-radius:99px}
+/* ===== 숙제 「이어서 내기」 ===== */
+.nextpick{background:var(--primary-soft);border:1.5px solid var(--primary);
+  border-radius:16px;padding:14px 15px;margin:0 0 16px}
+.npl{font-size:13px;font-weight:900;color:var(--primary-d);margin-bottom:11px}
+.npl span{font-weight:700;color:var(--sub);font-size:11.5px;margin-left:8px}
+.npcards{display:flex;flex-wrap:wrap;gap:10px}
+.npcard{display:flex;align-items:center;gap:11px;flex:1 1 300px;max-width:440px;
+  background:var(--card);border:1.5px solid var(--line);border-radius:13px;
+  padding:12px 14px;text-align:left;font-family:inherit;cursor:pointer}
+.npcard:hover{border-color:var(--primary)}
+.npcard.done{opacity:.55;cursor:default}
+.npdot{width:10px;height:10px;border-radius:50%;flex:none}
+.npt{flex:1;min-width:0}
+.npt b{display:block;font-size:13px;font-weight:800;color:var(--sub)}
+.npt em{display:block;font-style:normal;font-size:17px;font-weight:900;
+  letter-spacing:-.4px;color:var(--text);margin-top:2px}
+.npt i{display:block;font-style:normal;font-size:11.5px;font-weight:700;
+  color:var(--sub);margin-top:3px}
+.npgo{flex:none;background:var(--primary);color:#fff;font-size:12.5px;font-weight:800;
+  padding:9px 14px;border-radius:99px}
 .exsec{font-size:12px;font-weight:800;color:var(--sub);margin:14px 2px 8px}
 .exsec:first-child{margin-top:2px}
 .excard{display:block;width:100%;text-align:left;background:var(--card);
@@ -1732,7 +1749,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-30j';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-30k';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -5733,21 +5750,27 @@ function 진도들_(전체, 목록){
 function 진도줄(전체, 목록){
   var 것들 = 진도들_(전체, 목록);
   if(!것들.length) return '';
-  return '<div class="againbar nextbar">'+
-    '<span class="agl">이어서 내기</span>'+
+  return '<div class="nextpick">'+
+    '<div class="npl">이어서 내기 <span>지난번에 낸 데서 이어 붙입니다 — 누르면 아래 칸이 채워져요</span></div>'+
+    '<div class="npcards">'+
     것들.map(function(p, i){
-      var c = (T.색맵||{})[p.단어장] || '';
-      var 점 = c ? '<span class="dot" style="background:'+c+'"></span>' : '';
+      var c = (T.색맵||{})[p.단어장] || 'var(--sub)';
+      var 점 = '<span class="npdot" style="background:'+c+'"></span>';
       if(p.끝났나){
-        return '<button class="agchip done" data-next="'+i+'" disabled>'+점+
-          esc(p.단어장)+' · 끝까지 냈어요</button>';
+        return '<div class="npcard done">'+점+
+          '<span class="npt"><b>'+esc(p.단어장)+'</b>'+
+          '<em>끝까지 냈어요</em></span></div>';
       }
-      return '<button class="agchip" data-next="'+i+'">'+점+
-        esc(p.단어장)+' <b>'+esc(레슨글_(p.묶음,p.총,p.시작,p.끝,true))+'</b> · '+esc(p.최근.유형)+
-        ' <i>지난번 '+p.지난끝+'번까지</i></button>';
+      var 지난 = (p.묶음 && p.지난끝 % p.묶음 === 0)
+        ? '지난번 레슨 ' + (p.지난끝 / p.묶음) + '까지'
+        : '지난번 ' + p.지난끝 + '번까지';
+      return '<button class="npcard" data-next="'+i+'" type="button">'+점+
+        '<span class="npt"><b>'+esc(p.단어장)+'</b>'+
+        '<em>'+esc(레슨글_(p.묶음, p.총, p.시작, p.끝, true))+'</em>'+
+        '<i>'+지난+' · '+esc(p.최근.유형)+'</i></span>'+
+        '<span class="npgo">이 범위로</span></button>';
     }).join('')+
-    '<span class="sub">지난번에 낸 데서 이어 붙입니다</span>'+
-  '</div>';
+    '</div></div>';
 }
 
 function 진도손잡이(전체, 목록){
@@ -6641,6 +6664,7 @@ function drawTab(){
 
       판('', '',
         '<div class="panel-b">'+
+          진도줄(전체숙, d.단어장목록)+
           '<div class="hwbar">'+
 
             '<div class="ff" style="min-width:190px">'+
@@ -6691,7 +6715,6 @@ function drawTab(){
             '<div id="hwStuWrap" class="hide"></div>'+
           '</div>'+
 
-          진도줄(전체숙, d.단어장목록)+
           지난숙제줄(전체숙)+
         '</div>')+
 
