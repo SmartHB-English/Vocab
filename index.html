@@ -377,13 +377,23 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .top .who{font-size:13px;color:var(--sub)}
 .iconbtn{background:transparent;color:var(--sub);font-size:13px;padding:6px 10px;border-radius:10px;font-weight:700}
 /* ===== 시험 탭 ===== */
-.exflow{display:flex;align-items:center;gap:12px;margin:2px 0 12px}
-.exstep{flex:1;text-align:center;border:1.5px solid var(--line);border-radius:14px;padding:12px 8px}
-.exstep b{display:block;font-size:20px;font-weight:900;letter-spacing:-.5px}
-.exstep i{display:block;font-size:11.5px;font-style:normal;font-weight:700;color:var(--sub);margin-top:3px}
-.exstep.on{border-color:var(--primary)}
-.exstep.on b{color:var(--primary)}
-.exar{font-size:22px;font-weight:900;color:var(--sub);flex:0 0 auto}
+.exsec{font-size:12px;font-weight:800;color:var(--sub);margin:14px 2px 8px}
+.exsec:first-child{margin-top:2px}
+.excard{display:block;width:100%;text-align:left;background:var(--card);
+  border:1.5px solid var(--line);border-radius:18px;padding:15px 16px;margin-bottom:10px}
+.excard:active{background:var(--line)}
+.excard.done{opacity:.6}
+.excard.done:active{background:var(--card)}
+.exhead{display:flex;align-items:center;gap:10px}
+.exhead b{flex:1;min-width:0;font-size:16px;font-weight:900;letter-spacing:-.4px}
+.exgo{flex:0 0 auto;background:var(--primary);color:#fff;font-size:12.5px;font-weight:800;
+  padding:7px 15px;border-radius:99px}
+.exdone{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--ok)}
+.exsub{font-size:12px;font-weight:600;color:var(--sub);margin-top:6px}
+.extime{display:flex;align-items:center;gap:8px;margin-top:11px}
+.extime span{font-size:11.5px;font-weight:800;background:var(--line);
+  padding:5px 11px;border-radius:99px}
+.extime em{font-style:normal;font-weight:900;color:var(--sub)}
 .membar{display:flex;align-items:center;gap:12px;margin:0 0 12px;
   border:1.5px solid var(--primary);border-radius:14px;padding:11px 12px}
 .memt{flex:1;min-width:0}
@@ -1539,41 +1549,12 @@ input,select,textarea{border-radius:14px}
   <section id="s-exam" class="screen">
     <div class="top">
       <button class="iconbtn" data-back="home">← 뒤로</button>
-      <div class="who">시험 보기</div>
-      <span class="sub" style="margin-left:auto;font-size:11px">기록에 남아요</span>
+      <div class="who">시험</div>
+      <span class="sub" style="margin-left:auto;font-size:11px">선생님이 낸 시험</span>
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
 
-    <div class="card" id="exBookWrap">
-      <div id="exChips"></div>
-      <div class="mt"><label id="exLessonLab">레슨</label>
-        <div id="exQuick"></div></div>
-      <button class="foldbtn" id="btnExHand">＋ 직접 정하기</button>
-      <div id="exHand" class="hide">
-        <div class="row">
-          <div class="grow"><label>시작</label>
-            <input id="exFrom" type="tel" inputmode="numeric" value="1"></div>
-          <div class="grow"><label>끝</label>
-            <input id="exTo" type="tel" inputmode="numeric" value="20"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <label>어떤 시험을 볼까요?</label>
-      <div class="mlist" id="exModes"></div>
-    </div>
-
-    <div class="card">
-      <div class="exflow">
-        <div class="exstep"><b id="exMemMin">5분</b><i>먼저 외우기</i></div>
-        <div class="exar">›</div>
-        <div class="exstep on"><b id="exTestMin">20분</b><i>시험</i></div>
-      </div>
-      <div class="sub" style="font-size:12px;line-height:1.6" id="exHelp"></div>
-    </div>
-
-    <div class="startbar"><button class="btn" id="btnExStart" type="button">시험 시작</button></div>
+    <div id="exBody"></div>
     <div class="foot">아는 만큼만 쓰면 됩니다</div>
   </section>
 
@@ -1706,7 +1687,7 @@ input,select,textarea{border-radius:14px}
 <nav class="tabbar hide" id="tabbar">
   <button data-tab2="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15.5H6.5A1.5 1.5 0 0 0 5 20z"/><path d="M9 8h6M9 12h4"/></svg><span>숙제</span><i class="tbadge hide" id="tbHw"></i></button>
   <button data-tab2="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13"/><path d="M4 19a2 2 0 0 0 2 2h14"/><path d="M8.5 9.5l2.5 2.5-2.5 2.5M13 15h3"/></svg><span>연습</span></button>
-  <button data-tab2="exam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9.5 8.5h5M9.5 12h5M9.5 15.5h3"/></svg><span>시험</span></button>
+  <button data-tab2="exam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9.5 8.5h5M9.5 12h5M9.5 15.5h3"/></svg><span>시험</span><i class="tbadge hide" id="tbEx"></i></button>
   <button data-tab2="streak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 5.5H5A2.5 2.5 0 0 0 7.5 9M16.5 5.5H19A2.5 2.5 0 0 1 16.5 9"/><path d="M12 13.5V17M9 20h6"/></svg><span>순위</span></button>
 </nav>
 
@@ -1744,7 +1725,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-30e';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-30f';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2274,9 +2255,12 @@ function 칠하기_탭(name){
   qsa('[data-tab2]').forEach(function(b){
     b.classList.toggle('on', b.dataset.tab2===name || (name==='games' && b.dataset.tab2==='study'));
   });
-  var 남은 = (S.숙제||[]).filter(function(h){return !h.완료;}).length;
+  var 남은 = 숙제만_().filter(function(h){return !h.완료;}).length;
   var bd=$('tbHw');
   if(bd){ bd.textContent=남은; bd.classList.toggle('hide', !남은); }
+  var 시험남은 = 안본시험수_();
+  var be=$('tbEx');
+  if(be){ be.textContent=시험남은; be.classList.toggle('hide', !시험남은); }
 }
 qsa('[data-tab2]').forEach(function(b){
   b.onclick=function(){
@@ -2465,7 +2449,7 @@ function 집자료받기_(다시){
   if(!S.학생) return;
   if(받은것_.집 && !다시) return;
   받은것_.집 = 1;
-  S.공지=[]; S.알림준비={};
+  S.공지=[]; S.알림준비={}; S.숙제도착=false;
   뼈대_집();
   function 알림채비(무엇){
     S.알림준비[무엇]=1;
@@ -2475,8 +2459,9 @@ function 집자료받기_(다시){
     S.공지=n||[]; 그리기_공지줄(); 알림채비('공지');
   }).catch(function(){ S.공지=[]; 그리기_공지줄(); 알림채비('공지'); });
   api('숙제가져오기',S.학생.이름).then(function(h){
-    S.숙제=h||[]; drawHw(); drawToday(); 알림채비('숙제');
-  }).catch(function(){ drawHw(); drawToday(); 알림채비('숙제'); });
+    S.숙제=h||[]; S.숙제도착=true;
+    drawHw(); drawToday(); 그리기_시험목록_(); 알림채비('숙제');
+  }).catch(function(){ S.숙제도착=true; drawHw(); drawToday(); 그리기_시험목록_(); 알림채비('숙제'); });
   api('연속가져오기',S.학생.이름)
     .then(function(r){ S.연속=r; drawToday(); })
     .catch(function(){ S.연속=null; drawToday(); });
@@ -2531,7 +2516,7 @@ if($('btnRefresh')) $('btnRefresh').onclick = 새로불러오기_;
 function drawToday(){
   var box=$('todayBox'); if(!box) return;
   if(!S.학생){ box.innerHTML=''; return; }
-  var 숙제=S.숙제||[];
+  var 숙제=숙제만_();
   var 전체=숙제.length;
   var 낸수=숙제.filter(function(h){return h.완료;}).length;
   var 남은=전체-낸수;
@@ -3351,131 +3336,123 @@ function loadBook(){
     if(!S.종류 && S.단어.length && S.단어[0].종류){ S.종류=S.단어[0].종류; 모드박스(); }
     $('inFrom').value=1;
     $('inTo').value=Math.min(레슨크기(name,내책들()),S.단어.length)||1;
-    $('exFrom').value=1;
-    $('exTo').value=Math.min(레슨크기(name,내책들()),S.단어.length)||1;
     drawQuick();
-    try{ 시험탭그리기_(); }catch(e){}
   });
 }
 
 /* ================================================================
-   시험 탭 — 범위를 고르고 「시작」 을 누르면
-   ① 단어장을 보며 외우는 시간 → ② 저절로 시험 시작 → ③ 결과는 선생님께
+   시험 탭 — 선생님이 낸 「시험」 만 여기 모인다
+   시작을 누르면 ① 단어장을 보며 외우는 시간 → ② 저절로 시험
 ================================================================ */
-var 시험판 = null;     /* {방법, 단계:'외우기'|'시험', 범위, 단어장} */
+var 시험판 = null;     /* {방법, 단계:'외우기'|'시험'} */
 function 시험중_(){ return !!(시험판 && 시험판.단계 === '시험'); }
 
-var 시험방법이름 = {spell:'스펠링 시험', choice:'4지선다', hint:'첫 글자 힌트', verb:'3단변화 시험'};
-var 시험방법설명 = {spell:'뜻 보고 영어 쓰기', choice:'뜻 고르기',
-                    hint:'첫 글자만 보고 쓰기', verb:'원형 · 과거형 · 과거분사형'};
+function 내시험들_(){
+  return (S.숙제 || []).filter(function(h){ return h.종류 === '시험'; });
+}
+function 안본시험수_(){
+  return 내시험들_().filter(function(h){ return !h.완료; }).length;
+}
 
 function 시험탭열기(){
   if(!S.학생) return;
-  연습자료받기_();                 /* 단어를 아직 안 받았으면 그때 받는다 */
-  시험탭그리기_();
+  그리기_시험목록_();
 }
 
-function 시험탭그리기_(){
-  그리기_시험책칩_();
-  그리기_시험레슨_();
-  그리기_시험방법_();
-  그리기_시험안내_();
-}
+function 그리기_시험목록_(){
+  var box = $('exBody'); if(!box) return;
 
-function 그리기_시험책칩_(){
-  var box = $('exChips'); if(!box) return;
-  var 책들 = 내책들();
-  if(!책들.length){ box.innerHTML = '<div class="sub">볼 수 있는 단어장이 없어요.</div>'; return; }
-  box.className = 'bookchips';
-  box.innerHTML = 책들.map(function(b){
-    var c = b.색 || 'var(--sub)';
-    return '<button type="button" class="'+(b.이름===S.단어장?'on':'')+'" data-exbk="'+esc(b.이름)+'">'+
-      '<span class="dot" style="background:'+c+'"></span>'+esc(b.이름)+'</button>';
-  }).join('');
-  qsa('[data-exbk]', box).forEach(function(b){
-    b.onclick = function(){
-      var sel = $('selBook'); if(!sel) return;
-      sel.value = b.dataset.exbk;
-      loadBook();                  /* 단어를 받아 오면 시험 탭도 같이 다시 그린다 */
-      시험탭그리기_();
-    };
-  });
-}
+  if(!S.숙제도착){
+    box.innerHTML = '<div class="card"><div class="skl w60"></div><div class="skl w90"></div></div>';
+    return;
+  }
 
-function 그리기_시험레슨_(){
-  var box = $('exQuick'); if(!box) return;
-  var n = S.단어.length, 묶음 = 레슨크기(S.단어장, 내책들());
-  var lab = $('exLessonLab'); if(lab) lab.textContent = n ? '레슨 ('+묶음+'단어씩)' : '레슨';
-  if(!n){ box.innerHTML = '<div class="loading">단어를 불러오는 중…</div>'; return; }
-  box.innerHTML = '<select id="exLes">' +
-    레슨옵션들(n, 묶음, $('exFrom').value, $('exTo').value) + '</select>' +
-    '<div class="lesw" id="exWord"></div>';
-  $('exLes').onchange = function(){
-    if(!this.value) return;
-    var p = this.value.split('|');
-    $('exFrom').value = p[0]; $('exTo').value = p[1];
-    시험낱말_();
-  };
-  시험낱말_();
-}
-function 시험낱말_(){
-  var e = $('exWord');
-  if(e) e.textContent = 첫끝말(S.단어, $('exFrom').value, $('exTo').value);
-}
-
-function 그리기_시험방법_(){
-  var box = $('exModes'); if(!box) return;
-  var 것들 = 삼단변화() ? ['verb'] : ['spell','choice','hint'];
-  if(것들.indexOf(S.시험방법) < 0) S.시험방법 = 것들[0];
-  box.innerHTML = 것들.map(function(m){
-    return '<button class="smode mrow'+(S.시험방법===m?' on':'')+'" data-exm="'+m+'" type="button">'+
-      '<span class="mr"></span><span class="mt1"><b>'+시험방법이름[m]+'</b>'+
-      '<i>'+시험방법설명[m]+'</i></span></button>';
-  }).join('');
-  qsa('[data-exm]', box).forEach(function(b){
-    b.onclick = function(){ S.시험방법 = b.dataset.exm; 그리기_시험방법_(); 그리기_시험안내_(); };
-  });
-}
-
-function 그리기_시험안내_(){
+  var 것들 = 내시험들_();
   var 외 = 외우기분_(), 시 = 시험분_();
-  var m = $('exMemMin'), t = $('exTestMin');
-  if(m) m.textContent = 외 ? 외+'분' : '건너뜀';
-  if(t) t.textContent = 시 ? 시+'분' : '제한 없음';
-  var s1 = document.querySelector('#s-exam .exstep'); if(s1) s1.classList.toggle('on', !!외);
-  var h = $('exHelp');
-  if(h) h.innerHTML = (외
-      ? '먼저 <b>'+외+'분</b> 동안 단어장을 보며 외웁니다. 시간이 되면 저절로 시험이 시작돼요. '+
-        '다 외웠으면 「바로 시험 보기」 로 미리 넘어가도 됩니다.<br>'
-      : '외우는 시간 없이 바로 시험이 시작됩니다.<br>') +
-    (시 ? '시험은 <b>'+시+'분</b>입니다. 시간이 다 되면 그때까지 쓴 것만 채점돼요.<br>' : '') +
-    '결과는 선생님께 전송됩니다.';
-  var b = $('btnExStart');
-  if(b) b.textContent = (시험방법이름[S.시험방법] || '시험') + ' 시작';
+
+  if(!것들.length){
+    box.innerHTML =
+      '<div class="card center" style="padding:34px 18px">' +
+        '<div style="font-size:40px;line-height:1">🗒️</div>' +
+        '<div style="font-size:17px;font-weight:900;margin-top:10px">등록된 시험이 없어요</div>' +
+        '<div class="sub mt" style="line-height:1.6">선생님이 시험을 내주시면 여기에 나타나요.<br>' +
+          '그때까지는 <b>연습</b> 칸에서 단어장으로 연습해 보세요.</div>' +
+      '</div>';
+    return;
+  }
+
+  var 안본것 = 것들.filter(function(h){ return !h.완료; });
+  var 본것 = 것들.filter(function(h){ return h.완료; });
+
+  function 카드(h){
+    var 이름 = h.단어장 + ' ' + (Number(h.시작)||1) + '~' + (h.끝 || '') + '번';
+    var 끝났나 = !!h.완료;
+    return '<button class="excard' + (끝났나 ? ' done' : '') + '" data-ex="' +
+        S.숙제.indexOf(h) + '" type="button"' + (끝났나 ? ' disabled' : '') + '>' +
+      '<div class="exhead">' +
+        '<b>' + esc(이름) + '</b>' +
+        (끝났나 ? '<span class="exdone">봤어요 · ' + (Number(h.점수)||0) + '점</span>'
+                : '<span class="exgo">시작</span>') + '</div>' +
+      '<div class="exsub">' + esc(h.유형) + ' 시험' +
+        (h.마감일 ? ' · ' + esc(h.마감일) + '까지' : '') +
+        ' · 한 번만 볼 수 있어요</div>' +
+      (끝났나 ? '' :
+        '<div class="extime">' +
+          (외 ? '<span>외우기 ' + 외 + '분</span><em>›</em>' : '') +
+          '<span>시험 ' + (시 ? 시 + '분' : '제한 없음') + '</span>' +
+        '</div>') +
+    '</button>';
+  }
+
+  box.innerHTML =
+    (안본것.length
+      ? '<div class="exsec">봐야 할 시험 ' + 안본것.length + '개</div>' + 안본것.map(카드).join('')
+      : '') +
+    (본것.length
+      ? '<div class="exsec">이미 본 시험</div>' + 본것.map(카드).join('')
+      : '') +
+    '<div class="card"><div class="sub" style="line-height:1.6">' +
+      (외 ? '시작을 누르면 <b>' + 외 + '분</b> 동안 단어장을 보며 외웁니다. ' +
+            '시간이 되면 저절로 시험이 시작돼요. 다 외웠으면 「바로 시험 보기」 로 미리 넘어가도 됩니다.<br>'
+          : '시작을 누르면 바로 시험이 시작됩니다.<br>') +
+      (시 ? '시험은 <b>' + 시 + '분</b>입니다. 시간이 다 되면 그때까지 쓴 것만 채점돼요.<br>' : '') +
+      '시험은 <b>한 번만</b> 볼 수 있고, 결과는 선생님께 전송됩니다.' +
+    '</div></div>';
+
+  qsa('[data-ex]', box).forEach(function(b){
+    b.onclick = function(){ 시험열기_(S.숙제[+b.dataset.ex]); };
+  });
 }
 
 /* ---------- 시작 ---------- */
-function 시험보기시작_(){
-  if(!S.단어.length){ toast('단어를 아직 불러오는 중이에요'); return; }
-  var a = Math.max(1, parseInt($('exFrom').value,10) || 1);
-  var b = Math.min(S.단어.length, parseInt($('exTo').value,10) || S.단어.length);
-  if(a > b){ var t = a; a = b; b = t; }
-  var list = S.단어.slice(a-1, b);
-  if(!list.length){ toast('단어가 없습니다'); return; }
-  var m = S.시험방법 || (삼단변화() ? 'verb' : 'spell');
-  if(m === 'choice' && list.length < 4){ toast('4지선다는 단어가 4개 이상 필요해요'); return; }
-
-  /* 시험지·3단변화가 읽는 칸에도 같은 범위를 넣어 둔다 */
-  $('inFrom').value = a; $('inTo').value = b;
-  S.현재숙제 = null; S.재시험 = false; S.돌아갈곳 = 'exam';
-  시험판 = { 방법:m, 단계:'외우기', 범위:a+'~'+b, 단어장:S.단어장 };
-
-  if(!외우기분_()){ 시험단계로_(); return; }
-  S.책 = { 목록:list, 가리기:'all', 별표만:false, 범위:a+'~'+b };
-  show('book'); renderBook();
-  var bar = $('wbMem'); if(bar) bar.classList.remove('hide');
-  var go = $('wbTest'); if(go) go.classList.add('hide');    /* 기존 「시험 보기」 칩은 감춘다 */
-  제한시작_('wbClock', 시험단계로_, 외우기분_());
+function 시험열기_(h){
+  if(!h) return;
+  var 표 = ++숙제열기표_;
+  S.현재숙제 = h; S.재시험 = false; S.돌아갈곳 = 'exam';
+  if($('selBook')) $('selBook').value = h.단어장;
+  S.종류 = '';
+  var 후보 = ((시작정보 && 시작정보.단어장목록) || []).concat(내책들());
+  후보.forEach(function(x){ if(x.이름 === h.단어장) S.종류 = x.종류 || ''; });
+  모드박스();
+  toast('시험을 준비하고 있어요…');
+  api('단어가져오기', h.단어장).then(function(w){
+    if(표 !== 숙제열기표_) return;
+    S.단어 = w || []; S.단어장 = h.단어장;
+    $('inFrom').value = h.시작; $('inTo').value = h.끝 || S.단어.length;
+    drawQuick();
+    var 방법 = (String(h.유형).indexOf('3단') >= 0) ? 'verb'
+             : (String(h.유형).indexOf('4지') >= 0) ? 'choice'
+             : (String(h.유형).indexOf('첫') >= 0) ? 'hint' : 'spell';
+    시험판 = { 방법: 방법, 단계: '외우기' };
+    if(!외우기분_()){ 시험단계로_(); return; }
+    var r = 범위단어();
+    if(!r.list.length){ toast('단어가 없습니다'); 시험판치우기_(); return; }
+    S.책 = { 목록:r.list, 가리기:'all', 별표만:false, 범위:r.a + '~' + r.b };
+    show('book'); renderBook();
+    var bar = $('wbMem'); if(bar) bar.classList.remove('hide');
+    var go = $('wbTest'); if(go) go.classList.add('hide');
+    제한시작_('wbClock', 시험단계로_, 외우기분_());
+  }).catch(function(){ toast('시험을 불러오지 못했어요'); 시험판치우기_(); });
 }
 
 function 시험단계로_(){
@@ -3486,7 +3463,7 @@ function 시험단계로_(){
   if(시험판.방법 === 'verb') startVerb(); else startQuiz(시험판.방법);
 }
 
-/* 시험 탭 흐름에서 빠져나올 때 */
+/* 시험 흐름에서 빠져나올 때 */
 function 시험판치우기_(){
   시험판 = null;
   var bar = $('wbMem'); if(bar) bar.classList.add('hide');
@@ -3494,20 +3471,7 @@ function 시험판치우기_(){
   제한멈춤_();
 }
 
-if($('btnExStart')) $('btnExStart').onclick = 시험보기시작_;
 if($('wbGo')) $('wbGo').onclick = 시험단계로_;
-if($('btnExHand')) $('btnExHand').onclick = function(){
-  var h = $('exHand'); if(!h) return;
-  h.classList.toggle('hide');
-  this.textContent = h.classList.contains('hide') ? '＋ 직접 정하기' : '－ 접기';
-};
-['exFrom','exTo'].forEach(function(id){
-  var e = $(id); if(!e) return;
-  e.addEventListener('input', function(){
-    시험낱말_();
-    var sel = $('exLes'); if(sel) 고름맞추기(sel, $('exFrom').value, $('exTo').value);
-  });
-});
 
 /* 3단변화 단어장이면 화면을 바꿔 준다 */
 function 삼단변화(){ return S.종류==='3단변화'; }
@@ -3655,12 +3619,12 @@ function 숙제냈음(점수){
   /* 합격점을 못 넘기면 제출로 치지 않는다 — 다시 봐야 한다 */
   if(점수 < 숙제컷(h)){
     h.모자람 = true; h.완료 = false;
-    drawHw(); drawToday();
+    drawHw(); drawToday(); 그리기_시험목록_();
     return;
   }
   h.모자람 = false;
   h.완료 = true;
-  drawHw(); drawToday();
+  drawHw(); drawToday(); 그리기_시험목록_();
   /* 불꽃이 늘었는지 다시 물어본다 */
   if(S.학생){
     api('연속가져오기',S.학생.이름).then(function(r){
@@ -4014,21 +3978,27 @@ function 알림시험(){
   }).catch(function(){ toast('알림을 띄우지 못했어요'); });
 }
 
+/* 숙제 탭에는 시험을 넣지 않는다 — 시험은 「시험」 칸에서 본다 */
+function 숙제만_(){
+  return (S.숙제 || []).filter(function(h){ return h.종류 !== '시험'; });
+}
+
 function drawHw(){
   var box=$('hwBox');
   drawLeftover();
   그리기_알림줄();
   칠하기_탭('home');
-  if(!S.숙제.length){
+  var 숙제들=숙제만_();
+  if(!숙제들.length){
     box.innerHTML='<div class="card hwclear"><div class="hwclear-t">오늘은 숙제가 없어요</div>'+
       '<div class="sub">아래 <b>연습</b> 칸에서 단어장을 골라 해 볼 수 있어요.</div></div>';
     return;
   }
 
   /* 1b — 오늘 숙제를 체크리스트 한 장으로. 끝낸 것은 ✓, 맨 위 남은 것에 「시작」 */
-  var 남은것=S.숙제.filter(function(h){return !h.완료;});
-  var 낸것=S.숙제.filter(function(h){return h.완료;});
-  function 순(h){ return (h.종류==='보충'||h.종류==='당일') ? 0 : (h.종류==='시험' ? 1 : 2); }
+  var 남은것=숙제들.filter(function(h){return !h.완료;});
+  var 낸것=숙제들.filter(function(h){return h.완료;});
+  function 순(h){ return (h.종류==='보충'||h.종류==='당일') ? 0 : 2; }
   남은것.sort(function(a,b){ return 순(a)-순(b) || (Number(a.남은일수)||0)-(Number(b.남은일수)||0); });
   function 언제(h){
     if(h.종류==='보충') return '보충 · 오늘까지';
@@ -4041,7 +4011,7 @@ function drawHw(){
     return '기한 없음';
   }
   function 이름(h){ return esc(h.단어장)+' '+h.시작+'~'+h.끝+'번'; }
-  var 전체=S.숙제.length, 낸수=낸것.length;
+  var 전체=숙제들.length, 낸수=낸것.length;
   var 머리='<div class="ckhead"><b>'+(남은것.length ? '숙제 '+전체+'개 중 '+낸수+'개 끝' : '숙제 다 했어요!')+'</b>'+
     '<span class="ckbar"><i style="width:'+Math.round(낸수/전체*100)+'%"></i></span></div>';
   var 줄들 = 낸것.map(function(h){
@@ -4603,7 +4573,6 @@ function judge(ans, btn){
 /* 기록의 '구분' 칸 — 오답 재시험 / 시험 / 보충 / 숙제 */
 function 기록구분(){
   if(S.재시험) return '오답 재시험';
-  if(시험판) return '단어시험';        /* 아이가 「시험」 탭에서 스스로 본 시험 */
   var k = S.현재숙제 && S.현재숙제.종류;
   if(k==='시험') return '시험';
   if(k==='보충') return '보충';
