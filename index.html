@@ -1725,7 +1725,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-30f';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-30g';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2233,7 +2233,49 @@ var S = {
 function $(id){return document.getElementById(id);}
 function qsa(s,root){return [].slice.call((root||document).querySelectorAll(s));}
 var 탭화면 = { home:'home', study:'study', exam:'exam', games:'games', streak:'streak' };
+
+/* ================================================================
+   휴대폰·브라우저 뒤로가기 — 앱 안에서 전 화면으로 돌아간다
+   · 화면을 옮길 때마다 발자국을 하나 남긴다
+   · 뒤로가기를 누르면 그 발자국을 되짚어 간다
+   · 더 되짚을 것이 없으면 브라우저에 맡긴다 (앱이 닫힌다)
+================================================================ */
+var 뒤로표_ = [];
+var 뒤로중_ = false;
+var 무시할팝_ = 0;
+var 알림발자국_ = false;
+var 흐름화면_ = { sheet:1, verb:1, quiz:1, flash:1, book:1, result:1, games:1, match:1, puz:1 };
+
+function 지금화면_(){
+  var el = document.querySelector('.screen.on');
+  return el ? el.id.replace(/^s-/, '') : '';
+}
+function 발자국_(){
+  try{ history.pushState({ 앱:뒤로표_.length }, ''); }catch(e){}
+}
+/* 화면을 옮길 때마다 부른다.
+   앞으로 가는 길이면 발자국을 하나 남기고,
+   이미 지나온 화면으로 되돌아가는 길이면 그 사이 발자국을 걷어 낸다.
+   (그래야 「그만」 으로 나온 뒤에 뒤로가기를 눌러도 시험으로 되돌아가지 않는다) */
+function 뒤로기록_(이전, 갈곳){
+  if(뒤로중_ || !이전 || 이전 === 갈곳) return;
+  /* 로그인 화면은 되짚지 않는다 — 아이가 첫 화면에서 뒤로가기를 누르면 앱이 닫혀야 한다.
+     다만 선생님 화면은 로그인 화면에서 들어가므로 되돌아갈 수 있게 둔다. */
+  if(이전 === 'login' && 갈곳 !== 'teacher') return;
+  var i = 뒤로표_.lastIndexOf(갈곳);
+  if(i > -1){
+    var 걸음 = 뒤로표_.length - i;
+    뒤로표_.length = i;
+    무시할팝_ += 걸음;
+    try{ history.go(-걸음); }catch(e){ 무시할팝_ -= 걸음; }
+    return;
+  }
+  뒤로표_.push(이전);
+  발자국_();
+}
+
 function show(name){
+  뒤로기록_(지금화면_(), name);
   qsa('.screen').forEach(function(el){el.classList.remove('on');});
   var t = $('s-'+name); if(t) t.classList.add('on');
   칠하기_탭(name);
@@ -2262,6 +2304,41 @@ function 칠하기_탭(name){
   var be=$('tbEx');
   if(be){ be.textContent=시험남은; be.classList.toggle('hide', !시험남은); }
 }
+window.addEventListener('popstate', function(){
+  if(무시할팝_ > 0){ 무시할팝_--; return; }   /* 우리가 스스로 되돌린 것 */
+
+  /* 알림 창이 떠 있으면 그것부터 닫는다 */
+  var n = $('noti');
+  if(n && !n.classList.contains('hide')){
+    n.classList.add('hide'); 알림발자국_ = false; return;
+  }
+
+  if(!뒤로표_.length) return;              /* 더 갈 데가 없다 — 브라우저에 맡긴다 */
+
+  var 지금 = 지금화면_();
+
+  /* 답을 쓰다 나가는 것이면 한 번 물어본다 */
+  if(지금 === 'sheet' && !S.채점됨 &&
+     (S.답||[]).some(function(v){ return String(v||'').trim(); })){
+    if(!confirm('지금 그만두면 쓴 답이 사라집니다. 그만둘까요?')){ 발자국_(); return; }
+  }
+
+  var 갈곳;
+  if(시험판 && 흐름화면_[지금]){
+    /* 시험을 보던 중이면 중간 화면을 거치지 않고 시작한 자리로 */
+    갈곳 = S.돌아갈곳 || 'exam';
+    뒤로표_.length = 0;
+  }else{
+    갈곳 = 뒤로표_.pop();
+  }
+
+  뒤로중_ = true;
+  try{ stopTimer(); 시험판치우기_(); }catch(e){}
+  if(!S.학생 && 갈곳 !== 'teacher') 갈곳 = 'login';
+  show(갈곳);
+  뒤로중_ = false;
+});
+
 qsa('[data-tab2]').forEach(function(b){
   b.onclick=function(){
     var t=b.dataset.tab2;
@@ -3750,9 +3827,11 @@ function 알림보이기(억지로){
     '</div>';
   }).join('');
   박스.classList.remove('hide');
+  알림발자국_ = true; 발자국_();
 
   function 닫기(){
     박스.classList.add('hide');
+    if(알림발자국_){ 알림발자국_ = false; 무시할팝_++; try{ history.back(); }catch(e){ 무시할팝_--; } }
     공지읽음(공지.map(function(n){ return n.키; }));
     저장쓰기_(날키, 오늘);
     그리기_공지줄();
