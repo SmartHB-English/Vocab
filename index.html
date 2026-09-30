@@ -407,15 +407,26 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .kdots{display:flex;gap:10px;margin:8px 0}
 .kdots span{width:9px;height:9px;border-radius:99px;background:var(--line)}
 .kidq{font-family:'Fredoka','Jua',var(--font);font-weight:600;font-size:46px;letter-spacing:-1px}
+.kidq.ko{font-family:'Jua','Gowun Dodum',var(--font);font-size:34px;letter-spacing:0}
 .kspk{width:62px;height:62px;border:0;border-radius:99px;background:#14B8A6;
   border-bottom:5px solid #0D8276;display:flex;align-items:center;justify-content:center;
   cursor:pointer;flex:none;color:#fff}
+.klearn{background:var(--card);border:3px solid var(--line);border-bottom-width:6px;
+  border-radius:26px;padding:34px 18px;margin-top:18px;text-align:center}
+.klearn .en{font-family:'Fredoka','Jua',var(--font);font-weight:600;font-size:48px;
+  letter-spacing:-1px;line-height:1.1}
+.klearn .ko{font-size:26px;margin-top:14px}
+.klearn img{width:130px;height:130px;object-fit:contain;margin-bottom:10px}
+.kdot3{display:flex;gap:5px;margin-top:5px;justify-content:center}
+.kdot3 i{width:8px;height:8px;border-radius:99px;background:var(--line);display:block}
+.kdot3 i.on{background:var(--primary)}
 .kcards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .kcard{background:var(--card);border:3px solid var(--line);border-bottom-width:6px;
   border-radius:24px;padding:20px 10px;min-height:118px;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:8px;font-family:inherit;font-size:22px;
   color:var(--text);cursor:pointer;text-align:center;line-height:1.25}
-.kcard img{width:78px;height:78px;object-fit:contain}
+.kcard img{width:80px;height:80px;object-fit:contain}
+.kcard .en{font-family:'Fredoka','Jua',var(--font);font-weight:600;font-size:27px;letter-spacing:-.5px}
 .kcard.pick{border-color:var(--primary)}
 .kcard.ok{background:#EAF7EE;border-color:#16A34A;color:#166534}
 .kcard.ng{background:#FDECEC;border-color:#DC2626;color:#B91C1C}
@@ -886,6 +897,13 @@ body.desk .screen:not(#s-teacher){display:none !important}
 .wrow{cursor:pointer}
 .wrow:active{background:var(--primary-soft)}
 .wno{display:inline-block;min-width:32px;color:var(--sub);font-weight:600;font-size:12px}
+.wpic{width:34px;height:34px;border-radius:9px;object-fit:contain;flex:none;
+  background:var(--card);border:1px solid var(--line);margin-right:9px;vertical-align:middle}
+span.wpic{display:inline-flex;align-items:center;justify-content:center;
+  border-style:dashed;color:var(--sub);font-size:15px}
+.wpic.big{width:78px;height:78px;border-radius:15px;margin:0}
+.picbar{display:flex;align-items:center;gap:11px;margin-top:11px;
+  background:var(--bg2,#F6F7F9);border-radius:12px;padding:10px 11px}
 .witem{padding:12px 2px;border-bottom:1px solid var(--line)}
 .witem input{font-size:15px;padding:10px}
 
@@ -1653,6 +1671,22 @@ input,select,textarea{border-radius:14px}
     <div class="foot">잘하고 있어요</div>
   </section>
 
+  <section id="s-kidlearn" class="screen kidwrap">
+    <div class="kidtop">
+      <button class="iconbtn" id="kLQuit" style="flex:none">← 그만</button>
+      <div style="flex-grow:1;min-width:0;height:18px;border-radius:99px;background:var(--line);display:flex;align-items:center;padding:3px">
+        <i id="kLBar" style="display:block;width:0;height:12px;border-radius:99px;background:#14B8A6"></i>
+      </div>
+      <span class="kpill" style="flex:none"><b id="kLProg">1 / 10</b></span>
+    </div>
+    <div style="text-align:center;padding:10px 8px 0">
+      <div style="font-size:17px;color:var(--sub)" id="kLAsk">먼저 배워 볼까요?</div>
+    </div>
+    <div class="klearn" id="kLCard"></div>
+    <div class="mt2"></div>
+    <button class="kbtn main" id="kLNext" type="button">다음</button>
+  </section>
+
   <section id="s-kidq" class="screen kidwrap">
     <div class="kidtop">
       <button class="iconbtn" id="kQuit" style="flex:none">← 그만</button>
@@ -1663,7 +1697,7 @@ input,select,textarea{border-radius:14px}
     </div>
 
     <div style="text-align:center;padding:14px 8px 0">
-      <div style="font-size:17px;color:var(--sub)">어느 것일까요?</div>
+      <div style="font-size:17px;color:var(--sub)" id="kAsk">어느 것일까요?</div>
       <div class="row" style="justify-content:center;gap:12px;margin-top:10px">
         <button class="kspk" id="kSpk" aria-label="다시 듣기">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9.5h3.5L13 5.5v13L8.5 14.5H5Z"></path><path d="M16.2 9.2a4 4 0 0 1 0 5.6"></path><path d="M18.8 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg>
@@ -1889,7 +1923,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-01b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-01d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2322,7 +2356,22 @@ var DEMO = {
       ? '이미 있는 이름뿐입니다: '+겹침.join(', ') : '이름이 없습니다.'};
     return {ok:true, 개수:넣음, 겹침:겹침};},
   단어목록:function(){return {ok:true,단어들:DEMO_WORDS.map(function(w,i){
-      return {행:i+2,번호:i+1,en:w.en,ko:w.ko};})};},
+      return {행:i+2,번호:i+1,en:w.en,ko:w.ko,그림:w.그림||''};})};},
+  그림올리기:function(pw,책,행,이름,자료,종류){
+    var w=DEMO_WORDS[Number(행)-2]; if(!w) return {ok:false,메시지:'없는 줄입니다.'};
+    w.그림='data:'+(종류||'image/png')+';base64,'+자료;
+    return {ok:true,주소:w.그림};},
+  그림지우기:function(pw,책,행){
+    var w=DEMO_WORDS[Number(행)-2]; if(w) delete w.그림; return {ok:true};},
+  그림여러개:function(pw,책,것들){
+    var 붙인=0, 못=[];
+    (것들||[]).forEach(function(g){
+      var k=DEMO열쇠_(g&&g.이름);
+      var w=DEMO_WORDS.filter(function(x){return DEMO열쇠_(x.en)===k;})[0];
+      if(w && k){ w.그림='data:'+(g.종류||'image/png')+';base64,'+g.자료; 붙인++; }
+      else 못.push(String((g&&g.이름)||''));
+    });
+    return {ok:true,붙인수:붙인,못찾은:못};},
   단어수정:function(pw,책,행,en,ko){var i=Number(행)-2; if(DEMO_WORDS[i]){DEMO_WORDS[i].en=en;DEMO_WORDS[i].ko=ko;} return {ok:true};},
   단어삭제:function(pw,책,행들){(행들||[]).sort(function(a,b){return b-a;}).forEach(function(r){DEMO_WORDS.splice(Number(r)-2,1);});
       DEMO_WORDS.forEach(function(w,i){w.no=i+1;}); return {ok:true,개수:(행들||[]).length};},
@@ -3596,8 +3645,14 @@ function loadBook(){
    · 타이핑 없음. 하트(기회)도 없다. 끝까지 하고 별을 받는다
    · 단어장 시트 「그림」 칸에 그림 주소가 있으면 글자 대신 그림이 나온다
    · 길의 칸은 선생님이 낸 숙제다 — 기록·안 한 학생은 지금 그대로 돌아간다
+   · 숙제 하나는 세 단계다 — ① 배우기 ② 듣고 뜻 고르기 ③ 뜻 보고 영어 고르기
+     단계마다 끊어서 해도 되고, 세 단계를 다 끝낸 뒤에 한 번만 선생님께 보낸다
 ================================================================ */
-var 유치판 = null;   /* {숙제, 문제[], idx, 맞은수, 상태} */
+var 유치판 = null;   /* {숙제, 단계, 원목록[], 문제[], idx, 맞은수, 상태} */
+
+/* 세 단계 — 배우기 → 풀기① (듣고 뜻) → 풀기② (뜻 보고 영어) */
+var 유치단계들 = ['learn', 'q1', 'q2'];
+var 유치단계이름 = { learn: '배우기', q1: '풀어 보기', q2: '거꾸로 풀기' };
 
 function 유치인가_(){ return !!(S.학생 && S.학생.학년구분 === '유치'); }
 
@@ -3629,6 +3684,30 @@ function 유치상주기_(별, 이름){
   var 것 = 유치스티커_();
   if(것.indexOf(이름) < 0){ 것.push(이름); 저장쓰기_(유치스티커열쇠_(), 것); }
   return 것.length;
+}
+
+/* ---------- 어디까지 했나 (이 기기에만 적어 둔다) ---------- */
+function 유치진행열쇠_(h){
+  return '유치진행_' + ((S.학생 && S.학생.이름) || '') + '_' +
+    (h ? (h.단어장 + '_' + h.시작 + '~' + h.끝) : '');
+}
+function 유치진행_(h){
+  var v = 저장읽기_(유치진행열쇠_(h), null);
+  if(!v || typeof v !== 'object') v = {};
+  return {
+    끝: Array.isArray(v.끝) ? v.끝 : [],
+    q1: Number(v.q1) || 0, q2: Number(v.q2) || 0,
+    총: Number(v.총) || 0, 오답: Array.isArray(v.오답) ? v.오답 : []
+  };
+}
+function 유치진행쓰기_(h, v){ 저장쓰기_(유치진행열쇠_(h), v); }
+function 유치진행지우기_(h){ 저장쓰기_(유치진행열쇠_(h), { 끝: [], q1: 0, q2: 0, 총: 0, 오답: [] }); }
+function 다음단계_(h){
+  var p = 유치진행_(h);
+  for(var i = 0; i < 유치단계들.length; i++){
+    if(p.끝.indexOf(유치단계들[i]) < 0) return 유치단계들[i];
+  }
+  return '';
 }
 
 /* ---------- 오늘의 길 ---------- */
@@ -3676,11 +3755,16 @@ function 유치길그리기_(){
       : '<svg width="38" height="38" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.6 9l6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 20l1.1-6L3.4 9.8 9.4 9Z" fill="currentColor"></path></svg>';
     var 공 = '<button class="ball" type="button" data-kid="' + i + '"' +
       (끝났나 ? ' disabled aria-label="다 한 것"' : ' aria-label="' + esc(h.단어장) + ' 시작"') + '>' + 속 + '</button>';
+    var 한것 = 유치진행_(h).끝;
+    var 점세개 = 끝났나 ? '' : '<div class="kdot3">' + 유치단계들.map(function(단){
+      return '<i class="' + (한것.indexOf(단) >= 0 ? 'on' : '') + '"></i>';
+    }).join('') + '</div>';
     return 점들 +
       '<div class="knode' + (끝났나 ? ' done' : '') + (이제 ? ' now' : '') + '" style="margin-left:' + 밀기 + 'px">' +
-        (이제 ? '<div class="kgo">시작!</div>' : '') +
+        (이제 ? '<div class="kgo">' + (한것.length ? '이어서!' : '시작!') + '</div>' : '') +
         (이제 ? '<div class="halo">' + 공 + '</div>' : 공) +
         '<div class="nm">' + esc(학생범위글_(h.단어장, h.시작, h.끝)) + '</div>' +
+        점세개 +
       '</div>';
   }).join('');
 
@@ -3703,11 +3787,59 @@ function 유치열기_(h){
     var 목록 = S.단어.slice(a - 1, b);
     if(목록.length < 2){ toast('단어가 모자라요'); return; }
     S.범위 = a + '~' + b;
-    유치판 = { 숙제: h, 문제: shuffle(목록.slice()), idx: 0, 맞은수: 0, 오답: [], 시작: Date.now(), 상태: 'ask' };
     S.모드 = 'kid';
+    유치판 = { 숙제: h, 원목록: 목록.slice(), 단계: '', idx: 0, 맞은수: 0,
+               오답: [], 시작: Date.now(), 상태: 'ask' };
+    유치단계시작_(다음단계_(h) || 'learn');
+  }).catch(function(){ toast('불러오지 못했어요'); });
+}
+
+/* 한 단계를 처음부터 시작한다 */
+function 유치단계시작_(단계){
+  var P = 유치판; if(!P) return;
+  P.단계 = 단계; P.idx = 0; P.맞은수 = 0; P.오답 = []; P.상태 = 'ask';
+  if(단계 === 'learn'){
+    P.목록 = P.원목록.slice();
+    show('kidlearn');
+    유치배우기그리기_();
+  }else{
+    P.문제 = shuffle(P.원목록.slice());
     show('kidq');
     유치문제그리기_();
-  }).catch(function(){ toast('불러오지 못했어요'); });
+  }
+}
+
+/* 한 단계를 마쳤다 — 적어 두고 다음 단계로, 다 했으면 끝 화면 */
+function 유치단계끝_(단계){
+  var P = 유치판; if(!P) return;
+  var h = P.숙제, p = 유치진행_(h);
+  if(p.끝.indexOf(단계) < 0) p.끝.push(단계);
+  if(단계 === 'q1' || 단계 === 'q2'){
+    p[단계] = P.맞은수;
+    p.총 = P.문제.length;
+    p.오답 = p.오답.concat(P.오답.map(function(w){ return w.en; }));
+  }
+  유치진행쓰기_(h, p);
+  var 다음 = 다음단계_(h);
+  if(!다음){ 유치끝_(); return; }
+  유치단계시작_(다음);
+}
+
+/* ---------- ① 배우기 ---------- */
+function 유치배우기그리기_(){
+  var P = 유치판; if(!P) return;
+  if(P.idx >= P.목록.length){ 유치단계끝_('learn'); return; }
+  var w = P.목록[P.idx];
+  P.본문제 = w;
+  var 총 = P.목록.length, 끝인가 = (P.idx + 1 >= 총);
+  $('kLProg').textContent = (P.idx + 1) + ' / ' + 총;
+  $('kLBar').style.width = Math.round((P.idx + 1) / 총 * 100) + '%';
+  $('kLCard').innerHTML =
+    (w.그림 ? 그림태그_(w.그림, 'kimg') : '') +
+    '<div class="en">' + esc(w.en) + '</div>' +
+    '<div class="ko">' + esc(w.ko) + '</div>';
+  $('kLNext').textContent = 끝인가 ? '풀어 볼까요?' : '다음';
+  읽어주기_(w.en);
 }
 
 function 유치보기_(w){
@@ -3715,14 +3847,17 @@ function 유치보기_(w){
   return shuffle(남.concat([w]));
 }
 
-function 유치카드속_(w){
-  if(w.그림) return '<img src="' + esc(w.그림) + '" alt="">' + '<span>' + esc(w.ko) + '</span>';
+/* 풀기① 은 한글 뜻(그림) 카드, 풀기② 는 영어 카드 */
+function 유치카드속_(w, 영어로){
+  if(영어로) return '<span class="en">' + esc(w.en) + '</span>';
+  if(w.그림) return 그림태그_(w.그림, 'kimg') + '<span>' + esc(w.ko) + '</span>';
   return esc(w.ko);
 }
 
 function 유치문제그리기_(){
   var P = 유치판; if(!P) return;
-  if(P.idx >= P.문제.length){ 유치끝_(); return; }
+  if(P.idx >= P.문제.length){ 유치단계끝_(P.단계); return; }
+  var 거꾸로 = (P.단계 === 'q2');
   var w = P.문제[P.idx];
   P.상태 = 'ask';
   P.본문제 = w;
@@ -3730,16 +3865,19 @@ function 유치문제그리기_(){
 
   $('kProg').textContent = (P.idx + 1) + ' / ' + P.문제.length;
   $('kBar').style.width = Math.round(P.idx / P.문제.length * 100) + '%';
-  $('kWord').textContent = w.en;
+  $('kAsk').textContent = 거꾸로 ? '영어로 뭘까요?' : '어느 것일까요?';
+  $('kWord').className = 거꾸로 ? 'kidq ko' : 'kidq';
+  $('kWord').textContent = 거꾸로 ? w.ko : w.en;
+  if($('kSpk')) $('kSpk').classList.toggle('hide', 거꾸로);
   $('kFeed').innerHTML = '';
 
   $('kCards').innerHTML = P.보기.map(function(x, i){
-    return '<button class="kcard" type="button" data-kc="' + i + '">' + 유치카드속_(x) + '</button>';
+    return '<button class="kcard" type="button" data-kc="' + i + '">' + 유치카드속_(x, 거꾸로) + '</button>';
   }).join('');
   qsa('[data-kc]').forEach(function(b){
     b.onclick = function(){ 유치고름_(+b.dataset.kc); };
   });
-  읽어주기_(w.en);
+  if(!거꾸로) 읽어주기_(w.en);   /* 거꾸로 풀 때 읽어 주면 답을 알려 주는 셈이다 */
 }
 
 function 유치고름_(i){
@@ -3759,6 +3897,7 @@ function 유치고름_(i){
   });
 
   var 끝인가 = (P.idx + 1 >= P.문제.length);
+  var 끝글 = (P.단계 === 'q1') ? '다음 단계로' : '다 했어요';
   $('kFeed').innerHTML =
     '<div class="kbar ' + (맞음 ? 'ok' : 'ng') + '">' +
       '<div class="row" style="gap:12px">' +
@@ -3774,7 +3913,7 @@ function 유치고름_(i){
       '</div>' +
       '<div class="mt"></div>' +
       '<button class="kbtn ' + (맞음 ? 'good' : 'bad') + '" type="button" id="kNext">' +
-        (끝인가 ? '다 했어요' : '계속') + '</button>' +
+        (끝인가 ? 끝글 : '계속') + '</button>' +
     '</div>';
   $('kNext').onclick = function(){
     유치판.idx++;
@@ -3785,8 +3924,11 @@ function 유치고름_(i){
 /* ---------- 끝 ---------- */
 function 유치끝_(){
   var P = 유치판; if(!P) return;
-  var 총 = P.문제.length || 1;
-  var 점수 = Math.round(P.맞은수 / 총 * 100);
+  var p = 유치진행_(P.숙제);
+  var 총 = p.총 || P.원목록.length || 1;      /* 단어 수 */
+  var 문항 = 총 * 2;                          /* 두 번 물었으니 두 배 */
+  var 맞은 = p.q1 + p.q2;
+  var 점수 = Math.round(맞은 / 문항 * 100);
   var 초 = Math.round((Date.now() - P.시작) / 1000);
   var 별 = 점수 >= 90 ? 3 : (점수 >= 60 ? 2 : 1);
 
@@ -3808,19 +3950,20 @@ function 유치끝_(){
         esc(String(장수)) + '</div>' +
       '<div><div style="font-size:20px">' + esc(S.단어장) + ' 스티커</div>' +
         '<div class="sub" style="margin-top:4px">모두 ' + 장수 + '장 · 맞은 것 ' +
-        P.맞은수 + ' / ' + 총 + ' · ' + 초 + '초</div></div>' +
+        맞은 + ' / ' + 문항 + ' · ' + 초 + '초</div></div>' +
     '</div>';
 
   show('kidend');
   if(별 >= 3) 반짝('🎉');
 
+  유치진행지우기_(P.숙제);
   $('kSaved').textContent = '기록 보내는 중…';
   api('결과저장', {
     이름: S.학생.이름, 단어장: S.단어장, 범위: S.범위, 유형: '유치',
-    문항수: 총, 정답수: P.맞은수, 점수: 점수, 게임점수: 0,
+    문항수: 문항, 정답수: 맞은, 점수: 점수, 게임점수: 0,
     최고콤보: 0, 소요초: 초, 숙제여부: true,
     구분: 기록구분(),
-    틀린단어: P.오답.map(function(w){ return w.en; }).join(', ')
+    틀린단어: p.오답.filter(function(v, i, a){ return a.indexOf(v) === i; }).join(', ')
   }).then(function(r){
     $('kSaved').textContent = (r && r.demo) ? '미리보기라 저장되지 않았어요'
       : ((r && r.ok) ? '선생님께 보냈어요' : '보내지 못했어요');
@@ -3846,7 +3989,16 @@ function 유치스티커그리기_(){
 if($('kSpk')) $('kSpk').onclick = function(){
   if(유치판 && 유치판.본문제) 읽어주기_(유치판.본문제.en);
 };
-if($('kQuit')) $('kQuit').onclick = function(){ 유치판 = null; show('kid'); };
+if($('kLNext')) $('kLNext').onclick = function(){
+  if(!유치판) return;
+  유치판.idx++;
+  유치배우기그리기_();
+};
+if($('kLCard')) $('kLCard').onclick = function(){
+  if(유치판 && 유치판.본문제) 읽어주기_(유치판.본문제.en);
+};
+if($('kLQuit')) $('kLQuit').onclick = function(){ 유치판 = null; 유치길그리기_(); show('kid'); };
+if($('kQuit')) $('kQuit').onclick = function(){ 유치판 = null; 유치길그리기_(); show('kid'); };
 if($('kEndGo')) $('kEndGo').onclick = function(){ 유치판 = null; 유치길그리기_(); show('kid'); };
 if($('kOut')) $('kOut').onclick = function(){ S.학생 = null; 유치판 = null; show('login'); };
 if($('kStickGo')) $('kStickGo').onclick = function(){ 유치스티커그리기_(); show('kidst'); };
@@ -7548,9 +7700,15 @@ function drawTab(){
                     '<span class="sub" style="white-space:nowrap">단어씩</span>'+
                     '<button class="btn sm line" id="bkLesSave" style="width:auto;padding:9px 15px">저장</button>'+
                   '</div></div>'+
+                '<div class="f"><label>그림</label>'+
+                  '<button class="btn sm line" id="bkPics" style="width:auto;padding:9px 15px">여러 장 올리기</button>'+
+                '</div>'+
                 '<div class="grow"></div>'+
                 '<div class="f"><label>단어 찾기</label><input id="bkSearch" placeholder="영어나 뜻"></div>'+
               '</div>'+
+              '<div class="sub" style="margin-bottom:8px">'+
+                '그림은 <b>유치부</b> 화면에서 씁니다 · 파일 이름을 영어 단어와 같게 하면 '+
+                '(cat.png → cat) 한꺼번에 올려도 저절로 붙습니다.</div>'+
               '<div class="sub" id="bkLesHint" style="margin-bottom:8px"></div>'+
               '<div class="sub" id="bkCount"></div>'+
               '<div class="list" id="bkList" style="max-height:46vh;overflow:auto"></div>'+
@@ -7604,6 +7762,7 @@ function drawTab(){
         });
       };
       $('bkSearch').oninput=그리기_단어;
+      $('bkPics').onclick=function(){ 그림고르기_(true, 그림여러장보내기_); };
       $('bkRename').onclick=function(){
         var n=prompt('새 이름을 적어 주세요.',T.책);
         if(!n||n.trim()===T.책) return;
@@ -8616,6 +8775,107 @@ function 숙제손잡이(d){
 }
 
 
+/* ---------- 단어 그림 ---------- */
+/* 큰 사진을 그대로 올리면 드라이브도 무겁고 아이들 화면도 느리다.
+   올리기 전에 400px 안쪽으로 줄여서 보낸다. */
+function 그림줄이기_(파일, 최대){
+  최대 = 최대 || 400;
+  return new Promise(function(res, rej){
+    var fr = new FileReader();
+    fr.onerror = function(){ rej(new Error('읽지 못했습니다')); };
+    fr.onload = function(){
+      var img = new Image();
+      img.onerror = function(){ rej(new Error('그림 파일이 아닙니다')); };
+      img.onload = function(){
+        var w = img.naturalWidth || 최대, h = img.naturalHeight || 최대;
+        var 배 = Math.min(1, 최대 / Math.max(w, h));
+        var c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(w * 배));
+        c.height = Math.max(1, Math.round(h * 배));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        /* 배경이 뚫린 그림은 png 로 (jpeg 로 바꾸면 뒤가 까매진다) */
+        var 종류 = /png|webp|gif|svg/i.test(파일.type || '') ? 'image/png' : 'image/jpeg';
+        var url = c.toDataURL(종류, 0.85);
+        res({ 이름: 파일.name, 종류: 종류, 자료: url.slice(url.indexOf(',') + 1) });
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(파일);
+  });
+}
+
+/* 그림 주소가 안 뜰 때 다른 형태로 한 번 더 해 본다 */
+function 그림안뜨면_(el){
+  var m = /[?&]id=([^&]+)/.exec(el.getAttribute('src') || '');
+  if(m && el.getAttribute('data-두번째') !== '1'){
+    el.setAttribute('data-두번째', '1');
+    el.src = 'https://lh3.googleusercontent.com/d/' + m[1];
+    return;
+  }
+  el.style.visibility = 'hidden';
+}
+function 그림태그_(주소, 클래스){
+  return '<img class="' + 클래스 + '" src="' + esc(주소) +
+    '" alt="" loading="lazy" onerror="그림안뜨면_(this)">';
+}
+
+/* 파일 이름과 영어 단어를 맞춰 볼 때 쓰는 열쇠말 — Code.gs 의 열쇠말_ 과 같은 규칙 */
+function DEMO열쇠_(v){
+  return String(v || '').toLowerCase().replace(/\.[^.]+$/, '').replace(/[\s_\-().0-9]/g, '');
+}
+
+/* 그림 여러 장을 여섯 장씩 나눠 올린다 (한 번에 다 보내면 시간이 넘친다) */
+function 그림여러장보내기_(파일들){
+  파일들 = (파일들 || []).filter(function(f){ return f && /^image\//.test(f.type || ''); });
+  if(!파일들.length){ toast('그림 파일을 골라 주세요'); return; }
+  var 묶음 = 6, i = 0, 붙인 = 0, 못찾은 = [];
+  toast(파일들.length + '장 올리는 중…');
+  function 다음(){
+    if(i >= 파일들.length){
+      toast(붙인 + '장을 붙였습니다' + (못찾은.length ? ' · 짝 못 찾은 것 ' + 못찾은.length + '장' : ''));
+      if(못찾은.length){
+        alert('이 파일들은 같은 이름의 단어를 찾지 못했습니다.\n\n' +
+              못찾은.slice(0, 30).join('\n') +
+              (못찾은.length > 30 ? '\n… 그 밖에 ' + (못찾은.length - 30) + '장' : '') +
+              '\n\n파일 이름을 영어 단어와 같게 해 주세요. (예: cat.png)');
+      }
+      단어불러오기();
+      return;
+    }
+    var 조각 = 파일들.slice(i, i + 묶음);
+    i += 묶음;
+    toast('올리는 중… ' + Math.min(i, 파일들.length) + ' / ' + 파일들.length);
+    Promise.all(조각.map(function(f){
+      return 그림줄이기_(f).catch(function(){ return { 탈:f.name }; });
+    })).then(function(것들){
+      var 보낼 = [];
+      것들.forEach(function(x){ if(x.탈) 못찾은.push(x.탈); else 보낼.push(x); });
+      if(!보낼.length){ 다음(); return; }
+      return api('그림여러개', T.pw, T.책, 보낼).then(function(r){
+        if(r && r.ok){ 붙인 += r.붙인수 || 0; 못찾은 = 못찾은.concat(r.못찾은 || []); }
+        else toast((r && r.메시지) || '올리지 못했습니다');
+        다음();
+      });
+    }).catch(function(){ toast('올리지 못했습니다'); });
+  }
+  다음();
+}
+
+/* 파일 고르개를 띄운다 */
+function 그림고르기_(여러장, 하기){
+  var inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  if(여러장) inp.multiple = true;
+  inp.style.display = 'none';
+  document.body.appendChild(inp);
+  inp.onchange = function(){
+    var 것 = [].slice.call(inp.files || []);
+    document.body.removeChild(inp);
+    if(것.length) 하기(것);
+  };
+  inp.click();
+}
+
 /* ---------- 단어장 편집 ---------- */
 function 단어불러오기(){
   var el=$('bkList'); if(!el) return;
@@ -8644,6 +8904,18 @@ function 그리기_단어(){
       return '<div class="witem" data-row="'+w.행+'">'+
         '<div class="row"><input class="grow ed-en" value="'+esc(w.en)+'" placeholder="영어">'+
         '<input class="grow ed-ko" value="'+esc(w.ko)+'" placeholder="뜻"></div>'+
+        '<div class="picbar">'+
+          (w.그림 ? 그림태그_(w.그림, 'wpic big') : '<span class="wpic big">＋</span>')+
+          '<div class="grow">'+
+            '<div class="row wrap" style="gap:8px">'+
+              '<button class="btn line sm" data-pic="'+w.행+'" style="width:auto;padding:9px 14px">'+
+                (w.그림 ? '그림 바꾸기' : '그림 넣기')+'</button>'+
+              (w.그림 ? '<button class="btn line sm" data-picdel="'+w.행+'" '+
+                'style="width:auto;padding:9px 14px;color:var(--ng)">그림 빼기</button>' : '')+
+            '</div>'+
+            '<div class="sub" style="margin-top:6px">유치부 화면에서 보입니다</div>'+
+          '</div>'+
+        '</div>'+
         '<div class="row mt">'+
           '<button class="btn sm grow" data-save="'+w.행+'">저장</button>'+
           '<button class="btn line sm grow" data-cancel="1">취소</button>'+
@@ -8651,7 +8923,9 @@ function 그리기_단어(){
         '</div></div>';
     }
     return '<div class="item wrow" data-row="'+w.행+'">'+
-      '<span class="en"><span class="wno">'+w.번호+'</span>'+esc(w.en)+'</span>'+
+      '<span class="en" style="display:flex;align-items:center">'+
+        (w.그림 ? 그림태그_(w.그림, 'wpic') : '<span class="wpic">＋</span>')+
+        '<span class="wno">'+w.번호+'</span>'+esc(w.en)+'</span>'+
       '<span class="ko">'+esc(w.ko)+'</span></div>';
   }).join('') + (list.length>200 ? '<div class="sub mt">200개까지만 보입니다. 위 칸에서 찾아 주세요.</div>' : '');
 
@@ -8670,6 +8944,30 @@ function 그리기_단어(){
       api('단어수정',T.pw,T.책,x.dataset.save,en,ko).then(function(r){
         if(r.ok){ toast('고쳤습니다'); 단어불러오기(); }
         else toast(r.메시지||'실패했습니다');
+      });
+    };
+  });
+  qsa('#bkList [data-pic]').forEach(function(x){
+    x.onclick=function(){
+      var 행=x.dataset.pic;
+      그림고르기_(false, function(것){
+        x.disabled=true; var 옛=x.textContent; x.textContent='올리는 중…';
+        그림줄이기_(것[0]).then(function(g){
+          return api('그림올리기',T.pw,T.책,행,g.이름,g.자료,g.종류);
+        }).then(function(r){
+          if(r&&r.ok){ toast('그림을 넣었습니다'); 단어불러오기(); }
+          else { toast((r&&r.메시지)||'올리지 못했습니다'); x.disabled=false; x.textContent=옛; }
+        }).catch(function(e){
+          toast((e&&e.message)||'올리지 못했습니다'); x.disabled=false; x.textContent=옛;
+        });
+      });
+    };
+  });
+  qsa('#bkList [data-picdel]').forEach(function(x){
+    x.onclick=function(){
+      api('그림지우기',T.pw,T.책,x.dataset.picdel).then(function(r){
+        if(r&&r.ok){ toast('그림을 뺐습니다'); 단어불러오기(); }
+        else toast('빼지 못했습니다');
       });
     };
   });
