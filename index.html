@@ -137,6 +137,11 @@ html[data-theme="high"]{
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%}
+/* 위에서 아래로 당겨도 새로고침되지 않게 한다 —
+   시험 도중에 화면이 통째로 다시 불려 답이 날아가는 일을 막는다.
+   새로고침은 숙제 화면의 「↻」 로만 한다. */
+html{overscroll-behavior-y:contain}
+body{overscroll-behavior-y:contain}
 body{
   background:var(--bg);
   color:var(--text); font-family:var(--font);
@@ -1725,7 +1730,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-30g';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-30h';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
