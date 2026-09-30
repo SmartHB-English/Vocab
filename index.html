@@ -382,6 +382,9 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .top .who{font-size:13px;color:var(--sub)}
 .iconbtn{background:transparent;color:var(--sub);font-size:13px;padding:6px 10px;border-radius:10px;font-weight:700}
 /* ===== 시험 탭 ===== */
+.nextbar .agchip i{font-style:normal;color:var(--sub);font-size:11.5px;margin-left:6px}
+.nextbar .agchip.done{opacity:.5}
+.nextbar .agl{background:var(--primary-soft);color:var(--primary-d);padding:4px 10px;border-radius:99px}
 .exsec{font-size:12px;font-weight:800;color:var(--sub);margin:14px 2px 8px}
 .exsec:first-child{margin-top:2px}
 .excard{display:block;width:100%;text-align:left;background:var(--card);
@@ -1672,7 +1675,6 @@ input,select,textarea{border-radius:14px}
               <button data-tab="award" data-g="학생">이달의 시상</button>
               <button data-tab="wrong" data-g="학생">많이 틀린 단어</button>
               <button data-tab="book" data-g="자료">단어장</button>
-              <button data-tab="give" data-g="자료">단어장 배정</button>
               <button data-tab="roster" data-g="자료">학생 명단</button>
               <button data-tab="setting" data-g="자료">설정</button>
             </div>
@@ -1730,7 +1732,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-30h';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-30j';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -1875,8 +1877,10 @@ var DEMO = {
     var me=null;
     DEMO_배정.forEach(function(x){ if(x.이름.replace(/\s+/g,'')===찾을것) me=x; });
     if(!me) return {ok:false, 메시지:'명단에 없는 이름이에요. 선생님께 말씀드리세요.'};
-    var 책 = me.단어장.length
-      ? 전체.filter(function(b){return me.단어장.indexOf(b.이름)>-1;})
+    /* 볼 수 있는 단어장은 명단의 「교재」 칸을 따른다 (비면 전부) */
+    var 교재 = me.교재 || [];
+    var 책 = 교재.length
+      ? 전체.filter(function(b){ return 교재.indexOf(b.이름)>-1; })
       : 전체;
     return {ok:true, 학생:{이름:me.이름, 학년구분:me.학년구분}, 단어장목록:책};},
   단어가져오기:function(name){
@@ -1961,17 +1965,6 @@ var DEMO = {
     return {ok:true, 옮긴기록:0, 학생:DEMO_배정.map(function(x){
       return {행:x.행,이름:x.이름,비밀번호:'1234',학년구분:x.학년구분,
               학년:x.학년||'',학교:x.학교||'',교재:(x.교재||[]).slice()};})};},
-  배정가져오기:function(){return {ok:true,
-    학생:DEMO_배정.map(function(x){return {행:x.행,이름:x.이름,학년구분:x.학년구분,
-      전부:!x.단어장.length, 단어장:x.단어장.slice()};}),
-    단어장목록:[{이름:'예시 단어장',개수:25,레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',레슨:DEMO_레슨['불규칙 동사 50']}]};},
-  배정저장:function(pw,목록){
-    (목록||[]).forEach(function(v){
-      DEMO_배정.forEach(function(x){
-        if(x.행===Number(v.행)) x.단어장 = v.전부 ? [] : (v.단어장||[]).slice();
-      });
-    });
-    return {ok:true,개수:(목록||[]).length};},
   게임저장:function(p){
     DEMO_게임.push({게임:p.게임, 이름:p.이름, 점수:Number(p.점수)||0, 기록:p.기록||''});
     return {ok:true}; },
@@ -3467,7 +3460,7 @@ function 그리기_시험목록_(){
   var 본것 = 것들.filter(function(h){ return h.완료; });
 
   function 카드(h){
-    var 이름 = h.단어장 + ' ' + (Number(h.시작)||1) + '~' + (h.끝 || '') + '번';
+    var 이름 = h.단어장 + ' ' + 학생범위글_(h.단어장, h.시작, h.끝);
     var 끝났나 = !!h.완료;
     return '<button class="excard' + (끝났나 ? ' done' : '') + '" data-ex="' +
         S.숙제.indexOf(h) + '" type="button"' + (끝났나 ? ' disabled' : '') + '>' +
@@ -3609,6 +3602,56 @@ function 카드펼치기(list, 형태){
    레슨 — 단어장을 몇 단어씩(기본 10) 끊어서 고르게 한다
 ================================================================ */
 /* 이 단어장은 몇 단어씩 묶는지 */
+/* ================================================================
+   범위를 레슨 번호로 적는다
+   · 레슨에 딱 떨어지면 「레슨 2」 · 「레슨 2~3」
+   · 잘라 낸 것이면 「레슨 2 중 일부」
+   · 단어장 전체면 「전체」
+   · 선생님 화면과 시험지에는 「레슨 2 · 11~20번」 처럼 번호도 같이 적는다
+================================================================ */
+function 책칸_(이름, 목록){
+  var 총 = 0, 묶음 = 10;
+  (목록 || []).forEach(function(x){
+    if(x.이름 === 이름){ 총 = Number(x.개수) || 0; 묶음 = Number(x.레슨) || 10; }
+  });
+  return { 총: 총, 묶음: 묶음 };
+}
+
+function 레슨글_(묶음, 총, a, b, 번호도){
+  a = Number(a) || 1; b = Number(b) || 0;
+  if(!묶음 || 묶음 < 1) 묶음 = 10;
+  if(!b) return a + '번부터';
+  var 번호글 = a + '~' + b + '번';
+  function 붙여(글){ return 번호도 ? 글 + ' · ' + 번호글 : 글; }
+  if(총 && a <= 1 && b >= 총) return 붙여('전체');
+  var 첫 = Math.floor((a - 1) / 묶음) + 1;
+  var 끝 = Math.ceil(b / 묶음);
+  if(끝 < 첫) 끝 = 첫;
+  var 딱 = ((a - 1) % 묶음 === 0) && (b % 묶음 === 0 || (총 && b >= 총));
+  var 레 = (첫 === 끝) ? ('레슨 ' + 첫) : ('레슨 ' + 첫 + '~' + 끝);
+  return 붙여(딱 ? 레 : (레 + ' 중 일부'));
+}
+
+/* 아이 화면 — 레슨 번호만 */
+function 학생범위글_(단어장, a, b){
+  var i = 책칸_(단어장, 내책들());
+  return 레슨글_(i.묶음, i.총, a, b, false);
+}
+/* 선생님 화면·시험지 — 레슨 번호와 단어 번호를 같이 */
+function 선생님범위글_(단어장, a, b){
+  var i = 책칸_(단어장, (T && T.data && T.data.단어장목록) || []);
+  return 레슨글_(i.묶음, i.총, a, b, true);
+}
+/* "11~20" 꼴로 들고 다니는 S.범위 를 풀어 준다 */
+function 범위쪼개_(글){
+  var m = String(글 || '').split('~');
+  return { a: Number(m[0]) || 1, b: Number(m[1]) || Number(m[0]) || 0 };
+}
+function 지금범위글_(){
+  var r = 범위쪼개_(S.범위);
+  return 학생범위글_(S.단어장, r.a, r.b);
+}
+
 function 레슨크기(이름, 목록){
   var n=0;
   (목록||[]).forEach(function(b){ if(b.이름===이름) n=Number(b.레슨)||0; });
@@ -3771,7 +3814,7 @@ function 자동알림(){
     out.push({ 종류:'다시', 색:'warn',
       제목: 다시.length+'개는 다시 풀어야 해요',
       글: 다시.map(function(h){
-        return h.단어장+' '+h.시작+'~'+h.끝+'번 · '+(Number(h.점수)||0)+'점';
+        return h.단어장+' '+학생범위글_(h.단어장,h.시작,h.끝)+' · '+(Number(h.점수)||0)+'점';
       }).join('\n') + '\n'+합격점()+'점을 넘겨야 숙제로 인정돼요.' });
   }
 
@@ -3785,7 +3828,7 @@ function 자동알림(){
     out.push({ 종류:'새것', 색:'',
       제목: '새 숙제가 '+새것.length+'개 나왔어요',
       글: 새것.slice(0,3).map(function(h){
-        return h.단어장+' '+h.시작+'~'+h.끝+'번 · '+h.유형;
+        return h.단어장+' '+학생범위글_(h.단어장,h.시작,h.끝)+' · '+h.유형;
       }).join('\n') + (새것.length>3 ? '\n외 '+(새것.length-3)+'개' : '') });
   }
 
@@ -3796,7 +3839,7 @@ function 자동알림(){
     out.push({ 종류:'오늘', 색:'',
       제목: '오늘까지 끝낼 숙제 '+오늘것.length+'개',
       글: 오늘것.slice(0,3).map(function(h){
-        return h.단어장+' '+h.시작+'~'+h.끝+'번';
+        return h.단어장+' '+학생범위글_(h.단어장,h.시작,h.끝);
       }).join('\n') });
   }
 
@@ -4094,7 +4137,7 @@ function drawHw(){
     if(d>1) return d+'일 남음';
     return '기한 없음';
   }
-  function 이름(h){ return esc(h.단어장)+' '+h.시작+'~'+h.끝+'번'; }
+  function 이름(h){ return esc(h.단어장)+' '+esc(학생범위글_(h.단어장, h.시작, h.끝)); }
   var 전체=숙제들.length, 낸수=낸것.length;
   var 머리='<div class="ckhead"><b>'+(남은것.length ? '숙제 '+전체+'개 중 '+낸수+'개 끝' : '숙제 다 했어요!')+'</b>'+
     '<span class="ckbar"><i style="width:'+Math.round(낸수/전체*100)+'%"></i></span></div>';
@@ -4337,7 +4380,7 @@ function renderBook(){
     : B.목록;
 
   $('wbName').innerHTML = esc(S.단어장) +
-    '<small>' + esc(B.범위) + '번 · 모두 ' + B.목록.length + '개' +
+    '<small>' + esc(학생범위글_(S.단어장, 범위쪼개_(B.범위).a, 범위쪼개_(B.범위).b)) + ' · 모두 ' + B.목록.length + '개' +
     (별.length ? ' · 별표 ' + 별.length + '개' : '') + '</small>';
   $('wbCnt').textContent = 볼것.length + '개';
 
@@ -4378,7 +4421,7 @@ function renderBook(){
       else {
         var 별2 = 별표읽기_();
         $('wbName').innerHTML = esc(S.단어장) +
-          '<small>' + esc(B.범위) + '번 · 모두 ' + B.목록.length + '개' +
+          '<small>' + esc(학생범위글_(S.단어장, 범위쪼개_(B.범위).a, 범위쪼개_(B.범위).b)) + ' · 모두 ' + B.목록.length + '개' +
           (별2.length ? ' · 별표 ' + 별2.length + '개' : '') + '</small>';
       }
     };
@@ -4683,7 +4726,7 @@ function startSheet(mode, list, 범위){
 }
 
 function 시험지제목(){
-  return S.단어장+' '+S.범위+'번 · '+(유형이름표[S.모드]||'')+
+  return S.단어장+' '+지금범위글_()+' · '+(유형이름표[S.모드]||'')+
          (S.현재숙제 ? (S.현재숙제.종류==='시험' ? ' (시험)' : ' (숙제)') : '');
 }
 
@@ -4851,7 +4894,7 @@ function finishQuiz(){
   var 탭시험 = !!시험판;
   var 시험숙제 = !!(S.현재숙제 && S.현재숙제.종류==='시험');
 
-  $('rTitle').textContent = S.단어장+' '+S.범위+'번 · '+유형이름+
+  $('rTitle').textContent = S.단어장+' '+지금범위글_()+' · '+유형이름+
     (탭시험 ? ' (시험)' : (S.현재숙제 ? (시험숙제?' (시험)':' (숙제)') : ''));
   $('btnSeeSheet').classList.toggle('hide', !S.채점됨);
   $('rScore').textContent=점수;
@@ -5116,7 +5159,7 @@ function finishVerb(){
   var 초=Math.round((Date.now()-S.시작시각)/1000);
 
   var 탭시험 = !!시험판;
-  $('rTitle').textContent=S.단어장+' '+S.범위+'번 · 3단변화'+
+  $('rTitle').textContent=S.단어장+' '+지금범위글_()+' · 3단변화'+
     (탭시험 ? ' (시험)' : (S.현재숙제 ? (S.현재숙제.종류==='시험'?' (시험)':' (숙제)') : ''));
   $('btnSeeSheet').classList.add('hide');
   $('rScore').textContent=점수;
@@ -5598,7 +5641,7 @@ function 밀린줄(p, 최대){
   최대 = 최대 || 3;
   var 칩들 = p.건.slice(0,최대).map(function(h){
     var 모 = (h.모자란사람||[]).indexOf(p.이름)>-1;
-    return '<span class="mchip'+(모?' fail':'')+'">'+esc(h.단어장)+' '+h.시작+'~'+h.끝+
+    return '<span class="mchip'+(모?' fail':'')+'">'+esc(h.단어장)+' '+esc(선생님범위글_(h.단어장,h.시작,h.끝))+
       (모 ? ' · '+(h.종류==='보충'?'보충':'점수 모자람') : (h.종류==='시험'?' · 시험':''))+'</span>';
   }).join('');
   var 더 = p.건.length>최대 ? '<span class="mchip off">외 '+(p.건.length-최대)+'건</span>' : '';
@@ -5643,6 +5686,93 @@ function 보충손잡이(사람들){
 }
 
 /* 지난번과 같게 — 최근에 낸 숙제를 그대로 다시 고른다 */
+/* ================================================================
+   진도 이어가기 — 단어장마다 「어디까지 냈는지」 를 보고 다음 레슨을 잡아 준다
+   · 그 단어장으로 낸 숙제 중 가장 뒤 번호가 지금까지의 진도다
+   · 유형과 종류는 그 단어장으로 마지막에 낸 것을 그대로 따라간다
+================================================================ */
+function 책진도_(단어장, 전체, 목록){
+  var 총 = 0, 묶음 = 10;
+  (목록 || []).forEach(function(x){
+    if(x.이름 === 단어장){ 총 = Number(x.개수) || 0; 묶음 = Number(x.레슨) || 10; }
+  });
+  var 마지막끝 = 0, 최근 = null;
+  (전체 || []).forEach(function(h){
+    if(h.단어장 !== 단어장) return;
+    /* 진도는 평소 숙제(당일·기한)로만 센다.
+       보충은 지난 데를 다시 하는 것이고, 시험은 여러 레슨을 한꺼번에 묶으므로
+       이것들로 진도를 밀면 레슨이 건너뛰어진다. */
+    if(h.종류 === '보충' || h.종류 === '시험') return;
+    var 끝 = Number(h.끝) || 0;
+    if(끝 > 마지막끝) 마지막끝 = 끝;
+    최근 = h;                                  /* 시트 차례대로라 마지막이 가장 최근 */
+  });
+  if(!최근) return null;
+  if(마지막끝 > 총) 마지막끝 = 총;              /* 단어장이 줄었을 때를 대비 */
+  var 다음시작 = 마지막끝 + 1;
+  var 끝났나 = !총 || 다음시작 > 총;
+  return {
+    단어장: 단어장, 총: 총, 묶음: 묶음,
+    지난끝: 마지막끝, 최근: 최근, 끝났나: 끝났나,
+    시작: 끝났나 ? 0 : 다음시작,
+    끝: 끝났나 ? 0 : Math.min(총, 다음시작 + 묶음 - 1)
+  };
+}
+
+function 진도들_(전체, 목록){
+  var 본것 = {}, 결과 = [];
+  (전체 || []).forEach(function(h){
+    if(본것[h.단어장]) return;
+    본것[h.단어장] = 1;
+    var p = 책진도_(h.단어장, 전체, 목록);
+    if(p) 결과.push(p);
+  });
+  return 결과;
+}
+
+function 진도줄(전체, 목록){
+  var 것들 = 진도들_(전체, 목록);
+  if(!것들.length) return '';
+  return '<div class="againbar nextbar">'+
+    '<span class="agl">이어서 내기</span>'+
+    것들.map(function(p, i){
+      var c = (T.색맵||{})[p.단어장] || '';
+      var 점 = c ? '<span class="dot" style="background:'+c+'"></span>' : '';
+      if(p.끝났나){
+        return '<button class="agchip done" data-next="'+i+'" disabled>'+점+
+          esc(p.단어장)+' · 끝까지 냈어요</button>';
+      }
+      return '<button class="agchip" data-next="'+i+'">'+점+
+        esc(p.단어장)+' <b>'+esc(레슨글_(p.묶음,p.총,p.시작,p.끝,true))+'</b> · '+esc(p.최근.유형)+
+        ' <i>지난번 '+p.지난끝+'번까지</i></button>';
+    }).join('')+
+    '<span class="sub">지난번에 낸 데서 이어 붙입니다</span>'+
+  '</div>';
+}
+
+function 진도손잡이(전체, 목록){
+  var 것들 = 진도들_(전체, 목록);
+  qsa('[data-next]').forEach(function(btn){
+    btn.onclick = function(){
+      var p = 것들[+btn.dataset.next];
+      if(!p || p.끝났나) return;
+      var h = p.최근;
+      if($('hwBook')) $('hwBook').value = p.단어장;
+      if($('hwFrom')) $('hwFrom').value = p.시작;
+      if($('hwTo'))   $('hwTo').value   = p.끝;
+      if($('hwType')) $('hwType').value = h.유형;
+      qsa('input[name=hwKind]').forEach(function(r){
+        r.checked = (r.value === h.종류);
+        if(r.checked && r.onchange) r.onchange();
+      });
+      if($('hwDue') && (h.종류==='기한' || h.종류==='시험')) $('hwDue').value = 오늘값();
+      if(typeof 숙제레슨다시 === 'function') 숙제레슨다시();
+      if(typeof 숙제대상다시 === 'function') 숙제대상다시();
+      toast('“'+p.단어장+' '+레슨글_(p.묶음,p.총,p.시작,p.끝,true)+'”으로 채웠습니다 — 확인하고 등록하세요');
+    };
+  });
+}
+
 function 지난숙제줄(전체){
   var 본것={}, 목록=[];
   (전체||[]).slice().reverse().forEach(function(h){
@@ -5658,7 +5788,7 @@ function 지난숙제줄(전체){
       var c=(T.색맵||{})[h.단어장]||'';
       return '<button class="agchip" data-again="'+i+'">'+
         (c?'<span class="dot" style="background:'+c+'"></span>':'')+
-        esc(h.단어장)+' <b>'+h.시작+'~'+h.끝+'</b> · '+esc(h.유형)+
+        esc(h.단어장)+' <b>'+esc(선생님범위글_(h.단어장,h.시작,h.끝))+'</b> · '+esc(h.유형)+
         ' · '+esc(h.종류==='당일'?'오늘':h.종류)+'</button>';
     }).join('')+
     '<span class="sub">누르면 위 칸이 그대로 채워집니다</span>'+
@@ -5685,7 +5815,7 @@ function 지난숙제손잡이(전체){
       });
       if($('hwDue') && (h.종류==='기한'||h.종류==='시험')) $('hwDue').value=h.마감일||'';
       if(typeof 숙제레슨다시==='function') 숙제레슨다시();
-      toast('“'+h.단어장+' '+h.시작+'~'+h.끝+'번”으로 채웠습니다');
+      toast('“'+h.단어장+' '+선생님범위글_(h.단어장,h.시작,h.끝)+'”으로 채웠습니다');
     };
   });
 }
@@ -5961,7 +6091,7 @@ function drawTab(){
         판('지금 걸린 숙제', '<span class="sub">'+걸린.length+'건</span>',
           걸린.length ? '<table class="tb"><tbody>'+걸린.map(function(h){
               var 안=(h.안한사람||[]).indexOf(n)>-1, 모=(h.모자란사람||[]).indexOf(n)>-1;
-              return '<tr><td class="nw">'+책칩(h.단어장)+' <span class="muted">'+h.시작+'~'+h.끝+'번</span></td>'+
+              return '<tr><td class="nw">'+책칩(h.단어장)+' <span class="muted">'+esc(선생님범위글_(h.단어장,h.시작,h.끝))+'</span></td>'+
                 '<td class="nw muted">'+esc(h.유형)+'</td><td class="nw">'+마감칩(h)+'</td>'+
                 '<td class="num">'+(안 ? (모 ? '<span class="pill fail">점수 모자람</span>' : '<span class="pill miss">안 함</span>')
                                       : '<span class="pill ok">냄</span>')+'</td></tr>';
@@ -6561,6 +6691,7 @@ function drawTab(){
             '<div id="hwStuWrap" class="hide"></div>'+
           '</div>'+
 
+          진도줄(전체숙, d.단어장목록)+
           지난숙제줄(전체숙)+
         '</div>')+
 
@@ -6814,7 +6945,7 @@ function drawTab(){
           var 펼침 = T.펼친묶음 === 키;
           var 줄 =
             '<tr class="grow2'+(g.줄들.length>1?' many':'')+'" data-mg="'+esc(키)+'">'+
-              '<td class="nw">'+책칩(g.단어장)+' <span class="muted">'+g.시작+'~'+g.끝+'번</span>'+
+              '<td class="nw">'+책칩(g.단어장)+' <span class="muted">'+esc(선생님범위글_(g.단어장,g.시작,g.끝))+'</span>'+
                 (g.줄들.length>1?' <span class="pill hw">'+g.줄들.length+'건 묶음</span>':'')+'</td>'+
               '<td class="nw muted">'+esc(g.유형)+'</td>'+
               '<td class="nw">'+마감칩(g)+'</td>'+
@@ -6926,333 +7057,6 @@ function drawTab(){
 
 
   /* ---------------- 단어장 배정 ---------------- */
-  else if(T.tab==='give'){
-    if(!T.배정){
-      b.innerHTML = 머리('단어장 배정','') + 빈칸('불러오는 중…');
-      var 끝났나=false;
-      function 실패(글){
-        if(끝났나) return; 끝났나=true;
-        $('tBody').innerHTML = 머리('단어장 배정','') +
-          '<div class="panel"><div class="panel-b">'+
-          '<div style="font-weight:800;margin-bottom:6px">불러오지 못했습니다</div>'+
-          '<div class="sub" style="line-height:1.7">'+esc(글)+'<br><br>'+
-          '<b>거의 대부분 배포를 안 하셔서 그렇습니다.</b> 코드를 저장만 하면 웹 화면은 옛날 것이라 '+
-          '이 기능이 아직 없습니다.<br>'+
-          'Apps Script에서 <b>배포 → 배포 관리 → 연필 → 버전: 새 버전 → 배포</b> 를 누른 뒤 '+
-          '이 화면을 새로고침해 주세요.<br>'+
-          '<b>초기설정</b> 도 한 번 실행해야 학생 시트에 칸이 생깁니다.</div>'+
-          '<div class="mt2"></div>'+
-          '<button class="btn sm" id="btnGiveRetry" style="width:auto;padding:9px 18px">다시 시도</button>'+
-          '</div></div>';
-        $('btnGiveRetry').onclick=function(){ T.배정=null; drawTab(); };
-      }
-      var 시계=setTimeout(function(){ 실패('30초 안에 답이 오지 않았습니다.'); }, 30000);
-      api('배정가져오기',T.pw).then(function(r){
-        clearTimeout(시계);
-        if(끝났나) return;
-        if(r&&r.ok){ 끝났나=true; T.배정=r; T.배정변경={}; drawTab(); }
-        else 실패((r&&r.메시지) || '권한이 없거나 서버가 빈 답을 보냈습니다.');
-      }).catch(function(e){
-        clearTimeout(시계);
-        실패(String((e&&(e.message||e))||'알 수 없는 오류'));
-      });
-      return;
-    }
-
-    var 책들 = T.배정.단어장목록||[];
-    var 전원 = T.배정.학생||[];
-    function 학년글(x){ return (x.학년구분==='고등') ? '고등부' : '초중등부'; }
-    var 학년들 = [];
-    전원.forEach(function(x){
-      var g = 학년글(x);
-      if(학년들.indexOf(g)<0) 학년들.push(g);
-    });
-    if(T.배정반 && 학년들.indexOf(T.배정반)<0) T.배정반='';
-
-    if(!책들.length){
-      b.innerHTML = 머리('단어장 배정','') + 빈칸('단어장을 먼저 만들어 주세요.');
-      return;
-    }
-
-    var 줄맵={}; 전원.forEach(function(st){ 줄맵[st.행]=st; });
-    function 상태(st){
-      var c = T.배정변경[st.행];
-      return c ? c : { 전부: st.전부, 단어장: (st.단어장||[]).slice() };
-    }
-    function 고침(행, v){ T.배정변경[행] = v; }
-
-    var 보임 = 전원.filter(function(x){
-      if(T.배정반 && 학년글(x)!==T.배정반) return false;
-      if(T.배정찾기 && x.이름.toLowerCase().indexOf(T.배정찾기.toLowerCase())<0) return false;
-      return true;
-    });
-    if(!보임.length) T.배정선택=null;
-    else if(!T.배정선택 || !보임.some(function(x){return x.행===T.배정선택;}))
-      T.배정선택 = 보임[0].행;
-
-    function 요약(st){
-      var c=상태(st);
-      if(c.전부) return '<span class="pill ok">전부</span>';
-      if(!c.단어장.length) return '<span class="pill miss">없음</span>';
-      var 앞=c.단어장.slice(0,2).map(esc).join(', ');
-      return '<span class="muted">'+앞+(c.단어장.length>2?' 외 '+(c.단어장.length-2):'')+'</span>';
-    }
-
-    function 왼쪽줄(st){
-      var 뽑힘 = T.배정선택===st.행;
-      var 바뀜 = !!T.배정변경[st.행];
-      return '<tr class="gstu'+(뽑힘?' on':'')+'" data-gstu="'+st.행+'" style="cursor:pointer'+
-        (뽑힘?';background:var(--primary-soft)':'')+'">'+
-        '<td><span class="name">'+esc(st.이름)+'</span>'+
-          '<span class="pill hw gmark"'+(바뀜?'':' style="visibility:hidden"')+'>바뀜</span>'+
-          '<div class="muted">'+esc(학년글(st))+'</div></td>'+
-        '<td class="num gsum">'+요약(st)+'</td></tr>';
-    }
-
-    function 오른쪽(){
-      var st = T.배정선택 ? 줄맵[T.배정선택] : null;
-      if(!st) return 빈칸('왼쪽에서 학생을 골라 주세요.');
-      var c=상태(st);
-      return '<div class="panel-b">'+
-        '<div class="row" style="justify-content:space-between;align-items:baseline">'+
-          '<div style="font-size:17px;font-weight:900">'+esc(st.이름)+
-            ' <span class="sub" style="font-weight:700">'+esc(학년글(st))+'</span></div>'+
-          (T.배정변경[st.행]?'<span class="pill hw">저장 안 됨</span>':'')+
-        '</div>'+
-        '<label class="gbig mt2"><input type="checkbox" id="gAllOne"'+(c.전부?' checked':'')+'>'+
-          '<span><b>전부 보기</b><small>앞으로 만들 단어장까지 자동으로 보입니다</small></span></label>'+
-        '<div class="mt"></div>'+
-        책들.map(function(bk){
-          var col=(T.색맵||{})[bk.이름]||'';
-          var 켬 = c.전부 || c.단어장.indexOf(bk.이름)>-1;
-          return '<label class="gbig'+(c.전부?' off':'')+'">'+
-            '<input type="checkbox" class="gOneBook" data-book="'+esc(bk.이름)+'"'+
-              (켬?' checked':'')+(c.전부?' disabled':'')+'>'+
-            '<span>'+(col?'<span class="dot" style="background:'+col+'"></span> ':'')+
-              '<b>'+esc(bk.이름)+'</b><small>'+bk.개수+'개'+
-              (bk.종류==='3단변화'?' · 3단변화':'')+'</small></span></label>';
-        }).join('')+
-        '<div class="row mt2" style="gap:8px">'+
-          '<button class="btn line sm" id="gPickAll" style="width:auto;padding:8px 14px;margin:0">모두 켜기</button>'+
-          '<button class="btn line sm" id="gPickNone" style="width:auto;padding:8px 14px;margin:0">모두 끄기</button>'+
-          '<span class="grow"></span>'+
-          '<button class="btn line sm" id="gPrev" style="width:auto;padding:8px 14px;margin:0">← 앞 학생</button>'+
-          '<button class="btn line sm" id="gNext" style="width:auto;padding:8px 14px;margin:0">다음 학생 →</button>'+
-        '</div>'+
-      '</div>';
-    }
-
-    var 바꾼수 = Object.keys(T.배정변경).length;
-
-    b.innerHTML =
-      머리('단어장 배정',
-        '왼쪽에서 학생을 고르고 오른쪽에서 단어장을 켜고 끕니다. 숙제는 배정과 상관없이 나갑니다.',
-        '<span class="row" id="gHead" style="gap:8px">'+(바꾼수
-          ? '<span class="sub" style="padding-bottom:9px">'+바꾼수+'명 바뀜</span>'+
-            '<button class="btn line" id="btnGiveReset" style="width:auto;padding:9px 14px;margin:0;border-radius:9px">되돌리기</button>'+
-            '<button class="btn sm" id="btnGiveSave" style="width:auto;padding:9px 18px;margin:0;border-radius:9px">저장</button>'
-          : '<span class="sub" style="padding-bottom:9px">바꾼 내용 없음</span>')+'</span>')+
-
-      판('한꺼번에 주기',
-        '<span class="sub">먼저 한꺼번에 깔고, 다른 아이 몇 명만 하나씩 고치세요</span>',
-        '<div class="panel-b">'+
-          '<div class="tbar" style="margin:0">'+
-            '<div class="f"><label>누구에게</label><select id="gBulkClass">'+
-              '<option value="">지금 보이는 '+보임.length+'명</option>'+
-              학년들.map(function(c){
-                return '<option'+(T.배정반===c?' selected':'')+'>'+esc(c)+'</option>';
-              }).join('')+
-            '</select></div>'+
-            '<div class="grow"><label>어떤 단어장을</label>'+
-              '<div class="row wrap" style="gap:8px 16px;padding:9px 0 0">'+
-                책들.map(function(bk){
-                  var col=(T.색맵||{})[bk.이름]||'';
-                  return '<label style="margin:0;font-size:13.5px;font-weight:700;color:var(--text)">'+
-                    '<input type="checkbox" class="gBulkBook" value="'+esc(bk.이름)+'">'+
-                    (col?'<span class="dot" style="background:'+col+'"></span> ':'')+esc(bk.이름)+'</label>';
-                }).join('')+
-                '<label style="margin:0;font-size:13.5px;font-weight:700;color:var(--text)">'+
-                  '<input type="checkbox" id="gBulkAll">전부 보기로</label>'+
-              '</div></div>'+
-          '</div>'+
-          '<div class="row mt" style="gap:10px">'+
-            '<button class="btn sm" id="btnBulk" style="width:auto;padding:10px 20px;margin:0">한꺼번에 적용</button>'+
-            '<span class="sub" id="gBulkMsg"></span>'+
-          '</div>'+
-        '</div>')+
-
-      '<div class="cols c37">'+
-        '<div>'+
-        판('학생 '+보임.length+'명',
-          '<span class="sub">누르면 오른쪽에서 고칩니다</span>',
-          '<div class="panel-b" style="padding-bottom:6px">'+
-            '<div class="tbar" style="margin:0">'+
-              '<div class="f"><label>학년</label><select id="gClass">'+
-                '<option value="">전체</option>'+
-                학년들.map(function(c){
-                  return '<option'+(T.배정반===c?' selected':'')+'>'+esc(c)+'</option>';
-                }).join('')+
-              '</select></div>'+
-              '<div class="f"><label>이름 찾기</label>'+
-                '<input id="gFind" placeholder="이름" value="'+esc(T.배정찾기||'')+'"></div>'+
-            '</div></div>'+
-          '<div class="tscroll" style="max-height:52vh">'+
-            (보임.length
-              ? '<table class="tb"><tbody>'+보임.map(왼쪽줄).join('')+'</tbody></table>'
-              : 빈칸('해당하는 학생이 없습니다.'))+
-          '</div>')+
-        '</div>'+
-        '<div>'+
-        판('<span id="gWho">고른 학생</span>','', '<div id="gEdit">'+오른쪽()+'</div>')+
-        '<div class="panel"><div class="panel-b sub" style="line-height:1.7">'+
-          '<b>전부 보기</b>는 앞으로 만들 단어장까지 자동으로 보이게 합니다. 처음에는 모두 이 상태예요.<br>'+
-          '하나도 안 고르면 그 학생 홈 화면에는 <b>단어장 칸 자체가 사라지고</b> 숙제만 뜹니다.<br>'+
-          '스프레드시트 학생 시트의 <b>볼 수 있는 단어장</b> 칸에 직접 적어도 됩니다 (쉼표로 구분).'+
-        '</div></div>'+
-        '</div>'+
-      '</div>';
-
-    /* ---- 그 자리만 고치는 갱신 (스크롤이 안 튀게) ---- */
-    function 왼쪽칠(행){
-      var tr=document.querySelector('tr[data-gstu="'+행+'"]');
-      if(!tr) return;
-      var st=줄맵[행];
-      var 뽑힘 = T.배정선택===행;
-      tr.className = 'gstu'+(뽑힘?' on':'');
-      tr.style.background = 뽑힘 ? 'var(--primary-soft)' : '';
-      var m=tr.querySelector('.gmark');
-      if(m) m.style.visibility = T.배정변경[행] ? 'visible' : 'hidden';
-      var s=tr.querySelector('.gsum');
-      if(s) s.innerHTML = 요약(st);
-    }
-    function 오른쪽칠(){
-      $('gEdit').innerHTML = 오른쪽();
-      var st = T.배정선택 ? 줄맵[T.배정선택] : null;
-      $('gWho').textContent = st ? st.이름+' 단어장' : '고른 학생';
-      오른쪽손잡이();
-    }
-    function 머리갱신(){
-      var n=Object.keys(T.배정변경).length;
-      var box=$('gHead'); if(!box) return;
-      box.innerHTML = n
-        ? '<span class="sub" style="padding-bottom:9px">'+n+'명 바뀜</span>'+
-          '<button class="btn line" id="btnGiveReset" style="width:auto;padding:9px 14px;margin:0;border-radius:9px">되돌리기</button>'+
-          '<button class="btn sm" id="btnGiveSave" style="width:auto;padding:9px 18px;margin:0;border-radius:9px">저장</button>'
-        : '<span class="sub" style="padding-bottom:9px">바꾼 내용 없음</span>';
-      머리버튼();
-    }
-
-    function 오른쪽손잡이(){
-      var st = T.배정선택 ? 줄맵[T.배정선택] : null;
-      if(!st) return;
-      if($('gAllOne')) $('gAllOne').onclick=function(){
-        고침(st.행, { 전부: this.checked, 단어장: 상태(st).단어장 });
-        오른쪽칠(); 왼쪽칠(st.행); 머리갱신();
-      };
-      qsa('.gOneBook').forEach(function(x){
-        x.onclick=function(){
-          var 목록=상태(st).단어장.slice();
-          var i=목록.indexOf(x.dataset.book);
-          if(x.checked){ if(i<0) 목록.push(x.dataset.book); } else { if(i>-1) 목록.splice(i,1); }
-          고침(st.행, { 전부:false, 단어장:목록 });
-          왼쪽칠(st.행); 머리갱신();
-          var 지금=상태(st);
-          var m=$('gEdit').querySelector('.pill.hw');
-          if(!m){ 오른쪽칠(); }
-        };
-      });
-      if($('gPickAll')) $('gPickAll').onclick=function(){
-        고침(st.행, { 전부:false, 단어장: 책들.map(function(bk){return bk.이름;}) });
-        오른쪽칠(); 왼쪽칠(st.행); 머리갱신();
-      };
-      if($('gPickNone')) $('gPickNone').onclick=function(){
-        고침(st.행, { 전부:false, 단어장: [] });
-        오른쪽칠(); 왼쪽칠(st.행); 머리갱신();
-      };
-      function 이동(d){
-        var i=보임.map(function(x){return x.행;}).indexOf(T.배정선택);
-        var j=i+d;
-        if(j<0||j>=보임.length){ toast(d<0?'첫 학생입니다':'마지막 학생입니다'); return; }
-        var 옛=T.배정선택;
-        T.배정선택=보임[j].행;
-        왼쪽칠(옛); 왼쪽칠(T.배정선택); 오른쪽칠();
-        var tr=document.querySelector('tr[data-gstu="'+T.배정선택+'"]');
-        if(tr) tr.scrollIntoView({block:'nearest'});
-      }
-      if($('gPrev')) $('gPrev').onclick=function(){ 이동(-1); };
-      if($('gNext')) $('gNext').onclick=function(){ 이동(1); };
-    }
-
-    qsa('.gstu').forEach(function(tr){
-      tr.onclick=function(){
-        var 옛=T.배정선택;
-        T.배정선택=Number(tr.dataset.gstu);
-        if(옛) 왼쪽칠(옛);
-        왼쪽칠(T.배정선택);
-        오른쪽칠();
-      };
-    });
-    $('gClass').onchange=function(){ T.배정반=this.value; T.배정선택=null; drawTab(); };
-    var 찾기시계;
-    $('gFind').oninput=function(){
-      var v=this.value; clearTimeout(찾기시계);
-      찾기시계=setTimeout(function(){
-        T.배정찾기=v; T.배정선택=null; drawTab();
-        var el=$('gFind'); if(el){ el.focus(); el.setSelectionRange(v.length,v.length); }
-      },350);
-    };
-
-    $('btnBulk').onclick=function(){
-      var 골라 = $('gBulkClass').value;
-      var 전부 = $('gBulkAll').checked;
-      var 고른책 = qsa('.gBulkBook').filter(function(x){return x.checked;}).map(function(x){return x.value;});
-      if(!전부 && !고른책.length){ toast('단어장을 고르거나 “전부 보기로”를 켜 주세요'); return; }
-      var 대상 = 골라 ? 전원.filter(function(st){ return 학년글(st)===골라; }) : 보임.slice();
-      if(!대상.length){ toast('해당하는 학생이 없습니다'); return; }
-      if(!confirm((골라||'지금 보이는')+' 학생 '+대상.length+'명을 '+
-        (전부 ? '전부 보기로 바꿉니다.' : 고른책.join(', ')+' 만 보이도록 바꿉니다.')+
-        '\n그 아이들의 지금 배정은 덮어써집니다. 계속할까요?')) return;
-      대상.forEach(function(st){
-        고침(st.행, 전부 ? { 전부:true, 단어장:상태(st).단어장 }
-                        : { 전부:false, 단어장:고른책.slice() });
-        왼쪽칠(st.행);
-      });
-      오른쪽칠(); 머리갱신();
-      $('gBulkMsg').textContent = 대상.length+'명에 적용했습니다. 저장을 눌러야 반영됩니다.';
-      toast(대상.length+'명에 깔았습니다 — 저장을 눌러 주세요');
-    };
-    qsa('.gBulkBook').forEach(function(x){
-      x.onchange=function(){ if(x.checked) $('gBulkAll').checked=false; };
-    });
-    $('gBulkAll').onchange=function(){
-      if(this.checked) qsa('.gBulkBook').forEach(function(x){ x.checked=false; });
-    };
-
-    function 머리버튼(){
-      if($('btnGiveReset')) $('btnGiveReset').onclick=function(){
-        T.배정변경={}; drawTab(); toast('되돌렸습니다');
-      };
-      if($('btnGiveSave')) $('btnGiveSave').onclick=function(){
-        var btn=this;
-        var 목록=Object.keys(T.배정변경).map(function(행){
-          var c=T.배정변경[행];
-          return { 행:Number(행), 전부:c.전부, 단어장:c.단어장 };
-        });
-        if(!목록.length) return;
-        btn.disabled=true; btn.textContent='저장 중…';
-        api('배정저장',T.pw,목록).then(function(r){
-          if(r&&r.ok){
-            toast(r.개수+'명의 단어장을 바꿨습니다');
-            T.배정=null; T.배정변경={}; T.명단=null; T.시상=null; T.설정=null;
-            drawTab();
-          } else { btn.disabled=false; btn.textContent='저장'; toast((r&&r.메시지)||'저장하지 못했습니다'); }
-        });
-      };
-    }
-    머리버튼();
-    오른쪽손잡이();
-    if(T.배정선택 && 줄맵[T.배정선택]) $('gWho').textContent = 줄맵[T.배정선택].이름+' 단어장';
-  }
 
   else if(T.tab==='book'){
     var 목록=d.단어장목록||[];
@@ -7521,7 +7325,7 @@ function drawTab(){
       function 종이설정(){
         return {
           제목: ($('ppTitle').value||'단어 시험').trim(),
-          범위글: T.종이.책+'  '+T.종이.시작+'~'+T.종이.끝+'번'
+          범위글: T.종이.책+'  '+선생님범위글_(T.종이.책, T.종이.시작, T.종이.끝)
         };
       }
       function 단어챙기기(뒤에){
@@ -8021,7 +7825,7 @@ function 숙제표(list){
       '<td class="w"><input type="checkbox" class="hwPick" data-row="'+h.행+'"'+(켬?' checked':'')+
         ' onclick="event.stopPropagation()"></td>'+
       '<td class="nw">'+종류칩(h.종류)+'</td>'+
-      '<td class="nw">'+책칩(h.단어장)+' <span class="muted">'+h.시작+'~'+h.끝+'번</span></td>'+
+      '<td class="nw">'+책칩(h.단어장)+' <span class="muted">'+esc(선생님범위글_(h.단어장,h.시작,h.끝))+'</span></td>'+
       '<td class="nw muted">'+(h.학생
         ? '<span class="pill hw">'+esc(h.학생)+'</span>'
         : '<span class="pill ok">교재 전원</span>')+
@@ -8045,7 +7849,7 @@ function 숙제표(list){
       '<td class="w"><input type="checkbox" class="hwPick묶음" data-rows="'+g.행들.join(',')+'"'+
         (다켬?' checked':'')+'></td>'+
       '<td class="nw">'+종류칩(g.종류)+'</td>'+
-      '<td class="nw">'+책칩(g.단어장)+' <span class="muted">'+g.시작+'~'+g.끝+'번</span>'+
+      '<td class="nw">'+책칩(g.단어장)+' <span class="muted">'+esc(선생님범위글_(g.단어장,g.시작,g.끝))+'</span>'+
         ' <span class="pill hw">'+g.줄들.length+'건 묶음</span></td>'+
       '<td class="nw muted">'+esc(g.대상글)+'</td>'+
       '<td class="nw muted">'+esc(g.유형)+'</td>'+
@@ -8068,6 +7872,8 @@ function 숙제표(list){
 
 /* ---------- 숙제 화면 손잡이 ---------- */
 var 숙제레슨다시 = null;
+var 숙제대상다시 = null;
+var 숙제대상다시 = null;
 function 숙제손잡이(d){
   function 학생칸그리기(){
     var 명단=(d.학생목록)||[];
@@ -8203,6 +8009,8 @@ function 숙제손잡이(d){
     숙제레슨그리기();
   }
   지난숙제손잡이((d && d.숙제목록) || []);
+  진도손잡이((d && d.숙제목록) || [], (d && d.단어장목록) || []);
+  숙제대상다시 = 교재대상보기;
 
   교재대상보기();
 
