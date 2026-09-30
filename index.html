@@ -376,6 +376,20 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .top{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 12px}
 .top .who{font-size:13px;color:var(--sub)}
 .iconbtn{background:transparent;color:var(--sub);font-size:13px;padding:6px 10px;border-radius:10px;font-weight:700}
+/* ===== 시험 탭 ===== */
+.exflow{display:flex;align-items:center;gap:12px;margin:2px 0 12px}
+.exstep{flex:1;text-align:center;border:1.5px solid var(--line);border-radius:14px;padding:12px 8px}
+.exstep b{display:block;font-size:20px;font-weight:900;letter-spacing:-.5px}
+.exstep i{display:block;font-size:11.5px;font-style:normal;font-weight:700;color:var(--sub);margin-top:3px}
+.exstep.on{border-color:var(--primary)}
+.exstep.on b{color:var(--primary)}
+.exar{font-size:22px;font-weight:900;color:var(--sub);flex:0 0 auto}
+.membar{display:flex;align-items:center;gap:12px;margin:0 0 12px;
+  border:1.5px solid var(--primary);border-radius:14px;padding:11px 12px}
+.memt{flex:1;min-width:0}
+.memt b{display:block;font-size:14px;font-weight:800}
+.memt i{display:block;font-size:11.5px;font-style:normal;color:var(--sub);margin-top:2px}
+.membar .btn{width:auto;margin:0;padding:10px 14px;font-size:13.5px;flex:0 0 auto}
 .setbox{padding:2px 2px 4px}
 .setrow{display:flex;align-items:center;gap:14px;padding:12px 2px;border-bottom:1px solid var(--line)}
 .setrow:last-child{border-bottom:0}
@@ -1521,12 +1535,60 @@ input,select,textarea{border-radius:14px}
     <button class="btn hide" id="vNext">다음 문제</button>
   </section>
 
+  <!-- ========================= 시험 ========================= -->
+  <section id="s-exam" class="screen">
+    <div class="top">
+      <button class="iconbtn" data-back="home">← 뒤로</button>
+      <div class="who">시험 보기</div>
+      <span class="sub" style="margin-left:auto;font-size:11px">기록에 남아요</span>
+      <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
+    </div>
+
+    <div class="card" id="exBookWrap">
+      <div id="exChips"></div>
+      <div class="mt"><label id="exLessonLab">레슨</label>
+        <div id="exQuick"></div></div>
+      <button class="foldbtn" id="btnExHand">＋ 직접 정하기</button>
+      <div id="exHand" class="hide">
+        <div class="row">
+          <div class="grow"><label>시작</label>
+            <input id="exFrom" type="tel" inputmode="numeric" value="1"></div>
+          <div class="grow"><label>끝</label>
+            <input id="exTo" type="tel" inputmode="numeric" value="20"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>어떤 시험을 볼까요?</label>
+      <div class="mlist" id="exModes"></div>
+    </div>
+
+    <div class="card">
+      <div class="exflow">
+        <div class="exstep"><b id="exMemMin">5분</b><i>먼저 외우기</i></div>
+        <div class="exar">›</div>
+        <div class="exstep on"><b id="exTestMin">20분</b><i>시험</i></div>
+      </div>
+      <div class="sub" style="font-size:12px;line-height:1.6" id="exHelp"></div>
+    </div>
+
+    <div class="startbar"><button class="btn" id="btnExStart" type="button">시험 시작</button></div>
+    <div class="foot">아는 만큼만 쓰면 됩니다</div>
+  </section>
+
   <!-- ========================= 단어장 보기 ========================= -->
   <section id="s-book" class="screen">
     <div class="top">
       <button class="iconbtn" data-back="home">← 그만</button>
-      <div class="hud"><span id="wbCnt"></span></div>
+      <div class="hud"><span id="wbCnt"></span><span class="clock hide" id="wbClock"></span></div>
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
+    </div>
+
+    <div class="membar hide" id="wbMem">
+      <div class="memt"><b>지금은 외우는 시간이에요</b>
+        <i>시간이 되면 저절로 시험이 시작됩니다</i></div>
+      <button class="btn sm" id="wbGo" type="button">바로 시험 보기</button>
     </div>
 
     <div class="wbtop">
@@ -1644,6 +1706,7 @@ input,select,textarea{border-radius:14px}
 <nav class="tabbar hide" id="tabbar">
   <button data-tab2="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15.5H6.5A1.5 1.5 0 0 0 5 20z"/><path d="M9 8h6M9 12h4"/></svg><span>숙제</span><i class="tbadge hide" id="tbHw"></i></button>
   <button data-tab2="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13"/><path d="M4 19a2 2 0 0 0 2 2h14"/><path d="M8.5 9.5l2.5 2.5-2.5 2.5M13 15h3"/></svg><span>연습</span></button>
+  <button data-tab2="exam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9.5 8.5h5M9.5 12h5M9.5 15.5h3"/></svg><span>시험</span></button>
   <button data-tab2="streak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 5.5H5A2.5 2.5 0 0 0 7.5 9M16.5 5.5H19A2.5 2.5 0 0 1 16.5 9"/><path d="M12 13.5V17M9 20h6"/></svg><span>순위</span></button>
 </nav>
 
@@ -1681,7 +1744,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-09-30d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-09-30e';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -1787,20 +1850,20 @@ var DEMO_구독 = [
 ];
 var DEMO_열쇠 = {공개키:'', 비밀키:''};
 
-var DEMO_설정 = { 합격점:80, 연습분:5, 시험분:20 };
+var DEMO_설정 = { 합격점:80, 외우기분:5, 시험분:20 };
 
 var DEMO = {
   설정가져오기: function(){
-    return {ok:true, 합격점:DEMO_설정.합격점, 연습분:DEMO_설정.연습분, 시험분:DEMO_설정.시험분};
+    return {ok:true, 합격점:DEMO_설정.합격점, 외우기분:DEMO_설정.외우기분, 시험분:DEMO_설정.시험분};
   },
   설정저장: function(pw, 값){
     값 = 값 || {};
-    var 끝 = {합격점:100, 연습분:180, 시험분:180};
+    var 끝 = {합격점:100, 외우기분:180, 시험분:180};
     var 말 = {합격점:'합격점은 0에서 100 사이로 넣어 주세요.',
-              연습분:'제한 시간은 0에서 180분 사이로 넣어 주세요. (0이면 제한 없음)',
-              시험분:'제한 시간은 0에서 180분 사이로 넣어 주세요. (0이면 제한 없음)'};
+              외우기분:'시간은 0에서 180분 사이로 넣어 주세요. (0이면 건너뜀)',
+              시험분:'시간은 0에서 180분 사이로 넣어 주세요. (0이면 제한 없음)'};
     var 새것 = {}, 나쁨 = '';
-    ['합격점','연습분','시험분'].forEach(function(k){
+    ['합격점','외우기분','시험분'].forEach(function(k){
       if(나쁨 || 값[k]===undefined || 값[k]==='') return;
       var n = Math.round(Number(값[k]));
       if(!isFinite(n) || n < 0 || n > 끝[k]){ 나쁨 = 말[k]; return; }
@@ -1808,13 +1871,13 @@ var DEMO = {
     });
     if(나쁨) return {ok:false, 메시지:나쁨};
     for(var k in 새것) DEMO_설정[k] = 새것[k];
-    return {ok:true, 합격점:DEMO_설정.합격점, 연습분:DEMO_설정.연습분, 시험분:DEMO_설정.시험분};
+    return {ok:true, 합격점:DEMO_설정.합격점, 외우기분:DEMO_설정.외우기분, 시험분:DEMO_설정.시험분};
   },
   시작정보: function(){
     return {
       학원이름:'홍제인왕해법영어',
       합격점:80,
-      연습분:DEMO_설정.연습분,
+      외우기분:DEMO_설정.외우기분,
       시험분:DEMO_설정.시험분,
       단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']}]
     };
@@ -2188,7 +2251,7 @@ var S = {
 /* ------------------------------- 헬퍼 */
 function $(id){return document.getElementById(id);}
 function qsa(s,root){return [].slice.call((root||document).querySelectorAll(s));}
-var 탭화면 = { home:'home', study:'study', games:'games', streak:'streak' };
+var 탭화면 = { home:'home', study:'study', exam:'exam', games:'games', streak:'streak' };
 function show(name){
   qsa('.screen').forEach(function(el){el.classList.remove('on');});
   var t = $('s-'+name); if(t) t.classList.add('on');
@@ -2196,6 +2259,7 @@ function show(name){
   try{ 돌리기단추그리기_(); }catch(e){}
   /* 그 화면에 있어야 할 자료는 그 화면을 열 때 받는다 */
   if(name === 'study') try{ 연습자료받기_(); }catch(e){}
+  if(name === 'exam') try{ 시험탭열기(); }catch(e){}
   if(name === 'streak') try{ 순위자료받기_(); }catch(e){}
   if(name === 'games') try{ 게임자료받기_(); }catch(e){}
   window.scrollTo(0,0);
@@ -2219,6 +2283,7 @@ qsa('[data-tab2]').forEach(function(b){
     var t=b.dataset.tab2;
     if(t==='games'){ 게임책고르기(null, function(){ drawGames(); }); show('games'); return; }
     if(t==='streak'){ 순위열기(S.순위탭||'불꽃'); return; }
+    if(t==='exam'){ 시험판치우기_(); show('exam'); return; }
     show(t);
   };
 });
@@ -3286,9 +3351,163 @@ function loadBook(){
     if(!S.종류 && S.단어.length && S.단어[0].종류){ S.종류=S.단어[0].종류; 모드박스(); }
     $('inFrom').value=1;
     $('inTo').value=Math.min(레슨크기(name,내책들()),S.단어.length)||1;
+    $('exFrom').value=1;
+    $('exTo').value=Math.min(레슨크기(name,내책들()),S.단어.length)||1;
     drawQuick();
+    try{ 시험탭그리기_(); }catch(e){}
   });
 }
+
+/* ================================================================
+   시험 탭 — 범위를 고르고 「시작」 을 누르면
+   ① 단어장을 보며 외우는 시간 → ② 저절로 시험 시작 → ③ 결과는 선생님께
+================================================================ */
+var 시험판 = null;     /* {방법, 단계:'외우기'|'시험', 범위, 단어장} */
+function 시험중_(){ return !!(시험판 && 시험판.단계 === '시험'); }
+
+var 시험방법이름 = {spell:'스펠링 시험', choice:'4지선다', hint:'첫 글자 힌트', verb:'3단변화 시험'};
+var 시험방법설명 = {spell:'뜻 보고 영어 쓰기', choice:'뜻 고르기',
+                    hint:'첫 글자만 보고 쓰기', verb:'원형 · 과거형 · 과거분사형'};
+
+function 시험탭열기(){
+  if(!S.학생) return;
+  연습자료받기_();                 /* 단어를 아직 안 받았으면 그때 받는다 */
+  시험탭그리기_();
+}
+
+function 시험탭그리기_(){
+  그리기_시험책칩_();
+  그리기_시험레슨_();
+  그리기_시험방법_();
+  그리기_시험안내_();
+}
+
+function 그리기_시험책칩_(){
+  var box = $('exChips'); if(!box) return;
+  var 책들 = 내책들();
+  if(!책들.length){ box.innerHTML = '<div class="sub">볼 수 있는 단어장이 없어요.</div>'; return; }
+  box.className = 'bookchips';
+  box.innerHTML = 책들.map(function(b){
+    var c = b.색 || 'var(--sub)';
+    return '<button type="button" class="'+(b.이름===S.단어장?'on':'')+'" data-exbk="'+esc(b.이름)+'">'+
+      '<span class="dot" style="background:'+c+'"></span>'+esc(b.이름)+'</button>';
+  }).join('');
+  qsa('[data-exbk]', box).forEach(function(b){
+    b.onclick = function(){
+      var sel = $('selBook'); if(!sel) return;
+      sel.value = b.dataset.exbk;
+      loadBook();                  /* 단어를 받아 오면 시험 탭도 같이 다시 그린다 */
+      시험탭그리기_();
+    };
+  });
+}
+
+function 그리기_시험레슨_(){
+  var box = $('exQuick'); if(!box) return;
+  var n = S.단어.length, 묶음 = 레슨크기(S.단어장, 내책들());
+  var lab = $('exLessonLab'); if(lab) lab.textContent = n ? '레슨 ('+묶음+'단어씩)' : '레슨';
+  if(!n){ box.innerHTML = '<div class="loading">단어를 불러오는 중…</div>'; return; }
+  box.innerHTML = '<select id="exLes">' +
+    레슨옵션들(n, 묶음, $('exFrom').value, $('exTo').value) + '</select>' +
+    '<div class="lesw" id="exWord"></div>';
+  $('exLes').onchange = function(){
+    if(!this.value) return;
+    var p = this.value.split('|');
+    $('exFrom').value = p[0]; $('exTo').value = p[1];
+    시험낱말_();
+  };
+  시험낱말_();
+}
+function 시험낱말_(){
+  var e = $('exWord');
+  if(e) e.textContent = 첫끝말(S.단어, $('exFrom').value, $('exTo').value);
+}
+
+function 그리기_시험방법_(){
+  var box = $('exModes'); if(!box) return;
+  var 것들 = 삼단변화() ? ['verb'] : ['spell','choice','hint'];
+  if(것들.indexOf(S.시험방법) < 0) S.시험방법 = 것들[0];
+  box.innerHTML = 것들.map(function(m){
+    return '<button class="smode mrow'+(S.시험방법===m?' on':'')+'" data-exm="'+m+'" type="button">'+
+      '<span class="mr"></span><span class="mt1"><b>'+시험방법이름[m]+'</b>'+
+      '<i>'+시험방법설명[m]+'</i></span></button>';
+  }).join('');
+  qsa('[data-exm]', box).forEach(function(b){
+    b.onclick = function(){ S.시험방법 = b.dataset.exm; 그리기_시험방법_(); 그리기_시험안내_(); };
+  });
+}
+
+function 그리기_시험안내_(){
+  var 외 = 외우기분_(), 시 = 시험분_();
+  var m = $('exMemMin'), t = $('exTestMin');
+  if(m) m.textContent = 외 ? 외+'분' : '건너뜀';
+  if(t) t.textContent = 시 ? 시+'분' : '제한 없음';
+  var s1 = document.querySelector('#s-exam .exstep'); if(s1) s1.classList.toggle('on', !!외);
+  var h = $('exHelp');
+  if(h) h.innerHTML = (외
+      ? '먼저 <b>'+외+'분</b> 동안 단어장을 보며 외웁니다. 시간이 되면 저절로 시험이 시작돼요. '+
+        '다 외웠으면 「바로 시험 보기」 로 미리 넘어가도 됩니다.<br>'
+      : '외우는 시간 없이 바로 시험이 시작됩니다.<br>') +
+    (시 ? '시험은 <b>'+시+'분</b>입니다. 시간이 다 되면 그때까지 쓴 것만 채점돼요.<br>' : '') +
+    '결과는 선생님께 전송됩니다.';
+  var b = $('btnExStart');
+  if(b) b.textContent = (시험방법이름[S.시험방법] || '시험') + ' 시작';
+}
+
+/* ---------- 시작 ---------- */
+function 시험보기시작_(){
+  if(!S.단어.length){ toast('단어를 아직 불러오는 중이에요'); return; }
+  var a = Math.max(1, parseInt($('exFrom').value,10) || 1);
+  var b = Math.min(S.단어.length, parseInt($('exTo').value,10) || S.단어.length);
+  if(a > b){ var t = a; a = b; b = t; }
+  var list = S.단어.slice(a-1, b);
+  if(!list.length){ toast('단어가 없습니다'); return; }
+  var m = S.시험방법 || (삼단변화() ? 'verb' : 'spell');
+  if(m === 'choice' && list.length < 4){ toast('4지선다는 단어가 4개 이상 필요해요'); return; }
+
+  /* 시험지·3단변화가 읽는 칸에도 같은 범위를 넣어 둔다 */
+  $('inFrom').value = a; $('inTo').value = b;
+  S.현재숙제 = null; S.재시험 = false; S.돌아갈곳 = 'exam';
+  시험판 = { 방법:m, 단계:'외우기', 범위:a+'~'+b, 단어장:S.단어장 };
+
+  if(!외우기분_()){ 시험단계로_(); return; }
+  S.책 = { 목록:list, 가리기:'all', 별표만:false, 범위:a+'~'+b };
+  show('book'); renderBook();
+  var bar = $('wbMem'); if(bar) bar.classList.remove('hide');
+  var go = $('wbTest'); if(go) go.classList.add('hide');    /* 기존 「시험 보기」 칩은 감춘다 */
+  제한시작_('wbClock', 시험단계로_, 외우기분_());
+}
+
+function 시험단계로_(){
+  if(!시험판 || 시험판.단계 !== '외우기') return;
+  시험판.단계 = '시험';
+  var bar = $('wbMem'); if(bar) bar.classList.add('hide');
+  var go = $('wbTest'); if(go) go.classList.remove('hide');
+  if(시험판.방법 === 'verb') startVerb(); else startQuiz(시험판.방법);
+}
+
+/* 시험 탭 흐름에서 빠져나올 때 */
+function 시험판치우기_(){
+  시험판 = null;
+  var bar = $('wbMem'); if(bar) bar.classList.add('hide');
+  var go = $('wbTest'); if(go) go.classList.remove('hide');
+  제한멈춤_();
+}
+
+if($('btnExStart')) $('btnExStart').onclick = 시험보기시작_;
+if($('wbGo')) $('wbGo').onclick = 시험단계로_;
+if($('btnExHand')) $('btnExHand').onclick = function(){
+  var h = $('exHand'); if(!h) return;
+  h.classList.toggle('hide');
+  this.textContent = h.classList.contains('hide') ? '＋ 직접 정하기' : '－ 접기';
+};
+['exFrom','exTo'].forEach(function(id){
+  var e = $(id); if(!e) return;
+  e.addEventListener('input', function(){
+    시험낱말_();
+    var sel = $('exLes'); if(sel) 고름맞추기(sel, $('exFrom').value, $('exTo').value);
+  });
+});
 
 /* 3단변화 단어장이면 화면을 바꿔 준다 */
 function 삼단변화(){ return S.종류==='3단변화'; }
@@ -3979,7 +4198,7 @@ qsa('.tgrp').forEach(function(g){
 });
 qsa('[data-back]').forEach(function(b){
   b.onclick=function(){
-    stopTimer(); 제한멈춤_(); var t=b.dataset.back;
+    stopTimer(); 시험판치우기_(); var t=b.dataset.back;
     if(t==='home') t = S.돌아갈곳 || 'home';        // 연습으로 들어왔으면 연습으로
     if((t==='home'||t==='study') && !S.학생) t='login';
     if(t==='login'){
@@ -4231,11 +4450,8 @@ function stopTimer(){ if(S.타이머){clearInterval(S.타이머);S.타이머=nul
 ================================================================ */
 var 제한 = { 시계:null, 끝날때:0, 어디:'', 예고함:false };
 
-function 제한분_(){
-  var i = 시작정보 || {};
-  if(S.현재숙제) return (S.현재숙제.종류 === '시험') ? (Number(i.시험분)||0) : 0;
-  return Number(i.연습분) || 0;
-}
+function 외우기분_(){ return Number((시작정보||{}).외우기분) || 0; }
+function 시험분_(){ return Number((시작정보||{}).시험분) || 0; }
 
 function 시각글_(초){
   if(초 < 0) 초 = 0;
@@ -4253,15 +4469,15 @@ function 제한그리기_(){
 
 function 제한멈춤_(){
   if(제한.시계){ clearInterval(제한.시계); 제한.시계 = null; }
-  ['shClock','vClock'].forEach(function(id){
+  ['shClock','vClock','wbClock'].forEach(function(id){
     var el = $(id); if(el){ el.classList.add('hide'); el.classList.remove('soon','over'); }
   });
   제한.어디 = ''; 제한.끝날때 = 0; 제한.예고함 = false;
 }
 
-function 제한시작_(어디, 다됐을때){
+function 제한시작_(어디, 다됐을때, 분){
   제한멈춤_();
-  var 분 = 제한분_();
+  분 = Number(분) || 0;
   if(!분) return;                       /* 0 이면 시간을 안 잰다 */
   제한.어디 = 어디;
   제한.끝날때 = Date.now() + 분*60000;
@@ -4272,12 +4488,14 @@ function 제한시작_(어디, 다됐을때){
     제한그리기_();
     if(남 === 60 && !제한.예고함){
       제한.예고함 = true;
-      toast('1분 남았어요 — 곧 저절로 제출돼요');
+      toast(제한.어디 === 'wbClock' ? '1분 남았어요 — 곧 시험이 시작돼요'
+                                   : '1분 남았어요 — 곧 저절로 제출돼요');
       try{ beep('ng'); }catch(e){}
     }
     if(남 <= 0){
+      var 외우던중 = (제한.어디 === 'wbClock');
       제한멈춤_();
-      toast('시간이 다 됐어요 — 여기까지 채점합니다');
+      toast(외우던중 ? '시간이 됐어요 — 시험을 시작합니다' : '시간이 다 됐어요 — 여기까지 채점합니다');
       try{ 다됐을때(); }catch(e){}
     }
   }, 1000);
@@ -4385,6 +4603,7 @@ function judge(ans, btn){
 /* 기록의 '구분' 칸 — 오답 재시험 / 시험 / 보충 / 숙제 */
 function 기록구분(){
   if(S.재시험) return '오답 재시험';
+  if(시험판) return '단어시험';        /* 아이가 「시험」 탭에서 스스로 본 시험 */
   var k = S.현재숙제 && S.현재숙제.종류;
   if(k==='시험') return '시험';
   if(k==='보충') return '보충';
@@ -4406,7 +4625,7 @@ function startSheet(mode, list, 범위){
   보기만들기();
   drawSheet();
   show('sheet');
-  제한시작_('shClock', function(){ if(!S.채점됨) 채점하기(); });
+  if(시험중_()) 제한시작_('shClock', function(){ if(!S.채점됨) 채점하기(); }, 시험분_());
   try{ window.scrollTo(0,0); }catch(e){}
 }
 
@@ -4508,7 +4727,7 @@ $('shBack').onclick=function(){
   if(!S.채점됨 && S.답.some(function(v){return String(v||'').trim();})){
     if(!confirm('지금 그만두면 쓴 답이 사라집니다. 그만둘까요?')) return;
   }
-  stopTimer(); 제한멈춤_();
+  stopTimer(); 시험판치우기_();
   show(S.학생 ? (S.돌아갈곳||'home') : 'login');
 };
 
@@ -4576,10 +4795,11 @@ function finishQuiz(){
   var 점수 = Math.round(S.정답수/총*100);
   var 초 = Math.round((Date.now()-S.시작시각)/1000);
   var 유형이름 = 유형이름표[S.모드];
+  var 탭시험 = !!시험판;
   var 시험숙제 = !!(S.현재숙제 && S.현재숙제.종류==='시험');
 
   $('rTitle').textContent = S.단어장+' '+S.범위+'번 · '+유형이름+
-    (S.현재숙제 ? (시험숙제?' (시험)':' (숙제)') : '');
+    (탭시험 ? ' (시험)' : (S.현재숙제 ? (시험숙제?' (시험)':' (숙제)') : ''));
   $('btnSeeSheet').classList.toggle('hide', !S.채점됨);
   $('rScore').textContent=점수;
   $('rRight').textContent=S.정답수+' / '+총;  $('rRightL').textContent='맞은 개수';
@@ -4594,7 +4814,7 @@ function finishQuiz(){
 
   /* 선생님께 넘어가는 건 숙제와 그 숙제의 오답노트뿐.
      혼자 연습한 것은 이 기기에서만 보고 끝난다. */
-  if(!S.현재숙제){
+  if(!S.현재숙제 && !탭시험){
     $('rSaved').textContent='혼자 연습한 거라 기록에 남지 않아요. 숙제만 선생님께 전송돼요.';
     return;
   }
@@ -4603,7 +4823,7 @@ function finishQuiz(){
   api('결과저장',{
     이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:유형이름,
     문항수:총, 정답수:S.정답수, 점수:점수, 게임점수:S.게임점수,
-    최고콤보:S.최고콤보, 소요초:초, 숙제여부:!S.재시험,
+    최고콤보:S.최고콤보, 소요초:초, 숙제여부:탭시험 ? true : !S.재시험,
     구분: 기록구분(),
     틀린단어:S.오답.map(function(w){return w.en;}).join(', ')
   }).then(function(r){
@@ -4618,8 +4838,9 @@ function finishQuiz(){
         return;
       }
       $('rSaved').textContent = (r&&r.ok)
-        ? (S.재시험 ? '오답노트를 한 것도 선생님께 전송되었어요.'
-           : (시험숙제 ? '시험이 끝났습니다. 선생님께 전송되었어요.' : '선생님께 결과가 전송되었어요.'))
+        ? (탭시험 ? '시험이 끝났습니다. 선생님께 전송되었어요.'
+           : (S.재시험 ? '오답노트를 한 것도 선생님께 전송되었어요.'
+              : (시험숙제 ? '시험이 끝났습니다. 선생님께 전송되었어요.' : '선생님께 결과가 전송되었어요.')))
         : '기록 저장에 실패했어요.';
       if(r&&r.ok) 숙제냈음(점수);
     }
@@ -4701,7 +4922,7 @@ function startVerb(){
   S.게임점수=0; S.최고콤보=0; S.콤보=0;
   S.시작시각=Date.now();
   show('verb'); renderVerb();
-  제한시작_('vClock', 시간끝_3단_);
+  if(시험중_()) 제한시작_('vClock', 시간끝_3단_, 시험분_());
 }
 
 /* 시간이 다 됐을 때 — 아직 안 푼 동사는 통째로 틀린 것으로 둔다 */
@@ -4841,8 +5062,9 @@ function finishVerb(){
   var 점수=Math.round(S.칸정답/총*100);
   var 초=Math.round((Date.now()-S.시작시각)/1000);
 
+  var 탭시험 = !!시험판;
   $('rTitle').textContent=S.단어장+' '+S.범위+'번 · 3단변화'+
-    (S.현재숙제 ? (S.현재숙제.종류==='시험'?' (시험)':' (숙제)') : '');
+    (탭시험 ? ' (시험)' : (S.현재숙제 ? (S.현재숙제.종류==='시험'?' (시험)':' (숙제)') : ''));
   $('btnSeeSheet').classList.add('hide');
   $('rScore').textContent=점수;
   $('rRight').textContent=S.칸정답+' / '+총;  $('rRightL').textContent='맞은 칸';
@@ -4854,7 +5076,7 @@ function finishVerb(){
   show('result');
   if(점수>=90) 반짝('🎉');
 
-  if(!S.현재숙제){
+  if(!S.현재숙제 && !탭시험){
     $('rSaved').textContent='혼자 연습한 거라 기록에 남지 않아요. 숙제만 선생님께 전송돼요.';
     return;
   }
@@ -4862,7 +5084,7 @@ function finishVerb(){
   api('결과저장',{
     이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:'3단변화',
     문항수:총, 정답수:S.칸정답, 점수:점수, 게임점수:0,
-    최고콤보:0, 소요초:초, 숙제여부:!S.재시험,
+    최고콤보:0, 소요초:초, 숙제여부:탭시험 ? true : !S.재시험,
     구분: 기록구분(),
     틀린단어:S.오답.map(function(w){return 세형태(w.en).원형;}).join(', ')
   }).then(function(r){
@@ -4871,7 +5093,8 @@ function finishVerb(){
       숙제냈음(점수);
     }else{
       $('rSaved').textContent = (r&&r.ok)
-        ? (S.재시험 ? '오답노트를 한 것도 선생님께 전송되었어요.' : '선생님께 결과가 전송되었어요.')
+        ? (탭시험 ? '시험이 끝났습니다. 선생님께 전송되었어요.'
+           : (S.재시험 ? '오답노트를 한 것도 선생님께 전송되었어요.' : '선생님께 결과가 전송되었어요.'))
         : '기록 저장에 실패했어요.';
       if(r&&r.ok) 숙제냈음(점수);
     }
@@ -7627,15 +7850,17 @@ function drawTab(){
     }
     b.innerHTML =
       머리('설정','바꾼 뒤 「저장」 을 누르세요. 학생 앱에는 다음에 들어올 때부터 적용됩니다.') +
-      판('시험 제한 시간','',
+      판('학생 「시험」 탭','',
         '<div class="setbox">'+
-          줄_('연습 제한 시간','setPr',C.연습분,
-              '학생이 연습 화면에서 스스로 보는 시험','분')+
-          줄_('시험 제한 시간','setEx',C.시험분,
-              '종류가 「시험」 인 숙제 (당일·기간·보충 숙제는 제한 없음)','분')+
-          '<div class="sub" style="padding:2px 2px 10px">0 을 넣으면 시간을 재지 않습니다. '+
-            '시간이 다 되면 그때까지 쓴 것만으로 저절로 제출됩니다. 1분 전에 미리 알려 줍니다.<br>'+
-            '플래시카드·단어장 보기·게임에는 시간을 재지 않습니다.</div>'+
+          줄_('외우는 시간','setMem',C.외우기분,
+              '시작을 누르면 이 시간 동안 단어장을 보며 외웁니다 (0이면 건너뜀)','분')+
+          줄_('시험 시간','setEx',C.시험분,
+              '외우는 시간이 끝나면 저절로 시작됩니다 (0이면 제한 없음)','분')+
+          '<div class="sub" style="padding:2px 2px 10px">'+
+            '학생 화면 아래 「시험」 칸의 흐름입니다. 범위를 고르고 시작하면 '+
+            '<b>외우기 → 시험</b> 순으로 넘어가고, 시험이 끝나면 결과가 선생님께 전송됩니다.<br>'+
+            '시험 시간이 다 되면 그때까지 쓴 것만 채점됩니다. 1분 전에 미리 알려 줍니다.<br>'+
+            '숙제와 연습에는 시간을 재지 않습니다.</div>'+
         '</div>') +
       판('숙제 합격점','',
         '<div class="setbox">'+
@@ -7645,13 +7870,13 @@ function drawTab(){
       '<div style="max-width:420px"><button class="btn" id="btnSetSave">저장</button></div>';
 
     $('btnSetSave').onclick=function(){
-      var 값 = { 연습분:$('setPr').value, 시험분:$('setEx').value, 합격점:$('setPass').value };
+      var 값 = { 외우기분:$('setMem').value, 시험분:$('setEx').value, 합격점:$('setPass').value };
       $('btnSetSave').disabled=true;
       api('설정저장', T.pw, 값).then(function(r){
         $('btnSetSave').disabled=false;
         if(!r || !r.ok){ toast(r&&r.메시지||'저장하지 못했습니다'); return; }
         T.설정 = r;
-        if(시작정보){ 시작정보.연습분=r.연습분; 시작정보.시험분=r.시험분; 시작정보.합격점=r.합격점; }
+        if(시작정보){ 시작정보.외우기분=r.외우기분; 시작정보.시험분=r.시험분; 시작정보.합격점=r.합격점; }
         toast('저장했습니다');
         drawTab();
       }).catch(function(){ $('btnSetSave').disabled=false; toast('저장하지 못했습니다'); });
