@@ -1923,7 +1923,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-01d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-01e';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2354,7 +2354,7 @@ var DEMO = {
     });
     if(!넣음) return {ok:false, 메시지: 겹침.length
       ? '이미 있는 이름뿐입니다: '+겹침.join(', ') : '이름이 없습니다.'};
-    return {ok:true, 개수:넣음, 겹침:겹침};},
+    return {ok:true, 개수:넣음, 겹침:겹침, 학생:DEMO.명단가져오기(pw).학생};},
   단어목록:function(){return {ok:true,단어들:DEMO_WORDS.map(function(w,i){
       return {행:i+2,번호:i+1,en:w.en,ko:w.ko,그림:w.그림||''};})};},
   그림올리기:function(pw,책,행,이름,자료,종류){
@@ -8287,8 +8287,9 @@ function drawTab(){
           toast(r.개수+'명을 넣었습니다'+
             ((r.겹침&&r.겹침.length)?' (이미 있는 이름은 건너뜀: '+r.겹침.join(', ')+')':''));
           $('stText').value='';
-          T.명단=null; T.배정=null;
-          loadTeacher();
+          T.배정=null;
+          if(r.학생){ T.명단=r.학생; drawTab(); }   /* 바로 보인다 */
+          else { T.명단=null; loadTeacher(); }
         }
         else toast(r.메시지||'실패했습니다');
       });
