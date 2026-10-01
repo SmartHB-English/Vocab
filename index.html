@@ -1218,6 +1218,27 @@ input,select,textarea{border-radius:14px}
 .mlist .mrow i{font-style:normal;font-size:13px;font-weight:600;color:var(--sub)}
 .mlist .mrow.on b{color:var(--text);font-weight:900}
 .mtag{flex:none;font-size:11.5px;font-weight:800;color:var(--sub)}
+/* 연습 — 두 칸씩 깔아 놓은 타일 (한 화면에 다 들어오게) */
+.mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:4px}
+.mgrid .mtile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;
+  border:1.5px solid var(--line);border-radius:14px;background:var(--card);
+  padding:11px 12px 12px;min-height:0;color:var(--text);font-family:inherit;
+  text-align:left;cursor:pointer;position:relative}
+.mgrid .mtile.hide{display:none}
+.mgrid .mtile:active{transform:scale(.985)}
+.mgrid .mtile svg{width:21px;height:21px;stroke:var(--sub);fill:none;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mgrid .mtile b{font-size:15px;font-weight:800;letter-spacing:-.3px;line-height:1.2}
+.mgrid .mtile i{font-style:normal;font-size:11.5px;font-weight:600;color:var(--sub);line-height:1.25}
+.mgrid .mtile.on{border-color:var(--primary);border-width:2px;background:var(--primary-soft);
+  padding:10px 11px 11px}
+.mgrid .mtile.on svg{stroke:var(--primary)}
+.mgrid .mtile.on b{color:var(--primary-d);font-weight:900}
+.mgrid .mtile .mtag{position:absolute;top:10px;right:11px}
+/* 게임은 고르는 게 아니라 들어가는 문이라 한 줄을 다 쓴다 */
+.mgrid .mtile.go{grid-column:1 / -1;flex-direction:row;align-items:center;gap:11px}
+.mgrid .mtile.go .gt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.mgrid .mtile.go .mgo{flex:none;font-size:17px;font-weight:800;color:var(--sub)}
 .startbar{position:sticky;bottom:calc(78px + env(safe-area-inset-bottom));z-index:8;
   padding:10px 0 6px;background:var(--bg)}
 .startbar .btn{background:var(--text)}
@@ -1445,15 +1466,32 @@ input,select,textarea{border-radius:14px}
         </div>
       </div>
 
-      <div class="mlist">
-        <button class="smode mrow hide" id="btnVerbTest" data-mode="verb" type="button"><span class="mr"></span><span class="mt1"><b>3단변화 시험</b><i>원형 · 과거형 · 과거분사형</i></span></button>
-        <div id="normalModes"><button class="smode mrow" data-mode="spell" type="button"><span class="mr"></span><span class="mt1"><b>스펠링 시험</b><i>뜻 보고 영어 쓰기 · 가장 많이 하는 것</i></span></button></div>
-        <button class="smode mrow" data-mode="flash" type="button"><span class="mr"></span><span class="mt1"><b>플래시카드</b><i>먼저 외우기</i></span></button>
-        <button class="smode mrow" data-mode="choice" type="button"><span class="mr"></span><span class="mt1"><b>4지선다</b><i>뜻 고르기</i></span></button>
-        <button class="smode mrow" data-mode="hint" type="button"><span class="mr"></span><span class="mt1"><b>첫 글자 힌트</b><i>어려울 때</i></span></button>
-        <button class="smode mrow" data-mode="time" type="button"><span class="mr"></span><span class="mt1"><b>타임어택</b><i>60초 게임</i></span><span class="mtag">게임</span></button>
-        <button class="smode mrow" data-mode="book" type="button"><span class="mr"></span><span class="mt1"><b>단어장 보기</b><i>쭉 읽으며 외우기</i></span></button>
-        <button class="smode mrow" id="btnStudyGames" data-mode="games" type="button"><span class="mr"></span><span class="mt1"><b>짝 맞추기 · 글자 퍼즐</b><i>점수는 게임 순위에만</i></span><span class="mtag">게임</span></button>
+      <div class="mgrid" id="modeGrid">
+        <button class="mtile hide" id="btnVerbTest" data-mode="verb" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11l-3-3M20 17H9l3 3"/></svg>
+          <b>3단변화</b><i>원형·과거·과거분사</i></button>
+        <div id="normalModes" style="display:contents"><button class="mtile" data-mode="spell" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16z"/><path d="M14 6l4 4"/></svg>
+          <b>스펠링 시험</b><i>뜻 보고 영어 쓰기</i></button></div>
+        <button class="mtile" data-mode="flash" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M8 3.5h11a2 2 0 0 1 2 2V15"/></svg>
+          <b>플래시카드</b><i>먼저 외우기</i></button>
+        <button class="mtile" data-mode="choice" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 5.6 9l2.6-3M4 17l1.6 1.5L8.2 15"/><path d="M12 8h8M12 17h8"/></svg>
+          <b>4지선다</b><i>뜻 고르기</i></button>
+        <button class="mtile" data-mode="hint" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 18h5M10 21h4"/><path d="M12 3a6 6 0 0 1 3.5 10.9c-.6.5-.9 1.3-.9 2.1h-5.2c0-.8-.3-1.6-.9-2.1A6 6 0 0 1 12 3Z"/></svg>
+          <b>첫 글자 힌트</b><i>어려울 때</i></button>
+        <button class="mtile" data-mode="time" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.5M9.5 2.5h5"/></svg>
+          <b>타임어택</b><i>60초 안에 몇 개</i><span class="mtag">게임</span></button>
+        <button class="mtile" data-mode="book" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H19v15.5H5.5A1.5 1.5 0 0 0 4 21z"/><path d="M8 9h7M8 13h5"/></svg>
+          <b>단어장 보기</b><i>쭉 읽으며 외우기</i></button>
+        <button class="mtile go" id="btnStudyGames" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 7.5h9a4.5 4.5 0 0 1 4.4 5.4l-.7 3.4A2.6 2.6 0 0 1 15.9 17l-1.4-1.6h-5L8.1 17a2.6 2.6 0 0 1-4.3-.7l-.7-3.4A4.5 4.5 0 0 1 7.5 7.5Z"/><path d="M7 11.5h2M8 10.5v2M15.5 11h.01M17.5 12.5h.01"/></svg>
+          <span class="gt"><b>게임</b><i>타임어택 · 짝 맞추기 · 글자 퍼즐</i></span>
+          <span class="mgo">›</span></button>
       </div>
     </div>
     <div class="startbar"><button class="btn" id="btnStartMode" type="button">스펠링 시험 시작</button></div>
@@ -1923,7 +1961,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-01e';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-01f';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -4148,7 +4186,7 @@ function 모드박스(){
   $('normalModes').classList.toggle('hide',v);
   /* 3단변화 단어장에는 4지선다·첫 글자·타임어택이 맞지 않는다 */
   ['choice','hint','time'].forEach(function(m){
-    qsa('.smode[data-mode="'+m+'"]').forEach(function(x){ x.classList.toggle('hide', v); });
+    qsa('.mtile[data-mode="'+m+'"]').forEach(function(x){ x.classList.toggle('hide', v); });
   });
   var 전 = S.고른방법;
   if(v) 방법고르기('verb');
@@ -4872,6 +4910,8 @@ function 방법시작(m){
 qsa('[data-mode]').forEach(function(b){
   b.onclick=function(){ 방법고르기(b.dataset.mode); };
 });
+/* 게임은 고르는 방법이 아니라 들어가는 문이다 — 한 번 누르면 바로 간다 */
+if($('btnStudyGames')) $('btnStudyGames').onclick=function(){ 방법시작('games'); };
 if($('btnStartMode')) $('btnStartMode').onclick=function(){
   var v=삼단변화(), m=S.고른방법||(v?'verb':'spell');
   if(v && ['spell','choice','hint','time'].indexOf(m)>=0) m='verb';
