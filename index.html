@@ -1961,7 +1961,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-01f';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-01h';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -7748,7 +7748,9 @@ function drawTab(){
               '</div>'+
               '<div class="sub" style="margin-bottom:8px">'+
                 '그림은 <b>유치부</b> 화면에서 씁니다 · 파일 이름을 영어 단어와 같게 하면 '+
-                '(cat.png → cat) 한꺼번에 올려도 저절로 붙습니다.</div>'+
+                '(cat.png → cat) 한꺼번에 올려도 저절로 붙습니다.<br>'+
+                '처음 한 번은 스프레드시트 메뉴 <b>[해법 영단어] → [사진 올릴 권한 확인]</b> 에서 '+
+                '허용해 주셔야 합니다.</div>'+
               '<div class="sub" id="bkLesHint" style="margin-bottom:8px"></div>'+
               '<div class="sub" id="bkCount"></div>'+
               '<div class="list" id="bkList" style="max-height:46vh;overflow:auto"></div>'+
@@ -8893,13 +8895,21 @@ function 그림여러장보내기_(파일들){
       것들.forEach(function(x){ if(x.탈) 못찾은.push(x.탈); else 보낼.push(x); });
       if(!보낼.length){ 다음(); return; }
       return api('그림여러개', T.pw, T.책, 보낼).then(function(r){
-        if(r && r.ok){ 붙인 += r.붙인수 || 0; 못찾은 = 못찾은.concat(r.못찾은 || []); }
-        else toast((r && r.메시지) || '올리지 못했습니다');
-        다음();
+        if(r && r.ok){ 붙인 += r.붙인수 || 0; 못찾은 = 못찾은.concat(r.못찾은 || []); 다음(); return; }
+        /* 권한처럼 더 해 봐야 소용없는 탈이면 거기서 멈춘다 */
+        알림띄우기_(r && r.메시지, '올리지 못했습니다');
+        단어불러오기();
       });
     }).catch(function(){ toast('올리지 못했습니다'); });
   }
   다음();
+}
+
+/* 서버가 여러 줄짜리 안내를 보내면 토스트로는 다 안 보인다 — 창으로 띄운다 */
+function 알림띄우기_(글, 기본){
+  var t = String(글 || '').trim() || 기본;
+  if(t.indexOf('\n') > -1){ toast(t.split('\n')[0]); setTimeout(function(){ alert(t); }, 150); }
+  else toast(t);
 }
 
 /* 파일 고르개를 띄운다 */
@@ -8997,7 +9007,7 @@ function 그리기_단어(){
           return api('그림올리기',T.pw,T.책,행,g.이름,g.자료,g.종류);
         }).then(function(r){
           if(r&&r.ok){ toast('그림을 넣었습니다'); 단어불러오기(); }
-          else { toast((r&&r.메시지)||'올리지 못했습니다'); x.disabled=false; x.textContent=옛; }
+          else { 알림띄우기_(r&&r.메시지, '올리지 못했습니다'); x.disabled=false; x.textContent=옛; }
         }).catch(function(e){
           toast((e&&e.message)||'올리지 못했습니다'); x.disabled=false; x.textContent=옛;
         });
