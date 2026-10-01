@@ -1961,7 +1961,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-01h';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-01i';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3816,8 +3816,11 @@ function 유치열기_(h){
   if(!h) return;
   var 표 = ++숙제열기표_;
   S.현재숙제 = h; S.재시험 = false; S.돌아갈곳 = 'kid';
-  toast('준비하고 있어요…');
-  api('단어가져오기', h.단어장).then(function(w){
+  /* 조금 전에 받은 단어장이면 다시 안 받는다 — 그림이 붙은 단어장은 꽤 무겁다 */
+  var 받기 = (S.단어장 === h.단어장 && (S.단어 || []).length)
+    ? Promise.resolve(S.단어)
+    : (toast('준비하고 있어요…'), api('단어가져오기', h.단어장));
+  받기.then(function(w){
     if(표 !== 숙제열기표_) return;
     S.단어 = w || []; S.단어장 = h.단어장;
     var a = Math.max(1, Number(h.시작) || 1);
@@ -7713,10 +7716,11 @@ function drawTab(){
 
         판('단어 한 번에 넣기','',
           '<div class="panel-b tform">'+
-          '<div class="sub mb">한 줄에 하나씩 <b>영어 | 뜻</b>. 뜻에 쉼표가 있어도 됩니다.</div>'+
+          '<div class="sub mb">한 줄에 하나씩 <b>영어 | 뜻</b>. 뜻에 쉼표가 있어도 됩니다.<br>'+
+          '세 번째 칸에 그림 주소를 적으면 같이 들어갑니다 — <b>cat | 고양이 | https://…/cat.png</b></div>'+
           '<label>단어장 이름</label><input id="dvBook" placeholder="예) 고3 9월 모평">'+
           '<div class="mt"><label>단어 목록</label>'+
-            '<textarea id="dvText" rows="7" placeholder="apple | 사과&#10;number | 숫자, 번호"></textarea></div>'+
+            '<textarea id="dvText" rows="7" placeholder="apple | 사과&#10;number | 숫자, 번호&#10;cat | 고양이 | https://smarthb-english.github.io/Vocab/img/cat.png"></textarea></div>'+
           '<div class="mt"><label style="margin:0;font-size:13px;font-weight:700;color:var(--text)">'+
             '<input type="checkbox" id="dvOver"> 같은 이름이면 지우고 새로 넣기</label></div>'+
           '<div class="mt"><label style="margin:0;font-size:13px;font-weight:700;color:var(--text)">'+
@@ -7767,7 +7771,8 @@ function drawTab(){
     if($('btnDv')) $('btnDv').onclick=function(){
       api('단어붙여넣기',T.pw,$('dvBook').value,$('dvText').value,$('dvOver').checked,
           $('dvVerb').checked?'3단변화':'').then(function(r){
-        if(r.ok){ toast(r.개수+'개를 넣었습니다'); $('dvText').value=''; loadTeacher(); }
+        if(r.ok){ toast(r.개수+'개를 넣었습니다'+(r.그림수?' (그림 '+r.그림수+'장 포함)':''));
+                  $('dvText').value=''; loadTeacher(); }
         else toast(r.메시지||'실패했습니다');
       });
     };
