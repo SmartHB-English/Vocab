@@ -5,7 +5,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>해법 영단어</title>
-<meta name="theme-color" content="#E8651A">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<meta name="theme-color" content="#FAF6F1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="해법 영단어">
@@ -119,9 +120,9 @@
 }
 /* 초중등 : 밝고 말랑 */
 html[data-theme="kid"]{
-  --bg:#F4F5F7; --bg2:#F4F5F7;
-  --card:#FFFFFF; --line:#E3E6EB;
-  --text:#15181E; --sub:#6B7280;
+  --bg:#FAF6F1; --bg2:#FAF6F1;
+  --card:#FFFFFF; --line:#ECE5DC;
+  --text:#1C1A17; --sub:#7A726A;
   --primary:#E8651A; --primary-d:#C2410C; --primary-soft:#FFF1E4;
   --accent:#2F6FE0; --accent-soft:#E7EEFC; --ok:#15803D;
   --qsize:42px; --btn:19px; --radius:26px;
@@ -1320,6 +1321,126 @@ input,select,textarea{border-radius:14px}
 .tnav:has([data-g="학생"].on) .tgrp[data-grp="학생"],
 .tnav:has([data-g="자료"].on) .tgrp[data-grp="자료"]{color:var(--text);font-weight:900;border-bottom-color:var(--primary)}
 .tmain{background:var(--bg);padding:24px 28px 60px}
+/* ===================== 재디자인 「한 번에 하나」 (2026-10-02a) =====================
+   초중등 테마에만 입힌다. 고등 테마·유치부·선생님 화면은 그대로 둔다. */
+html[data-theme="kid"] body:not(.desk) .card{border-radius:24px;border:0;box-shadow:none}
+html[data-theme="kid"] body:not(.desk) .btn{min-height:60px;border-radius:18px;font-size:20px;font-weight:800}
+html[data-theme="kid"] body:not(.desk) .btn.sm{min-height:48px;font-size:15px;border-radius:14px}
+html[data-theme="kid"] body:not(.desk) .btn.ghost{background:transparent;border:0;color:#5C554E;font-weight:700}
+html[data-theme="kid"] body:not(.desk) .btn.ghost:active{background:var(--line)}
+html[data-theme="kid"] body:not(.desk) .btn.line{background:#fff;border:0;color:#5C554E}
+html[data-theme="kid"] body:not(.desk) input,html[data-theme="kid"] body:not(.desk) select{border-radius:16px;border:2px solid var(--line);background:#fff}
+html[data-theme="kid"] body:not(.desk) input:focus,html[data-theme="kid"] body:not(.desk) select:focus{border-color:var(--primary)}
+html[data-theme="kid"] body:not(.desk) .iconbtn{color:var(--sub);font-weight:700}
+html[data-theme="kid"] body:not(.desk) .bar{height:8px;background:var(--line)}
+html[data-theme="kid"] body:not(.desk) .foot{color:#A39A90}
+/* 아래 탭 */
+html[data-theme="kid"] body:not(.desk) .tabbar{background:#fff;border-top:1px solid var(--line)}
+html[data-theme="kid"] body:not(.desk) .tabbar button{color:#A39A90}
+html[data-theme="kid"] body:not(.desk) .tabbar button.on{color:var(--primary)}
+html[data-theme="kid"] body:not(.desk) .tabbar button.on svg{stroke:var(--primary)}
+html[data-theme="kid"] body:not(.desk) .tabbar button span{font-size:12px;font-weight:700}
+html[data-theme="kid"] body:not(.desk) .tabbar button.on span{font-weight:800}
+#btnStudyGames{display:none !important}
+/* 로그인 */
+html[data-theme="kid"] body:not(.desk) #s-login .signboard{padding:40px 2px 26px}
+html[data-theme="kid"] body:not(.desk) #s-login .sbname{color:var(--sub);font-size:13px;letter-spacing:1px}
+html[data-theme="kid"] body:not(.desk) #s-login .sbtitle{font-size:38px;font-weight:900;letter-spacing:-1.4px}
+html[data-theme="kid"] body:not(.desk) #s-login .sbrule{display:none}
+html[data-theme="kid"] body:not(.desk) #s-login > .card{background:transparent;padding:0}
+html[data-theme="kid"] body:not(.desk) #s-login label{font-size:15px;color:#5C554E;margin-bottom:8px}
+html[data-theme="kid"] body:not(.desk) #inName{height:60px;font-size:22px;font-weight:700;padding:0 18px}
+html[data-theme="kid"] body:not(.desk) #inPw{height:60px;background:transparent;border:0}
+html[data-theme="kid"] body:not(.desk) .keypad button{background:#fff;border-radius:14px;height:56px}
+html[data-theme="kid"] body:not(.desk) .keypad button.kf{background:transparent}
+html[data-theme="kid"] body:not(.desk) #btnLogin{margin-top:8px}
+/* 홈 — 지금 할 숙제 하나를 크게 */
+html[data-theme="kid"] body:not(.desk) .hwho b{font-size:28px;font-weight:800;letter-spacing:-.7px}
+html[data-theme="kid"] body:not(.desk) .tdcard{background:#fff;border-radius:16px}
+html[data-theme="kid"] body:not(.desk) .cklist{display:flex;flex-direction:column;gap:2px;background:transparent;padding:0}
+html[data-theme="kid"] body:not(.desk) .ckrow.now{order:-1;background:#fff;border:0;border-radius:26px;padding:22px 20px 20px;
+  margin-bottom:16px;flex-direction:column;align-items:stretch;gap:6px;flex-wrap:nowrap}
+html[data-theme="kid"] body:not(.desk) .ckrow.now::before{content:"지금 할 숙제";font-size:14px;font-weight:800;color:var(--primary)}
+html[data-theme="kid"] body:not(.desk) .ckrow.now.fail::before{content:"다시 해야 하는 숙제";color:#B91C1C}
+html[data-theme="kid"] body:not(.desk) .ckrow.now .ckc{display:none}
+html[data-theme="kid"] body:not(.desk) .ckrow.now .ckt{gap:6px;margin-top:4px}
+html[data-theme="kid"] body:not(.desk) .ckrow.now .ckt b{font-size:24px;font-weight:800;letter-spacing:-.6px;line-height:1.3}
+html[data-theme="kid"] body:not(.desk) .ckrow.now .ckt i{font-size:15px;font-weight:500;color:#6B635B}
+html[data-theme="kid"] body:not(.desk) .ckrow.now .ckgo{flex:none;margin:16px 0 0;height:62px;border-radius:18px;font-size:21px;font-weight:800}
+html[data-theme="kid"] body:not(.desk) .ckhead{order:0;border:0;padding:0 4px 8px}
+html[data-theme="kid"] body:not(.desk) .ckhead b{font-size:14px;font-weight:700;color:var(--sub)}
+html[data-theme="kid"] body:not(.desk) .ckrow:not(.now){order:1;background:#fff;border:0;border-radius:6px;padding:14px 16px}
+html[data-theme="kid"] body:not(.desk) .ckrow.done{order:2;opacity:.6}
+html[data-theme="kid"] body:not(.desk) .cklist > .ckhead + .ckrow:not(.now){border-radius:16px 16px 6px 6px}
+html[data-theme="kid"] body:not(.desk) .ckrow:not(.now) .ckt b{font-size:16px}
+html[data-theme="kid"] body:not(.desk) .leftover{background:#fff;border:0;border-radius:16px}
+/* 연습 — 자주 쓰는 두 가지를 앞에 크게 */
+html[data-theme="kid"] body:not(.desk) #s-study .card{background:transparent;padding:4px 0}
+html[data-theme="kid"] body:not(.desk) #s-study label{font-size:14px;font-weight:800;color:var(--sub)}
+html[data-theme="kid"] body:not(.desk) .bookchips button{background:#fff;border:0;font-size:15px;min-height:48px}
+html[data-theme="kid"] body:not(.desk) .bookchips button.on{background:var(--text)}
+html[data-theme="kid"] body:not(.desk) #rangeQuick .chip{background:#fff;border:0}
+html[data-theme="kid"] body:not(.desk) #rangeQuick .chip.on{background:var(--primary);color:#fff}
+html[data-theme="kid"] body:not(.desk) .mgrid{gap:8px}
+html[data-theme="kid"] body:not(.desk) .mgrid .mtile{background:#fff;border:2.5px solid transparent;border-radius:18px;padding:13px 14px}
+html[data-theme="kid"] body:not(.desk) .mgrid .mtile.on{background:#fff;border-color:var(--primary);border-width:2.5px;padding:13px 14px}
+html[data-theme="kid"] body:not(.desk) .mgrid [data-mode="flash"]{order:-2}
+html[data-theme="kid"] body:not(.desk) .mgrid [data-mode="spell"]{order:-1}
+html[data-theme="kid"] body:not(.desk) .mgrid [data-mode="flash"],html[data-theme="kid"] body:not(.desk) .mgrid [data-mode="spell"]{padding:18px 14px}
+html[data-theme="kid"] body:not(.desk) .mgrid [data-mode="flash"] b,html[data-theme="kid"] body:not(.desk) .mgrid [data-mode="spell"] b{font-size:17px}
+html[data-theme="kid"] body:not(.desk) .startbar .btn{background:var(--primary)}
+html[data-theme="kid"] body:not(.desk) .startbar .btn:active{background:var(--primary-d)}
+/* 시험 탭 */
+html[data-theme="kid"] body:not(.desk) .excard{background:#fff;border:0;border-radius:26px;padding:22px 20px}
+html[data-theme="kid"] body:not(.desk) .exhead b{font-size:22px;font-weight:800;letter-spacing:-.5px}
+html[data-theme="kid"] body:not(.desk) .exgo{font-size:15px;padding:10px 18px}
+html[data-theme="kid"] body:not(.desk) .exsub{font-size:14px;font-weight:500;color:#6B635B}
+html[data-theme="kid"] body:not(.desk) .extime span{background:var(--primary-soft);color:var(--primary-d);font-size:13px;padding:7px 12px}
+html[data-theme="kid"] body:not(.desk) .exsec{font-size:14px;font-weight:700}
+/* 문제 — 가운데에 크게 */
+html[data-theme="kid"] body:not(.desk) .qcard{align-items:center;text-align:center;background:transparent}
+html[data-theme="kid"] body:not(.desk) .q{font-size:48px;font-weight:900;letter-spacing:-1.5px}
+html[data-theme="kid"] body:not(.desk) .qcount{font-size:15px;font-weight:600;color:#A39A90;letter-spacing:3px}
+html[data-theme="kid"] body:not(.desk) .answer-in{height:68px;font-size:30px;text-align:center;background:#fff;
+  border:2.5px solid var(--primary);border-radius:18px;padding:0 16px}
+html[data-theme="kid"] body:not(.desk) .choices{gap:10px}
+html[data-theme="kid"] body:not(.desk) .choice{min-height:64px;border:0;border-radius:18px;background:#fff;font-size:20px;font-weight:700}
+html[data-theme="kid"] body:not(.desk) .choice.correct{background:var(--ok);color:#fff}
+html[data-theme="kid"] body:not(.desk) .choice.wrong{background:var(--ng);color:#fff}
+html[data-theme="kid"] body:not(.desk) .qcard.flash{background:#fff;border-radius:26px}
+/* 결과 — 점수 하나를 크게 */
+html[data-theme="kid"] body:not(.desk) #s-result > .card.center{text-align:center;background:transparent;padding:30px 0 10px}
+html[data-theme="kid"] body:not(.desk) #s-result .score{font-size:104px;letter-spacing:-5px}
+html[data-theme="kid"] body:not(.desk) #s-result .score small{font-size:32px;letter-spacing:0;margin-left:4px}
+html[data-theme="kid"] body:not(.desk) #s-result .stat{text-align:center}
+html[data-theme="kid"] body:not(.desk) #s-result .stat div{border:0;background:#fff;border-radius:16px;padding:12px 4px}
+html[data-theme="kid"] body:not(.desk) #rWrongBox{background:#fff;border-radius:22px}
+/* 순위 — 세 칸 고르개 */
+html[data-theme="kid"] body:not(.desk) #rkTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--line);border-radius:14px;padding:4px}
+html[data-theme="kid"] body:not(.desk) #rkTabs .chip{border:0;background:transparent;color:var(--sub);border-radius:11px;font-weight:700}
+html[data-theme="kid"] body:not(.desk) #rkTabs .chip.on{background:#fff;color:var(--text);font-weight:800}
+html[data-theme="kid"] body:not(.desk) .skrow.me{background:var(--primary-soft);border:0}
+html[data-theme="kid"] body:not(.desk) .skrow.me .nm{color:var(--text);font-weight:800}
+/* 단어장 */
+html[data-theme="kid"] body:not(.desk) .wbrow{background:#fff;border:0;border-radius:16px;padding:14px 16px;margin-bottom:6px}
+html[data-theme="kid"] body:not(.desk) .wbrow .wben{font-size:19px}
+html[data-theme="kid"] body:not(.desk) .wblist.hideko .wbrow:not(.open) .wbko,html[data-theme="kid"] body:not(.desk) .wblist.hideen .wbrow:not(.open) .wben{background:#F4EFE8}
+/* 게임 */
+html[data-theme="kid"] body:not(.desk) .hubcard{background:#fff;border:0;border-radius:26px;padding:20px}
+html[data-theme="kid"] body:not(.desk) .mtc{border:0;border-radius:14px}
+html[data-theme="kid"] body:not(.desk) .mtc.open,html[data-theme="kid"] body:not(.desk) .mtc.done{border:0}
+html[data-theme="kid"] body:not(.desk) .mtc.open{box-shadow:0 0 0 3px var(--text)}
+html[data-theme="kid"] body:not(.desk) .mtc.done{background:#DCF2E3;color:var(--ok)}
+html[data-theme="kid"] body:not(.desk) .pzslot{background:transparent;border:2px dashed #CFC6BB;border-radius:10px}
+html[data-theme="kid"] body:not(.desk) .pzslot.on{border:2.5px solid var(--primary);background:#fff}
+html[data-theme="kid"] body:not(.desk) .qrow{border:0;border-radius:20px;padding:16px}
+html[data-theme="kid"] body:not(.desk) .qrow.ok{box-shadow:0 0 0 2px var(--ok)}
+html[data-theme="kid"] body:not(.desk) .qrow.ng{box-shadow:0 0 0 2px var(--ng)}
+html[data-theme="kid"] body:not(.desk) .qrow .qtext{font-size:19px}
+html[data-theme="kid"] body:not(.desk) .qrow .sin{height:56px;font-size:20px}
+html[data-theme="kid"] body:not(.desk) .sheettop .bar{height:8px}
+html[data-theme="kid"] body:not(.desk) .pzk{min-width:62px;height:62px;border:0;border-radius:16px;background:#fff;font-size:26px}
+
 .kpi,.panel{border-radius:16px;border-color:transparent}
 .tb th{background:#fff}
 
@@ -1562,7 +1683,8 @@ input,select,textarea{border-radius:14px}
   <section id="s-games" class="screen">
     <div class="top">
       <button class="iconbtn" data-back="home">← 뒤로</button>
-      <div class="who">게임</div>
+      <div class="who" style="margin-right:auto">게임</div>
+      <button class="iconbtn refbtn" aria-label="새로 불러오기" title="새로 불러오기">↻</button>
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div id="gmPick"></div>
@@ -1932,6 +2054,7 @@ input,select,textarea{border-radius:14px}
   <button data-tab2="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15.5H6.5A1.5 1.5 0 0 0 5 20z"/><path d="M9 8h6M9 12h4"/></svg><span>숙제</span><i class="tbadge hide" id="tbHw"></i></button>
   <button data-tab2="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13"/><path d="M4 19a2 2 0 0 0 2 2h14"/><path d="M8.5 9.5l2.5 2.5-2.5 2.5M13 15h3"/></svg><span>연습</span></button>
   <button data-tab2="exam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9.5 8.5h5M9.5 12h5M9.5 15.5h3"/></svg><span>시험</span><i class="tbadge hide" id="tbEx"></i></button>
+  <button data-tab2="games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 7.5h9a4.5 4.5 0 0 1 4.4 5.4l-.7 3.4A2.6 2.6 0 0 1 15.9 17l-1.4-1.6h-5L8.1 17a2.6 2.6 0 0 1-4.3-.7l-.7-3.4A4.5 4.5 0 0 1 7.5 7.5Z"/><path d="M7 11.5h2M8 10.5v2M15.5 11h.01M17.5 12.5h.01"/></svg><span>게임</span></button>
   <button data-tab2="streak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 5.5H5A2.5 2.5 0 0 0 7.5 9M16.5 5.5H19A2.5 2.5 0 0 1 16.5 9"/><path d="M12 13.5V17M9 20h6"/></svg><span>순위</span></button>
 </nav>
 
@@ -1969,7 +2092,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-02a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-02b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2550,7 +2673,7 @@ function 칠하기_탭(name){
   document.body.classList.toggle('hastab', 보임);
   if(!보임) return;
   qsa('[data-tab2]').forEach(function(b){
-    b.classList.toggle('on', b.dataset.tab2===name || (name==='games' && b.dataset.tab2==='study'));
+    b.classList.toggle('on', b.dataset.tab2===name);
   });
   var 남은 = 숙제만_().filter(function(h){return !h.완료;}).length;
   var bd=$('tbHw');
