@@ -512,8 +512,11 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .rotbtn:active{background:var(--line)}
 
 /* ===== 불러오는 중 표시 ===== */
-#btnRefresh{font-size:16px;line-height:1}
-#btnRefresh.doing{animation:도는것 .9s linear infinite;color:var(--primary)}
+.refbtn{font-size:16px;line-height:1;flex:none}
+/* ↻ 앞에서 이미 오른쪽으로 밀어 두었으니, 뒤따르는 가로/세로 단추는 붙여 둔다
+   (둘 다 margin-left:auto 면 남은 자리를 반씩 나눠 가져 사이가 벌어진다) */
+.refbtn ~ .rotbtn{margin-left:0}
+.refbtn.doing{animation:도는것 .9s linear infinite;color:var(--primary)}
 @keyframes 도는것{to{transform:rotate(360deg)}}
 .skl{height:13px;border-radius:7px;margin:10px 0;
   background:linear-gradient(90deg,var(--line) 25%,rgba(255,255,255,.85) 50%,var(--line) 75%);
@@ -1408,7 +1411,7 @@ input,select,textarea{border-radius:14px}
         <span id="hiClass"></span>
       </div>
       <button class="iconbtn hide" id="btnTheme">테마</button>
-      <button class="iconbtn" id="btnRefresh" aria-label="새로 불러오기" title="새로 불러오기">↻</button>
+      <button class="iconbtn refbtn" id="btnRefresh" aria-label="새로 불러오기" title="새로 불러오기">↻</button>
       <button class="iconbtn rotbtn hide" id="btnRotate" aria-label="화면 돌리기">가로</button>
       <button class="iconbtn" id="btnLogout">나가기</button>
     </header>
@@ -1427,6 +1430,7 @@ input,select,textarea{border-radius:14px}
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who">연습하기</div>
       <span class="sub" style="margin-left:auto;font-size:11px">숙제 아님 · 기록에 안 남아요</span>
+      <button class="iconbtn refbtn" aria-label="새로 불러오기" title="새로 불러오기">↻</button>
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
 
@@ -1611,7 +1615,8 @@ input,select,textarea{border-radius:14px}
   <section id="s-streak" class="screen">
     <div class="top">
       <button class="iconbtn" data-back="home">← 뒤로</button>
-      <div class="who">순위</div>
+      <div class="who" style="margin-right:auto">순위</div>
+      <button class="iconbtn refbtn" aria-label="새로 불러오기" title="새로 불러오기">↻</button>
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div id="trophyBox"></div>
@@ -1790,6 +1795,7 @@ input,select,textarea{border-radius:14px}
       <button class="iconbtn" data-back="home">← 뒤로</button>
       <div class="who">시험</div>
       <span class="sub" style="margin-left:auto;font-size:11px">선생님이 낸 시험</span>
+      <button class="iconbtn refbtn" aria-label="새로 불러오기" title="새로 불러오기">↻</button>
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
 
@@ -1963,7 +1969,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-01k';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-02a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2431,7 +2437,7 @@ var DEMO = {
 
 var 부르는중_ = 0;
 function 부르는중그리기_(){
-  var r = $('btnRefresh'); if(r) r.classList.toggle('doing', 부르는중_ > 0);
+  qsa('.refbtn').forEach(function(r){ r.classList.toggle('doing', 부르는중_ > 0); });
 }
 function api(fn){
   var args = [].slice.call(arguments,1);
@@ -2842,15 +2848,23 @@ function 게임자료받기_(다시){
   });
 }
 
-/* 숙제 화면의 ↻ — 지금 화면 것을 다시 받고, 나머지는 열 때 다시 받게 둔다 */
+/* ↻ — 지금 보고 있는 화면 것을 다시 받는다.
+   나머지 탭은 받은 표시만 지워 두어, 열 때 새로 받는다. */
 function 새로불러오기_(){
   if(!S.학생) return;
   if(부르는중_ > 0) return;
+  var 어디 = 지금화면_();
   받은것_ = {};
-  집자료받기_(true);
+  if(어디 === 'study') 연습자료받기_(true);
+  else if(어디 === 'streak') 순위자료받기_(true);
+  else if(어디 === 'games') 게임자료받기_(true);
+  else 집자료받기_(true);        /* 숙제 · 시험 · 유치부 — 셋 다 숙제 목록에서 온다 */
   toast('새로 불러오는 중…');
 }
-if($('btnRefresh')) $('btnRefresh').onclick = 새로불러오기_;
+document.addEventListener('click', function(e){
+  var b = e.target && e.target.closest && e.target.closest('.refbtn');
+  if(b) 새로불러오기_();
+});
 
 /* ================================================================
    홈 맨 위 한 줄 — 불꽃과 남은 숙제를 한눈에
