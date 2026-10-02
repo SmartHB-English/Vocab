@@ -1490,7 +1490,7 @@ input,select,textarea{border-radius:14px}
           <b>단어장 보기</b><i>쭉 읽으며 외우기</i></button>
         <button class="mtile go" id="btnStudyGames" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 7.5h9a4.5 4.5 0 0 1 4.4 5.4l-.7 3.4A2.6 2.6 0 0 1 15.9 17l-1.4-1.6h-5L8.1 17a2.6 2.6 0 0 1-4.3-.7l-.7-3.4A4.5 4.5 0 0 1 7.5 7.5Z"/><path d="M7 11.5h2M8 10.5v2M15.5 11h.01M17.5 12.5h.01"/></svg>
-          <span class="gt"><b>게임</b><i>타임어택 · 짝 맞추기 · 글자 퍼즐</i></span>
+          <span class="gt"><b>게임</b><i>짝 맞추기 · 글자 퍼즐</i></span>
           <span class="mgo">›</span></button>
       </div>
     </div>
@@ -1780,6 +1780,8 @@ input,select,textarea{border-radius:14px}
     </div>
     <div class="kstick" id="kStGrid"></div>
     <div class="card mt2"><div class="sub">12장을 모두 모으면 선생님이 상장을 드려요.</div></div>
+    <button class="iconbtn" id="kStReset" type="button"
+      style="margin:18px auto 0;display:block;font-size:11.5px;opacity:.6">선생님용 · 이 기기 기록 지우기</button>
   </section>
 
   <!-- ========================= 시험 ========================= -->
@@ -1961,7 +1963,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-01i';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-01k';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2124,12 +2126,15 @@ var DEMO = {
     var 오늘=t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate());
     var d3=new Date(t.getTime()+3*86400000);
     var 사흘후=d3.getFullYear()+'-'+z(d3.getMonth()+1)+'-'+z(d3.getDate());
+    /* 낸때 — 숙제를 가려 주는 값. 선생님이 지웠다 다시 내면 달라진다 */
+    if(!window.DEMO_낸때) window.DEMO_낸때 = [101,102,103,104,105];
+    var n = window.DEMO_낸때;
     return [
-    {단어장:'예시 단어장',시작:1,끝:10,유형:'스펠링',마감일:오늘,개별:false,색:'#FF7A3D',종류:'당일',남은일수:0,완료:false,점수:0},
-    {단어장:'예시 단어장',시작:11,끝:20,유형:'뜻 고르기',마감일:오늘,개별:false,색:'#FF7A3D',종류:'당일',남은일수:0,완료:true,점수:90},
-    {단어장:'불규칙 동사 50',시작:1,끝:20,유형:'3단변화',마감일:사흘후,개별:true,색:'#3B82F6',종류:'기한',남은일수:3,완료:false,점수:0},
-    {단어장:'예시 단어장',시작:21,끝:25,유형:'첫 글자',마감일:오늘,개별:true,색:'#FF7A3D',종류:'보충',남은일수:0,완료:false,점수:0},
-    {단어장:'예시 단어장',시작:1,끝:25,유형:'스펠링',마감일:사흘후,개별:false,색:'#FF7A3D',종류:'시험',남은일수:3,완료:false,점수:0}
+    {단어장:'예시 단어장',시작:1,끝:10,유형:'스펠링',마감일:오늘,개별:false,색:'#FF7A3D',종류:'당일',남은일수:0,완료:false,점수:0,낸때:n[0]},
+    {단어장:'예시 단어장',시작:11,끝:20,유형:'뜻 고르기',마감일:오늘,개별:false,색:'#FF7A3D',종류:'당일',남은일수:0,완료:true,점수:90,낸때:n[1]},
+    {단어장:'불규칙 동사 50',시작:1,끝:20,유형:'3단변화',마감일:사흘후,개별:true,색:'#3B82F6',종류:'기한',남은일수:3,완료:false,점수:0,낸때:n[2]},
+    {단어장:'예시 단어장',시작:21,끝:25,유형:'첫 글자',마감일:오늘,개별:true,색:'#FF7A3D',종류:'보충',남은일수:0,완료:false,점수:0,낸때:n[3]},
+    {단어장:'예시 단어장',시작:1,끝:25,유형:'스펠링',마감일:사흘후,개별:false,색:'#FF7A3D',종류:'시험',남은일수:3,완료:false,점수:0,낸때:n[4]}
   ];},
   결과저장:function(){return {ok:true,demo:true};},
   시상저장API:function(pw,ym){return {ok:true,년월:ym||'2026-09',개수:4};},
@@ -3725,9 +3730,39 @@ function 유치상주기_(별, 이름){
 }
 
 /* ---------- 어디까지 했나 (이 기기에만 적어 둔다) ---------- */
+/* 숙제마다 다른 열쇠를 쓴다. 선생님이 지웠다 똑같은 범위로 다시 내면
+   「낸때」 가 달라지므로 아이는 처음부터 다시 한다. */
+function 유치진행머리_(){ return '유치진행_' + ((S.학생 && S.학생.이름) || '') + '_'; }
 function 유치진행열쇠_(h){
-  return '유치진행_' + ((S.학생 && S.학생.이름) || '') + '_' +
-    (h ? (h.단어장 + '_' + h.시작 + '~' + h.끝) : '');
+  if(!h) return 유치진행머리_();
+  /* 낸때가 없는 옛 숙제는 예전 방식 그대로 (예전 버전 서버와도 돌아가게) */
+  return 유치진행머리_() + (h.낸때 ? ('#' + h.낸때)
+                                  : (h.단어장 + '_' + h.시작 + '~' + h.끝));
+}
+
+/* 선생님이 지운 숙제의 진행 기록은 치운다 — 안 그러면 기기에 계속 쌓인다 */
+function 묵은진행치우기_(){
+  try{
+    var 머리 = 유치진행머리_(), 살릴 = {};
+    (S.숙제 || []).forEach(function(h){ 살릴[유치진행열쇠_(h)] = 1; });
+    for(var i = localStorage.length - 1; i >= 0; i--){
+      var k = localStorage.key(i);
+      if(k && k.indexOf(머리) === 0 && !살릴[k]) localStorage.removeItem(k);
+    }
+  }catch(e){}
+}
+
+/* 이 기기에 쌓인 유치부 기록을 모두 지운다 (선생님이 시험해 본 뒤 쓰는 것) */
+function 유치기록지우기_(){
+  try{
+    저장쓰기_(유치별열쇠_(), 0);
+    저장쓰기_(유치스티커열쇠_(), []);
+    var 머리 = 유치진행머리_();
+    for(var i = localStorage.length - 1; i >= 0; i--){
+      var k = localStorage.key(i);
+      if(k && k.indexOf(머리) === 0) localStorage.removeItem(k);
+    }
+  }catch(e){}
 }
 function 유치진행_(h){
   var v = 저장읽기_(유치진행열쇠_(h), null);
@@ -3767,6 +3802,7 @@ function 유치길그리기_(){
     $('kHi2').textContent = '';
     return;
   }
+  묵은진행치우기_();
   var 남은 = 숙제들.filter(function(h){ return !h.완료; });
   $('kHi2').textContent = 숙제들.length
     ? (남은.length ? '오늘 할 것이 ' + 남은.length + '개 있어요' : '오늘 할 것을 다 했어요!')
@@ -4044,6 +4080,23 @@ if($('kEndGo')) $('kEndGo').onclick = function(){ 유치판 = null; 유치길그
 if($('kOut')) $('kOut').onclick = function(){ S.학생 = null; 유치판 = null; show('login'); };
 if($('kStickGo')) $('kStickGo').onclick = function(){ 유치스티커그리기_(); show('kidst'); };
 if($('kStBack')) $('kStBack').onclick = function(){ show('kid'); };
+if($('kStReset')) $('kStReset').onclick = function(){
+  var 별 = 유치별_(), 장 = 유치스티커_().length;
+  var 하던것 = 0;
+  (S.숙제 || []).forEach(function(h){ if(유치진행_(h).끝.length) 하던것++; });
+  if(!confirm(
+      '이 기기에 쌓인 기록을 지웁니다.\n\n' +
+      '· 별 ' + 별 + '개\n' +
+      '· 스티커 ' + 장 + '장\n' +
+      '· 하다 만 숙제 ' + 하던것 + '개\n\n' +
+      '선생님께 이미 보낸 점수는 그대로 남습니다.\n' +
+      '이 휴대폰·컴퓨터에 적어 둔 것만 지워집니다.\n\n계속할까요?')) return;
+  유치기록지우기_();
+  toast('지웠습니다');
+  유치판 = null;
+  유치길그리기_();
+  show('kid');
+};
 
 /* ================================================================
    시험 탭 — 선생님이 낸 「시험」 만 여기 모인다
