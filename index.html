@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>해법 영단어</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<meta name="theme-color" content="#FAF6F1">
+<meta name="theme-color" content="#F6F4F1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="해법 영단어">
@@ -1545,6 +1545,579 @@ html[data-theme="kid"] body:not(.desk) .pzk{min-width:62px;height:62px;border:0;
   .pp{grid-template-columns:1fr}
   .ppleft,.ppright{position:static;max-height:none}
 }
+/* =====================================================================
+   iOS 디자인 (2026-10-06) — 파스텔 · 바닥 탭바 · 스프링 모션
+   기존 규칙 뒤에 덮어쓴다. 지우면 예전 모습으로 돌아간다.
+===================================================================== */
+:root{--spring:cubic-bezier(.34,1.56,.64,1);--ease:cubic-bezier(.32,.72,0,1)}
+html[data-theme="kid"]{
+  --bg:#F6F4F1;--bg2:#F6F4F1;--card:#FFFFFF;--line:rgba(60,60,67,.13);--fill:rgba(120,120,128,.12);--press:#EEEAE5;
+  --text:#1C1A17;--sub:rgba(60,60,67,.62);
+  --primary:#FF9500;--primary-d:#C25E00;--primary-soft:#FFF3E0;--accent:#007AFF;--accent-soft:#E5F0FF;
+  --ok:#34C759;--ng:#FF3B30;--warn:#FF9500;--radius:24px;
+  --tFlash:#FFE3C2;--tWord:#D4EEF2;--tVerb:#EADDF5;--tSpell:#DEDDF7;--tQuiz:#D6E6FB;--tHint:#D5F0DD;--tMatch:#FBD9E0;--tTime:#FCE0D3;
+  --tileFg:#1C1A17;--glyph:rgba(255,255,255,.78);--barbg:rgba(255,255,255,.94)}
+html[data-theme="high"]{
+  --bg:#000000;--bg2:#0B0B0C;--card:#1C1C1E;--line:rgba(84,84,88,.6);--fill:rgba(120,120,128,.24);--press:#2C2C2E;
+  --text:#FFFFFF;--sub:rgba(235,235,245,.6);
+  --primary:#FF9F0A;--primary-d:#FFB340;--primary-soft:#2E1F0C;--accent:#0A84FF;--accent-soft:#0F2540;
+  --ok:#30D158;--ng:#FF453A;--warn:#FF9F0A;--radius:24px;
+  --tFlash:#4A3218;--tWord:#163A40;--tVerb:#33224A;--tSpell:#26254A;--tQuiz:#182E4D;--tHint:#173A24;--tMatch:#4A1E28;--tTime:#4A2818;
+  --tileFg:#FFFFFF;--glyph:rgba(255,255,255,.12);--barbg:rgba(28,28,30,.94)}
+html[data-theme] body:not(.hb0){background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+
+@keyframes hbRise{0%{transform:translateY(14px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes hbPush{0%{transform:translateX(44px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes hbPopNav{0%{transform:translateX(-44px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes hbTab{0%{transform:scale(.985);opacity:0}100%{transform:none;opacity:1}}
+@keyframes hbSheet{0%{transform:translateY(70px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes hbPop{0%{transform:scale(1)}40%{transform:scale(1.05)}70%{transform:scale(.985)}100%{transform:scale(1)}}
+@keyframes hbPopIn{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes hbShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+@keyframes hbFlip{0%{transform:perspective(1200px) rotateY(90deg)}100%{transform:perspective(1200px) rotateY(0)}}
+@keyframes hbCardIn{0%{transform:translateY(24px) scale(.95);opacity:0}100%{transform:none;opacity:1}}
+@keyframes hbConf{0%{transform:translate(0,0) rotate(0) scale(.4);opacity:1}25%{transform:translate(calc(var(--dx) * .5),var(--up)) rotate(calc(var(--rot) * .3)) scale(1);opacity:1}100%{transform:translate(var(--dx),110vh) rotate(var(--rot)) scale(1);opacity:.9}}
+
+/* 화면 전환 — push / pop / 탭 / 시트 */
+body[data-nav="push"] .screen.on.hb-in{animation:hbPush .45s var(--ease) both}
+body[data-nav="pop"] .screen.on.hb-in{animation:hbPopNav .45s var(--ease) both}
+body[data-nav="tab"] .screen.on.hb-in{animation:hbTab .3s ease both}
+body[data-nav="sheet"] .screen.on.hb-in{animation:hbSheet .5s var(--ease) both}
+
+/* 누르면 스프링 */
+html[data-theme] body:not(.hb0) button{transition:transform .28s var(--spring),background-color .2s,color .2s,box-shadow .2s,opacity .2s}
+html[data-theme] body:not(.hb0) button:active{transform:scale(.96)}
+
+/* 버튼 */
+html[data-theme] body:not(.hb0) .btn{background:var(--primary);color:#fff;border:0;box-shadow:none;border-radius:16px;font-weight:700;letter-spacing:-.2px}
+html[data-theme] body:not(.hb0) .btn:active{transform:scale(.97);background:var(--primary-d);box-shadow:none}
+html[data-theme] body:not(.hb0) .btn.ghost{background:var(--card);color:var(--primary-d);border:0}
+html[data-theme] body:not(.hb0) .btn.ghost:active{background:var(--press)}
+html[data-theme] body:not(.hb0) .btn.line{background:var(--card);border:0;color:var(--primary-d)}
+html[data-theme] body:not(.hb0) .btn.accent{background:var(--accent)}
+html[data-theme] body:not(.hb0) #fBtns .btn{box-shadow:none !important;border-radius:18px}
+html[data-theme] body:not(.hb0) .iconbtn{background:var(--card);color:var(--primary-d);min-height:36px;height:36px;padding:0 14px;border-radius:18px;
+  font-size:15px;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08);display:inline-flex;align-items:center;justify-content:center}
+html[data-theme] body:not(.hb0) .iconbtn:active{transform:scale(.92)}
+html[data-theme] body:not(.hb0) .top{gap:10px;padding:6px 0 14px;align-items:center}
+html[data-theme] body:not(.hb0) .top .who{font-size:15px;font-weight:700;color:var(--text)}
+html[data-theme] body:not(.hb0) .bar{height:6px;border-radius:3px;background:var(--fill);overflow:hidden}
+html[data-theme] body:not(.hb0) .bar i{background:var(--primary);border-radius:3px;transition:width .5s var(--ease)}
+html[data-theme] body:not(.hb0) .card{border:0;border-radius:22px;background:var(--card);box-shadow:none}
+html[data-theme] body:not(.hb0) .chip{border-radius:12px}
+html[data-theme] body:not(.hb0) .chip.on{background:var(--tFlash);color:var(--tileFg);border-color:transparent;box-shadow:inset 0 0 0 2px var(--tileFg)}
+html[data-theme] body:not(.hb0) input,html[data-theme] body:not(.hb0) select,html[data-theme] body:not(.hb0) textarea{border-radius:14px;border:0;background:var(--card);color:var(--text)}
+html[data-theme] body:not(.hb0) input:focus,html[data-theme] body:not(.hb0) select:focus,html[data-theme] body:not(.hb0) textarea:focus{box-shadow:0 0 0 2px var(--primary)}
+html[data-theme] body:not(.hb0) label{color:var(--sub);font-weight:600}
+html[data-theme] body:not(.hb0) .foot{color:var(--sub)}
+
+/* 로그인 */
+html[data-theme] body:not(.hb0) #s-login .signboard{text-align:left;padding:36px 2px 24px}
+html[data-theme] body:not(.hb0) #s-login .sbname{font-size:13px;font-weight:600;color:var(--sub);letter-spacing:.02em}
+html[data-theme] body:not(.hb0) #s-login .sbtitle{font-size:36px;font-weight:800;letter-spacing:-.03em;margin-top:4px}
+html[data-theme] body:not(.hb0) #s-login .sbrule{display:block;margin:4px 0 0;max-width:none}
+html[data-theme] body:not(.hb0) #s-login .sbrule i{display:none}
+html[data-theme] body:not(.hb0) #s-login .sbrule b{font-size:17px;font-weight:600;color:var(--sub)}
+html[data-theme] body:not(.hb0) #s-login.on .signboard > *{animation:hbRise .6s var(--ease) both}
+html[data-theme] body:not(.hb0) #s-login.on .signboard > :nth-child(2){animation-delay:.05s}
+html[data-theme] body:not(.hb0) #s-login.on .signboard > :nth-child(3){animation-delay:.1s}
+html[data-theme] body:not(.hb0) #s-login.on > .card{animation:hbRise .6s .15s var(--ease) both}
+html[data-theme] body:not(.hb0) #s-login > .card{background:transparent;padding:0}
+html[data-theme] body:not(.hb0) #inName{height:52px;font-size:18px;font-weight:600;padding:0 16px;background:var(--card);border:0}
+html[data-theme] body:not(.hb0) #inPw{height:52px;background:transparent;border:0;text-align:center;font-size:26px;letter-spacing:.3em;box-shadow:none}
+html[data-theme] body:not(.hb0) #inPw::placeholder{letter-spacing:0;font-size:15px;font-weight:500;color:var(--sub)}
+html[data-theme] body:not(.hb0) .keypad{gap:10px 14px}
+html[data-theme] body:not(.hb0) .keypad button{background:var(--card);color:var(--text);border:0;border-radius:16px;height:56px;font-size:26px;font-weight:500}
+html[data-theme] body:not(.hb0) .keypad button:active{transform:scale(.92);background:var(--press)}
+html[data-theme] body:not(.hb0) .keypad button.kf{background:transparent;font-size:14px;color:var(--sub)}
+
+/* 홈 · 큰 제목 */
+html[data-theme] body:not(.hb0) .hhead{padding:10px 2px 18px;align-items:flex-end;gap:6px}
+html[data-theme] body:not(.hb0) .hwho b{font-size:34px;font-weight:800;letter-spacing:-.03em}
+html[data-theme] body:not(.hb0) .hwho span{font-size:13px;font-weight:600;color:var(--sub)}
+html[data-theme] body:not(.hb0) #s-home.on #hwBox > *{animation:hbRise .5s var(--ease) both}
+html[data-theme] body:not(.hb0) .ckrow.now{border-radius:24px}
+
+/* 연습 · 파스텔 타일 */
+html[data-theme] body:not(.hb0) .mgrid{gap:12px}
+html[data-theme] body:not(.hb0) .mgrid .mtile{border:0;border-radius:22px;padding:16px;min-height:124px;justify-content:space-between;gap:4px;background:var(--card);color:var(--tileFg);position:relative}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="flash"]{background:var(--tFlash)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="spell"]{background:var(--tSpell)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="choice"]{background:var(--tQuiz)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="hint"]{background:var(--tHint)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="time"]{background:var(--tTime)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="book"]{background:var(--tWord)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="verb"]{background:var(--tVerb)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="cloze"]{background:var(--tQuiz)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="order"]{background:var(--tTime)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="write"]{background:var(--tSpell)}
+html[data-theme] body:not(.hb0) .mgrid .mtile[data-mode="dict"]{background:var(--tWord)}
+html[data-theme] body:not(.hb0) .mgrid .mtile.go{background:var(--tMatch);min-height:76px}
+html[data-theme] body:not(.hb0) .mgrid .mtile svg{width:40px;height:40px;padding:9px;box-sizing:border-box;border-radius:12px;background:var(--glyph);stroke:var(--tileFg)}
+html[data-theme] body:not(.hb0) .mgrid .mtile b{font-size:18px;font-weight:800;color:var(--tileFg);margin-top:auto}
+html[data-theme] body:not(.hb0) .mgrid .mtile i{font-size:13px;font-weight:500;color:var(--tileFg);opacity:.75}
+html[data-theme] body:not(.hb0) .mgrid .mtile.go b{margin-top:0}
+html[data-theme] body:not(.hb0) .mgrid .mtile .mgo{color:var(--tileFg)}
+html[data-theme] body:not(.hb0) .mgrid .mtile.on{border:0;padding:16px;box-shadow:inset 0 0 0 2.5px var(--tileFg);transform:scale(1.02)}
+html[data-theme] body:not(.hb0) .mgrid .mtile.on svg{stroke:var(--tileFg)}
+html[data-theme] body:not(.hb0) .mgrid .mtile.on b{color:var(--tileFg)}
+html[data-theme] body:not(.hb0) .mgrid .mtile:active{transform:scale(.96)}
+html[data-theme] body:not(.hb0) #s-study.on .mgrid > .mtile,html[data-theme] body:not(.hb0) #s-study.on #normalModes > .mtile{animation:hbRise .45s var(--ease) both}
+html[data-theme] body:not(.hb0) .startbar .btn{background:var(--primary)}
+html[data-theme] body:not(.hb0) .bookchips button{border-radius:12px}
+html[data-theme] body:not(.hb0) .bookchips button.on{background:var(--tFlash);color:var(--tileFg);box-shadow:inset 0 0 0 2px var(--tileFg)}
+html[data-theme] body:not(.hb0) #rangeQuick .chip.on{background:var(--tFlash);color:var(--tileFg)}
+
+/* 문제 */
+html[data-theme] body:not(.hb0) .qcard{border:0;border-radius:28px}
+html[data-theme] body:not(.hb0) .q{font-size:46px;font-weight:800;letter-spacing:-.03em}
+html[data-theme] body:not(.hb0) .qcard.flash{background:var(--card);box-shadow:0 18px 40px rgba(60,40,10,.10);min-height:300px;transform-origin:center}
+html[data-theme] body:not(.hb0) .qcard.hb-flip{animation:hbFlip .5s var(--spring)}
+html[data-theme] body:not(.hb0) .qcard.hb-cardin{animation:hbCardIn .45s var(--ease)}
+html[data-theme] body:not(.hb0) #fA{color:var(--primary-d) !important}
+html[data-theme] body:not(.hb0) .choices{gap:10px}
+html[data-theme] body:not(.hb0) .choice{background:var(--card);border:0;border-radius:18px;min-height:60px;font-size:19px;font-weight:600;color:var(--text)}
+html[data-theme] body:not(.hb0) .choice:active{transform:scale(.97);background:var(--press)}
+html[data-theme] body:not(.hb0) .choice.correct{background:var(--ok);color:#fff;animation:hbPop .45s var(--spring)}
+html[data-theme] body:not(.hb0) .choice.wrong{background:var(--ng);color:#fff;animation:hbShake .45s ease}
+html[data-theme] body:not(.hb0) .answer-in{border-radius:18px;background:var(--card);border:0}
+html[data-theme] body:not(.hb0) .combo.hb-pop{display:inline-block;animation:hbPopIn .45s var(--spring)}
+html[data-theme] body:not(.hb0) .qrow{border:0;border-radius:18px;background:var(--card)}
+html[data-theme] body:not(.hb0) .qrow.ok{box-shadow:inset 0 0 0 2px var(--ok);animation:hbPop .45s var(--spring)}
+html[data-theme] body:not(.hb0) .qrow.ng{box-shadow:inset 0 0 0 2px var(--ng);animation:hbShake .45s ease}
+
+/* 결과 */
+html[data-theme] body:not(.hb0) #s-result > .card.center{text-align:center;background:transparent;padding:26px 0 8px}
+html[data-theme] body:not(.hb0) #s-result .score{font-size:96px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+html[data-theme] body:not(.hb0) #s-result .stat div{background:var(--card);border:0;border-radius:16px}
+html[data-theme] body:not(.hb0) #s-result.on .stat div{animation:hbRise .5s var(--ease) both}
+html[data-theme] body:not(.hb0) #s-result.on .stat div:nth-child(2){animation-delay:.07s}
+html[data-theme] body:not(.hb0) #s-result.on .stat div:nth-child(3){animation-delay:.14s}
+html[data-theme] body:not(.hb0) #rWrongBox{border-radius:22px}
+.hb-confetti{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
+.hb-confetti i{position:absolute;left:50%;top:30%;opacity:0;animation:hbConf var(--dur) var(--del) cubic-bezier(.15,.6,.35,1) forwards}
+
+/* 순위 */
+html[data-theme] body:not(.hb0) #s-streak.on .skrow{animation:hbRise .45s var(--ease) both}
+html[data-theme] body:not(.hb0) #s-streak.on .skrow:nth-child(2){animation-delay:.04s}html[data-theme] body:not(.hb0) #s-streak.on .skrow:nth-child(3){animation-delay:.08s}
+html[data-theme] body:not(.hb0) #s-streak.on .skrow:nth-child(4){animation-delay:.12s}html[data-theme] body:not(.hb0) #s-streak.on .skrow:nth-child(5){animation-delay:.16s}
+html[data-theme] body:not(.hb0) #s-streak.on .skrow:nth-child(n+6){animation-delay:.2s}
+html[data-theme] body:not(.hb0) .skrow.me{background:var(--tFlash);border:0}
+
+/* 아래 탭바 — 바닥에 붙은 판 + 고른 칸 뒤 알약 */
+html[data-theme] body:not(.hb0) .tabbar{background:var(--barbg);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid var(--line);box-shadow:none}
+html[data-theme] body:not(.hb0) .tabbar button{color:var(--sub)}
+html[data-theme] body:not(.hb0) .tabbar button::before{content:"";position:absolute;top:3px;left:50%;width:58px;height:32px;margin-left:-29px;border-radius:16px;
+  background:var(--tFlash);transform:scale(.4);opacity:0;transition:transform .45s var(--spring),opacity .25s}
+html[data-theme] body:not(.hb0) .tabbar button.on::before{transform:scale(1);opacity:1}
+html[data-theme] body:not(.hb0) .tabbar button svg,html[data-theme] body:not(.hb0) .tabbar button span{position:relative;z-index:1}
+html[data-theme] body:not(.hb0) .tabbar button.on{color:var(--text)}
+html[data-theme] body:not(.hb0) .tabbar button.on svg{stroke:var(--text)}
+html[data-theme] body:not(.hb0) .tabbar .tbadge{z-index:2;background:var(--ng)}
+
+/* 선생님 — 왼쪽 사이드바 */
+@media (min-width:861px){
+  body.desk .tshell{grid-template-columns:248px minmax(0,1fr);grid-template-rows:none;background:var(--bg)}
+  body.desk .tside{position:sticky;top:0;height:100vh;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:18px;
+    padding:28px 14px 18px;background:var(--card);border-right:.5px solid var(--line);border-bottom:0;overflow-y:auto}
+  body.desk .tbrand{order:0;display:block;padding:0 12px;font-size:22px;font-weight:800;letter-spacing:-.03em;white-space:normal}
+  body.desk .tbrand #tAcademy{display:block;font-size:12px;font-weight:700;color:var(--sub);letter-spacing:0;margin-bottom:2px}
+  body.desk .tbrand small{display:table;margin-top:8px;padding:3px 10px;border-radius:12px;background:var(--tFlash);color:var(--tileFg);font-size:12px;font-weight:700;letter-spacing:0}
+  body.desk .tnav{display:flex;flex-direction:column;gap:2px;margin:0}
+  body.desk .tgrps,body.desk .tsubs{display:contents}
+  body.desk .tnav .tgrp{min-height:0;padding:14px 12px 6px;font-size:12px;font-weight:700;color:var(--sub);border:0;border-radius:0;text-align:left;background:none;pointer-events:none}
+  body.desk .tnav .tgrp[data-grp="오늘"]{order:10} body.desk .tnav .tgrp[data-grp="숙제"]{order:20}
+  body.desk .tnav .tgrp[data-grp="학생"]{order:30} body.desk .tnav .tgrp[data-grp="자료"]{order:40}
+  body.desk .tnav .tsubs button{display:flex !important;justify-content:space-between;align-items:center;height:40px;padding:0 12px;
+    border-radius:12px;background:transparent;color:var(--text);font-size:15px;font-weight:600}
+  body.desk .tnav .tsubs button[data-g="오늘"]{order:11} body.desk .tnav .tsubs button[data-g="숙제"]{order:21}
+  body.desk .tnav .tsubs button[data-g="학생"]{order:31} body.desk .tnav .tsubs button[data-g="자료"]{order:41}
+  body.desk .tnav .tsubs button:hover{background:var(--press)}
+  body.desk .tnav .tsubs button.on{background:var(--tFlash);color:var(--tileFg);font-weight:800}
+  body.desk .tside-f{order:99;margin:auto 0 0;padding-top:10px;border-top:.5px solid var(--line);display:flex;flex-direction:column;gap:2px}
+  body.desk .tside-f button{width:100%;text-align:left;border-radius:12px}
+  body.desk .tmain{padding:36px 40px 72px}
+}
+body.desk .tmain .btn{background:var(--primary);color:#fff;border-radius:14px}
+body.desk .tmain .btn.line,body.desk .tmain .btn.ghost{background:var(--card);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
+body.desk .kpi{border:0;border-radius:22px;padding:18px 20px}
+body.desk .kpi .v{font-size:36px;font-weight:800;letter-spacing:-.03em}
+body.desk .kpi.alert{background:var(--tMatch);box-shadow:none}
+body.desk .kpi.alert .v,body.desk .kpi.alert .k{color:var(--tileFg)}
+body.desk .panel{border:0;border-radius:22px}
+body.desk .tmain > div > *{animation:hbRise .45s var(--ease) both}
+
+/* ===== iOS 구조 (2026-10-06) — 해법 영단어 iOS 시안과 같은 짜임 ===== */
+html[data-theme] body:not(.hb0) .hbhead{padding:8px 4px 14px;display:flex;flex-direction:column;gap:12px}
+html[data-theme] body:not(.hb0) .hbsub{font-size:13px;font-weight:600;color:var(--sub)}
+html[data-theme] body:not(.hb0) .hbtitle{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-top:2px;color:var(--text)}
+html[data-theme] body:not(.hb0) .hbchip{align-self:flex-start;height:36px;min-height:36px;padding:0 14px;border-radius:18px;background:var(--card);border:0;color:var(--text);
+  font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:none}
+html[data-theme] body:not(.hb0) .hbchip:after{content:"";width:7px;height:7px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg) translateY(-2px)}
+html[data-theme] body:not(.hb0) .hbsec{display:flex;justify-content:space-between;align-items:center;padding:0 8px 8px;font-size:13px;color:var(--sub)}
+html[data-theme] body:not(.hb0) .hbsec button{background:none;border:0;color:var(--primary-d);font-size:14px;font-weight:700;padding:0;min-height:0}
+html[data-theme] body:not(.hb0) #hbExam{margin-bottom:22px}
+
+/* 탭으로 보는 화면에서는 위 '뒤로' 줄을 감춘다 */
+html[data-theme] body:not(.hb0) #s-study > .top,html[data-theme] body:not(.hb0) #s-games > .top{display:none}
+html[data-theme] body:not(.hb0) #s-study #modeBox{background:transparent;padding:0}
+html[data-theme] body:not(.hb0) #s-study #modeBox > label{display:none}
+html[data-theme] body:not(.hb0) #s-study .startbar{display:none}
+html[data-theme] body:not(.hb0).hbverb #s-study .startbar{display:block}
+html[data-theme] body:not(.hb0) #s-study #bookWrap{margin:0}
+
+/* 외우기 / 시험 */
+html[data-theme] body:not(.hb0)[data-sv="mem"] #hbExam{display:none}
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="spell"],html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="choice"],
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="hint"],html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study #textModes,
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="time"],html[data-theme] body:not(.hb0) #s-study .mtile.go{display:none}
+html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="flash"],html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="book"],
+html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="time"],html[data-theme] body:not(.hb0)[data-sv="test"] #s-study #btnVerbTest{display:none}
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="flash"],html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="spell"]{grid-column:1 / -1;min-height:210px;padding:22px;overflow:hidden;order:-5}
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="flash"] b,html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="spell"] b{font-size:30px;letter-spacing:-.03em}
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="flash"] i,html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="spell"] i{font-size:14px}
+html[data-theme] body:not(.hb0) .hbdeco{display:none;position:absolute;pointer-events:none}
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="flash"] .hbdeco,html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="spell"] .hbdeco{display:block}
+html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="spell"] .hbboxes{display:flex}
+html[data-theme] body:not(.hb0) .hbcards{right:16px;top:22px;width:150px;height:110px}
+html[data-theme] body:not(.hb0) .hbcards span{position:absolute;inset:0;border-radius:18px;background:var(--card);color:var(--text);display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:800;letter-spacing:-.02em;box-shadow:0 10px 24px rgba(0,0,0,.12);transform:rotate(-6deg)}
+html[data-theme] body:not(.hb0) .hbcards span:first-child{opacity:.45;transform:rotate(10deg) translate(14px,8px)}
+html[data-theme] body:not(.hb0) .hbboxes{right:20px;top:24px;display:flex;gap:5px;transform:rotate(-4deg)}
+html[data-theme] body:not(.hb0) .hbboxes span{width:32px;height:40px;border-radius:10px;background:var(--card);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800}
+html[data-theme] body:not(.hb0) .hbboxes span:empty{background:var(--glyph)}
+html[data-theme] body:not(.hb0) .hbgo{position:absolute;right:18px;bottom:18px;width:44px;height:44px;border-radius:22px;background:var(--card);display:none;align-items:center;justify-content:center}
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="flash"] .hbgo,html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="spell"] .hbgo{display:flex}
+html[data-theme] body:not(.hb0) .hbgo:after{content:"→";font-size:20px;font-weight:700;color:var(--text)}
+
+/* 단어장 고르기 — 바텀시트 */
+#hbSheet{position:fixed;inset:0;z-index:90;pointer-events:none}
+#hbSheet .hbdim{position:absolute;inset:0;background:#000;opacity:0;transition:opacity .35s}
+#hbSheet .hbpanel{position:absolute;left:8px;right:8px;bottom:8px;max-width:504px;margin:0 auto;max-height:82vh;overflow-y:auto;border-radius:30px;
+  background:var(--bg);padding:10px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(115%);transition:transform .5s var(--ease);box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+#hbSheet.on{pointer-events:auto}
+#hbSheet:not(.on) .hbpanel{visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s}
+html[data-theme] body:not(.hb0) .ckhead{text-align:left;align-items:stretch;margin:0}
+html[data-theme] body:not(.hb0) .ckrow,html[data-theme] body:not(.hb0) .ckrow.now,html[data-theme] body:not(.hb0) .ckrow:not(.now){margin:0;box-shadow:none}
+#hbSheet.on .hbdim{opacity:.35}
+#hbSheet.on .hbpanel{transform:none}
+#hbSheet .hbgrab{width:36px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+#hbSheet .hbst{font-size:20px;font-weight:800;margin:0 4px 12px}
+#hbSheet #bookWrap{background:transparent;padding:0}
+#hbSheet .hbdone{margin-top:16px}
+
+/* 게임 탭 */
+html[data-theme] body:not(.hb0) .hbtiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}
+html[data-theme] body:not(.hb0) .hbtile{border:0;border-radius:22px;padding:16px;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;color:var(--tileFg);background:var(--card)}
+html[data-theme] body:not(.hb0) .hbtile .g{width:40px;height:40px;border-radius:12px;background:var(--glyph);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800}
+html[data-theme] body:not(.hb0) .hbtile b{font-size:19px;font-weight:800;letter-spacing:-.02em;display:block}
+html[data-theme] body:not(.hb0) .hbtile i{font-style:normal;font-size:13px;opacity:.8}
+
+/* 숙제 탭 */
+html[data-theme] body:not(.hb0) #s-home .hwho b{font-size:13px;font-weight:600;color:var(--sub);letter-spacing:0}
+html[data-theme] body:not(.hb0) #s-home .hwho span{display:none}
+html[data-theme] body:not(.hb0) #s-home .hhead{padding:6px 2px 0;align-items:center}
+html[data-theme] body:not(.hb0) #s-home .hbtitle{padding:0 4px 16px}
+html[data-theme] body:not(.hb0) .cklist{display:flex;flex-direction:column;gap:10px;background:transparent;padding:0}
+html[data-theme] body:not(.hb0) .ckhead{order:-10;background:var(--card);border:0;border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:12px}
+html[data-theme] body:not(.hb0) .ckhead b{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.02em}
+html[data-theme] body:not(.hb0) .ckhead:after{content:"80점을 넘어야 숙제로 인정돼요";font-size:13px;color:var(--sub)}
+html[data-theme] body:not(.hb0) .ckbar{display:block;height:8px;border-radius:4px;background:var(--fill);overflow:hidden}
+html[data-theme] body:not(.hb0) .ckbar i{display:block;height:100%;background:var(--ok);border-radius:4px;transition:width .8s var(--ease)}
+html[data-theme] body:not(.hb0) .ckrow,html[data-theme] body:not(.hb0) .ckrow.now,html[data-theme] body:not(.hb0) .ckrow:not(.now){order:1;display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);border:0;border-radius:20px;padding:14px 16px;flex-direction:row}
+html[data-theme] body:not(.hb0) .ckrow.now::before,html[data-theme] body:not(.hb0) .ckrow.now.fail::before{content:none}
+html[data-theme] body:not(.hb0) .ckrow .ckc,html[data-theme] body:not(.hb0) .ckrow.now .ckc{display:flex;width:44px;height:44px;flex:none;border-radius:12px;background:var(--tSpell);color:var(--tileFg);align-items:center;justify-content:center;font-size:16px;font-weight:800;border:0}
+html[data-theme] body:not(.hb0) .ckrow .ckc:empty:before{content:"Ab"}
+html[data-theme] body:not(.hb0) .ckrow.done{order:2;opacity:1}
+html[data-theme] body:not(.hb0) .ckrow.done .ckc{background:var(--fill);color:var(--ok)}
+html[data-theme] body:not(.hb0) .ckrow .ckt,html[data-theme] body:not(.hb0) .ckrow.now .ckt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;margin:0}
+html[data-theme] body:not(.hb0) .ckrow .ckt b,html[data-theme] body:not(.hb0) .ckrow.now .ckt b,html[data-theme] body:not(.hb0) .ckrow:not(.now) .ckt b{font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.3;color:var(--text)}
+html[data-theme] body:not(.hb0) .ckrow .ckt i,html[data-theme] body:not(.hb0) .ckrow.now .ckt i{font-style:normal;font-size:13px;font-weight:500;color:var(--sub)}
+html[data-theme] body:not(.hb0) .ckrow.fail .ckt i{color:var(--ng);font-weight:600}
+html[data-theme] body:not(.hb0) .ckrow .ckgo,html[data-theme] body:not(.hb0) .ckrow.now .ckgo,html[data-theme] body:not(.hb0) .ckrow .ckar{flex:none;margin:0;height:34px;padding:0 16px;border-radius:17px;background:var(--primary);color:#fff;font-size:15px;font-weight:700;display:inline-flex;align-items:center}
+html[data-theme] body:not(.hb0) .ckrow .ckar{font-size:0}
+html[data-theme] body:not(.hb0) .ckrow .ckar:after{content:"시작";font-size:15px}
+
+/* 로그인 */
+html[data-theme] body:not(.hb0) #inPw{-webkit-text-security:disc;letter-spacing:.5em}
+html[data-theme] body:not(.hb0) .hblinks{display:flex;justify-content:space-between;gap:10px;margin-top:22px}
+html[data-theme] body:not(.hb0) .hblinks .btn{width:auto;min-height:0;height:auto;padding:4px 2px;background:none;color:var(--primary-d);font-size:14px;font-weight:600;border:0}
+
+/* 결과 — 아래에서 올라온 시트 */
+html[data-theme] body:not(.hb0)[data-cur="result"]{background:#2A2826}
+html[data-theme="high"] body[data-cur="result"]{background:#000}
+html[data-theme] body:not(.hb0)[data-cur="result"] #app{padding-top:34px}
+html[data-theme] body:not(.hb0) #s-result{background:var(--bg);border-radius:24px 24px 0 0;margin:0 -14px;padding:10px 14px 40px;min-height:calc(100vh - 34px);box-sizing:border-box}
+html[data-theme] body:not(.hb0) #s-result:before{content:"";display:block;width:36px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 6px}
+
+/* ===================== 시안 맞추기 (2026-10-06b) — 「해법 영단어 (단일 파일)」 시안 =====================
+   iOS 디자인 위에 덮어쓴다. 이 덩어리를 지우면 10-06a 모습으로 돌아간다. */
+/* 아래 탭 — 시안 b : 판 없이, 고른 칸만 주황 글씨 */
+html[data-theme] body:not(.hb0) .tabbar button::before{content:none}
+html[data-theme] body:not(.hb0) .tabbar button.on{color:var(--primary-d)}
+html[data-theme] body:not(.hb0) .tabbar button.on svg{stroke:var(--primary-d)}
+/* 숙제 탭 머리글 — 「홍길동 · 선생님이 낸 숙제」 */
+html[data-theme] body:not(.hb0) #s-home .hwho #hiName{display:none}
+html[data-theme] body:not(.hb0) #s-home .hwho #hbHomeSub{display:block !important;font-size:13px;font-weight:600;color:var(--sub)}
+/* 남은 숙제 카드 */
+html[data-theme] body:not(.hb0) .ckhead{gap:14px}
+html[data-theme] body:not(.hb0) .ckhead .ckbar{width:auto;flex:none}
+.gmdeco span{font-size:13px}
+html[data-theme] body:not(.hb0) .ckhead:after{content:none}
+html[data-theme] body:not(.hb0) .ckhead .ckold{display:none}
+.ckh1{display:none}
+html[data-theme] body:not(.hb0) .ckh1{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.ckl{display:block;font-size:15px;font-weight:600;color:var(--sub)}
+.ckn{display:block;font-size:42px;font-weight:800;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--text)}
+.ckn small{font-size:20px;font-weight:700;color:var(--sub)}
+.ckr{font-size:13px;color:var(--sub);text-align:right;line-height:1.45}
+.cksec{display:none}
+html[data-theme] body:not(.hb0) .cksec{display:block;font-size:13px;color:var(--sub);padding:12px 16px 0}
+html[data-theme] body:not(.hb0) .cksec.a{order:1}
+html[data-theme] body:not(.hb0) .cksec.b{order:2}
+html[data-theme] body:not(.hb0) .ckrow .ckc{font-size:15px;font-weight:800;color:var(--tileFg)}
+html[data-theme] body:not(.hb0) .ckrow.done .ckc{background:var(--fill);color:var(--sub)}
+html[data-theme] body:not(.hb0) .ckrow.done .ckt b{text-decoration:none;color:var(--text)}
+.cksc{flex:none;font-size:17px;font-weight:800;color:var(--ok);font-variant-numeric:tabular-nums}
+/* 게임 탭 */
+html[data-theme] body:not(.hb0) #s-games > .card.mt,html[data-theme] body:not(.hb0) #s-games > .foot{display:none}
+.gmhero{position:relative;display:flex;flex-direction:column;justify-content:space-between;width:100%;height:220px;margin:0 0 12px;border:0;border-radius:22px;
+  background:var(--tMatch);color:var(--tileFg);padding:20px;box-sizing:border-box;overflow:hidden;text-align:left;font-family:inherit;cursor:pointer;
+  transition:transform .3s var(--spring)}
+.gmhero:active{transform:scale(.97)}
+.gmhero .gmt,.gmhero .gmf{position:relative;z-index:1}
+.gmhero .gmt i,.gmhero .gmf i{display:block;font-style:normal;font-size:14px;font-weight:600;opacity:.9}
+.gmhero .gmt b{display:block;font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:2px}
+.gmhero .gmf{display:flex;align-items:center;justify-content:space-between}
+.gmdeco span{position:absolute;width:74px;height:50px;border-radius:14px;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;box-shadow:0 8px 18px rgba(0,0,0,.12);overflow:hidden;white-space:nowrap;padding:0 4px;box-sizing:border-box}
+.gmdeco span:nth-child(1){right:96px;top:26px;transform:rotate(-8deg)}
+.gmdeco span:nth-child(2){right:18px;top:20px;transform:rotate(6deg)}
+.gmdeco span:nth-child(3){right:104px;top:84px;transform:rotate(4deg)}
+.gmdeco span:nth-child(4){right:22px;top:80px;transform:rotate(-5deg);background:rgba(255,255,255,.3);box-shadow:none}
+.hbgo2{width:44px;height:44px;border-radius:22px;background:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.hbgo2:after{content:"→";font-size:20px;font-weight:700;color:#000}
+html[data-theme] body:not(.hb0) .gmtiles{margin:0 0 16px}
+html[data-theme] body:not(.hb0) .gmtiles .gmrank{grid-column:1 / -1;min-height:0;flex-direction:row;align-items:center;justify-content:flex-start;gap:14px;background:var(--card);color:var(--text)}
+html[data-theme] body:not(.hb0) .gmtiles .gmrank .g{background:var(--primary-soft);color:var(--primary-d)}
+html[data-theme] body:not(.hb0) .gmtiles .gmrank > span:nth-child(2){flex:1}
+html[data-theme] body:not(.hb0) .gmtiles .gmrank .hbgo2{width:auto;height:auto;background:none}
+html[data-theme] body:not(.hb0) .gmtiles .gmrank .hbgo2:after{content:"›";font-size:22px;color:var(--sub)}
+.gmnote{font-size:13px;color:var(--sub);line-height:1.5;padding:0 4px 20px}
+/* 게임 단어장 바텀시트 (외우기 시트와 같은 모양) */
+#hbGSheet{position:fixed;inset:0;z-index:90;pointer-events:none}
+#hbGSheet .hbdim{position:absolute;inset:0;background:#000;opacity:0;transition:opacity .35s}
+#hbGSheet .hbpanel{position:absolute;left:8px;right:8px;bottom:8px;max-width:504px;margin:0 auto;max-height:82vh;overflow-y:auto;border-radius:30px;
+  background:var(--bg);padding:10px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(115%);transition:transform .5s var(--ease);box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+#hbGSheet.on{pointer-events:auto}
+#hbGSheet:not(.on) .hbpanel{visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s}
+#hbGSheet.on .hbdim{opacity:.35}
+#hbGSheet.on .hbpanel{transform:none}
+#hbGSheet .hbgrab{width:36px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+#hbGSheet .hbst{font-size:20px;font-weight:800;margin:0 4px 12px}
+#hbGSheet .hbdone{margin-top:16px}
+#hbGSheet #gmPick > .card{background:transparent;box-shadow:none;padding:0;margin:0}
+/* 로그인 — 비밀번호 점 */
+.pindots{display:none}
+html[data-theme] body:not(.hb0) #s-login #inPw{position:absolute;opacity:0;pointer-events:none;height:1px;width:1px;padding:0;border:0}
+html[data-theme] body:not(.hb0) .pindots{display:flex;justify-content:center;gap:18px;padding:6px 0 14px;cursor:pointer}
+html[data-theme] body:not(.hb0) .pindots i{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(60,60,67,.3);box-sizing:border-box;
+  transition:transform .35s var(--spring),background .2s,border-color .2s}
+html[data-theme="high"] body .pindots i{border-color:rgba(235,235,245,.3)}
+html[data-theme] body:not(.hb0) .pindots i.on{background:var(--text);border-color:var(--text);transform:scale(1.15)}
+html[data-theme] body:not(.hb0) #s-login .card > label:nth-of-type(2){text-align:center}
+html[data-theme] body:not(.hb0) #keypad button.kf{background:transparent}
+/* 시험 칸 — 고른 타일에 검은 테두리 대신 그대로 */
+html[data-theme] body:not(.hb0) .mgrid .mtile.on{box-shadow:none;transform:none}
+/* 내 숙제 기록 · 사용법 보기 — 한 묶음 목록 */
+html[data-theme] body:not(.hb0) #s-study .row.mt:has(#btnRecords){display:grid;gap:.5px;background:var(--line);border-radius:16px;overflow:hidden;margin-top:16px}
+html[data-theme] body:not(.hb0) #s-study #btnRecords,html[data-theme] body:not(.hb0) #s-study #btnGuide2{border:0;border-radius:0;background:var(--card);color:var(--primary-d);
+  min-height:50px;justify-content:flex-start;text-align:left;padding:0 16px;font-size:17px;font-weight:500;box-shadow:none}
+html[data-theme] body:not(.hb0) #s-study > .foot{display:none}
+/* 내 스티커판 — 작은 카드 (시험 칸에만) */
+.hbstk{display:none}
+html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .hbstk{display:flex}
+.hbstk{grid-column:1 / -1;flex-direction:column;gap:12px;width:100%;border:0;border-radius:18px;background:var(--card);color:var(--text);padding:16px;text-align:left;font-family:inherit;cursor:pointer;
+  transition:transform .3s var(--spring)}
+.hbstk:active{transform:scale(.97)}
+.hbstkh{display:flex;align-items:center;gap:8px}
+.hbstkh b{flex:1;font-size:17px;font-weight:700}
+.hbstkn{font-size:15px;font-weight:700;color:var(--primary-d);font-variant-numeric:tabular-nums}
+.hbstkar{font-size:20px;color:var(--sub)}
+.hbstkdots{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px}
+.hbstkdots i{aspect-ratio:1;border-radius:50%;background:var(--fill);transition:background .4s}
+/* 내 스티커판 — 큰 판 */
+#s-sticker .hbtitle{font-size:34px;font-weight:800;letter-spacing:-.03em;margin:10px 4px 0}
+#s-sticker .hbstksub{margin:4px 4px 0;font-size:15px}
+.hbstkprog{display:flex;align-items:center;gap:12px;margin:18px 4px 0}
+.hbstkprog span{flex:1;height:8px;border-radius:4px;background:var(--fill);overflow:hidden}
+.hbstkprog i{display:block;height:100%;background:var(--primary);border-radius:4px;transition:width .8s var(--ease)}
+.hbstkprog b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.hbstkgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 18px;margin-top:26px;padding:20px;background:var(--card);border-radius:24px}
+.hbsk{aspect-ratio:1;border-radius:50%;border:2px dashed rgba(60,60,67,.3);background:transparent;color:rgba(60,60,67,.3);display:flex;align-items:center;justify-content:center;
+  font-family:inherit;font-size:18px;font-weight:900;letter-spacing:-.02em;padding:0;cursor:default}
+.hbsk.on{border:0;color:#fff;font-size:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);cursor:pointer;animation:popA .5s var(--spring) both}
+@keyframes popA{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15);opacity:1}100%{opacity:1}}
+#hbStkSheet{position:fixed;inset:0;z-index:95;pointer-events:none}
+#hbStkSheet .hbdim{position:absolute;inset:0;background:#000;opacity:0;transition:opacity .4s}
+#hbStkSheet .hbpanel{position:absolute;left:8px;right:8px;bottom:8px;max-width:504px;margin:0 auto;border-radius:32px;background:var(--card);
+  padding:10px 24px calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;
+  transform:translateY(115%);transition:transform .55s var(--ease);box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+#hbStkSheet.on{pointer-events:auto}
+#hbStkSheet.on .hbdim{opacity:.35}
+#hbStkSheet.on .hbpanel{transform:none}
+#hbStkSheet .hbgrab{width:36px;height:5px;border-radius:3px;background:var(--line)}
+.hbstkbig{width:132px;height:132px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;margin-top:24px;
+  transform:rotate(-8deg);box-shadow:0 12px 30px rgba(0,0,0,.15)}
+.hbstkt{font-size:22px;font-weight:800;margin-top:20px}
+#hbStkS{margin-top:4px;text-align:center}
+#hbStkClose{margin-top:24px;width:100%}
+/* 결과 — 스티커 띠 */
+.hbgot{display:flex;align-items:center;gap:12px;margin-top:14px;background:var(--primary-soft);border-radius:16px;padding:12px 16px;text-align:left;animation:popA .6s .9s var(--spring) both}
+.hbgot.hide{display:none}
+.hbgots{width:40px;height:40px;border-radius:50%;color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;transform:rotate(-8deg);flex:none}
+.hbgot b{flex:1;font-size:15px;font-weight:700}
+.hbgot button{border:0;background:none;color:var(--primary-d);font-family:inherit;font-size:15px;font-weight:700;padding:0;cursor:pointer}
+/* 결과 — 둥근 그래프 */
+.hbring{position:relative;width:172px;height:172px;margin:18px auto 0}
+.hbring svg{width:172px;height:172px;transform:rotate(-90deg)}
+.hbring circle{fill:none;stroke-width:14}
+.hbring .bg{stroke:var(--fill)}
+.hbring .fg{stroke:var(--primary);stroke-linecap:round;transition:stroke-dashoffset 1.2s var(--ease)}
+.hbringin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.hbringin .score{margin:0 !important;display:flex;flex-direction:column;align-items:center;line-height:1}
+html[data-theme] body:not(.hb0) .hbringin .score #rScore{font-size:52px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+html[data-theme] body:not(.hb0) .hbringin .score small{font-size:15px;font-weight:600;color:var(--sub);margin-top:4px}
+html[data-theme] body:not(.hb0) #rTitle{font-size:15px;font-weight:600}
+/* 순위 */
+html[data-theme] body:not(.hb0) #s-streak > .top .who{display:none}
+html[data-theme] body:not(.hb0) #s-streak > .foot{display:none}
+.hbrkhead{display:none}
+html[data-theme] body:not(.hb0) .hbrkhead{display:flex;padding:8px 4px 14px}
+html[data-theme] body:not(.hb0) .hbrkhead .hbsub{margin-top:2px;font-size:14px;font-weight:400}
+html[data-theme] body:not(.hb0) #s-streak .tabs{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:0;background:var(--fill);border-radius:11px;padding:2px;overflow:visible}
+html[data-theme] body:not(.hb0) #s-streak .tabs .chip{border:0;background:transparent;color:var(--text);border-radius:9px;min-height:32px;height:32px;padding:0 6px;font-size:14px;font-weight:700;box-shadow:none;
+  transition:background .3s,box-shadow .3s}
+html[data-theme] body:not(.hb0) #s-streak .tabs .chip.on{background:var(--card);color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+html[data-theme] body:not(.hb0) #s-streak #skTabs:empty{display:none}
+.hbpod{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end;margin:18px 0 12px}
+.hbpod.hide,.hbpod:empty{display:none}
+.hbpd{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.hbpd .av{width:48px;height:48px;border-radius:50%;color:var(--tileFg);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;
+  box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--line);animation:popA .5s var(--spring) both}
+.hbpd.me .av{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--primary)}
+.hbpd .nm{font-size:14px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbpd .sc{font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums;margin-top:-6px}
+.hbpd .bar{width:100%;border-radius:16px 16px 6px 6px;background:var(--card);display:flex;justify-content:center;padding-top:10px;box-sizing:border-box;font-size:26px;font-weight:900;
+  transform-origin:bottom;animation:growB .7s var(--spring) both}
+@keyframes growB{0%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+html[data-theme] body:not(.hb0) #skList .skrow.inpod{display:none}
+html[data-theme] body:not(.hb0) #skList .card{padding:0;overflow:hidden;border-radius:16px}
+html[data-theme] body:not(.hb0) #skList .skrow{min-height:56px;padding:0 16px;margin:0;border-radius:0;border-bottom:.5px solid var(--line);gap:12px}
+html[data-theme] body:not(.hb0) #skList .skrow.me{background:var(--primary-soft)}
+html[data-theme] body:not(.hb0) #skList .skrow .rk{min-width:22px;font-size:16px;font-weight:800;text-align:left}
+html[data-theme] body:not(.hb0) #skList .skrow .av{width:34px;height:34px;border-radius:50%;color:var(--tileFg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none}
+html[data-theme] body:not(.hb0) #skList .skrow .nm{font-weight:600;color:var(--text)}
+html[data-theme] body:not(.hb0) #s-streak{padding-bottom:110px}
+.hbmy{position:fixed;left:16px;right:16px;bottom:calc(98px + env(safe-area-inset-bottom));max-width:488px;margin:0 auto;height:66px;border-radius:20px;background:var(--text);color:var(--bg);
+  display:flex;align-items:center;gap:14px;padding:0 18px;box-sizing:border-box;box-shadow:0 12px 30px rgba(0,0,0,.15);z-index:40;animation:hbRise .5s var(--ease) both}
+.hbmy.hide{display:none}
+.hbmy small{display:block;font-size:12px;font-weight:600;opacity:.7}
+.hbmy div b{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.hbmy > span{flex:1;font-size:13px;opacity:.75;text-align:right}
+.hbmy > b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+body:not(.hastab) .hbmy{bottom:calc(20px + env(safe-area-inset-bottom))}
+/* 플래시카드 */
+.hbfl{display:none}
+html[data-theme] body:not(.hb0) .hbfl{display:block;font-size:13px;font-weight:600;color:rgba(60,60,67,.3);letter-spacing:.08em;margin-bottom:6px}
+html[data-theme="high"] body .hbfl{color:rgba(235,235,245,.3)}
+html[data-theme] body:not(.hb0) #flashCard{border-radius:28px}
+html[data-theme] body:not(.hb0) #fBtns .btn[data-f="ng"]{background:var(--card) !important;color:var(--ng) !important}
+html[data-theme] body:not(.hb0) #fBtns .btn{min-height:58px;font-size:17px;font-weight:700}
+/* 시험지 — 4지선다 번호 동그라미 · 스펠링 한 줄 */
+html[data-theme] body:not(.hb0) #shList .schoices{counter-reset:hbo}
+html[data-theme] body:not(.hb0) #shList .sch{counter-increment:hbo;display:flex;align-items:center;gap:14px;text-align:left;min-height:56px;border-radius:16px}
+html[data-theme] body:not(.hb0) #shList .sch:before{content:counter(hbo);width:26px;height:26px;border-radius:13px;background:var(--fill);color:var(--sub);font-size:13px;font-weight:800;
+  display:inline-flex;align-items:center;justify-content:center;flex:none;transition:background .25s,color .25s}
+html[data-theme] body:not(.hb0) #shList .sch.on:before,html[data-theme] body:not(.hb0) #shList .sch.pick:before,html[data-theme] body:not(.hb0) #shList .sch.sel:before{background:var(--primary);color:#fff}
+html[data-theme] body:not(.hb0) #shList .qrow:has(.sin){display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px}
+html[data-theme] body:not(.hb0) #shList .qrow:has(.sin) .qhead{display:flex;align-items:center;gap:12px;margin:0;width:auto;flex:0 0 auto}
+html[data-theme] body:not(.hb0) #shList .qrow:has(.sin) .qtext{width:92px;font-size:16px;font-weight:700;line-height:1.25;word-break:keep-all}
+html[data-theme] body:not(.hb0) #shList .qrow:has(.sin) .mark{display:none}
+html[data-theme] body:not(.hb0) #shList .qrow:has(.sin) .sin{flex:1;min-width:0;height:40px;min-height:40px;margin:0;border:0;background:var(--bg);border-radius:11px;padding:0 12px;font-size:18px;font-weight:600}
+html[data-theme] body:not(.hb0) #shList .qn{width:26px;height:26px;border-radius:50%;background:var(--fill);color:var(--sub);font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex:none}
+/* 외우기 칸에는 「내 숙제 기록 · 사용법」 묶음을 두지 않는다 (시안: 시험 칸에만) */
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .row.mt:has(#btnRecords){display:none}
+/* 순위 — 시상대에 다 올라가면 빈 표는 감춘다 */
+html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(.skrow){display:none}
+/* 태블릿 전용 꾸밈 — 폰에서는 숨김 */
+.hbtbrand,.hbtfoot,.hbloginart{display:none}
+
+/* ===================== 태블릿 (가로 900px 이상) — 시안 「해법 영단어 태블릿」 ===================== */
+@media (min-width:900px) and (min-height:600px){
+  /* 왼쪽 메뉴 */
+  html[data-theme] body.hastab:not(.desk) .tabbar{top:0;bottom:0;right:auto;width:260px;flex-direction:column;align-items:stretch;gap:4px;
+    padding:40px 16px 28px;box-sizing:border-box;background:var(--card);border-top:0;border-right:.5px solid var(--line);
+    -webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none}
+  html[data-theme] body.hastab:not(.desk) .tabbar .hbtbrand{display:block;padding:0 14px 28px}
+  .hbtbrand small{display:block;font-size:13px;font-weight:700;color:var(--sub)}
+  .hbtbrand b{display:block;font-size:24px;font-weight:800;letter-spacing:-.03em;margin-top:2px;color:var(--text)}
+  html[data-theme] body.hastab:not(.desk) .tabbar button{flex:none;flex-direction:row;justify-content:flex-start;gap:14px;height:52px;padding:0 14px;border-radius:14px;
+    transition:background .3s,color .3s}
+  html[data-theme] body.hastab:not(.desk) .tabbar button svg{width:26px}
+  html[data-theme] body.hastab:not(.desk) .tabbar button span{font-size:17px;font-weight:700;letter-spacing:0}
+  html[data-theme] body.hastab:not(.desk) .tabbar button.on{background:var(--tFlash);color:var(--text)}
+  html[data-theme] body.hastab:not(.desk) .tabbar button.on svg{stroke:var(--text)}
+  html[data-theme] body.hastab:not(.desk) .tabbar .tbadge{top:50%;left:auto;right:14px;margin-top:-9px;height:18px;min-width:18px;line-height:18px;font-size:11px}
+  html[data-theme] body.hastab:not(.desk) .tabbar .hbtfoot{display:flex;flex-direction:column;gap:2px;margin-top:auto}
+  .hbtfoot b{padding:0 14px 10px;font-size:15px;font-weight:700;color:var(--text)}
+  html[data-theme] body.hastab:not(.desk) .tabbar .hbtfoot button{height:46px;font-size:16px;font-weight:600;color:var(--primary-d)}
+  /* 본문 */
+  html[data-theme] body.hastab:not(.desk) #app{max-width:none;margin:0 0 0 260px;padding:44px 48px 48px}
+  html[data-theme] body.hastab:not(.desk) #app > .screen{max-width:980px;margin:0 auto}
+  html[data-theme] body.hastab:not(.desk) .hbtitle{font-size:38px}
+  html[data-theme] body.hastab:not(.desk) #s-home #btnLogout{display:none}
+  /* 숙제 — 남은 숙제는 한 줄로, 숙제 칸은 두 줄로 */
+  html[data-theme] body.hastab:not(.desk) .cklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  html[data-theme] body.hastab:not(.desk) .cklist > .ckhead,html[data-theme] body.hastab:not(.desk) .cklist > .cksec{grid-column:1 / -1}
+  html[data-theme] body.hastab:not(.desk) .ckhead{flex-direction:row;align-items:center;gap:32px;padding:22px 26px}
+  html[data-theme] body.hastab:not(.desk) .ckhead .ckh1{display:contents}
+  html[data-theme] body.hastab:not(.desk) .ckhead .ckh1 > span:first-child{order:0}
+  html[data-theme] body.hastab:not(.desk) .ckhead .ckbar{order:1;flex:1;height:10px}
+  html[data-theme] body.hastab:not(.desk) .ckhead .ckr{order:2;font-size:14px}
+  html[data-theme] body.hastab:not(.desk) .ckn{font-size:46px}
+  /* 외우기 · 시험 · 게임 타일 */
+  html[data-theme] body.hastab:not(.desk) #s-study .mgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  html[data-theme] body.hastab:not(.desk) .gmtiles{grid-template-columns:repeat(3,minmax(0,1fr))}
+  html[data-theme] body.hastab:not(.desk) .gmtiles .gmrank{grid-column:auto;flex-direction:column;align-items:flex-start;justify-content:space-between;min-height:140px}
+  html[data-theme] body.hastab:not(.desk) .gmtiles .gmrank .hbgo2{display:none}
+  html[data-theme] body.hastab:not(.desk) .gmhero,html[data-theme] body.hastab:not(.desk) #s-study .mtile[data-mode="flash"],
+  html[data-theme] body.hastab:not(.desk) #s-study .mtile[data-mode="spell"]{min-height:240px;height:auto}
+  html[data-theme] body.hastab:not(.desk) .hbmy{left:300px;right:40px;bottom:28px;max-width:none}
+  html[data-theme] body:not(.hastab) #hbGSheet .hbpanel,html[data-theme] body #hbSheet .hbpanel{max-width:560px}
+
+  /* 로그인 — 왼쪽 주황 판 · 오른쪽 입력 */
+  html[data-theme] body:not(.desk) #s-login.on{position:fixed;inset:0;z-index:5;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:1fr auto auto auto 1fr;background:var(--bg);overflow-y:auto}
+  html[data-theme] body:not(.desk) #s-login .signboard{grid-column:1;grid-row:1 / -1;position:relative;overflow:hidden;margin:0;text-align:left;
+    background:var(--tFlash);color:var(--tileFg);padding:64px 56px 48px;display:flex;flex-direction:column;align-items:flex-start}
+  html[data-theme] body:not(.desk) #s-login .signboard .sbname{font-size:15px;font-weight:700;opacity:.75;color:var(--tileFg)}
+  html[data-theme] body:not(.desk) #s-login .signboard .sbtitle{font-size:60px;font-weight:800;letter-spacing:-.04em;margin-top:8px;color:var(--tileFg)}
+  html[data-theme] body:not(.desk) #s-login .signboard .sbrule b{font-size:22px;font-weight:600;opacity:.75;color:var(--tileFg)}
+  html[data-theme] body:not(.desk) #s-login .hbloginart{display:block;position:absolute;inset:0;pointer-events:none}
+  .hbloginart span{position:absolute;border-radius:24px;background:var(--card);color:var(--text);display:flex;align-items:center;justify-content:center;
+    font-weight:800;letter-spacing:-.03em;box-shadow:0 20px 40px rgba(60,40,10,.12);animation:hbRise .8s var(--ease) both}
+  .hbloginart span:nth-child(1){left:52%;top:34%;width:230px;height:140px;font-size:30px;opacity:.6;transform:rotate(9deg)}
+  .hbloginart span:nth-child(2){left:12%;top:48%;width:260px;height:160px;font-size:40px;transform:rotate(-5deg);animation-delay:.1s}
+  .hbloginart span:nth-child(3){left:46%;top:66%;width:170px;height:110px;font-size:28px;transform:rotate(4deg);animation-delay:.2s}
+  html[data-theme] body:not(.desk) #s-login > .card{grid-column:2;grid-row:2;width:100%;max-width:360px;justify-self:center;background:transparent;box-shadow:none;padding:0}
+  html[data-theme] body:not(.desk) #s-login > .hblinks{grid-column:2;grid-row:3;width:100%;max-width:360px;justify-self:center}
+  html[data-theme] body:not(.desk) #s-login > .foot{grid-column:2;grid-row:4;justify-self:center}
+  html[data-theme] body:not(.desk) #s-login > #demoBadge{position:absolute;top:16px;right:24px;max-width:46%;z-index:2}
+  html[data-theme] body:not(.desk) #s-login #keypad button{height:60px;border-radius:18px}
+}
+/* ===== 시안 맞추기 끝 ===== */
+
 </style>
 </head>
 <body>
@@ -2163,7 +2736,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-05a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-06b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3266,15 +3839,35 @@ function drawGames(){
       (최고?'<span class="cnt"><span class="pill ok">최고 '+최고+'</span></span>':'')+
     '</button>';
   }
+  /* 시안 — 큰 「짝 맞추기」 타일 + 두 칸 타일 (글자 퍼즐 · 타임어택) + 순위 */
+  var 보기단어 = 게임범위단어().slice(0,2);
+  function 카드글(i, k){ var w=보기단어[i]; return w ? esc(String(w[k]).split(/[,;]/)[0]) : (k==='en'?['forest','gather'][i]:['숲','모으다'][i]); }
+  var 짝최고 = 내최고['짝']||0, 퍼즐최고 = 내최고['퍼즐']||0;
+  var 막음 = 준비?'':' disabled style="opacity:.45"';
   $('gmList').innerHTML =
     (S.게임책===null ? '' :
       '<div class="card center sub mb'+(준비?' hide':'')+'" id="gmFew">'+
       '고른 범위에 단어가 8개보다 적어서 게임을 할 수 없어요.<br>'+
       '범위를 넓히거나 다른 단어장을 골라 보세요.</div>')+
-    줄('짝','🃏','짝 맞추기','뒤집어서 영어와 뜻 짝 맞추기 · 빠를수록 높은 점수')+
-    줄('퍼즐','🧩','글자 퍼즐','섞인 글자를 눌러 단어 완성 · 목숨 3개')+
-    '<div class="mt"></div>'+
-    '<button class="btn ghost" id="btnGmRank">게임 순위 보기</button>';
+    '<button class="gmhero" data-gm="짝" type="button"'+막음+'>'+
+      '<span class="gmdeco"><span>'+카드글(0,'en')+'</span><span>'+카드글(0,'ko')+'</span><span>'+카드글(1,'en')+'</span><span></span></span>'+
+      '<span class="gmt"><i>놀면서 외우기</i><b>짝 맞추기</b></span>'+
+      '<span class="gmf"><i>영어와 뜻을 짝지어요'+(짝최고?' · 최고 '+짝최고:'')+'</i><span class="hbgo2"></span></span></button>'+
+    '<div class="hbtiles gmtiles">'+
+      '<button class="hbtile" data-gm="퍼즐" type="button" style="background:var(--tHint)"'+막음+'><span class="g">Aa</span><span><b>글자 퍼즐</b><i>'+(퍼즐최고?'최고 '+퍼즐최고:'섞인 글자로 단어 완성')+'</i></span></button>'+
+      '<button class="hbtile" id="hbTime" type="button" style="background:var(--tTime)"><span class="g">60</span><span><b>타임어택</b><i>60초 안에 몇 개</i></span></button>'+
+      '<button class="hbtile gmrank" id="btnGmRank" type="button"><span class="g">1</span><span><b>순위</b><i>꾸준한 게 제일 세다</i></span><span class="hbgo2"></span></button>'+
+    '</div>'+
+    '<div class="gmnote">게임 점수는 게임 순위에만 쌓여요. 성적 평균이나 상에는 들어가지 않으니 마음껏 놀아도 됩니다.</div>';
+  $('hbTime').onclick=function(){ if(window.HB_time) window.HB_time(); };
+  /* 단어장 알약 글자 */
+  var 칩=$('hbGBook');
+  if(칩){
+    var 레=$('gmLes'), 레글='';
+    if(레 && 레.selectedIndex>=0 && 레.options[레.selectedIndex] && 레.value) 레글=레.options[레.selectedIndex].text.split(' · ')[0];
+    else if(S.게임시작 && S.게임끝) 레글=S.게임시작+'~'+S.게임끝;
+    칩.textContent = (S.게임책이름 || '단어장 고르기') + (레글 ? ' · '+레글 : '');
+  }
 
   qsa('[data-gm]').forEach(function(b){
     b.onclick=function(){
@@ -5071,18 +5664,32 @@ function drawHw(){
   }
   function 이름(h){ return esc(h.단어장)+' '+esc(학생범위글_(h.단어장, h.시작, h.끝)); }
   var 전체=숙제들.length, 낸수=낸것.length;
-  var 머리='<div class="ckhead"><b>'+(남은것.length ? '숙제 '+전체+'개 중 '+낸수+'개 끝' : '숙제 다 했어요!')+'</b>'+
+  /* 시안 — 유형마다 글자 표식과 색 (Ab · 3 · 4 · A_ · __) */
+  function 표식(h){
+    var t=String(h.유형||'');
+    if(/3단/.test(t)) return ['3','tVerb'];
+    if(/뜻|4지/.test(t)) return ['4','tQuiz'];
+    if(/첫/.test(t)) return ['A_','tHint'];
+    if(/빈칸/.test(t)) return ['__','tWord'];
+    if(/순서/.test(t)) return ['⇄','tMatch'];
+    if(/영작|듣고/.test(t)) return ['✎','tTime'];
+    return ['Ab','tSpell'];
+  }
+  var 머리='<div class="ckhead"><b class="ckold">'+(남은것.length ? '숙제 '+전체+'개 중 '+낸수+'개 끝' : '숙제 다 했어요!')+'</b>'+
+    '<span class="ckh1"><span><span class="ckl">남은 숙제</span><span class="ckn">'+남은것.length+'<small> / '+전체+'</small></span></span>'+
+    '<span class="ckr">80점을 넘어야<br>숙제로 인정돼요</span></span>'+
     '<span class="ckbar"><i style="width:'+Math.round(낸수/전체*100)+'%"></i></span></div>';
-  var 줄들 = 낸것.map(function(h){
-    return '<div class="ckrow done"><span class="ckc">✓</span><span class="ckt"><b>'+이름(h)+'</b>'+
-      '<i>'+esc(h.유형)+' · '+(Number(h.점수)||0)+'점 · 냈어요</i></span></div>';
-  }).join('') + 남은것.map(function(h,k){
+  var 줄들 = (남은것.length ? '<div class="cksec a">해야 할 숙제</div>' : '') + 남은것.map(function(h,k){
     var i=S.숙제.indexOf(h), 지금=(k===0);
     var 말=언제(h)+' · '+esc(h.유형)+' 시험'+(h.개별?' · 나만':'')+
       (h.모자람?' · 지난번 '+(Number(h.점수)||0)+'점, 다시':'');
+    var g=표식(h);
     return '<button class="ckrow'+(지금?' now':'')+(h.모자람?' fail':'')+'" data-hw="'+i+'" type="button">'+
-      '<span class="ckc"></span><span class="ckt"><b>'+이름(h)+'</b><i>'+말+'</i></span>'+
+      '<span class="ckc" style="background:var(--'+g[1]+')">'+g[0]+'</span><span class="ckt"><b>'+이름(h)+'</b><i>'+말+'</i></span>'+
       (지금?'<span class="ckgo">시작</span>':'<span class="ckar">›</span>')+'</button>';
+  }).join('') + (낸것.length ? '<div class="cksec b">낸 숙제</div>' : '') + 낸것.map(function(h){
+    return '<div class="ckrow done"><span class="ckc">'+표식(h)[0]+'</span><span class="ckt"><b>'+이름(h)+'</b>'+
+      '<i>'+esc(h.유형)+' · 냈어요</i></span><span class="cksc">'+(Number(h.점수)||0)+'점</span></div>';
   }).join('');
   box.innerHTML='<div class="cklist">'+머리+줄들+'</div>';
 
@@ -9703,6 +10310,462 @@ function 파일검사(){
     document.body.appendChild(탈);
   }catch(e){}
 }
+</script>
+<script>
+/* =====================================================================
+   iOS 디자인 모션 (2026-10-06) — 화면 전환 · 카드 뒤집기 · 점수 올라가기 · 콘페티
+   앱 동작은 건드리지 않고 겉모습만 움직인다.
+===================================================================== */
+(function(){
+  var 탭 = {home:1, study:1, exam:1, games:1, streak:1};
+  var 쌓기 = ['login'], 뒤로누름 = 0;
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-back]')) 뒤로누름 = Date.now();
+  }, true);
+  var 원래 = window.show;
+  if(typeof 원래 === 'function'){
+    window.show = function(name){
+      var 지금 = 쌓기[쌓기.length-1], 종류;
+      if(name === 'result'){ 종류 = 'sheet'; 쌓기.push(name); }
+      else if(탭[name] && (탭[지금] || name === 'home')){ 종류 = 'tab'; 쌓기 = [name]; }
+      else if(쌓기[쌓기.length-2] === name || Date.now() - 뒤로누름 < 600){ 종류 = 'pop'; 쌓기.pop(); if(쌓기[쌓기.length-1] !== name) 쌓기.push(name); }
+      else { 종류 = 'push'; 쌓기.push(name); }
+      if(쌓기.length > 30) 쌓기 = 쌓기.slice(-30);
+      document.body.setAttribute('data-nav', 종류);
+      var r = 원래.apply(this, arguments);
+      var el = document.getElementById('s-'+name);
+      if(el){ el.classList.remove('hb-in'); void el.offsetWidth; el.classList.add('hb-in'); }
+      if(name === 'result') setTimeout(결과효과, 80);
+      return r;
+    };
+  }
+
+  function 다시(el, cls){ if(!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+
+  /* 플래시카드 — 새 카드는 올라오고, 뜻이 보이면 뒤집힌다 */
+  function 지켜보기(id, fn){
+    var el = document.getElementById(id); if(!el || !window.MutationObserver) return;
+    new MutationObserver(fn).observe(el, {childList:true, characterData:true, subtree:true, attributes:true, attributeFilter:['style','class']});
+  }
+  var 앞글 = '', 뜻보임 = false;
+  지켜보기('fQ', function(){
+    var t = (document.getElementById('fQ')||{}).textContent || '';
+    if(t && t !== 앞글){ 앞글 = t; 뜻보임 = false; 다시(document.getElementById('flashCard'), 'hb-cardin'); }
+  });
+  지켜보기('fA', function(){
+    var a = document.getElementById('fA'); if(!a) return;
+    var 보임 = !!a.textContent.trim() && a.offsetParent !== null && getComputedStyle(a).visibility !== 'hidden';
+    if(보임 && !뜻보임) 다시(document.getElementById('flashCard'), 'hb-flip');
+    뜻보임 = 보임;
+  });
+  /* 콤보가 오르면 톡 튄다 */
+  var 앞콤보 = '';
+  지켜보기('qCombo', function(){
+    var c = document.getElementById('qCombo'); var t = c ? c.textContent : '';
+    if(t && t !== 앞콤보) 다시(c, 'hb-pop'); 앞콤보 = t;
+  });
+
+  /* 결과 — 점수가 0부터 올라가고, 80점 넘으면 콘페티 */
+  function 결과효과(){
+    var el = document.getElementById('rScore'); if(!el) return;
+    var 끝 = parseInt(el.textContent, 10); if(isNaN(끝)) return;
+    var t0 = performance.now(), D = 1000;
+    (function 틱(t){
+      var p = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(끝 * e);
+      if(p < 1) requestAnimationFrame(틱); else el.textContent = 끝;
+    })(t0);
+    setTimeout(function(){ el.textContent = 끝; }, D + 150);
+    if(끝 >= 80) 콘페티();
+  }
+  function 콘페티(){
+    var box = document.createElement('div'); box.className = 'hb-confetti';
+    var 색 = ['#FF9500','#FF2D55','#007AFF','#34C759','#AF52DE','#FFCC00','#30B0C7'];
+    for(var i = 0; i < 70; i++){
+      var p = document.createElement('i'), w = 6 + Math.random()*6, h = 8 + Math.random()*10;
+      p.style.cssText = 'width:'+w+'px;height:'+h+'px;background:'+색[i%색.length]+';border-radius:'+(Math.random()<.3?'50%':'2px')+
+        ';--dx:'+((Math.random()-.5)*520)+'px;--up:'+(-(120+Math.random()*220))+'px;--rot:'+((Math.random()-.5)*1080)+'deg'+
+        ';--dur:'+(1.8+Math.random()*1.2)+'s;--del:'+(.3+Math.random()*.25)+'s';
+      box.appendChild(p);
+    }
+    document.body.appendChild(box);
+    setTimeout(function(){ box.remove(); }, 3800);
+  }
+})();
+
+/* ===== iOS 구조 — 탭 4개 (숙제·외우기·시험·게임), 큰 제목, 바텀시트 ===== */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function el(h){ var d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
+  var B=document.body;
+  window.HB_view = 'mem'; B.setAttribute('data-sv','mem');
+  var IC = {
+    hw:'<svg viewBox="0 0 20 22" width="22" height="22" style="stroke:none"><rect x="1.5" y="2.5" width="17" height="18" rx="4" fill="currentColor"/><rect x="6" y="0.8" width="8" height="4" rx="2" fill="currentColor" style="stroke:var(--barbg);stroke-width:1.4"/><path d="M6 10h8M6 14.5h5" style="stroke:var(--barbg);stroke-width:1.8;stroke-linecap:round"/></svg>',
+    mem:'<svg viewBox="0 0 24 22" width="24" height="22" style="stroke:none"><rect x="6" y="1.5" width="15" height="11" rx="3" fill="none" style="stroke:currentColor;stroke-width:1.8;opacity:.5"/><rect x="2" y="6" width="16" height="12" rx="3" fill="currentColor"/></svg>',
+    test:'<svg viewBox="0 0 22 22" width="22" height="22" style="stroke:none"><rect x="1.5" y="1.5" width="19" height="19" rx="5" fill="currentColor"/><path d="M6.5 11.2l3 3 6-6.4" fill="none" style="stroke:var(--barbg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"/></svg>',
+    game:'<svg viewBox="0 0 22 22" width="22" height="22" style="stroke:none" fill="currentColor"><rect x="1.5" y="1.5" width="8.5" height="8.5" rx="2.5"/><rect x="12" y="1.5" width="8.5" height="8.5" rx="2.5" opacity=".5"/><rect x="1.5" y="12" width="8.5" height="8.5" rx="2.5" opacity=".5"/><rect x="12" y="12" width="8.5" height="8.5" rx="2.5"/></svg>'
+  };
+  function 이름(){
+    if(typeof S!=='undefined' && S && S.학생 && S.학생.이름) return S.학생.이름;
+    var n=$('hiName'); return n ? n.textContent.trim().replace(/의 오늘$/,'') : '';
+  }
+
+  /* 1. 아래 탭바 — 숙제 · 외우기 · 시험 · 게임 */
+  var bar=$('tabbar');
+  if(bar){
+    bar.innerHTML =
+      '<button data-tab2="home" data-hbt="hw" type="button">'+IC.hw+'<span>숙제</span><i class="tbadge hide" id="tbHw"></i></button>'+
+      '<button data-tab2="study" data-hbt="mem" type="button">'+IC.mem+'<span>외우기</span></button>'+
+      '<button data-tab2="study" data-hbt="test" type="button">'+IC.test+'<span>시험</span><i class="tbadge hide" id="tbEx"></i></button>'+
+      '<button data-tab2="games" data-hbt="game" type="button">'+IC.game+'<span>게임</span></button>';
+    bar.querySelectorAll('button').forEach(function(b){
+      b.onclick=function(){
+        var t=b.dataset.hbt;
+        if(t==='hw') return show('home');
+        if(t==='game'){ try{ 게임책고르기(null, function(){ drawGames(); }); }catch(e){} return show('games'); }
+        보기바꾸기(t); show('study');
+      };
+    });
+  }
+  function 보기바꾸기(v){
+    window.HB_view=v; B.setAttribute('data-sv',v);
+    var t=$('hbStudyTitle'); if(t) t.textContent = v==='test' ? '시험' : '외우기';
+    if(v==='test'){ try{ 시험판치우기_(); }catch(e){} try{ 시험탭열기(); }catch(e){} }
+  }
+  var 원래칠 = window.칠하기_탭;
+  if(typeof 원래칠==='function'){
+    window.칠하기_탭 = function(name){
+      원래칠.apply(this, arguments);
+      var 고름 = name==='home' ? 'hw' : name==='study' ? window.HB_view : (name==='games'||name==='streak') ? 'game' : name==='exam' ? 'test' : '';
+      document.querySelectorAll('[data-hbt]').forEach(function(b){ b.classList.toggle('on', b.dataset.hbt===고름); });
+      if(name==='games' || name==='streak'){ var bb=$('tabbar'); if(bb && S && S.학생 && !B.classList.contains('desk')){ bb.classList.remove('hide'); B.classList.add('hastab'); } }
+      if(name==='study') 머리채우기();
+      if(name==='home'){ var h=$('hbHomeSub'); if(h) h.textContent=이름()+' · 선생님이 낸 숙제';
+        var hw=document.querySelector('#s-home .hwho'); if(h && hw && h.parentNode!==hw) hw.insertBefore(h, hw.firstChild); }
+      if(name==='games'){ var g=$('hbGameSub'); if(g) g.textContent=이름()+' · 놀면서 외우기'; }
+    };
+  }
+  /* 시험 화면으로 가라는 것은 「시험」 탭으로 */
+  var 앞show = window.show;
+  window.show = function(name){
+    if(name==='exam'){ 보기바꾸기('test'); name='study'; arguments[0]='study'; }
+    B.setAttribute('data-cur', name);
+    if(name!=='study') B.classList.remove('hbverb');
+    return 앞show.apply(this, arguments);
+  };
+
+  /* 2. 숙제 탭 — 큰 제목 */
+  var home=$('s-home');
+  if(home){
+    var hh=home.querySelector('.hhead');
+    var t=el('<div class="hbtitle">숙제</div>');
+    if(hh) hh.insertAdjacentElement('afterend', t);
+    var w=home.querySelector('.hwho b'); if(w) w.id = w.id || 'hiName';
+    var sub=el('<span id="hbHomeSub" style="display:none"></span>'); home.appendChild(sub);
+  }
+
+  /* 3. 외우기 / 시험 — 큰 제목 + 단어장 칩 + 선생님 시험 */
+  var st=$('s-study');
+  if(st){
+    var head=el('<div class="hbhead"><div><div class="hbsub" id="hbStudySub"></div><div class="hbtitle" id="hbStudyTitle">외우기</div></div><button class="hbchip" id="hbBook" type="button">단어장 고르기</button></div>');
+    st.insertBefore(head, st.firstChild);
+    var ex=$('exBody');
+    var exWrap=el('<div id="hbExam"><div class="hbsec"><span>선생님이 낸 시험</span><button type="button" id="hbExRef">↻ 새로고침</button></div></div>');
+    head.insertAdjacentElement('afterend', exWrap);
+    if(ex) exWrap.appendChild(ex);
+    $('hbExRef').onclick=function(){ try{ 시험탭열기(); }catch(e){} };
+
+    /* 단어장 바텀시트 */
+    var sh=el('<div id="hbSheet"><div class="hbdim"></div><div class="hbpanel"><div class="hbgrab"></div><div class="hbst">단어장 · 범위</div><div id="hbSheetBody"></div><button class="btn hbdone" type="button">다 골랐어요</button></div></div>');
+    document.body.appendChild(sh);
+    var bw=$('bookWrap'); if(bw) $('hbSheetBody').appendChild(bw);
+    function 닫기(){ sh.classList.remove('on'); 머리채우기(); }
+    sh.querySelector('.hbdim').onclick=닫기; sh.querySelector('.hbdone').onclick=닫기;
+    $('hbBook').onclick=function(){ sh.classList.add('on'); };
+
+    /* 큰 카드 꾸밈 */
+    var f=st.querySelector('.mtile[data-mode="flash"]');
+    if(f){ f.appendChild(el('<span class="hbdeco hbcards"><span></span><span>apple</span></span>')); f.appendChild(el('<span class="hbgo"></span>')); }
+    var sp=st.querySelector('.mtile[data-mode="spell"]');
+    if(sp){ sp.appendChild(el('<span class="hbdeco hbboxes"><span>a</span><span>p</span><span>p</span><span></span><span></span></span>')); sp.appendChild(el('<span class="hbgo"></span>')); }
+
+    /* 타일을 누르면 바로 시작 (3단변화는 형태를 고른 뒤 시작) */
+    st.querySelectorAll('.mtile[data-mode]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var m=b.dataset.mode;
+        if(m==='verb'){ B.classList.add('hbverb'); return; }
+        B.classList.remove('hbverb');
+        setTimeout(function(){ var s=$('btnStartMode'); if(s) s.click(); }, 0);
+      });
+    });
+  }
+  function 머리채우기(){
+    var s=$('hbStudySub'); if(s) s.textContent=이름()+' · 연습하기';
+    var t=$('hbStudyTitle'); if(t) t.textContent = window.HB_view==='test' ? '시험' : '외우기';
+    var c=$('hbBook'); if(!c) return;
+    var 책 = document.querySelector('#bookChips .on'), sel=$('selBook');
+    var 책글 = 책 ? 책.textContent.trim() : (sel && sel.selectedIndex>=0 && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : '');
+    var 범 = document.querySelector('#rangeQuick .on');
+    var 범글 = 범 ? 범.textContent.trim() : (($('inFrom')||{}).value ? $('inFrom').value+'~'+$('inTo').value : '');
+    c.textContent = (책글 || '단어장 고르기') + (범글 ? ' · '+범글 : '');
+  }
+
+  /* 4. 게임 탭 — 큰 제목 + 타임어택 · 순위 */
+  var gm=$('s-games');
+  if(gm){
+    gm.insertBefore(el('<div class="hbhead"><div><div class="hbsub" id="hbGameSub"></div><div class="hbtitle">게임</div></div><button class="hbchip" id="hbGBook" type="button">단어장 고르기</button></div>'), gm.firstChild);
+    window.HB_time=function(){
+      보기바꾸기('test'); show('study');
+      setTimeout(function(){ try{ 방법고르기('time'); var s=$('btnStartMode'); if(s) s.click(); }catch(e){} }, 500);
+    };
+    /* 게임 단어장도 바텀시트로 */
+    var gs=el('<div id="hbGSheet" class="hbsheet"><div class="hbdim"></div><div class="hbpanel"><div class="hbgrab"></div><div class="hbst">놀 단어장 · 범위</div><div id="hbGSheetBody"></div><button class="btn hbdone" type="button">다 골랐어요</button></div></div>');
+    document.body.appendChild(gs);
+    var gp=$('gmPick'); if(gp) $('hbGSheetBody').appendChild(gp);
+    function 게임닫기(){ gs.classList.remove('on'); try{ drawGames(); }catch(e){} }
+    gs.querySelector('.hbdim').onclick=게임닫기; gs.querySelector('.hbdone').onclick=게임닫기;
+    $('hbGBook').onclick=function(){ gs.classList.add('on'); };
+  }
+
+  /* 5. 로그인 — 아래 두 줄을 한 줄 링크로 */
+  var g1=$('btnGuide'), g2=$('btnTeacherGo');
+  if(g1 && g2){
+    var row=el('<div class="hblinks"></div>');
+    var p1=g1.parentNode, p2=g2.parentNode;
+    p1.insertAdjacentElement('beforebegin', row);
+    row.appendChild(g1); row.appendChild(g2);
+    if(p1 && !p1.children.length) p1.remove(); if(p2 && p2!==p1 && !p2.children.length) p2.remove();
+  }
+})();
+
+/* ===== 시안 맞추기 (2026-10-06b) — 「해법 영단어 (단일 파일)」 시안의 나머지 =====
+   비밀번호 점 · 순위 시상대 · 결과 둥근 그래프 · 내 스티커판 · 플래시카드 */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function el(h){ var d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
+  function 안전(f){ try{ return f(); }catch(e){} }
+  var 색들=['var(--tFlash)','var(--tWord)','var(--tVerb)','var(--tSpell)','var(--tQuiz)','var(--tHint)','var(--tMatch)','var(--tTime)'];
+  function 이름색(n){ var h=0; String(n||'').split('').forEach(function(c){ h=(h*31+c.charCodeAt(0))>>>0; }); return 색들[h%색들.length]; }
+  function 이름머리(n){ n=String(n||'').replace(/\s*\(나\)\s*$/,'').trim(); return n.length>=3 ? n.slice(1,3) : n; }
+
+  /* 1. 로그인 — 비밀번호는 점 네 개로 */
+  var pw=$('inPw');
+  if(pw){
+    var 점=el('<div class="pindots" id="pinDots" aria-hidden="true"></div>');
+    pw.insertAdjacentElement('afterend', 점);
+    var 점찍기=function(){
+      var n=(pw.value||'').length, 칸=Math.max(4,n), h='';
+      for(var i=0;i<칸;i++) h+='<i'+(i<n?' class="on"':'')+'></i>';
+      점.innerHTML=h;
+    };
+    점찍기();
+    pw.addEventListener('input', 점찍기);
+    var kp=$('keypad'); if(kp) kp.addEventListener('click', function(){ setTimeout(점찍기,0); });
+    var bl=$('btnLogin'); if(bl) bl.addEventListener('click', function(){ setTimeout(점찍기,300); setTimeout(점찍기,1500); });
+    점.onclick=function(){ pw.focus(); };
+  }
+
+  /* 2. 결과 — 점수를 둥근 그래프 안에 */
+  var sc=$('rScore');
+  if(sc && sc.parentNode){
+    var 칸=sc.parentNode;  /* .score */
+    var 링=el('<div class="hbring"><svg viewBox="0 0 180 180" aria-hidden="true"><circle cx="90" cy="90" r="78" class="bg"/>'+
+      '<circle cx="90" cy="90" r="78" class="fg" id="hbRingFg" stroke-dasharray="490.1" stroke-dashoffset="490.1"/></svg><div class="hbringin"></div></div>');
+    칸.parentNode.insertBefore(링, 칸);
+    링.querySelector('.hbringin').appendChild(칸);
+  }
+  function 링채우기(){
+    var fg=$('hbRingFg'); if(!fg) return;
+    var v=Math.max(0, Math.min(100, Number(($('rScore')||{}).textContent)||0));
+    fg.style.transition='none'; fg.setAttribute('stroke-dashoffset','490.1');
+    fg.getBoundingClientRect();
+    setTimeout(function(){ fg.style.transition=''; fg.setAttribute('stroke-dashoffset', String(490.1*(1-v/100))); }, 60);
+  }
+
+  /* 3. 내 스티커판 — 80점을 넘을 때마다 한 장. 이 휴대폰에만 남는다 */
+  var 스티커표=[
+    ['GOOD','#FF9500','잘했어요'],['WOW','#FF2D55','와!'],['100','#007AFF','백점 같은 하루'],['NICE','#34C759','멋져요'],
+    ['BEST','#AF52DE','최고예요'],['GREAT','#5856D6','훌륭해요'],['TOP','#FF3B30','꼭대기'],['COOL','#30B0C7','시원하게'],
+    ['YES','#FFB800','좋아요'],['SUPER','#FF6B3D','슈퍼'],['STAR','#00B8A9','반짝반짝'],['KING','#A2845E','단어왕']
+  ];
+  window.HB_스티커표 = 스티커표;
+  function 열쇠(){ return '스티커_' + ((typeof S!=='undefined' && S.학생 && S.학생.이름) || ''); }
+  function 읽기(){ var v=안전(function(){ return 저장읽기_(열쇠(), []); }); return Array.isArray(v) ? v : []; }
+  function 붙이기(점수, 무엇){
+    if(Number(점수) < 80) return -1;
+    var 것=읽기();
+    if(것.length >= 스티커표.length) return -1;
+    것.push({ 때: Date.now(), 글: String(무엇||'') });
+    안전(function(){ 저장쓰기_(열쇠(), 것); });
+    return 것.length-1;
+  }
+  function 날글(t){ var d=new Date(Number(t)||0); return isNaN(d) ? '' : (d.getMonth()+1)+'월 '+d.getDate()+'일'; }
+  function 작은판(){
+    var b=$('hbStk'); if(!b) return;
+    var n=읽기().length, h='';
+    for(var i=0;i<스티커표.length;i++) h+='<i'+(i<n?' style="background:'+스티커표[i][1]+'"':'')+'></i>';
+    b.querySelector('.hbstkn').textContent = n+' / '+스티커표.length;
+    b.querySelector('.hbstkdots').innerHTML = h;
+  }
+  function 큰판(){
+    var 것=읽기(), g=$('hbStkGrid'); if(!g) return;
+    g.innerHTML = 스티커표.map(function(x,i){
+      var 있나 = i < 것.length;
+      return '<button type="button" class="hbsk'+(있나?' on':'')+'" data-sk="'+i+'"'+
+        (있나 ? ' style="background:'+x[1]+';transform:rotate('+(((i*37)%17)-8)+'deg)"' : '')+'>'+(있나?x[0]:(i+1))+'</button>';
+    }).join('');
+    $('hbStkN').textContent = 것.length+' / '+스티커표.length;
+    $('hbStkBar').style.width = Math.round(것.length/스티커표.length*100)+'%';
+    g.querySelectorAll('.hbsk.on').forEach(function(b){
+      b.onclick=function(){
+        var i=Number(b.dataset.sk), x=스티커표[i], 것2=읽기()[i]||{};
+        var 큰=$('hbStkBig'); 큰.textContent=x[0]; 큰.style.background=x[1];
+        $('hbStkT').textContent=x[2];
+        $('hbStkS').textContent=[날글(것2.때), 것2.글].filter(Boolean).join(' · ');
+        $('hbStkSheet').classList.add('on');
+      };
+    });
+  }
+  var 판=el('<section id="s-sticker" class="screen">'+
+    '<div class="top"><button class="iconbtn" data-back="study" type="button">← 뒤로</button></div>'+
+    '<div class="hbtitle">내 스티커판</div>'+
+    '<div class="sub hbstksub">80점을 넘을 때마다 한 장씩 붙어요. 스티커는 이 휴대폰에만 남아요.</div>'+
+    '<div class="hbstkprog"><span><i id="hbStkBar"></i></span><b id="hbStkN"></b></div>'+
+    '<div class="hbstkgrid" id="hbStkGrid"></div>'+
+    '<div id="hbStkSheet"><div class="hbdim"></div><div class="hbpanel"><div class="hbgrab"></div>'+
+      '<div class="hbstkbig" id="hbStkBig"></div><div class="hbstkt" id="hbStkT"></div><div class="sub" id="hbStkS"></div>'+
+      '<button class="btn ghost" type="button" id="hbStkClose">닫기</button></div></div>'+
+  '</section>');
+  var app=$('app'); if(app) app.appendChild(판);
+  var 닫=function(){ $('hbStkSheet').classList.remove('on'); };
+  판.querySelector('#hbStkSheet .hbdim').onclick=닫; $('hbStkClose').onclick=닫;
+  판.querySelector('[data-back]').onclick=function(){ 안전(function(){ show('study'); }); };
+  window.HB_스티커판 = function(){ 큰판(); show('sticker'); };
+
+  /* 시험 칸 — 스티커판 작은 카드 */
+  var mg=$('modeGrid');
+  if(mg){
+    var 작은=el('<button type="button" class="hbstk" id="hbStk"><span class="hbstkh"><b>내 스티커판</b><span class="hbstkn"></span><span class="hbstkar">›</span></span><span class="hbstkdots"></span></button>');
+    mg.appendChild(작은);
+    작은.onclick=function(){ window.HB_스티커판(); };
+    작은판();
+  }
+
+  /* 결과 — 스티커를 받았으면 띠를 하나 */
+  var 원래합격 = window.결과합격표시;
+  if(typeof 원래합격==='function'){
+    window.결과합격표시 = function(점수){
+      var r = 원래합격.apply(this, arguments);
+      var 띠=$('hbGot');
+      if(!띠){
+        띠=el('<div class="hbgot hide" id="hbGot"><span class="hbgots"></span><b>스티커 하나 받았어요</b><button type="button">내 스티커 보기</button></div>');
+        var 링2=document.querySelector('#s-result .hbring');
+        var 카드=링2 ? 링2.closest('.card') : null;
+        if(카드) 카드.appendChild(띠);
+        띠.querySelector('button').onclick=function(){ window.HB_스티커판(); };
+      }
+      var 연습뿐 = !(S.현재숙제) && !(typeof 시험판!=='undefined' && 시험판);
+      var 새 = 붙이기(점수, (S.단어장||'') + (연습뿐?' · 연습':''));
+      띠.classList.toggle('hide', 새 < 0);
+      if(새 >= 0){ var x=스티커표[새]; var s=띠.querySelector('.hbgots'); s.textContent=x[0]; s.style.background=x[1]; }
+      작은판();
+      return r;
+    };
+  }
+
+  /* 4. 순위 — 큰 제목, 시상대, 아래 「내 순위」 */
+  var sk=$('s-streak');
+  if(sk){
+    var top=sk.querySelector('.top');
+    var 머리=el('<div class="hbhead hbrkhead"><div><div class="hbtitle">순위</div><div class="hbsub">꾸준한 게 제일 세다</div></div></div>');
+    if(top) top.insertAdjacentElement('afterend', 머리);
+    var 시상=el('<div class="hbpod" id="hbPod"></div>');
+    var sl=$('skList'); if(sl) sl.parentNode.insertBefore(시상, sl);
+    var 내=el('<div class="hbmy hide" id="hbMy"><div><small>내 순위</small><b id="hbMyRk"></b></div><span id="hbMyGap"></span><b id="hbMySc"></b></div>');
+    sk.appendChild(내);
+  }
+  function 시상대(){
+    var pod=$('hbPod'), my=$('hbMy'); if(!pod) return;
+    var 줄=[].slice.call(document.querySelectorAll('#skList .skrow'));
+    function 등(r,i){ var t=(r.querySelector('.rk')||{}).textContent||''; var n=parseInt(t,10); return isNaN(n) ? i+1 : n; }
+    function 뜻(r){ return { 이름:((r.querySelector('.nm')||{}).textContent||'').replace(/\s*\(나\)\s*$/,''), 점:(r.querySelector('.st')||{}).textContent||'', 나:r.classList.contains('me'), 영:r.classList.contains('zero') }; }
+    var 셋=줄.slice(0,3).map(function(r,i){ var v=뜻(r); v.등=등(r,i); return v; }).filter(function(v){ return !v.영; });
+    if(셋.length >= 2){
+      var 자리=[셋[1], 셋[0], 셋[2]];
+      var 높이={1:'96px',2:'72px',3:'56px'};
+      pod.innerHTML = 자리.map(function(v){
+        if(!v) return '<div></div>';
+        return '<div class="hbpd'+(v.나?' me':'')+'"><span class="av" style="background:'+이름색(v.이름)+(v.등===1?';width:60px;height:60px':'')+'">'+esc(이름머리(v.이름))+'</span>'+
+          '<span class="nm">'+esc(v.이름)+'</span><span class="sc">'+esc(v.점)+'</span>'+
+          '<span class="bar" style="height:'+(높이[v.등]||'48px')+(v.등===1?';background:var(--primary);color:#fff':'')+'">'+v.등+'</span></div>';
+      }).join('');
+      pod.classList.remove('hide');
+      줄.slice(0,3).forEach(function(r){ r.classList.add('inpod'); });
+    } else { pod.innerHTML=''; pod.classList.add('hide'); }
+    /* 아바타 */
+    줄.forEach(function(r){
+      if(r.querySelector('.av')) return;
+      var v=뜻(r), a=document.createElement('span'); a.className='av'; a.style.background=이름색(v.이름); a.textContent=이름머리(v.이름);
+      var nm=r.querySelector('.nm'); if(nm) r.insertBefore(a, nm);
+    });
+    /* 내 순위 */
+    var 나i=-1; 줄.forEach(function(r,i){ if(r.classList.contains('me')) 나i=i; });
+    if(my){
+      if(나i>=0){
+        var v2=뜻(줄[나i]);
+        $('hbMyRk').textContent = 등(줄[나i],나i)+'위';
+        $('hbMySc').textContent = v2.점;
+        var 위=줄[나i-1]; var 말='';
+        if(나i===0) 말='지금 1등이에요!';
+        else if(위){ var a2=parseFloat(뜻(위).점.replace(/[^\d.]/g,'')), b2=parseFloat(v2.점.replace(/[^\d.]/g,'')); if(!isNaN(a2)&&!isNaN(b2)&&a2>b2) 말=뜻(위).이름+'까지 '+(Math.round((a2-b2)*10)/10)+' 남았어요'; }
+        $('hbMyGap').textContent=말;
+        my.classList.remove('hide');
+      } else my.classList.add('hide');
+    }
+  }
+  ['drawStreakRank','drawGameRank','drawMonthRank'].forEach(function(k){
+    var 원=window[k]; if(typeof 원!=='function') return;
+    window[k]=function(){ var r=원.apply(this, arguments); 안전(시상대); return r; };
+  });
+
+  /* 5. 화면 바뀔 때 */
+  var 앞show2 = window.show;
+  window.show = function(name){
+    var r = 앞show2.apply(this, arguments);
+    if(name==='result') 링채우기();
+    if(name==='study') 작은판();
+    if(name!=='streak'){ var m=$('hbMy'); if(m) m.classList.add('hide'); }
+    else 안전(시상대);
+    return r;
+  };
+
+  /* 6. 플래시카드 — 앞면 「ENGLISH」, 단추는 처음부터 보이게 */
+  var fc=$('flashCard');
+  if(fc){ fc.insertBefore(el('<div class="hbfl">ENGLISH</div>'), fc.firstChild); }
+})();
+
+/* ===== 시안 맞추기 (2026-10-06b) — 태블릿: 왼쪽 메뉴 머리·꼬리, 로그인 그림 ===== */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function el(h){ var d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
+  var bar=$('tabbar');
+  if(bar){
+    bar.insertBefore(el('<div class="hbtbrand"><small>홍제인왕해법영어</small><b>해법 영단어</b></div>'), bar.firstChild);
+    var 꼬리=el('<div class="hbtfoot"><b id="hbTName"></b><button type="button" id="hbTOut"><span>나가기</span></button></div>');
+    bar.appendChild(꼬리);
+    $('hbTOut').onclick=function(){ var o=$('btnLogout'); if(o) o.click(); };
+  }
+  var 앞칠 = window.칠하기_탭;
+  if(typeof 앞칠==='function'){
+    window.칠하기_탭 = function(){
+      var r=앞칠.apply(this, arguments);
+      var n=$('hbTName'); if(n) n.textContent = (typeof S!=='undefined' && S.학생 && S.학생.이름) || '';
+      return r;
+    };
+  }
+  var sb=document.querySelector('#s-login .signboard');
+  if(sb) sb.appendChild(el('<div class="hbloginart" aria-hidden="true"><span>journey</span><span>apple</span><span>사과</span></div>'));
+})();
 </script>
 </body>
 </html>
