@@ -619,6 +619,10 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .qrow.sent .sen.ok{border-color:var(--ok);color:var(--ok)}
 .qrow.sent .sen.ng{border-color:var(--ng)}
 .qrow.sent .sen:disabled{background:var(--card);opacity:1}
+/* 문장 줄은 위아래로 쌓는다 — 스펠링 줄처럼 가로로 눕히면 문장이 쪼개진다 */
+.qrow.sent{display:block}
+.qrow.sent .qhead{display:flex;align-items:flex-start;gap:9px;width:auto}
+.qrow.sent .sin{flex:none;width:100%;margin-top:9px}
 .qrow .gapline{
   background:var(--card);border:1.5px dashed var(--line);border-radius:12px;
   padding:10px 12px;font-size:15.5px;line-height:1.7;font-weight:700
@@ -627,6 +631,22 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
   display:inline-block;min-width:76px;border-bottom:2.5px solid var(--primary);
   text-align:center;color:var(--primary);font-weight:900
 }
+.qrow .gap.ok{border-color:var(--ok);color:var(--ok)}
+.qrow .gap.ng{border-color:var(--ng);color:var(--ng);text-decoration:line-through}
+.qrow .gap.empty{border-color:var(--ng)}
+/* 문장 속에서 바로 쓰는 칸 — 따로 입력칸을 두지 않는다 */
+.qrow .sin.gapin{
+  display:inline-block;min-width:0;max-width:100%;margin:0 2px;padding:2px 8px;
+  height:auto;min-height:0;font-size:inherit;font-weight:900;line-height:1.5;
+  text-align:center;color:var(--primary);background:var(--primary-soft);
+  border:0;border-bottom:2.5px solid var(--primary);border-radius:8px 8px 0 0;
+  vertical-align:baseline;font-family:inherit;box-sizing:content-box
+}
+.qrow .sin.gapin:focus{outline:none;background:#fff;
+  box-shadow:0 0 0 2px var(--primary) inset}
+.qrow .sin.gapin.ok{color:var(--ok);border-color:var(--ok);background:var(--ok-soft,var(--card))}
+.qrow .sin.gapin.ng{color:var(--ng);border-color:var(--ng);text-decoration:line-through}
+.qrow.sent .gapline{line-height:2.1}
 .qrow .chipbox{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
 .qrow .wch{
   border:1.5px solid var(--line);background:var(--card);color:var(--text);
@@ -1230,6 +1250,44 @@ input,select,textarea{border-radius:14px}
 .saybar b{color:#fff;font-size:14.5px}
 .saybar span{color:#F29B63}
 .cklist{background:var(--card);border-radius:20px;padding:2px 16px;margin-bottom:14px}
+/* =================================================================
+   수업 — 숙제 여러 개를 한 묶음으로, 순서대로
+================================================================= */
+.lscard{background:var(--card);border-radius:var(--rHero,22px);padding:16px 16px 12px;
+  margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.lscard.alldone{opacity:.9}
+.lshead{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+.lshead .lstag{font-size:11.5px;font-weight:800;color:#fff;background:var(--primary);
+  border-radius:9px;padding:3px 8px;letter-spacing:-.2px}
+.lshead b{font-size:19px;font-weight:800;letter-spacing:-.02em;flex:1;min-width:0}
+.lshead .lscnt{font-size:13px;font-weight:800;color:var(--sub)}
+.lsbar{height:7px;border-radius:4px;background:var(--fill,rgba(120,120,128,.12));
+  overflow:hidden;margin-bottom:10px}
+.lsbar i{display:block;height:100%;border-radius:4px;background:var(--ok);
+  transition:width .5s cubic-bezier(.32,.72,0,1)}
+.lsrow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  background:none;border:0;border-top:1px solid var(--line);padding:12px 2px;
+  font-family:inherit;color:var(--text);cursor:pointer}
+.lsrow:first-of-type{border-top:0}
+.lsrow .lsn{flex:none;width:20px;font-size:12.5px;font-weight:800;color:var(--sub);
+  text-align:center}
+.lsrow .ckt{flex:1;min-width:0}
+.lsrow .ckt b{display:block;font-size:16px;font-weight:800;letter-spacing:-.02em}
+.lsrow .ckt i{display:block;font-style:normal;font-size:12.5px;font-weight:600;
+  color:var(--sub);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lsrow.lock{opacity:.42;cursor:default}
+.lsrow.lock .lockmark{font-size:0}
+.lsrow.lock .lockmark::before{content:'🔒';font-size:15px}
+.lsrow.done .ckt b{color:var(--sub)}
+.lsrow.done .ckc{background:var(--fill,rgba(120,120,128,.12)) !important;color:var(--sub)}
+.lsrow.now .ckt b{font-weight:900}
+.lsrow .ckgo{flex:none;height:34px;padding:0 15px;border-radius:17px;white-space:nowrap;
+  background:var(--primary);color:#fff;font-size:14px;font-weight:800;
+  display:flex;align-items:center}
+.lsrow .cksc{flex:none;font-size:15px;font-weight:800;color:var(--ok)}
+.lsdone{margin-top:10px;padding:10px;border-radius:12px;text-align:center;
+  background:var(--primary-soft);color:var(--primary-d);font-size:13.5px;font-weight:800}
+
 .ckhead{display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:14px 0 12px;border-bottom:1px solid var(--line)}
 .ckhead b{font-size:16px;font-weight:900}
@@ -1850,7 +1908,7 @@ html[data-theme] body:not(.hb0)[data-cur="result"] #app{padding-top:34px}
 html[data-theme] body:not(.hb0) #s-result{background:var(--bg);border-radius:24px 24px 0 0;margin:0 -14px;padding:10px 14px 40px;min-height:calc(100vh - 34px);box-sizing:border-box}
 html[data-theme] body:not(.hb0) #s-result:before{content:"";display:block;width:36px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 6px}
 
-/* ===================== 시안 맞추기 (2026-10-06b) — 「해법 영단어 (단일 파일)」 시안 =====================
+/* ===================== 시안 맞추기 (2026-10-06c) — 「해법 영단어 (단일 파일)」 시안 =====================
    iOS 디자인 위에 덮어쓴다. 이 덩어리를 지우면 10-06a 모습으로 돌아간다. */
 /* 아래 탭 — 시안 b : 판 없이, 고른 칸만 주황 글씨 */
 html[data-theme] body:not(.hb0) .tabbar button::before{content:none}
@@ -2040,11 +2098,11 @@ html[data-theme] body:not(.hb0) #shList .sch{counter-increment:hbo;display:flex;
 html[data-theme] body:not(.hb0) #shList .sch:before{content:counter(hbo);width:26px;height:26px;border-radius:13px;background:var(--fill);color:var(--sub);font-size:13px;font-weight:800;
   display:inline-flex;align-items:center;justify-content:center;flex:none;transition:background .25s,color .25s}
 html[data-theme] body:not(.hb0) #shList .sch.on:before,html[data-theme] body:not(.hb0) #shList .sch.pick:before,html[data-theme] body:not(.hb0) #shList .sch.sel:before{background:var(--primary);color:#fff}
-html[data-theme] body:not(.hb0) #shList .qrow:has(.sin){display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px}
-html[data-theme] body:not(.hb0) #shList .qrow:has(.sin) .qhead{display:flex;align-items:center;gap:12px;margin:0;width:auto;flex:0 0 auto}
-html[data-theme] body:not(.hb0) #shList .qrow:has(.sin) .qtext{width:92px;font-size:16px;font-weight:700;line-height:1.25;word-break:keep-all}
-html[data-theme] body:not(.hb0) #shList .qrow:has(.sin) .mark{display:none}
-html[data-theme] body:not(.hb0) #shList .qrow:has(.sin) .sin{flex:1;min-width:0;height:40px;min-height:40px;margin:0;border:0;background:var(--bg);border-radius:11px;padding:0 12px;font-size:18px;font-weight:600}
+html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin){display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px}
+html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin) .qhead{display:flex;align-items:center;gap:12px;margin:0;width:auto;flex:0 0 auto}
+html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin) .qtext{width:92px;font-size:16px;font-weight:700;line-height:1.25;word-break:keep-all}
+html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin) .mark{display:none}
+html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin) .sin{flex:1;min-width:0;height:40px;min-height:40px;margin:0;border:0;background:var(--bg);border-radius:11px;padding:0 12px;font-size:18px;font-weight:600}
 html[data-theme] body:not(.hb0) #shList .qn{width:26px;height:26px;border-radius:50%;background:var(--fill);color:var(--sub);font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex:none}
 /* 외우기 칸에는 「내 숙제 기록 · 사용법」 묶음을 두지 않는다 (시안: 시험 칸에만) */
 html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .row.mt:has(#btnRecords){display:none}
@@ -2736,7 +2794,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-06b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-06c';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2764,6 +2822,20 @@ var DEMO_VERBS = [
 ];
 
 /* 교과서 본문 단어장 (문장) — 미리보기용 */
+/* 문법 단어장 (빈칸을 [ ] 로 찍어 둔 문장) — 미리보기용 */
+var DEMO_GRAM = [
+  ['I saw a boy [running] across the street.',
+   '나는 한 소년이 길을 건너는 것을 보았다.', '(run) 지각동사 + 목적어 + -ing'],
+  ['She heard the birds [singing] in the tree.',
+   '그녀는 새들이 나무에서 노래하는 것을 들었다.', '(sing) 지각동사 + -ing'],
+  ['He studied so hard [that] he was able to teach in Korean.',
+   '그는 매우 열심히 공부해서 한국어로 가르칠 수 있었다.', 'so + 부사 + that + 주어 + 동사'],
+  ['We watched the sun [rise] over the mountain.',
+   '우리는 해가 산 위로 떠오르는 것을 보았다.', '(rise) 지각동사 + 동사원형'],
+  ['Every country has the right [to be] independent.',
+   '모든 나라는 독립할 권리가 있다.', 'the right to + 동사원형']
+];
+
 var DEMO_TEXT = [
   ['Modern street art comes in many different forms, and it makes cities colorful and lively.',
    '현대의 거리 예술은 여러 가지 다양한 형태로 나타나며, 도시를 다채롭고 활기차게 만든다.',
@@ -2799,7 +2871,7 @@ var DEMO_배정 = [
 ];
 
 var DEMO_게임 = [];
-var DEMO_레슨 = {'예시 단어장':10, '불규칙 동사 50':5, '중2 5과 본문':3};
+var DEMO_레슨 = {'예시 단어장':10, '불규칙 동사 50':5, '중2 5과 본문':3, '중2 6과 문법':5};
 var DEMO_항목 = ['숙제'];
 var DEMO_제외 = {};
 function DEMO_지난(일){
@@ -2895,13 +2967,14 @@ var DEMO = {
       합격점:80,
       외우기분:DEMO_설정.외우기분,
       시험분:DEMO_설정.시험분,
-      단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']}]
+      단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']}]
     };
   },
   로그인:function(n){
     var 전체=[{이름:'예시 단어장',개수:25,레슨:DEMO_레슨['예시 단어장']},
                {이름:'불규칙 동사 50',개수:5,종류:'3단변화',레슨:DEMO_레슨['불규칙 동사 50']},
-               {이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',레슨:DEMO_레슨['중2 5과 본문']}];
+               {이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',레슨:DEMO_레슨['중2 5과 본문']},
+               {이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',레슨:DEMO_레슨['중2 6과 문법']}];
     var 찾을것=String(n||'').replace(/\s+/g,'');
     var me=null;
     DEMO_배정.forEach(function(x){ if(x.이름.replace(/\s+/g,'')===찾을것) me=x; });
@@ -2915,6 +2988,8 @@ var DEMO = {
   단어가져오기:function(name){
     if(name && name.indexOf('불규칙')>=0) return DEMO_VERBS.map(function(w,i){
       return {no:i+1, en:w[0], ko:w[1], 종류:'3단변화'};});
+    if(name && name.indexOf('문법')>=0) return DEMO_GRAM.map(function(w,i){
+      return {no:i+1, en:w[0], ko:w[1], 비고:w[2], 종류:'문법'};});
     if(name && name.indexOf('본문')>=0) return DEMO_TEXT.map(function(w,i){
       return {no:i+1, en:w[0], ko:w[1], 비고:w[2], 종류:'본문'};});
     return DEMO_WORDS;
@@ -2933,7 +3008,12 @@ var DEMO = {
     {단어장:'불규칙 동사 50',시작:1,끝:20,유형:'3단변화',마감일:사흘후,개별:true,색:'#3B82F6',종류:'기한',남은일수:3,완료:false,점수:0,낸때:n[2]},
     {단어장:'예시 단어장',시작:21,끝:25,유형:'첫 글자',마감일:오늘,개별:true,색:'#FF7A3D',종류:'보충',남은일수:0,완료:false,점수:0,낸때:n[3]},
     {단어장:'예시 단어장',시작:1,끝:25,유형:'스펠링',마감일:사흘후,개별:false,색:'#FF7A3D',종류:'시험',남은일수:3,완료:false,점수:0,낸때:n[4]},
-    {단어장:'중2 5과 본문',시작:1,끝:DEMO_TEXT.length,유형:'빈칸 채우기',마감일:사흘후,개별:false,색:'#16A34A',종류:'기한',남은일수:3,완료:false,점수:0,낸때:n[5]}
+    {단어장:'중2 5과 본문',시작:1,끝:DEMO_TEXT.length,유형:'빈칸 채우기',마감일:사흘후,개별:false,색:'#16A34A',종류:'기한',남은일수:3,완료:false,점수:0,낸때:n[5]},
+    /* 수업 한 벌 — 순서대로, 앞엣것을 끝내야 다음이 열린다 */
+    {단어장:'예시 단어장',시작:1,끝:10,유형:'스펠링',마감일:오늘,개별:false,색:'#FF7A3D',종류:'당일',남은일수:0,완료:true,점수:95,낸때:901,수업:'중2 6과 2회차',순서:1},
+    {단어장:'중2 5과 본문',시작:1,끝:3,유형:'빈칸 채우기',마감일:오늘,개별:false,색:'#16A34A',종류:'당일',남은일수:0,완료:false,점수:0,낸때:902,수업:'중2 6과 2회차',순서:2},
+    {단어장:'중2 5과 본문',시작:1,끝:3,유형:'영작',마감일:오늘,개별:false,색:'#16A34A',종류:'당일',남은일수:0,완료:false,점수:0,낸때:903,수업:'중2 6과 2회차',순서:3},
+    {단어장:'중2 6과 문법',시작:1,끝:DEMO_GRAM.length,유형:'빈칸 채우기',마감일:오늘,개별:false,색:'#8B5CF6',종류:'당일',남은일수:0,완료:false,점수:0,낸때:904,수업:'중2 6과 2회차',순서:4}
   ];},
   결과저장:function(){return {ok:true,demo:true};},
   시상저장API:function(pw,ym){return {ok:true,년월:ym||'2026-09',개수:4};},
@@ -3122,7 +3202,7 @@ var DEMO = {
     미응시:[{이름:'김영희',학년구분:'초중등',교재:['예시 단어장']}],
     오답:[{단어:'analyze',횟수:1},{단어:'assume',횟수:1}],
     학생목록:DEMO_배정.map(function(x){return x.이름;}),
-    단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']}],
+    단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']}],
     시상항목:DEMO_항목.slice(),
     합격점:80,
     숙제목록:DEMO_HW.slice()};},
@@ -3135,6 +3215,31 @@ var DEMO = {
     DEMO_HW=DEMO_HW.filter(function(h){ return !(h.마감일 && h.마감일 < 자른); });
     return {ok:true,개수:n-DEMO_HW.length,자른날:자른,숙제목록:DEMO_HW.slice()};},
   오래된기록정리API:function(){return {ok:true,개수:0};},
+  수업꾸러미목록:function(){
+    return [
+      {키:'본문1',이름:'본문 1회차',설명:'단어 확인 → 본문 빈칸 → 해석 보고 영작',
+       단계:[{어디:'단어',유형:'스펠링'},{어디:'본문',유형:'빈칸 채우기'},{어디:'본문',유형:'영작'}]},
+      {키:'본문정리',이름:'본문 총정리',설명:'빈칸 → 순서 맞추기 → 영작 → 듣고 쓰기',
+       단계:[{어디:'본문',유형:'빈칸 채우기'},{어디:'본문',유형:'순서 맞추기'},
+             {어디:'본문',유형:'영작'},{어디:'본문',유형:'듣고 쓰기'}]},
+      {키:'문법',이름:'문법 확인',설명:'문법 빈칸 → 본문 빈칸 (오늘 배운 어법 굳히기)',
+       단계:[{어디:'문법',유형:'빈칸 채우기'},{어디:'본문',유형:'빈칸 채우기'}]},
+      {키:'본문문법',이름:'본문 + 문법 (한 회차 전체)',설명:'단어 → 본문 빈칸 → 영작 → 문법 빈칸',
+       단계:[{어디:'단어',유형:'스펠링'},{어디:'본문',유형:'빈칸 채우기'},
+             {어디:'본문',유형:'영작'},{어디:'문법',유형:'빈칸 채우기'}]},
+      {키:'단어집중',이름:'단어 집중',설명:'4지선다 → 스펠링',
+       단계:[{어디:'단어',유형:'4지선다'},{어디:'단어',유형:'스펠링'}]},
+      {키:'시험대비',이름:'시험 대비',설명:'단어 스펠링 → 본문 영작 (둘 다 한 번만)',
+       단계:[{어디:'단어',유형:'스펠링'},{어디:'본문',유형:'영작'}]}
+    ];
+  },
+  수업내주기:function(pw,c){
+    var 꾸 = DEMO.수업꾸러미목록().filter(function(k){return k.키===c.꾸러미;})[0];
+    if(!꾸) return {ok:false,메시지:'꾸러미를 골라 주세요.'};
+    if(!String(c.이름||'').trim()) return {ok:false,메시지:'수업 이름을 적어 주세요.'};
+    return {ok:true, 이름:c.이름, 단계수:꾸.단계.length, 숙제목록:DEMO.전체숙제?DEMO.전체숙제():[]};
+  },
+  수업삭제:function(){ return {ok:true, 지운수:0, 숙제목록:DEMO.전체숙제?DEMO.전체숙제():[]}; },
   숙제등록:function(pw,h){
     var 색맵={'예시 단어장':'#FF7A3D','불규칙 동사 50':'#3B82F6'};
     var 종류=DEMO_종류(h.종류);
@@ -5059,7 +5164,8 @@ if($('wbGo')) $('wbGo').onclick = 시험단계로_;
 /* 3단변화 단어장이면 화면을 바꿔 준다 */
 function 삼단변화(){ return S.종류==='3단변화'; }
 /* 교과서 본문(문장 단어장)이면 연습 방법을 통째로 바꿔 준다 */
-function 본문책(){ return S.종류==='본문'; }
+function 본문책(){ return S.종류==='본문' || S.종류==='문법'; }
+function 문법책(){ return S.종류==='문법'; }
 var 본문방법들 = ['cloze','order','write','dict'];
 function 본문방법_(m){ return 본문방법들.indexOf(m) > -1; }
 
@@ -5077,14 +5183,22 @@ function 모드박스(){
     qsa('.mtile[data-mode="'+m+'"]').forEach(function(x){ x.classList.toggle('hide', v || t); });
   });
   qsa('.mtile[data-mode="flash"]').forEach(function(x){ x.classList.toggle('hide', t); });
+  /* 문법은 빈칸 채우기 하나로 충분하다 — 순서·영작·듣고 쓰기는 문제 모양에 안 맞는다 */
+  var g = 문법책();
+  ['order','write','dict'].forEach(function(m){
+    qsa('.mtile[data-mode="'+m+'"]').forEach(function(x){
+      if(g) x.classList.add('hide');
+    });
+  });
   qsa('.mtile[data-mode="book"]').forEach(function(x){
     var b=x.querySelector('b'), i=x.querySelector('i');
-    if(b) b.textContent = t ? '본문 보기' : '단어장 보기';
-    if(i) i.textContent = t ? '해석과 함께 읽기' : '쭉 읽으며 외우기';
+    if(b) b.textContent = g ? '문제 보기' : t ? '본문 보기' : '단어장 보기';
+    if(i) i.textContent = g ? '정답·해설과 같이' : t ? '해석과 함께 읽기' : '쭉 읽으며 외우기';
   });
-  방법이름.book = t ? '본문 보기' : '단어장 보기';
+  방법이름.book = g ? '문제 보기' : t ? '본문 보기' : '단어장 보기';
   var 전 = S.고른방법;
   if(v) 방법고르기('verb');
+  else if(g) 방법고르기(전==='book' ? 'book' : 'cloze');
   else if(t) 방법고르기(본문방법_(전) || 전==='book' ? 전 : 'cloze');
   else if(!전 || 전==='verb' || 본문방법_(전)) 방법고르기('spell');
   else 방법고르기(전);
@@ -5648,8 +5762,10 @@ function drawHw(){
   }
 
   /* 1b — 오늘 숙제를 체크리스트 한 장으로. 끝낸 것은 ✓, 맨 위 남은 것에 「시작」 */
-  var 남은것=숙제들.filter(function(h){return !h.완료;});
-  var 낸것=숙제들.filter(function(h){return h.완료;});
+  /* 수업으로 묶인 것은 위의 수업 카드에서 보여 주니 아래 목록에서는 뺀다 */
+  var 낱개 = 숙제들.filter(function(h){ return !String(h.수업||''); });
+  var 남은것=낱개.filter(function(h){return !h.완료;});
+  var 낸것=낱개.filter(function(h){return h.완료;});
   function 순(h){ return (h.종류==='보충'||h.종류==='당일') ? 0 : 2; }
   남은것.sort(function(a,b){ return 순(a)-순(b) || (Number(a.남은일수)||0)-(Number(b.남은일수)||0); });
   function 언제(h){
@@ -5663,7 +5779,7 @@ function drawHw(){
     return '기한 없음';
   }
   function 이름(h){ return esc(h.단어장)+' '+esc(학생범위글_(h.단어장, h.시작, h.끝)); }
-  var 전체=숙제들.length, 낸수=낸것.length;
+  var 전체=낱개.length, 낸수=낸것.length;
   /* 시안 — 유형마다 글자 표식과 색 (Ab · 3 · 4 · A_ · __) */
   function 표식(h){
     var t=String(h.유형||'');
@@ -5691,7 +5807,47 @@ function drawHw(){
     return '<div class="ckrow done"><span class="ckc">'+표식(h)[0]+'</span><span class="ckt"><b>'+이름(h)+'</b>'+
       '<i>'+esc(h.유형)+' · 냈어요</i></span><span class="cksc">'+(Number(h.점수)||0)+'점</span></div>';
   }).join('');
-  box.innerHTML='<div class="cklist">'+머리+줄들+'</div>';
+
+  /* ---------- 수업 — 한 묶음으로 낸 숙제는 순서대로, 앞엣것을 끝내야 열린다 ---------- */
+  var 수업들 = {}, 수업순 = [];
+  숙제들.forEach(function(h){
+    var k = String(h.수업 || '');
+    if(!k) return;
+    if(!수업들[k]){ 수업들[k] = []; 수업순.push(k); }
+    수업들[k].push(h);
+  });
+  var 수업칸 = 수업순.map(function(k){
+    var 것 = 수업들[k].slice().sort(function(a,b){ return (a.순서||0)-(b.순서||0); });
+    var 끝낸수 = 것.filter(function(h){ return h.완료; }).length;
+    var 다함 = 끝낸수 === 것.length;
+    var 열린자리 = -1;
+    것.forEach(function(h,i){ if(열린자리 < 0 && !h.완료) 열린자리 = i; });
+    var 줄 = 것.map(function(h,i){
+      var idx = S.숙제.indexOf(h);
+      var g = 표식(h);
+      var 상태 = h.완료 ? 'done' : (i === 열린자리 ? 'now' : 'lock');
+      var 꼬리 = h.완료 ? ('<span class="cksc">'+(Number(h.점수)||0)+'점</span>')
+               : (i === 열린자리 ? '<span class="ckgo">시작</span>'
+                                 : '<span class="lockmark">자물쇠</span>');
+      var 꼭지 = (i === 열린자리 || h.완료) ? ' data-hw="'+idx+'"' : '';
+      return '<button class="lsrow '+상태+'"'+꼭지+' type="button"'+
+             (상태==='lock'?' disabled':'')+'>'+
+        '<span class="lsn">'+(i+1)+'</span>'+
+        '<span class="ckc" style="background:var(--'+g[1]+')">'+g[0]+'</span>'+
+        '<span class="ckt"><b>'+esc(h.유형)+'</b><i>'+이름(h)+'</i></span>'+
+        꼬리+'</button>';
+    }).join('');
+    return '<div class="lscard'+(다함?' alldone':'')+'">'+
+      '<div class="lshead"><span class="lstag">오늘 수업</span>'+
+        '<b>'+esc(k)+'</b>'+
+        '<span class="lscnt">'+끝낸수+' / '+것.length+'</span></div>'+
+      '<div class="lsbar"><i style="width:'+Math.round(끝낸수/것.length*100)+'%"></i></div>'+
+      줄 +
+      (다함 ? '<div class="lsdone">수업을 다 끝냈어요! 잘했어요 🎉</div>' : '')+
+    '</div>';
+  }).join('');
+
+  box.innerHTML = 수업칸 + (낱개.length ? '<div class="cklist">'+머리+줄들+'</div>' : '');
 
   qsa('[data-hw]').forEach(function(b){
     b.onclick=function(){
@@ -6079,8 +6235,36 @@ function 문장열_(글){ return 낱말들_(글).join(' '); }
 function 문장같나_(a, b){ return !!문장열_(a) && 문장열_(a) === 문장열_(b); }
 
 /* 빈칸으로 가릴 낱말을 고른다 — 가장 긴 핵심어, 같으면 뒤쪽 것 */
+/* 문장을 토막으로 가른다 — [ ] 로 묶인 것은 여러 낱말이라도 한 토막 */
+function 문장토막_(en){
+  var t = String(en||'');
+  var 것 = [], 남은 = '';
+  var re = /\[[^\]]*\]/g, 끝 = 0, m;
+  while((m = re.exec(t))){
+    남은 = t.slice(끝, m.index);
+    남은.split(/\s+/).forEach(function(x){ if(x) 것.push(x); });
+    것.push(m[0]);
+    끝 = m.index + m[0].length;
+  }
+  t.slice(끝).split(/\s+/).forEach(function(x){ if(x) 것.push(x); });
+  return 것;
+}
+/* 선생님이 [ ] 로 찍어 둔 자리가 있으면 그것을 쓴다 (문법 학습지 꼴) */
+function 찍은빈칸_(en){
+  var 토 = 문장토막_(en);
+  for(var i = 0; i < 토.length; i++){
+    var m = 토[i].match(/^\[([^\]]+)\]([^A-Za-z0-9]*)$/);
+    if(m) return { 자리: i, 말: m[1].trim() };
+  }
+  return null;
+}
+/* 화면에 보일 문장에서 [ ] 괄호를 떼어 낸다 */
+function 괄호떼기_(en){ return String(en||'').replace(/\[([^\]]*)\]/g, '$1'); }
+
 function 빈칸고르기_(en){
-  var 토 = String(en||'').split(/\s+/);
+  var 찍은 = 찍은빈칸_(en);
+  if(찍은) return 찍은;
+  var 토 = 문장토막_(en);
   var 셈 = {};
   토.forEach(function(t){
     var w = 알맹이_(t).toLowerCase();
@@ -6112,22 +6296,34 @@ function 본문준비_(){
       w._자리 = g.자리; w._빈칸 = g.말;
     }
     if(S.모드 === 'order'){
-      w._칩 = shuffle(String(w.en).split(/\s+/).map(알맹이_).filter(String));
+      w._칩 = shuffle(괄호떼기_(w.en).split(/\s+/).map(알맹이_).filter(String));
     }
   });
 }
 
 /* 빈칸이 뚫린 문장을 그린다 */
-function 빈칸문장_(w, 채움){
-  var 토 = String(w.en).split(/\s+/);
+/* 채움이 null 이면 「여기에 쓰는 칸」 을, 값이 있으면 그 글자를 넣는다.
+   줄번호(칸번호)를 주면 그 자리가 곧 답 쓰는 칸이 된다 — 따로 입력칸을 두지 않는다. */
+function 빈칸문장_(w, 채움, 칸번호){
+  var 토 = 문장토막_(w.en).map(괄호떼기_);
   return 토.map(function(t, i){
     if(i !== w._자리) return esc(t);
     var 알 = 알맹이_(t);
     var k = t.indexOf(알);
     var 앞 = k > 0 ? t.slice(0, k) : '';
     var 뒤 = k >= 0 ? t.slice(k + 알.length) : '';
-    var 속 = 채움 == null ? '______' : esc(채움);
-    return esc(앞) + '<span class="gap">' + 속 + '</span>' + esc(뒤);
+    var 가운데;
+    if(칸번호 != null){
+      /* 답 길이에 맞춰 칸 너비를 잡아 준다 (너무 좁아 안 보이는 일을 막는다) */
+      var 글자 = Math.max(5, Math.min(18, (알 || '').length + 1));
+      가운데 = '<input class="sin gapin" data-i="' + 칸번호 + '" ' +
+               'style="width:' + 글자 + 'ch" ' +
+               'inputmode="latin" autocomplete="off" autocorrect="off" ' +
+               'autocapitalize="off" spellcheck="false" aria-label="빈칸에 들어갈 낱말">';
+    }else{
+      가운데 = '<span class="gap">' + (채움 == null ? '______' : esc(채움)) + '</span>';
+    }
+    return esc(앞) + 가운데 + esc(뒤);
   }).join(' ');
 }
 
@@ -6448,10 +6644,8 @@ function 본문줄_(w, i){
   var 물음, 몸;
   if(S.모드 === 'cloze'){
     물음 = 쪽글 || '빈칸에 알맞은 낱말을 쓰세요';
-    몸 = '<div class="gapline" data-gap="'+i+'">'+빈칸문장_(w, null)+'</div>'+
-         '<div class="memo">'+esc(w.ko)+'</div>'+
-         '<input class="sin" data-i="'+i+'" inputmode="latin" autocomplete="off" '+
-         'autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="빈칸에 들어갈 낱말">';
+    몸 = '<div class="gapline" data-gap="'+i+'">'+빈칸문장_(w, null, i)+'</div>'+
+         '<div class="memo">'+esc(w.ko)+'</div>';
   }else if(S.모드 === 'order'){
     물음 = w.ko;
     쪽 = 쪽글 ? '<div class="qsub2">'+esc(쪽글)+'</div>' : '';
@@ -6621,7 +6815,7 @@ function 채점하기(){
   var 연속=0;
   var 문장모드 = 본문방법_(S.모드);
   S.문제.forEach(function(w,i){
-    var 정답 = 문장모드 ? (S.모드==='cloze' ? w._빈칸 : w.en)
+    var 정답 = 문장모드 ? (S.모드==='cloze' ? w._빈칸 : 괄호떼기_(w.en))
                        : ((S.모드==='choice') ? w.ko : w.en);
     var 내답 = String(S.답[i]||'').trim();
     var 맞음 = !!내답 && (문장모드 && S.모드!=='cloze'
@@ -6741,8 +6935,14 @@ function 본문채점그리기_(row, w, i, 정답, 내답, 맞음){
   var 말 = row.querySelector('.spk'); if(말) 말.disabled = false;   /* 듣기는 계속 쓰게 둔다 */
 
   if(S.모드 === 'cloze'){
+    /* 쓰던 칸을 글자로 바꿔 문장이 한눈에 읽히게 한다 */
     var 줄 = row.querySelector('.gapline');
-    if(줄) 줄.innerHTML = 빈칸문장_(w, 맞음 ? 정답 : (내답 || '____'));
+    if(줄){
+      줄.innerHTML = 빈칸문장_(w, 맞음 ? 정답 : (내답 || '　'));
+      var g = 줄.querySelector('.gap');
+      /* 안 쓴 칸은 빗금을 긋지 않는다 — 그을 글자가 없다 */
+      if(g) g.classList.add(맞음 ? 'ok' : (내답 ? 'ng' : 'empty'));
+    }
     if(!맞음){
       row.insertAdjacentHTML('beforeend', 내답
         ? '<div class="real">정답 : '+esc(정답)+'</div>'
@@ -8464,6 +8664,28 @@ function drawTab(){
       머리('숙제 내주기', '한 줄로 고르고 오른쪽 끝에서 내줍니다 · '+
            (d.합격점||합격점())+'점을 못 넘긴 학생은 아직 안 낸 것으로 둡니다 (시험은 한 번만)')+
 
+      판('수업 내주기 <span class="pill note">중·고등</span>',
+        '<span class="sub">한 번에 여러 단계를 묶어서 — 아이 화면엔 순서대로 뜨고, 앞엣것을 끝내야 다음이 열립니다</span>',
+        '<div class="panel-b">'+
+          '<div class="hwbar">'+
+            '<div class="ff" style="min-width:230px"><label>수업 이름</label>'+
+              '<input id="lsName" placeholder="예) 중2 6과 2회차"></div>'+
+            '<div class="ff" style="min-width:230px"><label>꾸러미</label>'+
+              '<select id="lsKit"></select></div>'+
+            '<div class="ff" style="min-width:150px"><label>언제까지</label>'+
+              '<div class="rchips">'+
+                '<label><input type="radio" name="lsKind" value="당일" checked><span>오늘 안에</span></label>'+
+                '<label><input type="radio" name="lsKind" value="기한"><span>기한</span></label>'+
+              '</div></div>'+
+            '<div class="ff hide" id="lsDueWrap" style="width:150px"><label>마감일</label>'+
+              '<input id="lsDue" type="date"></div>'+
+            '<div class="ff" style="margin-left:auto"><label>&nbsp;</label>'+
+              '<button class="btn" id="btnLsAdd" style="margin:0;width:auto">수업 내주기</button></div>'+
+          '</div>'+
+          '<div class="sub mb" id="lsWhat"></div>'+
+          '<div class="hwbar" id="lsBooks"></div>'+
+        '</div>')+
+
       판('', '',
         '<div class="panel-b">'+
           진도줄(전체숙, d.단어장목록)+
@@ -8896,7 +9118,8 @@ function drawTab(){
               return '<tr class="bkrow'+(T.책===x.이름?' on':'')+'" data-book="'+esc(x.이름)+'">'+
                 '<td>'+책칩(x.이름)+
                   (x.종류==='3단변화'?' <span class="pill note">3단변화</span>':'')+
-                  (x.종류==='본문'?' <span class="pill note">본문</span>':'')+'</td>'+
+                  (x.종류==='본문'?' <span class="pill note">본문</span>':'')+
+                  (x.종류==='문법'?' <span class="pill note">문법</span>':'')+'</td>'+
                 '<td class="num muted">'+x.개수+'개</td></tr>';
             }).join('')+'</tbody></table>'
           : 빈칸('아직 단어장이 없습니다.'), true)+
@@ -8905,7 +9128,9 @@ function drawTab(){
           '<div class="panel-b tform">'+
           '<div class="sub mb">한 줄에 하나씩 <b>영어 | 뜻</b>. 뜻에 쉼표가 있어도 됩니다.<br>'+
           '세 번째 칸에 그림 주소를 적으면 같이 들어갑니다 — <b>cat | 고양이 | https://…/cat.png</b><br>'+
-          '<b>교과서 본문</b>은 아래에서 종류를 바꾸고 <b>영어 문장 | 해석 | 교과서 88쪽</b> 처럼 적습니다.</div>'+
+          '<b>교과서 본문</b>은 아래에서 종류를 바꾸고 <b>영어 문장 | 해석 | 교과서 88쪽</b> 처럼 적습니다.<br>'+
+          '<b>문법</b>은 빈칸 자리를 <b>[ ]</b> 로 찍습니다 — '+
+          '<b>I saw a boy [running] across the street. | 나는 한 소년이 길을 건너는 것을 보았다. | (run) 지각동사+-ing</b></div>'+
           '<label>단어장 이름</label><input id="dvBook" placeholder="예) 고3 9월 모평">'+
           '<div class="mt"><label>단어 목록</label>'+
             '<textarea id="dvText" rows="7" placeholder="apple | 사과&#10;number | 숫자, 번호&#10;cat | 고양이 | https://smarthb-english.github.io/Vocab/img/cat.png"></textarea></div>'+
@@ -8916,6 +9141,7 @@ function drawTab(){
               '<option value="">보통 단어장 (영어 | 뜻)</option>'+
               '<option value="3단변화">불규칙 동사 3단변화 (go - went - gone | 가다)</option>'+
               '<option value="본문">교과서 본문 — 문장 (영어 문장 | 해석 | 교과서 쪽수)</option>'+
+              '<option value="문법">문법 — 빈칸을 [ ] 로 찍은 문장</option>'+
             '</select></div>'+
           '<div class="mt2"></div><button class="btn" id="btnDv">단어 넣기</button></div>')+
         '</div>'+
@@ -9625,6 +9851,7 @@ function 책종류_(이름, 목록){
 }
 function 책유형들_(이름, 목록){
   var k = 책종류_(이름, 목록);
+  if(k === '문법') return ['빈칸 채우기'];
   if(k === '본문') return 본문유형_.slice();
   if(k === '3단변화') return ['3단변화'].concat(보통유형_);
   return 보통유형_.concat(['3단변화']);
@@ -9860,6 +10087,90 @@ function 숙제손잡이(d){
     칸.innerHTML = 것.map(function(t){ return '<option>'+esc(t)+'</option>'; }).join('');
     칸.value = (것.indexOf(전) > -1) ? 전 : 것[0];
   }
+  /* ---------------- 수업 내주기 ---------------- */
+  (function(){
+    if(!$('lsKit')) return;
+    var 꾸러미 = (T.data && T.data.수업꾸러미) || [];
+    if(!꾸러미.length){
+      api('수업꾸러미목록').then(function(r){
+        if(!r || !r.length) return;
+        T.data = T.data || {}; T.data.수업꾸러미 = r;
+        drawTab();
+      }).catch(function(){});
+    }
+    $('lsKit').innerHTML = 꾸러미.map(function(k){
+      return '<option value="'+esc(k.키)+'">'+esc(k.이름)+'</option>';
+    }).join('');
+
+    function 지금꾸러미(){
+      var v = $('lsKit').value;
+      var 것 = null;
+      꾸러미.forEach(function(k){ if(k.키===v) 것=k; });
+      return 것;
+    }
+    /* 꾸러미가 쓰는 단어장 종류만 골라 준다 */
+    function 책칸(어디, 라벨, 종류){
+      var 것 = (d.단어장목록||[]).filter(function(x){
+        if(종류==='단어') return String(x.종류||'')!=='본문' && String(x.종류||'')!=='문법';
+        return String(x.종류||'')===종류;
+      });
+      if(!것.length) return '<div class="ff"><label>'+라벨+'</label>'+
+        '<div class="fnote" style="color:var(--ng)">'+종류+' 단어장이 없습니다</div></div>';
+      return '<div class="ff" style="min-width:200px"><label>'+라벨+'</label>'+
+          '<select id="ls'+어디+'Book">'+
+            것.map(function(x){ return '<option>'+esc(x.이름)+'</option>'; }).join('')+
+          '</select></div>'+
+        '<div class="ff" style="width:84px"><label>시작</label>'+
+          '<input id="ls'+어디+'From" type="tel" value="1"></div>'+
+        '<div class="ff" style="width:84px"><label>끝</label>'+
+          '<input id="ls'+어디+'To" type="tel" value="10"></div>';
+    }
+    function 그리기(){
+      var k = 지금꾸러미();
+      if(!k){ $('lsWhat').textContent=''; $('lsBooks').innerHTML=''; return; }
+      $('lsWhat').innerHTML = '<b>'+esc(k.이름)+'</b> — '+esc(k.설명)+
+        ' · 숙제 <b>'+k.단계.length+'개</b>가 한 묶음으로 나갑니다';
+      var 쓴다 = {};
+      k.단계.forEach(function(x){ 쓴다[x.어디]=1; });
+      $('lsBooks').innerHTML =
+        (쓴다['단어'] ? 책칸('W','단어 단어장','단어') : '')+
+        (쓴다['본문'] ? 책칸('T','본문 단어장','본문') : '')+
+        (쓴다['문법'] ? 책칸('G','문법 단어장','문법') : '');
+    }
+    $('lsKit').onchange = 그리기;
+    그리기();
+
+    qsa('[name="lsKind"]').forEach(function(r){
+      r.onchange=function(){ $('lsDueWrap').classList.toggle('hide', this.value!=='기한'); };
+    });
+
+    $('btnLsAdd').onclick=function(){
+      var k = 지금꾸러미();
+      if(!k) return;
+      var 종류 = (document.querySelector('[name="lsKind"]:checked')||{}).value || '당일';
+      if(종류==='기한' && !$('lsDue').value){ toast('마감일을 골라 주세요'); return; }
+      var 값=function(id, 기본){ var e=$(id); return e ? e.value : 기본; };
+      var 짐 = {
+        이름: $('lsName').value.trim(),
+        꾸러미: k.키, 종류: 종류, 마감일: 값('lsDue',''),
+        단어장: 값('lsWBook',''), 단어시작: 값('lsWFrom',1), 단어끝: 값('lsWTo',0),
+        본문장: 값('lsTBook',''), 본문시작: 값('lsTFrom',1), 본문끝: 값('lsTTo',0),
+        문법장: 값('lsGBook',''), 문법시작: 값('lsGFrom',1), 문법끝: 값('lsGTo',0)
+      };
+      if(!짐.이름){ toast('수업 이름을 적어 주세요'); return; }
+      this.disabled=true;
+      api('수업내주기', T.pw, 짐).then(function(r){
+        if(r && r.ok){
+          toast('「'+r.이름+'」 수업을 냈습니다 (숙제 '+r.단계수+'개)');
+          if(r.메시지) setTimeout(function(){ toast(r.메시지); }, 2200);
+          $('lsName').value='';
+          loadTeacher();
+        } else toast((r&&r.메시지)||'실패했습니다');
+      }).catch(function(){ toast('실패했습니다'); })
+        .then(function(){ var b=$('btnLsAdd'); if(b) b.disabled=false; });
+    };
+  })();
+
   if($('hwBook')) $('hwBook').onchange=function(){
     var i=책정보();
     $('hwFrom').value=1;
@@ -10538,7 +10849,7 @@ function 파일검사(){
   }
 })();
 
-/* ===== 시안 맞추기 (2026-10-06b) — 「해법 영단어 (단일 파일)」 시안의 나머지 =====
+/* ===== 시안 맞추기 (2026-10-06c) — 「해법 영단어 (단일 파일)」 시안의 나머지 =====
    비밀번호 점 · 순위 시상대 · 결과 둥근 그래프 · 내 스티커판 · 플래시카드 */
 (function(){
   function $(id){ return document.getElementById(id); }
@@ -10744,7 +11055,7 @@ function 파일검사(){
   if(fc){ fc.insertBefore(el('<div class="hbfl">ENGLISH</div>'), fc.firstChild); }
 })();
 
-/* ===== 시안 맞추기 (2026-10-06b) — 태블릿: 왼쪽 메뉴 머리·꼬리, 로그인 그림 ===== */
+/* ===== 시안 맞추기 (2026-10-06c) — 태블릿: 왼쪽 메뉴 머리·꼬리, 로그인 그림 ===== */
 (function(){
   function $(id){ return document.getElementById(id); }
   function el(h){ var d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
