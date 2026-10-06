@@ -508,7 +508,7 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .clock{font-variant-numeric:tabular-nums;font-weight:900;font-size:14px;
   letter-spacing:.3px;color:var(--text);background:var(--line);
   padding:4px 10px;border-radius:99px;white-space:nowrap}
-.clock.soon{color:#fff;background:var(--warn,#F59E0B)}
+.clock.soon{color:#fff;background:#DC2626}   /* 1분 남으면 빨갛게 */
 .clock.over{color:#fff;background:#DC2626;animation:시계깜빡 1s step-end infinite}
 @keyframes 시계깜빡{50%{opacity:.45}}
 .rotbtn{margin-left:auto;white-space:nowrap;
@@ -702,6 +702,17 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 #bkKan .kanrow button b{color:var(--sub);font-weight:700;margin-left:2px}
 #bkKan .kanrow button.on{background:var(--primary);border-color:var(--primary);color:#fff}
 #bkKan .kanrow button.on b{color:#fff}
+.sjlim{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--sub)}
+.sjlim input.hand{border-color:var(--primary)}
+/* 아이 — 제한 시간 안내 */
+.limask{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:20px}
+.limask.hide{display:none}
+.limbox{background:var(--card);border-radius:20px;padding:22px 20px;max-width:360px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.limt{font-size:19px;font-weight:800;margin-bottom:8px;line-height:1.4}
+/* 묶음(단원·Lesson)으로 범위 고르기 */
+.unitpick{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+.unitpick select{width:auto;flex:1 1 110px;margin:0}
+.unitpick .unitl{font-size:12px;font-weight:800;color:var(--sub)}
 .sjnext{height:38px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--primary-d);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
 .sjnext:active{background:var(--primary-soft)}
 /* 과 머리줄 — 선생님 단어장 목록 · 아이 단어장 칩 */
@@ -2915,7 +2926,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-06g';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-06h';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3384,7 +3395,7 @@ var DEMO = {
     }
     var 됨=0, 탈=[];
     c.단계.forEach(function(d,i){
-      var r = DEMO.숙제등록(pw,{단어장:d.단어장,칸:d.칸||'',시작:d.시작,끝:d.끝,유형:d.유형,종류:c.종류,
+      var r = DEMO.숙제등록(pw,{단어장:d.단어장,칸:d.칸||'',시작:d.시작,끝:d.끝,유형:d.유형,제한시간:d.제한시간,종류:c.종류,
         마감일:c.마감일,학생들:c.학생들,수업:c.이름,순서:i+1});
       if(r.ok) 됨++; else 탈.push((i+1)+'단계 '+d.유형+' — '+r.메시지);
     });
@@ -3398,7 +3409,7 @@ var DEMO = {
     if(!이름) return {ok:false,메시지:'틀 이름을 적어 주세요.'};
     var 정리 = (단계||[]).filter(function(x){ return x && x.유형; }).map(function(x){
       var o = {};
-      ['종류','칸','어디','유형','분','지난','개수'].forEach(function(k){
+      ['종류','칸','어디','유형','분','제한','지난','개수'].forEach(function(k){
         if(x[k]!==undefined && x[k]!==null && x[k]!=='') o[k]=x[k];
       });
       return o;
@@ -3423,7 +3434,7 @@ var DEMO = {
       레슨:책.레슨||DEMO_레슨[교재]||10, 총:책.개수||단어들.length, 칸수:책.칸수||{},
       학생수:DEMO_교재학생(교재).length,
       숙제들:DEMO_HW.filter(function(h){ return h.단어장===교재 && h.종류!=='시험'; }).map(function(h){
-        return {단어장:h.단어장,칸:h.칸||'',시작:h.시작,끝:h.끝,유형:h.유형,등록:h.등록일||'',안낸수:(h.안한사람||[]).length};
+        return {단어장:h.단어장,칸:h.칸||'',시작:h.시작,끝:h.끝,유형:h.유형,등록:h.등록일||'',제한시간:h.제한시간||0,안낸수:(h.안한사람||[]).length};
       }),
       기록들:DEMO_기록.filter(function(r){ return r.단어장===교재 && r.날>=한달전; }),
       단어들:단어들
@@ -3455,7 +3466,8 @@ var DEMO = {
     DEMO_HW.push({행:DEMO_HW다음행++,단어장:책,
       시작:Number(h.시작)||1,끝:Number(h.끝)||0,유형:h.유형,
       마감일:(종류==='기한'||종류==='시험')?h.마감일:오늘,학생:고른.join(', '),
-      색:색맵[책]||'',종류:종류,지남:false,수업:h.수업||'',순서:Number(h.순서)||0,칸:h.칸||'',등록일:오늘,
+      색:색맵[책]||'',종류:종류,지남:false,수업:h.수업||'',순서:Number(h.순서)||0,칸:h.칸||'',
+      제한시간:Number(h.제한시간)>0?Math.round(Number(h.제한시간)):0,등록일:오늘,
       대상수:대상들.length,한사람:[],안한사람:대상들.slice()});
     return {ok:true,개수:1,대상:대상들.length,숙제목록:DEMO_HW.slice()};},
   교재대상:function(pw,교재){
@@ -5655,6 +5667,47 @@ function 칩맞추기(){
   고름맞추기($('lesSel'), $('inFrom').value, $('inTo').value);
   낱말보이기();
 }
+/* 비고에 적힌 묶음(단원 01 · Lesson 03 · Unit 2)을 찾는다 — 범위를 숫자 대신 묶음으로 고르게.
+   번호는 지금 목록(과면 그 구분) 안의 차례다. 단어 구분의 비고는 그림 칸에 들어 있으니 그것도 본다 */
+function 묶음찾기_(단어들){
+  var 표 = [], 찾기 = {};
+  (단어들||[]).forEach(function(w, i){
+    var 그림 = String(w.그림||'');
+    var 글 = String(w.비고||'') + ' ' + (/^(https?:|data:)/i.test(그림) ? '' : 그림);
+    var m = 글.match(/(단원|lesson|unit)\s*0*(\d+)/i);
+    if(!m) return;
+    var 열쇠 = m[1].toLowerCase() + '|' + Number(m[2]);
+    if(!찾기[열쇠]){ 찾기[열쇠] = {이름:m[0].trim(), 첫:i+1, 끝:i+1}; 표.push(찾기[열쇠]); }
+    else 찾기[열쇠].끝 = i+1;
+  });
+  return 표;
+}
+/* 「단원 01 ~ 단원 03」 — 처음 묶음과 끝 묶음을 고르면 그 줄들의 첫 번호~끝 번호 */
+function 묶음고르개_(목록, 앞, 시작, 끝){
+  function 옵(id, 고른){
+    return '<select id="'+id+'"><option value="">—</option>'+목록.map(function(u, i){
+      return '<option value="'+i+'"'+(i===고른?' selected':'')+'>'+esc(u.이름)+'</option>';
+    }).join('')+'</select>';
+  }
+  var a = -1, b = -1;
+  목록.forEach(function(u, i){ if(u.첫===Number(시작)) a = i; if(u.끝===Number(끝)) b = i; });
+  if(a < 0 || b < a){ a = -1; b = -1; }
+  return '<div class="unitpick"><span class="unitl">묶음으로</span>'+옵(앞+'A', a)+'<span>~</span>'+옵(앞+'B', b)+'</div>';
+}
+function 묶음붙이기_(목록, 앞, 넣기){
+  var A = $(앞+'A'), B = $(앞+'B'); if(!A || !B) return;
+  function 바뀜(){
+    var a = A.value === '' ? -1 : Number(A.value), b = B.value === '' ? -1 : Number(B.value);
+    if(a < 0 && b < 0) return;
+    if(a < 0){ a = b; A.value = String(a); }
+    if(b < a){ b = a; B.value = String(b); }
+    넣기(목록[a].첫, 목록[b].끝);
+  }
+  /* 처음 묶음을 고르면 그 묶음 하나 — 「~」 뒤를 골라 늘린다 */
+  A.onchange = function(){ B.value = A.value; 바뀜(); };
+  B.onchange = 바뀜;
+}
+
 function drawQuick(){
   var n=S.단어.length, box=$('rangeQuick');
   var 묶음=레슨크기(S.단어장, 내책들());
@@ -5670,6 +5723,16 @@ function drawQuick(){
     $('inFrom').value=p[0]; $('inTo').value=p[1];
     낱말보이기();
   };
+  /* 비고에 묶음이 있으면 묶음으로도 — 하나도 없으면 이 칸은 안 보인다 */
+  var 묶음들 = 묶음찾기_(S.단어);
+  if(묶음들.length){
+    box.insertAdjacentHTML('beforeend', 묶음고르개_(묶음들, 'unit', $('inFrom').value, $('inTo').value));
+    묶음붙이기_(묶음들, 'unit', function(a, b){
+      $('inFrom').value = a; $('inTo').value = b;
+      try{ 고름맞추기($('lesSel'), a, b); }catch(e){}
+      낱말보이기();
+    });
+  }
   낱말보이기();
 }
 /* 숙제를 끝까지 내면 그 카드는 홈에서 사라진다 */
@@ -6097,7 +6160,7 @@ function drawHw(){
     '<span class="ckbar"><i style="width:'+Math.round(낸수/전체*100)+'%"></i></span></div>';
   var 줄들 = (남은것.length ? '<div class="cksec a">해야 할 숙제</div>' : '') + 남은것.map(function(h,k){
     var i=S.숙제.indexOf(h), 지금=(k===0);
-    var 말=언제(h)+' · '+esc(h.유형)+' 시험'+(h.개별?' · 나만':'')+
+    var 말=언제(h)+' · '+esc(h.유형)+' 시험'+(제한분_(h)?' · ⏱ '+제한분_(h)+'분':'')+(h.개별?' · 나만':'')+
       (h.모자람?' · 지난번 '+(Number(h.점수)||0)+'점, 다시':'');
     var g=표식(h);
     return '<button class="ckrow'+(지금?' now':'')+(h.모자람?' fail':'')+'" data-hw="'+i+'" type="button">'+
@@ -6134,7 +6197,7 @@ function drawHw(){
              (상태==='lock'?' disabled':'')+'>'+
         '<span class="lsn">'+(i+1)+'</span>'+
         '<span class="ckc" style="background:var(--'+g[1]+')">'+g[0]+'</span>'+
-        '<span class="ckt"><b>'+esc(h.유형)+'</b><i>'+이름(h)+'</i></span>'+
+        '<span class="ckt"><b>'+esc(h.유형)+'</b><i>'+이름(h)+(제한분_(h)?' · ⏱ '+제한분_(h)+'분':'')+'</i></span>'+
         꼬리+'</button>';
     }).join('');
     return '<div class="lscard'+(다함?' alldone':'')+'">'+
@@ -6151,6 +6214,8 @@ function drawHw(){
 
   qsa('[data-hw]').forEach(function(b){
     b.onclick=function(){
+      /* 제한 시간이 있는 숙제는 시작 전에 묻는다 (이미 시작했으면 이어서, 시간이 지났으면 막는다) */
+      if(제한물어야_(S.숙제[+b.dataset.hw], function(){ b.onclick(); })) return;
       /* 아이가 조급해서 두 번 누르면 단어 불러오기가 두 번 돈다.
          늦게 온 대답이 이미 풀고 있는 시험을 통째로 갈아엎으면
          화면의 뜻이 바뀌면서 멀쩡히 쓴 답이 틀린 것이 된다.
@@ -6782,9 +6847,58 @@ function 시각글_(초){
 function 제한그리기_(){
   var el = $(제한.어디); if(!el) return;
   var 남 = Math.ceil((제한.끝날때 - Date.now())/1000);
-  el.textContent = '⏱ ' + 시각글_(남);
+  /* 10초부터는 초를 센다 */
+  el.textContent = (남 <= 10 && 남 > 0) ? '⏱ ' + 남 + '초' : '⏱ ' + 시각글_(남);
   el.classList.toggle('soon', 남 <= 60 && 남 > 0);
   el.classList.toggle('over', 남 <= 0);
+}
+
+/* ---------- 숙제마다 제한 시간 ----------
+   숙제 줄의 제한시간(분)이 비면 지금과 똑같다 — 타이머를 아예 안 보인다.
+   시작한 때는 이 기기에 적어 둔다 (저장쓰기_) — 앱을 껐다 켜도 그때부터 다시 세니 시간이 늘지 않는다. */
+function 제한분_(h){ return (h && Number(h.제한시간) > 0) ? Number(h.제한시간) : 0; }
+function 제한열쇠_(h){
+  return '제한시작_' + ((S.학생 && S.학생.이름) || '') + '|' +
+         (h.낸때 || [h.단어장, h.칸||'', h.시작, h.끝, h.유형].join('/'));
+}
+function 제한시작때_(h){ return Number(저장읽기_(제한열쇠_(h), 0)) || 0; }
+function 제한시작적기_(h){ 저장쓰기_(제한열쇠_(h), Date.now()); }
+function 제한지났나_(h){ var t = 제한시작때_(h); return !!(t && t + 제한분_(h)*60000 <= Date.now()); }
+/* 이 숙제를 지금 열어도 되나 — 처음이면 묻고, 시간이 지났으면 막는다. 묻거나 막았으면 true */
+function 제한물어야_(h, 계속){
+  var 분 = 제한분_(h);
+  if(!분 || h.완료) return false;
+  if(제한시작때_(h)){
+    if(제한지났나_(h)){ toast('시간이 지나서 이 숙제는 더 들어갈 수 없어요'); return true; }
+    return false;                        /* 이어서 — 남은 시간은 시작한 때로 다시 센다 */
+  }
+  제한묻기_(분, function(){ 제한시작적기_(h); 계속(); });
+  return true;
+}
+/* 시작 전에 알려 준다 — 모르고 시작했다가 쫓기면 안 된다 */
+function 제한묻기_(분, 시작함){
+  var 판 = $('limAsk');
+  if(!판){
+    판 = document.createElement('div'); 판.id = 'limAsk'; 판.className = 'limask hide';
+    판.innerHTML = '<div class="limbox"><div class="limt" id="limT"></div>'+
+      '<div class="sub">「시작」 을 누른 때부터 시간이 가요. 앱을 껐다 켜도 시간은 계속 가요.</div>'+
+      '<div class="row mt" style="gap:8px"><button class="btn line grow" type="button" id="limNo">나중에</button>'+
+      '<button class="btn grow" type="button" id="limGo">시작</button></div></div>';
+    document.body.appendChild(판);
+  }
+  $('limT').innerHTML = '⏱ <b>'+분+'분</b> 안에 풀어야 해요. 시작할까요?';
+  판.classList.remove('hide');
+  $('limNo').onclick = function(){ 판.classList.add('hide'); };
+  $('limGo').onclick = function(){ 판.classList.add('hide'); 시작함(); };
+}
+/* 지금 푸는 숙제의 제한 — {분, 시작, 끝날때} (없으면 null). 시작한 때가 안 적혀 있으면 지금 적는다 */
+function 숙제제한_(){
+  var h = S.현재숙제;
+  if(!h || S.재시험 || h.완료) return null;
+  var 분 = 제한분_(h); if(!분) return null;
+  if(!제한시작때_(h)) 제한시작적기_(h);
+  var 시작 = 제한시작때_(h);
+  return {분:분, 시작:시작, 끝날때:시작 + 분*60000};
 }
 
 function 제한멈춤_(){
@@ -6795,12 +6909,13 @@ function 제한멈춤_(){
   제한.어디 = ''; 제한.끝날때 = 0; 제한.예고함 = false;
 }
 
-function 제한시작_(어디, 다됐을때, 분){
+/* 끝날때를 주면 그때까지 (숙제 제한 — 시작한 때로 센다), 안 주면 지금부터 분만큼 */
+function 제한시작_(어디, 다됐을때, 분, 끝날때){
   제한멈춤_();
   분 = Number(분) || 0;
   if(!분) return;                       /* 0 이면 시간을 안 잰다 */
   제한.어디 = 어디;
-  제한.끝날때 = Date.now() + 분*60000;
+  제한.끝날때 = Number(끝날때) || (Date.now() + 분*60000);
   var el = $(어디); if(el) el.classList.remove('hide');
   제한그리기_();
   제한.시계 = setInterval(function(){
@@ -6815,7 +6930,7 @@ function 제한시작_(어디, 다됐을때, 분){
     if(남 <= 0){
       var 외우던중 = (제한.어디 === 'wbClock');
       제한멈춤_();
-      toast(외우던중 ? '시간이 됐어요 — 시험을 시작합니다' : '시간이 다 됐어요 — 여기까지 채점합니다');
+      toast(외우던중 ? '시간이 됐어요 — 시험을 시작합니다' : '시간이 다 됐어요. 쓴 데까지 채점할게요.');
       try{ 다됐을때(); }catch(e){}
     }
   }, 1000);
@@ -6960,7 +7075,11 @@ function startSheet(mode, list, 범위){
   본문준비_();
   drawSheet();
   show('sheet');
-  if(시험중_()) 제한시작_('shClock', function(){ if(!S.채점됨) 채점하기(); }, 시험분_());
+  var 숙제한 = 숙제제한_();
+  if(숙제한){
+    S.시작시각 = 숙제한.시작;                 /* 걸린 시간도 「시작」 을 누른 때부터 — 껐다 켜도 이어서 센다 */
+    제한시작_('shClock', function(){ if(!S.채점됨) 채점하기(); }, 숙제한.분, 숙제한.끝날때);
+  } else if(시험중_()) 제한시작_('shClock', function(){ if(!S.채점됨) 채점하기(); }, 시험분_());
   try{ window.scrollTo(0,0); }catch(e){}
 }
 
@@ -7356,6 +7475,7 @@ function 결과합격표시(점수){
 $('btnRedoHw').onclick=function(){
   var h=S.현재숙제;
   if(!h) return;
+  if(제한분_(h) && 제한지났나_(h)){ toast('시간이 지나서 이 숙제는 다시 풀 수 없어요'); return; }
   S.재시험=false;
   $('inFrom').value=h.시작; $('inTo').value=h.끝||S.단어.length;
   var m = 유형모드_(h.유형);
@@ -7471,7 +7591,9 @@ function startVerb(){
   S.게임점수=0; S.최고콤보=0; S.콤보=0;
   S.시작시각=Date.now();
   show('verb'); renderVerb();
-  if(시험중_()) 제한시작_('vClock', 시간끝_3단_, 시험분_());
+  var 숙제한 = 숙제제한_();
+  if(숙제한){ S.시작시각 = 숙제한.시작; 제한시작_('vClock', 시간끝_3단_, 숙제한.분, 숙제한.끝날때); }
+  else if(시험중_()) 제한시작_('vClock', 시간끝_3단_, 시험분_());
 }
 
 /* 시간이 다 됐을 때 — 아직 안 푼 동사는 통째로 틀린 것으로 둔다 */
@@ -9130,6 +9252,8 @@ function drawTab(){
               '<select id="hwType">'+
                 유형들.map(function(t){return '<option>'+t+'</option>';}).join('')+
               '</select></div>'+
+            '<div class="ff" style="width:88px"><label>제한(분)</label>'+
+              '<input id="hwLimit" type="tel" placeholder="없음"></div>'+
 
             '<div class="ff" style="min-width:250px"><label>언제까지</label>'+
               '<div class="rchips">'+
@@ -10485,6 +10609,15 @@ function 누적범위_(숙제들, 교재, 지난, 오늘, 칸) {
   return a ? { 시작: a, 끝: b } : null;
 }
 
+/* 초 → 「6분 20초」 */
+function 분초_(초) {
+  초 = Math.round(Number(초) || 0);
+  var m = Math.floor(초 / 60), s = 초 % 60;
+  return (m ? m + '분' : '') + (m && s ? ' ' : '') + (s || !m ? s + '초' : '');
+}
+/* 숙제 하나의 제한 시간 기본값 — 예상 시간의 1.5배를 올림 (연습은 넉넉히, 시험은 선생님이 줄인다) */
+function 제한기본_(예상분) { return Math.ceil((Number(예상분) || 0) * 1.5) || ''; }
+
 /* 받침이 있으면 「을」, 없으면 「를」 — 숫자로 끝나면 읽는 소리로 (레슨 2 → 이 → 를, 레슨 3 → 삼 → 을) */
 function 을를_(글) {
   var t = String(글 || ''), 끝 = t.charAt(t.length - 1);
@@ -10614,6 +10747,26 @@ function 수업추천짜기_(재료) {
         묶음.push(s);
       }
     }
+  }
+
+  /* 덤 — 제한 시간이 빠듯한가: 제한을 건 유형마다, 그 유형 기록의 평균 걸린 시간이 제한의 90% 를 넘으면.
+     단계를 바꾸지는 않는다 — 선생님이 제한을 늘릴지 정한다 */
+  if (!기록적음) {
+    var 제한들 = {};
+    숙제들.forEach(function (h) {
+      var m = Number(h.제한시간) || 0;
+      if (m > 0) (제한들[유형알맹이_(h.유형)] = 제한들[유형알맹이_(h.유형)] || []).push(m);
+    });
+    Object.keys(제한들).forEach(function (t) {
+      var 초들 = 기록들.filter(function (r) { return 유형알맹이_(r.유형) === t && Number(r.초) > 0; })
+        .map(function (r) { return Number(r.초); });
+      if (!초들.length) return;
+      var 평균초 = 초들.reduce(function (a, b) { return a + b; }, 0) / 초들.length;
+      var 제한분 = 제한들[t].reduce(function (a, b) { return a + b; }, 0) / 제한들[t].length;
+      if (평균초 > 제한분 * 60 * 0.9) {
+        진단.push(t + ' 평균 ' + 분초_(평균초) + ' / 제한 ' + Math.round(제한분) + '분 — 시간이 빠듯합니다');
+      }
+    });
   }
 
   /* 5순위 — 구분마다 나간 데까지의 다음 묶음 (수업 짜기의 「이어서」 와 같은 계산).
@@ -10923,7 +11076,15 @@ function 숙제손잡이(d){
   }
   /* 첫 단어·끝 단어를 보여 주려면 그 단어장의 단어가 필요하다 — 한 번만 불러와 둔다 */
   T.책단어 = T.책단어 || {};
+  /* 제한(분) — 기본은 예상 시간의 1.5배를 올림. 선생님이 고치면 그 값, 비우면 제한 없음 */
+  function 제한채우기(){
+    var e=$('hwLimit'); if(!e || e.dataset.hand) return;
+    var i=책정보(), n=Math.max(1,(Number($('hwTo').value)||0)-(Number($('hwFrom').value)||0)+1);
+    var k=i.칸 || 어디로_(책종류_(i.책, d.단어장목록||[]));
+    e.value = 제한기본_(단계분_(($('hwType')||{}).value, n, (k==='본문'||k==='문법') ? k : ''));
+  }
   function 숙제낱말(){
+    제한채우기();
     var e=$('hwLesWord');
     if(!e) return;
     var 책=$('hwBook') ? $('hwBook').value : '';
@@ -10939,6 +11100,13 @@ function 숙제손잡이(d){
       return;
     }
     e.textContent = 말 ? 첫끝말(말, $('hwFrom').value, $('hwTo').value) : '';
+    /* 비고에 묶음(단원·Lesson)이 있으면 묶음으로도 고른다 */
+    var 칸u=$('hwUnitWrap');
+    if(칸u && 말){
+      var 묶음들=묶음찾기_(말);
+      칸u.innerHTML = 묶음들.length ? 묶음고르개_(묶음들, 'hwUnit', $('hwFrom').value, $('hwTo').value) : '';
+      묶음붙이기_(묶음들, 'hwUnit', function(a, b){ $('hwFrom').value=a; $('hwTo').value=b; 숙제칩맞추기(); });
+    }
   }
   function 숙제칩맞추기(){
     고름맞추기($('hwLes'), $('hwFrom').value, $('hwTo').value);
@@ -10950,7 +11118,7 @@ function 숙제손잡이(d){
     if(!i.총){ w.innerHTML='<div class="sub">이 단어장에는 단어가 없습니다.</div>'; return; }
     w.innerHTML='<label>레슨 ('+i.묶음+'단어씩)</label><select id="hwLes">'+
       레슨옵션들(i.총, i.묶음, $('hwFrom').value, $('hwTo').value)+'</select>'+
-      '<div class="lesw" id="hwLesWord"></div>';
+      '<div class="lesw" id="hwLesWord"></div><div id="hwUnitWrap"></div>';
     $('hwLes').onchange=function(){
       if(!this.value) return;
       var p=this.value.split('|');
@@ -10966,7 +11134,10 @@ function 숙제손잡이(d){
     var 전 = 칸.value;
     칸.innerHTML = 것.map(function(t){ return '<option>'+esc(t)+'</option>'; }).join('');
     칸.value = (것.indexOf(전) > -1) ? 전 : 것[0];
+    제한채우기();
   }
+  if($('hwType')) $('hwType').addEventListener('change', 제한채우기);
+  if($('hwLimit')) $('hwLimit').oninput = function(){ this.dataset.hand = '1'; };
   /* ---------------- 수업 짜기 — 단계를 조립하고, 「오늘 추천」 이 먼저 초안을 짠다 ----------------
      · 단어장을 맨 위에서 한 번만 고른다. 단계에는 단어장 고르개가 없다
      · 과 단어장이면 단계의 첫 고르개가 「구분」(단어·본문·문법) — 자료 있는 구분만.
@@ -11027,6 +11198,8 @@ function 숙제손잡이(d){
       return 단계분_(s.유형, 개수(s), (k==='본문' || k==='문법') ? k : '');
     }
     function 합계(){ var t=0; 짐.단계.forEach(function(s){ t += 분(s); }); return t; }
+    /* 제한 시간 — 「분」(예상, 예산 계산용)과 다른 것. 안 고쳤으면 예상의 1.5배, 비우면('') 제한 없음 */
+    function 제한값(s){ return s.제한 === undefined ? 제한기본_(분(s)) : s.제한; }
     function 유형들(s){ return 책유형들_(짐.책, 책들, 과책() ? (s.칸 || '단어') : ''); }
     function 새단계(누적){
       if(누적) return {종류:'누적', 지난:4, 개수:20, 유형:'스펠링'};
@@ -11079,6 +11252,7 @@ function 숙제손잡이(d){
       }
       return '<div class="sjstep" data-i="'+i+'"><span class="sjn">'+(i+1)+'</span>'+몸+
         '<span class="sjmin"><input data-f="분" type="tel" value="'+분(s)+'"'+(s.분고침?' class="hand"':'')+'>분</span>'+
+        '<span class="sjlim">제한 <input data-f="제한" type="tel" placeholder="없음" value="'+제한값(s)+'"'+(s.제한!==undefined?' class="hand"':'')+'>분</span>'+
         '<span class="sjmv"><button type="button" data-mv="-1" aria-label="위로"'+(i===0?' disabled':'')+'>↑</button>'+
         '<button type="button" data-mv="1" aria-label="아래로"'+(i===짐.단계.length-1?' disabled':'')+'>↓</button>'+
         '<button type="button" data-del aria-label="빼기">✕</button></span>'+
@@ -11199,7 +11373,7 @@ function 숙제손잡이(d){
         if(s.종류==='누적') return {종류:'누적', 지난:Number(s.지난)||4, 개수:Number(s.개수)||20,
                                     유형:s.유형||'스펠링', 분:s.분, 분고침:손};
         var 칸 = s.칸 || s.어디 || '단어';          /* 옛 틀은 「어디」 로 적혀 있다 */
-        var o = {종류:'보통', 유형:s.유형, 분:s.분, 분고침:손};
+        var o = {종류:'보통', 유형:s.유형, 분:s.분, 분고침:손, 제한:s.제한};
         if(과책()){
           if(칸목록().indexOf(칸) < 0){ 빠진.push(칸); return null; }
           o.칸 = 칸;
@@ -11226,6 +11400,7 @@ function 숙제손잡이(d){
         if(s.종류==='누적') o.지난 = Number(s.지난)||4;
         else o.칸 = 어디칸(s);
         if(s.분고침) o.분 = Number(s.분)||0;
+        if(s.제한 !== undefined && s.제한 !== '') o.제한 = s.제한;
         return o;
       });
       api('수업틀저장', T.pw, 이름, 단계).then(function(r){
@@ -11249,9 +11424,11 @@ function 숙제손잡이(d){
         if(s.종류==='누적'){
           var 칸 = 누적칸(s);
           if(!칸){ 탈 = 탈 || (i+1)+'단계 누적: 지난 '+(Number(s.지난)||4)+'수업에 나간 숙제가 없어요'; return null; }
-          return {단어장:짐.책, 칸: 과책() ? '단어' : '', 시작:칸.시작, 끝:칸.끝, 유형:누적유형_(s.유형, s.개수, s.함께)};
+          return {단어장:짐.책, 칸: 과책() ? '단어' : '', 시작:칸.시작, 끝:칸.끝, 유형:누적유형_(s.유형, s.개수, s.함께),
+                  제한시간:제한값(s)};
         }
-        return {단어장:짐.책, 칸: 과책() ? (s.칸 || '단어') : '', 시작:Number(s.시작)||1, 끝:Number(s.끝)||0, 유형:유형알맹이_(s.유형)};
+        return {단어장:짐.책, 칸: 과책() ? (s.칸 || '단어') : '', 시작:Number(s.시작)||1, 끝:Number(s.끝)||0, 유형:유형알맹이_(s.유형),
+                제한시간:제한값(s)};
       });
       return 탈 ? {탈:탈} : {것:것};
     }
@@ -11297,12 +11474,14 @@ function 숙제손잡이(d){
         qsa('[data-f]', row).forEach(function(el){
           var f = el.dataset.f;
           el.addEventListener(el.tagName==='SELECT' ? 'change' : 'input', function(){
+            if(f==='제한'){ s.제한 = el.value.trim()==='' ? '' : (Number(el.value) || ''); el.classList.add('hand'); return; }
             if(f==='분'){ s.분 = Number(el.value) || 0; s.분고침 = true; el.classList.add('hand'); 합계그리기(); return; }
             s[f] = (f==='시작' || f==='끝' || f==='개수' || f==='지난') ? (Number(el.value) || 0) : el.value;
             if(f==='지난'){ delete s.시작; delete s.끝; }          /* 범위는 앱이 다시 찾는다 */
             if(f==='칸') 범위채우기(s);                             /* 구분을 바꾸면 그 구분의 「이어서」 */
             if(el.tagName==='SELECT'){ 그리기(); return; }          /* 고르개가 바뀌면 줄 모양이 바뀔 수 있다 */
             var m = row.querySelector('[data-f="분"]'); if(m && !s.분고침) m.value = 분(s);
+            var l = row.querySelector('[data-f="제한"]'); if(l && s.제한 === undefined) l.value = 제한기본_(분(s));
             합계그리기();
           });
         });
@@ -11377,7 +11556,8 @@ function 숙제손잡이(d){
       단어장:책,
       시작:$('hwFrom').value, 끝:$('hwTo').value,
       유형:$('hwType').value, 마감일:$('hwDue').value,
-      종류:종류값(), 학생들:학생들, 칸:지금구분()
+      종류:종류값(), 학생들:학생들, 칸:지금구분(),
+      제한시간: ($('hwLimit') && $('hwLimit').value.trim()) ? Number($('hwLimit').value) || '' : ''
     }).then(function(r){
       if(!r.ok){ toast(r.메시지||'내지 못했습니다'); return; }
       toast(학생들.length
