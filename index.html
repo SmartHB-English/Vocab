@@ -670,6 +670,66 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
   font-family:inherit;margin-top:2px
 }
 .qrow .dw{font-weight:900}
+/* 수업 짜기 (선생님) — 단계 한 줄씩 */
+.sjsteps{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.sjstep{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.sjstep select,.sjstep input{height:38px;min-height:0;margin:0;width:auto;padding:0 8px}
+.sjstep input[type=tel]{width:62px;text-align:center}
+.sjstep select[data-f="단어장"]{min-width:170px}
+.sjn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--primary-soft);color:var(--primary);font-weight:800;font-size:13px;flex:none}
+.sjkind{font-size:12px;font-weight:800;color:var(--sub);min-width:28px}
+.sjkind.cum{color:var(--primary)}
+.sjauto,.sjunit{font-size:12.5px;color:var(--sub)}
+.sjrange{font-size:13px;font-weight:700;color:var(--sub)}
+.sjmin{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--sub)}
+.sjmin input.hand{border-color:var(--primary)}
+.sjmv{display:inline-flex;gap:4px}
+.sjmv button{width:32px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer;font-size:14px;color:var(--text);font-family:inherit}
+.sjmv button:disabled{opacity:.35;cursor:default}
+.sjwhy{flex:0 0 100%;font-size:12.5px;font-weight:700;color:var(--primary-d);padding-left:34px}
+.sjempty{padding:16px;text-align:center;color:var(--sub);font-size:13px;border:1px dashed var(--line);border-radius:12px}
+.sjfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sjbtns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+/* 선생님 화면의 .btn 은 한 줄을 다 차지한다 — 짜개 안에서는 글자만큼만 */
+#lsBox .sjbtns .btn,#lsBox .sjrecb .btn{width:auto;flex:none;margin:0;display:inline-flex;align-items:center;justify-content:center;padding:0 16px;min-height:38px;height:38px}
+#lsBox .sjbtns select{height:38px;min-height:0;margin:0;width:auto;padding:0 10px;font-size:14px;line-height:1.2}
+.sjsum{margin-left:auto;font-size:14px;color:var(--sub)}
+.sjsum b{color:var(--text)}
+.sjsum.over,.sjsum.over b{color:var(--ng)}
+.sjrec{border:1.5px solid var(--primary);border-radius:14px;padding:14px 16px;margin:12px 0;background:var(--primary-soft)}
+.sjwait{font-weight:700;color:var(--primary-d)}
+.sjrech{display:flex;justify-content:space-between;gap:12px;font-size:15px;margin-bottom:8px}
+.sjdt{font-size:12px;font-weight:800;color:var(--sub);margin-bottom:2px}
+.sjdiag ul{margin:0 0 10px;padding-left:18px;font-size:13.5px;line-height:1.6}
+.sjrecl{margin:0 0 12px;padding-left:22px;font-size:14px;line-height:1.8}
+.sjrecl .sjm{margin-left:10px;color:var(--sub);font-weight:700}
+.sjrecl i{margin-left:10px;font-style:normal;color:var(--primary-d);font-weight:700;font-size:13px}
+.sjrecb{display:flex;gap:8px;flex-wrap:wrap}
+/* 철자 글자 맞춰 보기 — 두 줄의 이름표와 글자 칸 너비를 같게 해서 글자가 위아래로 맞닿는다 */
+.ltrow{display:flex;align-items:baseline;gap:8px;margin-top:7px}
+.ltrow + .ltrow{margin-top:2px}
+.ltk{flex:none;width:3.6em;font-size:12px;font-weight:800;color:var(--sub)}
+.real.ltrow .ltk{color:var(--ok)}
+.ltw{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:19px;font-weight:800;white-space:pre}
+.lc{display:inline-block;width:1.2ch;text-align:center;font-style:normal}
+.ltrow.mine .lc{color:var(--text)}
+.ltrow .lc.ng{color:var(--ng)}
+.ltrow .lc.more{text-decoration:line-through}
+.ltrow .lc.lack{color:var(--ng);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.qrow .spk + .sin{margin-top:8px}
+/* 틀린 것 3번 쓰기 */
+.c3ko{font-size:17px;font-weight:800;color:var(--sub);margin-top:10px}
+.c3en{font-size:34px;font-weight:900;letter-spacing:.02em;margin:6px 0 10px;word-break:break-all}
+.c3say{border:1.5px solid var(--primary);background:var(--primary-soft);color:var(--primary);border-radius:12px;
+  padding:8px 14px;font-size:14px;font-weight:900;font-family:inherit;cursor:pointer}
+.c3dots{display:flex;justify-content:center;gap:10px;margin:16px 0 12px}
+.c3dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--line)}
+.c3dots i.on{background:var(--ok);border-color:var(--ok)}
+.c3in{font-size:22px;text-align:center;font-weight:800}
+.c3in.ng{border-color:var(--ng)}
+.c3msg{min-height:24px;margin:10px 0 12px;font-size:14px;font-weight:700;color:var(--sub)}
+.c3msg .ltrow{justify-content:center}
+.c3big{font-size:24px;font-weight:900}
 .qrow .dw.miss{color:var(--ng);text-decoration:underline;text-decoration-style:wavy}
 .qrow .memo{margin-top:6px;font-size:12px;font-weight:700;color:var(--sub)}
 .sheetbar{
@@ -1831,6 +1891,12 @@ html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="hint"]
 html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="time"],html[data-theme] body:not(.hb0) #s-study .mtile.go{display:none}
 html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="flash"],html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="book"],
 html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="time"],html[data-theme] body:not(.hb0)[data-sv="test"] #s-study #btnVerbTest{display:none}
+/* 본문 단어장도 외우기(빈칸·순서)와 시험(영작·듣고 쓰기)으로 가른다.
+   #textModes 는 모드박스()가 style 로 켜서 위의 #textModes 숨김이 안 먹으므로 타일마다 가린다.
+   문법은 빈칸 하나뿐이라 시험에서도 빈칸을 남긴다 — 문법일 때만 순서 타일에 .hide 가 붙는 것으로 가린다. */
+html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="write"],html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="dict"],
+html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="order"],
+html[data-theme] body:not(.hb0)[data-sv="test"] #s-study:not(:has(.mtile[data-mode="order"].hide)) .mtile[data-mode="cloze"]{display:none}
 html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="flash"],html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="spell"]{grid-column:1 / -1;min-height:210px;padding:22px;overflow:hidden;order:-5}
 html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="flash"] b,html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="spell"] b{font-size:30px;letter-spacing:-.03em}
 html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .mtile[data-mode="flash"] i,html[data-theme] body:not(.hb0)[data-sv="test"] #s-study .mtile[data-mode="spell"] i{font-size:14px}
@@ -2102,6 +2168,10 @@ html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin){display:flex;
 html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin) .qhead{display:flex;align-items:center;gap:12px;margin:0;width:auto;flex:0 0 auto}
 html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin) .qtext{width:92px;font-size:16px;font-weight:700;line-height:1.25;word-break:keep-all}
 html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin) .mark{display:none}
+/* 채점 뒤 「내 답 / 정답」 줄은 한 줄짜리 칸 옆에 끼우면 잘린다 — 아래로 내려 한 줄을 다 쓴다 */
+html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.real){flex-wrap:wrap;row-gap:4px}
+html[data-theme] body:not(.hb0) #shList .qrow:not(.sent) > .real,html[data-theme] body:not(.hb0) #shList .qrow:not(.sent) > .blank,
+html[data-theme] body:not(.hb0) #shList .qrow:not(.sent) > .ltrow{flex:0 0 100%;margin-top:0}
 html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin) .sin{flex:1;min-width:0;height:40px;min-height:40px;margin:0;border:0;background:var(--bg);border-radius:11px;padding:0 12px;font-size:18px;font-weight:600}
 html[data-theme] body:not(.hb0) #shList .qn{width:26px;height:26px;border-radius:50%;background:var(--fill);color:var(--sub);font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex:none}
 /* 외우기 칸에는 「내 숙제 기록 · 사용법」 묶음을 두지 않는다 (시안: 시험 칸에만) */
@@ -2682,10 +2752,39 @@ html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(
     <div class="mt"></div>
     <button class="btn hide" id="btnRedoHw">숙제 다시 풀기</button>
     <div class="mt"></div>
+    <button class="btn line hide" id="btnCopy3">틀린 것 3번 쓰기</button>
+    <div class="mt"></div>
     <button class="btn" id="btnRetryWrong">틀린 것만 다시 풀기</button>
     <div class="mt"></div>
     <button class="btn ghost" data-back="home">처음으로</button>
     <div class="foot">잘했어요</div>
+  </section>
+
+  <!-- ========================= 틀린 것 3번 쓰기 ========================= -->
+  <section id="s-copy3" class="screen">
+    <div class="top">
+      <button class="iconbtn" data-back="result">← 결과로</button>
+      <div class="who" id="c3Prog"></div>
+    </div>
+    <div class="card center" id="c3Card">
+      <div class="sub">보고 그대로 세 번 써요</div>
+      <div class="c3ko" id="c3Ko"></div>
+      <div class="c3en" id="c3En"></div>
+      <button type="button" class="c3say" id="c3Say">🔊 듣기</button>
+      <div class="c3dots" id="c3Dots"></div>
+      <input class="c3in" id="c3In" inputmode="latin" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" placeholder="여기에 써요">
+      <div class="c3msg" id="c3Msg"></div>
+      <button class="btn" type="button" id="c3Ok">썼어요</button>
+    </div>
+    <div class="card center hide" id="c3Done">
+      <div class="c3big">다 썼어요! ✍️</div>
+      <div class="sub mt">이번엔 안 보고 풀어 볼까요?</div>
+      <div class="mt"></div>
+      <button class="btn" type="button" id="c3Retry">오답노트 다시 풀기</button>
+      <div class="mt"></div>
+      <button class="btn ghost" type="button" id="c3Back">결과로 돌아가기</button>
+    </div>
   </section>
 
   <!-- ========================= 내 기록 / 랭킹 ========================= -->
@@ -2794,7 +2893,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-06c';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-06e';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -2903,13 +3002,13 @@ var DEMO_HW = [
   {행:6,단어장:'예시 단어장',시작:1,끝:25,유형:'스펠링',마감일:'2026-12-20',학생:'',색:'#FF7A3D',종류:'시험',지남:false,
    대상수:2,한사람:[],안한사람:['홍길동','김영희']},
   /* 마감이 지난 것들 — 목록이 길어졌을 때를 보여 주려고 */
-  {행:7,단어장:'예시 단어장',시작:1,끝:5,유형:'스펠링',마감일:DEMO_지난(3),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
+  {행:7,단어장:'예시 단어장',시작:1,끝:5,유형:'스펠링',마감일:DEMO_지난(3),등록일:DEMO_지난(3),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
    대상수:2,한사람:['김영희'],안한사람:['홍길동']},
-  {행:8,단어장:'예시 단어장',시작:6,끝:10,유형:'첫 글자',마감일:DEMO_지난(9),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
+  {행:8,단어장:'예시 단어장',시작:6,끝:10,유형:'첫 글자',마감일:DEMO_지난(9),등록일:DEMO_지난(9),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
    대상수:2,한사람:[],안한사람:['홍길동','김영희']},
-  {행:9,단어장:'불규칙 동사 50',시작:1,끝:10,유형:'3단변화',마감일:DEMO_지난(40),학생:'',색:'#3B82F6',종류:'기한',지남:true,
+  {행:9,단어장:'불규칙 동사 50',시작:1,끝:10,유형:'3단변화',마감일:DEMO_지난(40),등록일:DEMO_지난(40),학생:'',색:'#3B82F6',종류:'기한',지남:true,
    대상수:2,한사람:[],안한사람:['홍길동','이철수']},
-  {행:10,단어장:'예시 단어장',시작:11,끝:20,유형:'스펠링',마감일:DEMO_지난(70),학생:'김영희',색:'#FF7A3D',종류:'기한',지남:true,
+  {행:10,단어장:'예시 단어장',시작:11,끝:20,유형:'스펠링',마감일:DEMO_지난(70),등록일:DEMO_지난(70),학생:'김영희',색:'#FF7A3D',종류:'기한',지남:true,
    대상수:1,한사람:[],안한사람:['김영희']},
   /* 교재로 낸 숙제 — 그 교재를 받은 학생 전원에게 한 줄로 나간다 */
   {행:11,단어장:'예시 단어장',시작:31,끝:40,유형:'스펠링',마감일:'2026-12-28',학생:'',색:'#FF7A3D',종류:'기한',지남:false,
@@ -2921,6 +3020,16 @@ var DEMO_HW = [
    대상수:1,한사람:[],안한사람:['김영희']}
 ];
 var DEMO_HW다음행 = 14;
+/* 미리보기 기록 — 진짜로는 「기록」 시트. 오늘 추천·내오답이 이걸 본다 (검사가 채워 넣는다) */
+var DEMO_기록 = [];
+/* 미리보기 수업틀 — 진짜 앱의 시트처럼 처음 부를 때 처음 틀을 옮겨 담는다 */
+var DEMO_수업틀 = null;
+function DEMO_틀들(){
+  if(!DEMO_수업틀) DEMO_수업틀 = 처음수업틀_.map(function(t){
+    return {이름:t.이름, 단계:JSON.parse(JSON.stringify(t.단계))};
+  });
+  return DEMO_수업틀;
+}
 
 var DEMO_공지 = [
   {키:'n1', 제목:'추석 연휴 휴강 안내',
@@ -3216,28 +3325,70 @@ var DEMO = {
     return {ok:true,개수:n-DEMO_HW.length,자른날:자른,숙제목록:DEMO_HW.slice()};},
   오래된기록정리API:function(){return {ok:true,개수:0};},
   수업꾸러미목록:function(){
-    return [
-      {키:'본문1',이름:'본문 1회차',설명:'단어 확인 → 본문 빈칸 → 해석 보고 영작',
-       단계:[{어디:'단어',유형:'스펠링'},{어디:'본문',유형:'빈칸 채우기'},{어디:'본문',유형:'영작'}]},
-      {키:'본문정리',이름:'본문 총정리',설명:'빈칸 → 순서 맞추기 → 영작 → 듣고 쓰기',
-       단계:[{어디:'본문',유형:'빈칸 채우기'},{어디:'본문',유형:'순서 맞추기'},
-             {어디:'본문',유형:'영작'},{어디:'본문',유형:'듣고 쓰기'}]},
-      {키:'문법',이름:'문법 확인',설명:'문법 빈칸 → 본문 빈칸 (오늘 배운 어법 굳히기)',
-       단계:[{어디:'문법',유형:'빈칸 채우기'},{어디:'본문',유형:'빈칸 채우기'}]},
-      {키:'본문문법',이름:'본문 + 문법 (한 회차 전체)',설명:'단어 → 본문 빈칸 → 영작 → 문법 빈칸',
-       단계:[{어디:'단어',유형:'스펠링'},{어디:'본문',유형:'빈칸 채우기'},
-             {어디:'본문',유형:'영작'},{어디:'문법',유형:'빈칸 채우기'}]},
-      {키:'단어집중',이름:'단어 집중',설명:'4지선다 → 스펠링',
-       단계:[{어디:'단어',유형:'4지선다'},{어디:'단어',유형:'스펠링'}]},
-      {키:'시험대비',이름:'시험 대비',설명:'단어 스펠링 → 본문 영작 (둘 다 한 번만)',
-       단계:[{어디:'단어',유형:'스펠링'},{어디:'본문',유형:'영작'}]}
-    ];
+    return 처음수업틀_.map(function(t){ return {키:t.키,이름:t.이름,설명:t.설명,단계:t.단계}; });
   },
   수업내주기:function(pw,c){
-    var 꾸 = DEMO.수업꾸러미목록().filter(function(k){return k.키===c.꾸러미;})[0];
-    if(!꾸) return {ok:false,메시지:'꾸러미를 골라 주세요.'};
     if(!String(c.이름||'').trim()) return {ok:false,메시지:'수업 이름을 적어 주세요.'};
-    return {ok:true, 이름:c.이름, 단계수:꾸.단계.length, 숙제목록:DEMO.전체숙제?DEMO.전체숙제():[]};
+    if(!(c.단계 && c.단계.length)){
+      var 꾸 = 처음수업틀_.filter(function(k){return k.키===c.꾸러미;})[0];
+      if(!꾸) return {ok:false,메시지:'꾸러미를 골라 주세요.'};
+      return {ok:true, 이름:c.이름, 단계수:꾸.단계.length, 숙제목록:DEMO_HW.slice()};
+    }
+    var 됨=0, 탈=[];
+    c.단계.forEach(function(d,i){
+      var r = DEMO.숙제등록(pw,{단어장:d.단어장,시작:d.시작,끝:d.끝,유형:d.유형,종류:c.종류,
+        마감일:c.마감일,학생들:c.학생들,수업:c.이름,순서:i+1});
+      if(r.ok) 됨++; else 탈.push((i+1)+'단계 '+d.유형+' — '+r.메시지);
+    });
+    if(!됨) return {ok:false, 메시지:탈[0]||'수업을 내지 못했습니다.'};
+    return {ok:true, 이름:c.이름, 단계수:됨, 메시지:탈.length?('일부만 나갔습니다 — '+탈.join(' / ')):'',
+            숙제목록:DEMO_HW.slice()};
+  },
+  수업틀목록:function(){ return {ok:true, 틀:JSON.parse(JSON.stringify(DEMO_틀들()))}; },
+  수업틀저장:function(pw,이름,단계){
+    이름 = String(이름||'').trim();
+    if(!이름) return {ok:false,메시지:'틀 이름을 적어 주세요.'};
+    var 정리 = (단계||[]).filter(function(x){ return x && x.유형; }).map(function(x){
+      var o = {};
+      ['종류','어디','단어장','시작','끝','유형','분','지난','개수'].forEach(function(k){
+        if(x[k]!==undefined && x[k]!==null && x[k]!=='') o[k]=x[k];
+      });
+      return o;
+    });
+    if(!정리.length) return {ok:false,메시지:'단계를 하나 이상 넣어 주세요.'};
+    var 틀 = DEMO_틀들(), 있던 = 틀.filter(function(t){ return t.이름===이름; })[0];
+    if(있던) 있던.단계 = 정리; else 틀.push({이름:이름, 단계:정리});
+    return DEMO.수업틀목록();
+  },
+  수업틀삭제:function(pw,이름){
+    DEMO_수업틀 = DEMO_틀들().filter(function(t){ return t.이름!==이름; });
+    return DEMO.수업틀목록();
+  },
+  /* 진짜 앱의 수업재료_ 를 흉내 내서 같은 규칙(수업추천짜기_)을 돌린다 */
+  수업추천:function(pw,교재,예산){
+    var 책 = DEMO.시작정보().단어장목록.filter(function(b){ return b.이름===교재; })[0] || {};
+    var 한달전 = DEMO_지난(30);
+    var 단어들 = DEMO.단어가져오기(교재).map(function(w){ return w.en; });
+    return {ok:true, 추천:수업추천짜기_({
+      교재:교재, 종류:책.종류||'', 오늘:DEMO_지난(0), 예산:Number(예산)||추천예산기본_,
+      레슨:책.레슨||DEMO_레슨[교재]||10, 총:책.개수||단어들.length,
+      학생수:DEMO_교재학생(교재).length,
+      숙제들:DEMO_HW.filter(function(h){ return h.단어장===교재 && h.종류!=='시험'; }).map(function(h){
+        return {단어장:h.단어장,시작:h.시작,끝:h.끝,유형:h.유형,등록:h.등록일||'',안낸수:(h.안한사람||[]).length};
+      }),
+      기록들:DEMO_기록.filter(function(r){ return r.단어장===교재 && r.날>=한달전; }),
+      단어들:단어들
+    })};
+  },
+  내오답:function(이름,단어장,함께){
+    var 본={}, 단어=[];
+    function 넣기(w){ var k=String(w||'').toLowerCase(); if(!k || 본[k]) return; 본[k]=1; 단어.push(w); }
+    if(함께) 함께틀린_(DEMO_기록.filter(function(r){ return r.단어장===단어장 && r.날>=DEMO_지난(30); }),
+                     DEMO_교재학생(단어장).length).forEach(function(x){ 넣기(x.글); });
+    DEMO_기록.filter(function(r){ return r.이름===이름 && r.단어장===단어장; })
+      .sort(function(a,b){ return a.날<b.날 ? 1 : -1; }).slice(0,10)
+      .forEach(function(r){ 틀린칸풀기_(r.틀린).forEach(넣기); });
+    return {ok:true, 단어:단어};
   },
   수업삭제:function(){ return {ok:true, 지운수:0, 숙제목록:DEMO.전체숙제?DEMO.전체숙제():[]}; },
   숙제등록:function(pw,h){
@@ -3254,7 +3405,7 @@ var DEMO = {
     DEMO_HW.push({행:DEMO_HW다음행++,단어장:책,
       시작:Number(h.시작)||1,끝:Number(h.끝)||0,유형:h.유형,
       마감일:(종류==='기한'||종류==='시험')?h.마감일:오늘,학생:고른.join(', '),
-      색:색맵[책]||'',종류:종류,지남:false,
+      색:색맵[책]||'',종류:종류,지남:false,수업:h.수업||'',순서:Number(h.순서)||0,등록일:오늘,
       대상수:대상들.length,한사람:[],안한사람:대상들.slice()});
     return {ok:true,개수:1,대상:대상들.length,숙제목록:DEMO_HW.slice()};},
   교재대상:function(pw,교재){
@@ -3419,8 +3570,9 @@ function 뒤로기록_(이전, 갈곳){
   if(i > -1){
     var 걸음 = 뒤로표_.length - i;
     뒤로표_.length = i;
-    무시할팝_ += 걸음;
-    try{ history.go(-걸음); }catch(e){ 무시할팝_ -= 걸음; }
+    /* history.go(-n) 은 몇 걸음을 가든 popstate 를 한 번만 낸다 — 걸음 수만큼 세면 남은 수가 아이의 다음 뒤로가기를 삼킨다 */
+    무시할팝_ += 1;
+    try{ history.go(-걸음); }catch(e){ 무시할팝_ -= 1; }
     return;
   }
   뒤로표_.push(이전);
@@ -4436,6 +4588,9 @@ function 인쇄하기(html, 양면){
 /* 순위 화면 — 불꽃 / 이달의 점수 / 게임 */
 function 순위열기(칸){
   S.순위탭 = 칸 || S.순위탭 || '불꽃';
+  /* 순위는 게임 화면 안에서도 들어온다 — 「뒤로」 가 늘 숙제로 가면 아이가 게임을 잃는다 */
+  var 뒤 = document.querySelector('#s-streak [data-back]');
+  if(뒤) 뒤.dataset.back = 지금화면_()==='games' ? 'games' : 'home';
   drawRank();
   show('streak');
   if(S.순위탭==='게임') 게임순위새로();     // 방금 한 판이 바로 반영되게
@@ -5168,6 +5323,8 @@ function 본문책(){ return S.종류==='본문' || S.종류==='문법'; }
 function 문법책(){ return S.종류==='문법'; }
 var 본문방법들 = ['cloze','order','write','dict'];
 function 본문방법_(m){ return 본문방법들.indexOf(m) > -1; }
+/* 듣고 쓰기는 본문이면 문장을, 보통 단어장이면 낱말 하나를 받아 쓴다 — 문장으로 푸는 방법인지 가린다 */
+function 문장방법_(m){ return 본문방법_(m) && (m !== 'dict' || 본문책()); }
 
 function 모드박스(){
   var mb=$('modeBox');
@@ -5176,8 +5333,10 @@ function 모드박스(){
   $('verbForm').classList.toggle('hide', !v);
   $('btnVerbTest').classList.toggle('hide', !v);
   $('normalModes').classList.toggle('hide', v || t);
+  /* 듣고 쓰기는 보통 단어장에서도 쓴다 — 3단변화가 아니면 본문 칸(#textModes)을 열고,
+     본문이 아닌 단어장에선 아래에서 빈칸·순서·영작만 가린다 */
   var tm=$('textModes');
-  if(tm){ tm.classList.toggle('hide', !t); tm.style.display = t ? 'contents' : 'none'; }
+  if(tm){ tm.classList.toggle('hide', v); tm.style.display = v ? 'none' : 'contents'; }
   /* 3단변화에는 4지선다·첫 글자·타임어택이, 본문에는 그 셋과 플래시카드가 맞지 않는다 */
   ['choice','hint','time'].forEach(function(m){
     qsa('.mtile[data-mode="'+m+'"]').forEach(function(x){ x.classList.toggle('hide', v || t); });
@@ -5185,11 +5344,12 @@ function 모드박스(){
   qsa('.mtile[data-mode="flash"]').forEach(function(x){ x.classList.toggle('hide', t); });
   /* 문법은 빈칸 채우기 하나로 충분하다 — 순서·영작·듣고 쓰기는 문제 모양에 안 맞는다 */
   var g = 문법책();
-  ['order','write','dict'].forEach(function(m){
-    qsa('.mtile[data-mode="'+m+'"]').forEach(function(x){
-      if(g) x.classList.add('hide');
-    });
+  ['cloze','order','write','dict'].forEach(function(m){
+    /* 붙이기만 하면 문법 → 본문으로 바꿔도 타일이 안 돌아온다 — 매번 켜고 끈다 */
+    var 가림 = m==='dict' ? (v || g) : m==='cloze' ? !t : (!t || g);
+    qsa('.mtile[data-mode="'+m+'"]').forEach(function(x){ x.classList.toggle('hide', 가림); });
   });
+  qsa('.mtile[data-mode="dict"] i').forEach(function(x){ x.textContent = t ? '들리는 문장 쓰기' : '들리는 단어 쓰기'; });
   qsa('.mtile[data-mode="book"]').forEach(function(x){
     var b=x.querySelector('b'), i=x.querySelector('i');
     if(b) b.textContent = g ? '문제 보기' : t ? '본문 보기' : '단어장 보기';
@@ -5200,7 +5360,7 @@ function 모드박스(){
   if(v) 방법고르기('verb');
   else if(g) 방법고르기(전==='book' ? 'book' : 'cloze');
   else if(t) 방법고르기(본문방법_(전) || 전==='book' ? 전 : 'cloze');
-  else if(!전 || 전==='verb' || 본문방법_(전)) 방법고르기('spell');
+  else if(!전 || 전==='verb' || (본문방법_(전) && 전!=='dict')) 방법고르기('spell');
   else 방법고르기(전);
 }
 if($('btnHandRange')) $('btnHandRange').onclick=function(){
@@ -5870,6 +6030,7 @@ function drawHw(){
         drawQuick();
         var m = 유형모드_(h.유형);
         if(m==='verb'){ startVerb(); return; }
+        if(누적인가_(h.유형)){ 누적시작_(h, m, 표); return; }
         startQuiz(m);
       });
     };
@@ -5967,7 +6128,8 @@ function 방법고르기(m){
   var b=$('btnStartMode'); if(b) b.textContent=(방법이름[m]||'연습')+' 시작';
 }
 function 방법시작(m){
-  S.현재숙제=null; S.돌아갈곳='study';
+  /* 시험 칸에서 시작한 연습은 끝나고 시험 칸으로 돌아가야 한다 (외우기·시험은 한 화면이라 보기로 가린다) */
+  S.현재숙제=null; S.돌아갈곳 = 지금화면_()==='exam' ? 'exam' : 'study';
   if(m==='games'){ 게임책고르기(null, function(){ drawGames(); }); show('games'); return; }
   if(m==='book') startBook();
   else if(m==='flash') startFlash();
@@ -5985,7 +6147,7 @@ if($('btnStartMode')) $('btnStartMode').onclick=function(){
   if(v && ['spell','choice','hint','time'].concat(본문방법들).indexOf(m)>=0) m='verb';
   if(!v && m==='verb') m = t ? 'cloze' : 'spell';
   if(t && ['spell','choice','hint','time','flash'].indexOf(m)>=0) m='cloze';
-  if(!t && 본문방법_(m)) m='spell';
+  if(!t && 본문방법_(m) && m!=='dict') m='spell';
   방법시작(m);
 };
 /* 선생님 — 위 묶음 단추를 누르면 그 묶음의 첫 칸으로 */
@@ -6029,6 +6191,26 @@ function 기록범위(r){
 }
 
 /* 범위 뽑기 */
+/* 누적 단계 — 숙제는 반 공통이지만, 그 아이가 전에 틀린 단어를 먼저 뽑는다.
+   범위 안에서 틀렸던 것을 먼저 고르고, 모자라면 나머지를 무작위로 채운 뒤 한 번 섞는다
+   (틀린 것이 늘 맨 위에 몰려 있으면 아이가 눈치챈다) */
+function 누적고르기_(목록, 틀린, 개수){
+  var 표 = {};
+  (틀린||[]).forEach(function(w){ 표[String(w).toLowerCase().trim()] = 1; });
+  var 먼저 = [], 나머지 = [];
+  (목록||[]).forEach(function(w){ (표[String(w.en||'').toLowerCase().trim()] ? 먼저 : 나머지).push(w); });
+  return shuffle(shuffle(먼저).concat(shuffle(나머지)).slice(0, Math.max(1, Number(개수) || 20)));
+}
+function 누적시작_(h, m, 표){
+  var 이름 = S.학생 ? S.학생.이름 : '';
+  api('내오답', 이름, h.단어장, 함께누적인가_(h.유형)).then(function(r){ return (r && r.단어) || []; })
+    .catch(function(){ return []; })          /* 못 받아도 숙제는 풀 수 있어야 한다 — 그냥 무작위로 */
+    .then(function(틀린){
+      if(표 !== 숙제열기표_) return;
+      startQuiz(m, 누적고르기_(범위단어().list, 틀린, 누적개수_(h.유형)));
+    });
+}
+
 function 범위단어(){
   var a=Math.max(1,parseInt($('inFrom').value,10)||1);
   var b=Math.min(S.단어.length,parseInt($('inTo').value,10)||S.단어.length);
@@ -6356,15 +6538,59 @@ function 낱말대보기_(정답, 내답){
   }).join(' ');
 }
 
-function startQuiz(mode){
+/* 철자 한 낱말 — 내 답과 정답을 글자 단위로 맞춰 본다.
+   두 줄을 같은 칸 수로 세워 어긋난 자리가 위아래로 맞닿게 한다.
+   · 틀린 글자: 빨강 · 더 쓴 글자: 빨강+취소선(정답 줄은 빈 칸) · 빠뜨린 글자: 정답 줄에 빨간 밑줄(내 답 줄은 빈 칸)
+   문장(본문·문법)은 글자로 대면 너무 시끄러워서 낱말대보기_() 를 그대로 쓴다. */
+function 글자대보기_(정답, 내답){
+  /* 「color / colour」 처럼 답이 여럿이면 내 답과 가장 가까운 것과 견준다 */
+  var 후보 = [String(정답)].concat(String(정답).split(/\s*[\/,;]\s*/))
+    .map(function(x){ return x.trim(); }).filter(String);
+  var 내 = String(내답).trim(), 고른 = null;
+  후보.forEach(function(c){
+    var 짝 = 글자짝_(c, 내);
+    if(!고른 || 짝.거리 < 고른.거리) 고른 = 짝;
+  });
+  function 칸(c){ return c === ' ' ? '&nbsp;' : esc(c); }
+  var 위 = '', 아래 = '';
+  고른.짝.forEach(function(p){
+    if(p.정 == null){ 위 += '<i class="lc ng more">'+칸(p.내)+'</i>'; 아래 += '<i class="lc"></i>'; }
+    else if(p.내 == null){ 위 += '<i class="lc"></i>'; 아래 += '<i class="lc lack">'+칸(p.정)+'</i>'; }
+    else if(p.같){ 위 += '<i class="lc">'+칸(p.내)+'</i>'; 아래 += '<i class="lc">'+칸(p.정)+'</i>'; }
+    else { 위 += '<i class="lc ng">'+칸(p.내)+'</i>'; 아래 += '<i class="lc">'+칸(p.정)+'</i>'; }
+  });
+  return '<div class="ltrow mine"><span class="ltk">내 답</span><span class="ltw">'+위+'</span></div>'+
+         '<div class="real ltrow"><span class="ltk">정답 :</span><span class="ltw">'+아래+'</span></div>';
+}
+/* 편집거리 표를 거꾸로 따라가며 글자 짝을 짓는다 — 대소문자는 같은 글자로 본다 */
+function 글자짝_(정답, 내답){
+  var A = 정답.split(''), B = 내답.split('');
+  var a = 정답.toLowerCase(), b = 내답.toLowerCase();
+  var n = A.length, m = B.length, d = [], i, j;
+  for(i = 0; i <= n; i++){ d.push([]); for(j = 0; j <= m; j++) d[i][j] = i === 0 ? j : (j === 0 ? i : 0); }
+  for(i = 1; i <= n; i++) for(j = 1; j <= m; j++){
+    d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+  }
+  var 짝 = []; i = n; j = m;
+  while(i > 0 || j > 0){
+    if(i > 0 && j > 0 && d[i][j] === d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1)){
+      짝.unshift({ 정:A[i-1], 내:B[j-1], 같: a[i-1] === b[j-1] }); i--; j--;
+    }else if(i > 0 && d[i][j] === d[i-1][j] + 1){ 짝.unshift({ 정:A[i-1], 내:null }); i--; }
+    else { 짝.unshift({ 정:null, 내:B[j-1] }); j--; }
+  }
+  return { 거리: d[n][m], 짝: 짝 };
+}
+
+function startQuiz(mode, 고른){
   var r=범위단어();
   if(r.list.length<1){ toast('단어가 없습니다'); return; }
   if(mode==='choice' && r.list.length<4){ toast('4지선다는 단어가 4개 이상 필요해요'); return; }
-  if(본문방법_(mode) && !본문책()){ mode='spell'; }
+  if(본문방법_(mode) && mode!=='dict' && !본문책()){ mode='spell'; }
+  if(mode==='dict' && 삼단변화()){ mode='spell'; }   /* "go - went - gone" 은 받아쓰기 꼴이 아니다 */
 
   /* 타임어택만 한 문제씩 넘어가는 게임이고, 나머지는 시험지 한 장으로 푼다 */
   S.재시험=false;
-  if(mode!=='time'){ startSheet(mode, shuffle(r.list), 기록범위(r)); return; }
+  if(mode!=='time'){ startSheet(mode, 고른 || shuffle(r.list), 기록범위(r)); return; }
 
   S.모드=mode;
   S.문제 = mode==='time' ? shuffle(r.list.concat(r.list)) : shuffle(r.list);
@@ -6611,7 +6837,7 @@ function drawSheet(){
 }
 
 function 시험지줄(w,i){
-  if(본문방법_(S.모드)) return 본문줄_(w,i);
+  if(문장방법_(S.모드)) return 본문줄_(w,i);
   var 물음 = (S.모드==='choice') ? w.en : w.ko;
   var 힌트 = '';
   if(S.모드==='hint'){
@@ -6625,8 +6851,11 @@ function 시험지줄(w,i){
       return '<button type="button" class="sch" data-i="'+i+'" data-v="'+esc(o)+'">'+esc(o)+'</button>';
     }).join('') + '</div>';
   }else{
-    몸 = '<input class="sin" data-i="'+i+'" inputmode="latin" autocomplete="off" autocorrect="off" '+
-         'autocapitalize="off" spellcheck="false" placeholder="답을 쓰세요">';
+    /* 낱말 듣고 쓰기 — 철자는 안 보이고 뜻과 소리만 준다 */
+    var 듣기 = S.모드==='dict';
+    몸 = (듣기 ? '<button type="button" class="spk" data-say="'+i+'">🔊 듣기</button>' : '')+
+         '<input class="sin" data-i="'+i+'" inputmode="latin" autocomplete="off" autocorrect="off" '+
+         'autocapitalize="off" spellcheck="false" placeholder="'+(듣기 ? '들은 단어를 쓰세요' : '답을 쓰세요')+'">';
   }
   return '<div class="qrow" data-row="'+i+'">'+
            '<div class="qhead"><span class="qn">'+(i+1)+'</span>'+
@@ -6813,7 +7042,7 @@ function 채점하기(){
   제한멈춤_();
   S.정답수=0; S.오답=[]; S.진행중=false;
   var 연속=0;
-  var 문장모드 = 본문방법_(S.모드);
+  var 문장모드 = 문장방법_(S.모드);
   S.문제.forEach(function(w,i){
     var 정답 = 문장모드 ? (S.모드==='cloze' ? w._빈칸 : 괄호떼기_(w.en))
                        : ((S.모드==='choice') ? w.ko : w.en);
@@ -6843,8 +7072,10 @@ function 채점하기(){
       var inp=row.querySelector('.sin');
       if(inp){ inp.disabled=true; inp.classList.add(맞음?'ok':'ng'); }
       if(!맞음){
-        row.insertAdjacentHTML('beforeend', 내답
-          ? '<div class="real">정답 : '+esc(정답)+'</div>'
+        /* 한 낱말을 쓰는 모드는 어느 글자가 어긋났는지 내 답 바로 아래에 맞춰 보여 준다 */
+        var 글자로 = 내답 && ['spell','hint','dict'].indexOf(S.모드) > -1;
+        row.insertAdjacentHTML('beforeend', 글자로 ? 글자대보기_(정답, 내답)
+          : 내답 ? '<div class="real">정답 : '+esc(정답)+'</div>'
           : '<div class="blank">안 썼어요</div><div class="real">정답 : '+esc(정답)+'</div>');
       }
     }
@@ -6904,7 +7135,7 @@ function finishQuiz(){
     틀린단어:S.오답.map(function(w){
       var t=String(w.en||'');
       return t.length>56 ? t.slice(0,55)+'…' : t;
-    }).join(본문방법_(S.모드) ? ' / ' : ', ')
+    }).join(문장방법_(S.모드) ? ' / ' : ', ')
   }).then(function(r){
     if(r&&r.demo){
       $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">미리보기 모드 — 이 결과는 어디에도 저장되지 않았습니다.</span>';
@@ -6985,10 +7216,13 @@ $('btnRedoHw').onclick=function(){
   $('inFrom').value=h.시작; $('inTo').value=h.끝||S.단어.length;
   var m = 유형모드_(h.유형);
   if(m==='verb'){ startVerb(); return; }
+  /* 누적은 다시 풀 때도 몇 개만 골라 낸다 — 아니면 범위 통째(40개)가 나온다 */
+  if(누적인가_(h.유형)){ 누적시작_(h, m, 숙제열기표_); return; }
   startQuiz(m);
 };
 
 function drawWrongList(list){
+  세번단추_();
   var box=$('rWrong');
   if(!list.length){
     $('rWrongBox').classList.add('hide');
@@ -7012,15 +7246,72 @@ $('btnRetryWrong').onclick=function(){
     show('verb'); renderVerb();
     return;
   }
-  var 문장 = 본문방법_(S.모드);
+  var 문장 = 문장방법_(S.모드);
   var list=S.오답.map(function(w){return {en:w.en,ko:w.ko,비고:w.비고||'',no:0};});
   if(!list.length) return;
   S.재시험=true;   // 다시 풀기(오답노트)는 평균에 안 들어간다
   if(문장){ S.고른칩=null; startSheet(S.모드, shuffle(list), S.범위); return; }
   /* 4지선다는 보기를 다시 뽑아야 하고, 타임어택은 스펠링 시험지로 바꿔 준다 */
-  var m = (S.모드==='choice' && S.단어.length>=4) ? 'choice' : 'spell';
+  var m = (S.모드==='choice' && S.단어.length>=4) ? 'choice' : S.모드==='dict' ? 'dict' : 'spell';
   startSheet(m, shuffle(list), S.범위);
 };
+
+/* ================================================================
+   틀린 것 3번 쓰기 — 종이에 깜지 쓰던 것을 옮겼다
+   · 뜻과 정답 철자를 보여 준 채로 받아 친다 (외워 쓰기가 아니라 손에 익히기)
+   · 세 번 다 맞아야 다음 단어로. 연습일 뿐이라 결과저장을 부르지 않는다
+================================================================ */
+function 세번단추_(){
+  var b=$('btnCopy3'); if(!b) return;
+  /* 문장은 세 번 베끼기엔 길다 — 낱말을 쓰는 모드에서만 */
+  b.classList.toggle('hide', !(S.오답||[]).length || 문장방법_(S.모드));
+}
+function 세번시작_(){
+  var 목록 = (S.오답||[]).filter(function(w){ return String(w.en||'').trim(); })
+    .map(function(w){ return { en:w.en, ko:w.ko }; });
+  if(!목록.length) return;
+  S.세번 = { 목록:목록, i:0, 번:0 };
+  $('c3Card').classList.remove('hide'); $('c3Done').classList.add('hide');
+  show('copy3');
+  세번그리기_();
+}
+function 세번그리기_(){
+  var c=S.세번, w=c.목록[c.i];
+  $('c3Prog').textContent = (c.i+1)+' / '+c.목록.length;
+  $('c3Ko').textContent = w.ko;
+  $('c3En').textContent = w.en;
+  var 점=''; for(var k=0; k<3; k++) 점 += '<i'+(k<c.번 ? ' class="on"' : '')+'></i>';
+  $('c3Dots').innerHTML = 점;
+  var inp=$('c3In'); inp.value=''; inp.classList.remove('ng');
+  $('c3Msg').textContent = c.번 ? '좋아요! '+(3-c.번)+'번 더' : '세 번 써요';
+  try{ inp.focus(); }catch(e){}
+}
+function 세번확인_(){
+  var c=S.세번; if(!c) return;
+  var w=c.목록[c.i], inp=$('c3In'), 쓴=inp.value.trim();
+  if(!쓴) return;
+  if(정답후보(w.en).indexOf(norm(쓴)) < 0){
+    inp.classList.add('ng');
+    $('c3Msg').innerHTML = 글자대보기_(w.en, 쓴);
+    return;
+  }
+  c.번++;
+  if(c.번 < 3){ 세번그리기_(); return; }
+  c.i++; c.번 = 0;
+  if(c.i < c.목록.length){ 세번그리기_(); toast('다음 단어!'); return; }
+  $('c3Card').classList.add('hide'); $('c3Done').classList.remove('hide');
+  $('c3Prog').textContent = '';
+}
+if($('btnCopy3')) $('btnCopy3').onclick = 세번시작_;
+if($('c3Ok')) $('c3Ok').onclick = 세번확인_;
+if($('c3In')) $('c3In').addEventListener('keydown', function(e){
+  if(e.key!=='Enter' || e.isComposing || e.keyCode===229) return;
+  e.preventDefault(); 세번확인_();
+});
+if($('c3Say')) $('c3Say').onclick = function(){ var c=S.세번; if(c) 읽어주기_(c.목록[c.i].en); };
+/* 베껴 쓴 다음엔 안 보고 다시 — 결과 화면의 「틀린 것만 다시 풀기」 와 같은 길 */
+if($('c3Retry')) $('c3Retry').onclick = function(){ $('btnRetryWrong').onclick(); };
+if($('c3Back')) $('c3Back').onclick = function(){ show('result'); };
 
 /* ================================================================
    3단변화 시험 — 한 동사에 세 칸
@@ -7216,6 +7507,7 @@ function finishVerb(){
 }
 
 function drawVerbWrong(){
+  세번단추_();
   var box=$('rWrong');
   if(!S.오답.length){
     $('rWrongBox').classList.add('hide');
@@ -8664,27 +8956,9 @@ function drawTab(){
       머리('숙제 내주기', '한 줄로 고르고 오른쪽 끝에서 내줍니다 · '+
            (d.합격점||합격점())+'점을 못 넘긴 학생은 아직 안 낸 것으로 둡니다 (시험은 한 번만)')+
 
-      판('수업 내주기 <span class="pill note">중·고등</span>',
-        '<span class="sub">한 번에 여러 단계를 묶어서 — 아이 화면엔 순서대로 뜨고, 앞엣것을 끝내야 다음이 열립니다</span>',
-        '<div class="panel-b">'+
-          '<div class="hwbar">'+
-            '<div class="ff" style="min-width:230px"><label>수업 이름</label>'+
-              '<input id="lsName" placeholder="예) 중2 6과 2회차"></div>'+
-            '<div class="ff" style="min-width:230px"><label>꾸러미</label>'+
-              '<select id="lsKit"></select></div>'+
-            '<div class="ff" style="min-width:150px"><label>언제까지</label>'+
-              '<div class="rchips">'+
-                '<label><input type="radio" name="lsKind" value="당일" checked><span>오늘 안에</span></label>'+
-                '<label><input type="radio" name="lsKind" value="기한"><span>기한</span></label>'+
-              '</div></div>'+
-            '<div class="ff hide" id="lsDueWrap" style="width:150px"><label>마감일</label>'+
-              '<input id="lsDue" type="date"></div>'+
-            '<div class="ff" style="margin-left:auto"><label>&nbsp;</label>'+
-              '<button class="btn" id="btnLsAdd" style="margin:0;width:auto">수업 내주기</button></div>'+
-          '</div>'+
-          '<div class="sub mb" id="lsWhat"></div>'+
-          '<div class="hwbar" id="lsBooks"></div>'+
-        '</div>')+
+      판('수업 짜기 <span class="pill note">중·고등</span>',
+        '<span class="sub">단계를 묶어서 한 번에 — 아이 화면엔 순서대로 뜨고, 앞엣것을 끝내야 다음이 열립니다</span>',
+        '<div class="panel-b" id="lsBox"></div>')+
 
       판('', '',
         '<div class="panel-b">'+
@@ -9840,6 +10114,284 @@ function 색칩그리기(){
 }
 
 /* 단어장 종류에 맞는 숙제 유형만 보여 준다 */
+/* ==== 수업 짜기 공용 시작 — Code.gs 와 index.html 에 글자 하나 다르지 않게 들어 있다.
+   서버(Code.gs)는 진짜 기록으로, 미리보기(index.html)는 흉내 자료로 같은 규칙을 돌린다.
+   한쪽만 고치면 test70 이 빨갛게 된다 — 고칠 때는 둘 다 고친다. ==== */
+
+/* 처음 쓸 때 「수업틀」 시트에 옮겨 넣는 틀. 그 뒤로는 시트가 주인이다 (선생님이 고치고 지운다).
+   키는 예전 화면(꾸러미 고르기)이 보내는 값을 받아 주려고 남겨 둔다. */
+var 처음수업틀_ = [
+  { 키: '본문1', 이름: '본문 1회차', 설명: '단어 확인 → 본문 빈칸 → 해석 보고 영작',
+    단계: [ { 종류: '보통', 어디: '단어', 유형: '스펠링' },
+            { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' },
+            { 종류: '보통', 어디: '본문', 유형: '영작' } ] },
+  { 키: '본문정리', 이름: '본문 총정리', 설명: '빈칸 → 순서 맞추기 → 영작 → 듣고 쓰기',
+    단계: [ { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' },
+            { 종류: '보통', 어디: '본문', 유형: '순서 맞추기' },
+            { 종류: '보통', 어디: '본문', 유형: '영작' },
+            { 종류: '보통', 어디: '본문', 유형: '듣고 쓰기' } ] },
+  { 키: '문법', 이름: '문법 확인', 설명: '문법 빈칸 → 본문 빈칸 (오늘 배운 어법 굳히기)',
+    단계: [ { 종류: '보통', 어디: '문법', 유형: '빈칸 채우기' },
+            { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' } ] },
+  { 키: '본문문법', 이름: '본문 + 문법 (한 회차 전체)', 설명: '단어 → 본문 빈칸 → 영작 → 문법 빈칸',
+    단계: [ { 종류: '보통', 어디: '단어', 유형: '스펠링' },
+            { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' },
+            { 종류: '보통', 어디: '본문', 유형: '영작' },
+            { 종류: '보통', 어디: '문법', 유형: '빈칸 채우기' } ] },
+  { 키: '단어집중', 이름: '단어 집중', 설명: '4지선다 → 스펠링',
+    단계: [ { 종류: '보통', 어디: '단어', 유형: '4지선다' },
+            { 종류: '보통', 어디: '단어', 유형: '스펠링' } ] },
+  { 키: '시험대비', 이름: '시험 대비', 설명: '단어 스펠링 → 본문 영작',
+    단계: [ { 종류: '보통', 어디: '단어', 유형: '스펠링' },
+            { 종류: '보통', 어디: '본문', 유형: '영작' } ] }
+];
+
+/* 한 문제에 걸리는 시간(초) — 단계가 몇 분짜리인지 어림하는 기준. 본문·문법은 문장 하나 기준.
+   선생님은 단계마다 분을 직접 고칠 수 있다 — 이건 처음 값일 뿐이다. */
+var 수업초표_ = {
+  '스펠링': 20, '첫 글자': 15, '듣고 쓰기': 25, '4지선다': 10, '뜻 고르기': 10, '플래시카드': 8, '3단변화': 30,
+  '본문|빈칸 채우기': 40, '본문|영작': 70, '본문|순서 맞추기': 50, '본문|듣고 쓰기': 60, '문법|빈칸 채우기': 35
+};
+var 추천기록최소_ = 5;      // 기록이 이보다 적으면 진도만 보고 짠다 (학기 초)
+var 추천예산기본_ = 35;     // 분
+
+/* 누적 단계는 숙제 한 줄의 유형 칸에 「스펠링 (누적 20)」 처럼 적힌다.
+   숙제 시트 칸을 늘리지 않고, 유형모드_() 는 그대로 「스펠링」 으로 읽는다. */
+function 유형알맹이_(유형) { return String(유형 || '').replace(/\s*\(누적[^)]*\)\s*$/, '').trim(); }
+function 누적인가_(유형) { return /\(누적/.test(String(유형 || '')); }
+function 누적개수_(유형) {
+  var m = String(유형 || '').match(/\(누적\s*(\d+)/);
+  return m ? Number(m[1]) : 20;
+}
+/* 함께 = 반이 함께 틀린 단어부터 낸다 (「(누적 7 함께)」). 없으면 그 아이가 틀린 단어부터 */
+function 누적유형_(유형, 개수, 함께) {
+  return 유형알맹이_(유형) + ' (누적 ' + (Number(개수) || 20) + (함께 ? ' 함께' : '') + ')';
+}
+function 함께누적인가_(유형) { return /\(누적[^)]*함께/.test(String(유형 || '')); }
+
+/* 기록 한 줄의 틀린 단어 칸 — 시트 칸에는 다섯 개 뒤에 「…외 N개」 가 붙어 있다. 그 꼬리는 단어가 아니다 */
+function 틀린칸풀기_(글) {
+  return String(글 || '').replace(/\s*…외\s*\d+개\s*$/, '')
+    .split(/\s*,\s*|\s+\/\s+/).map(function (w) { return w.replace(/…$/, '').trim(); }).filter(String);
+}
+/* 반의 1/3 이상(적어도 2명)이 함께 틀린 단어 — 많이 틀린 것부터. 기록들 = [{이름, 틀린}] */
+function 함께틀린_(기록들, 학생수) {
+  var 누가 = {};
+  (기록들 || []).forEach(function (r) {
+    틀린칸풀기_(r.틀린).forEach(function (w) {
+      var k = w.toLowerCase();
+      (누가[k] = 누가[k] || { 글: w, 사람: {} }).사람[r.이름] = 1;
+    });
+  });
+  var 기준 = Math.max(2, Math.ceil((Number(학생수) || 0) / 3));
+  return Object.keys(누가).map(function (k) { return { 글: 누가[k].글, 수: Object.keys(누가[k].사람).length }; })
+    .filter(function (x) { return x.수 >= 기준; })
+    .sort(function (x, y) { return y.수 - x.수; });
+}
+
+function 단계초_(유형, 책종류) {
+  var 알 = 유형알맹이_(유형);
+  return 수업초표_[(책종류 || '') + '|' + 알] || 수업초표_[알] || 20;
+}
+/* 몇 분짜리 단계인가 — 올림해서 분으로 */
+function 단계분_(유형, 개수, 책종류) {
+  return Math.max(1, Math.ceil((Number(개수) || 0) * 단계초_(유형, 책종류) / 60));
+}
+
+/* 「몇 수업 전」 — 날짜가 아니라 수업 회차로 센다.
+   그 교재로 숙제가 나간 날을 모아, 같은 날 나간 것은 한 수업으로 본다.
+   (중3 은 주 4회, 중2 는 주 3회라 날짜로 세면 두 반이 어긋난다)
+   오늘 나간 것은 아직 「지난」 수업이 아니라 빼고, 가장 최근 날이 1 이다. */
+function 수업회차_(숙제들, 오늘) {
+  var 날들 = [];
+  (숙제들 || []).forEach(function (h) {
+    var d = String(h.등록 || '');
+    if (d && d < 오늘 && 날들.indexOf(d) < 0) 날들.push(d);
+  });
+  날들.sort();
+  날들.reverse();
+  var 표 = {};
+  날들.forEach(function (d, i) { 표[d] = i + 1; });
+  return 표;
+}
+
+/* 지난 N수업에 나간 범위를 하나로 묶는다 — 누적 단계가 「앱이 고르는」 범위 */
+function 누적범위_(숙제들, 교재, 지난, 오늘) {
+  var 이것 = (숙제들 || []).filter(function (h) { return h.단어장 === 교재; });
+  var 회차 = 수업회차_(이것, 오늘), a = 0, b = 0;
+  이것.forEach(function (h) {
+    var n = 회차[String(h.등록 || '')];
+    if (!n || n > (Number(지난) || 0)) return;
+    var s = Number(h.시작) || 1, e = Number(h.끝) || s;
+    if (!a || s < a) a = s;
+    if (e > b) b = e;
+  });
+  return a ? { 시작: a, 끝: b } : null;
+}
+
+/* 받침이 있으면 「을」, 없으면 「를」 — 숫자로 끝나면 읽는 소리로 (레슨 2 → 이 → 를, 레슨 3 → 삼 → 을) */
+function 을를_(글) {
+  var t = String(글 || ''), 끝 = t.charAt(t.length - 1);
+  if (/[0-9]/.test(끝)) return '0136781'.indexOf(끝) > -1 ? '을' : '를';
+  var c = t.charCodeAt(t.length - 1);
+  if (c >= 0xAC00 && c <= 0xD7A3) return (c - 0xAC00) % 28 ? '을' : '를';
+  return '을';
+}
+
+/* 오늘 추천 — 그 교재의 숙제·기록을 보고 수업 초안을 짠다.
+   재료 = { 교재, 종류, 오늘, 예산, 레슨, 총, 학생수,
+            숙제들:[{단어장,시작,끝,유형,등록,안낸수}], 기록들:[{이름,유형,점수,틀린,날}], 단어들:[영어…] }
+   진단은 1순위부터 보고, 고른 단계마다 왜 골랐는지(이유)를 붙인다.
+   이유가 안 보이면 선생님이 안 쓴다 — 그래서 이유 없는 단계는 만들지 않는다. */
+function 수업추천짜기_(재료) {
+  재료 = 재료 || {};
+  var 교재 = String(재료.교재 || ''), 오늘 = String(재료.오늘 || '');
+  var 예산 = Number(재료.예산) || 추천예산기본_, 레슨 = Number(재료.레슨) || 10, 총 = Number(재료.총) || 0;
+  var 동사 = 재료.종류 === '3단변화';
+  var 기본유형 = 동사 ? '3단변화' : '스펠링';
+  var 숙제들 = (재료.숙제들 || []).filter(function (h) { return h.단어장 === 교재 && h.등록; });
+  var 기록들 = 재료.기록들 || [];
+  var 회차 = 수업회차_(숙제들, 오늘);
+  var 진단 = [], 앞 = [], 누적 = [], 묶음 = [], 진도 = [], 쓴범위 = {};
+
+  function 범위글(a, b) {
+    if ((a - 1) % 레슨 === 0 && (b % 레슨 === 0 || b === 총)) {
+      var p = (a - 1) / 레슨 + 1, q = Math.ceil(b / 레슨);
+      return p === q ? '레슨 ' + p : '레슨 ' + p + '~' + q;
+    }
+    return a + '~' + b + '번';
+  }
+  function 단계(종류, a, b, 유형, 이유, 개수) {
+    /* 3단변화는 세 칸 화면이라 몇 개만 골라 내는 누적이 안 맞는다 — 그 범위를 통째로 */
+    if (종류 === '누적' && 동사) 종류 = '보통';
+    var n = 종류 === '누적' ? (개수 || (b - a + 1)) : (b - a + 1);
+    var s = { 종류: 종류, 단어장: 교재, 시작: a, 끝: b, 유형: 유형, 이유: 이유,
+              이름: (종류 === '누적' ? '누적 ' : '') + 범위글(a, b) + ' ' + 유형 };
+    if (종류 === '누적') s.개수 = n;
+    s.분 = 단계분_(유형, n, '');
+    return s;
+  }
+
+  var 기록적음 = 기록들.length < 추천기록최소_;
+  var 약철자 = false;
+  if (기록적음) {
+    진단.push('아직 기록이 적어 진도만 보고 짰습니다');
+  } else {
+    /* 1순위 — 지난 2수업에 나간 숙제를 못 낸(80점을 못 넘긴) 사람이 있으면 그 범위를 맨 앞에 */
+    숙제들.filter(function (h) {
+      var n = 회차[h.등록];
+      return n && n <= 2 && (Number(h.안낸수) || 0) > 0;
+    }).sort(function (x, y) {
+      return 회차[x.등록] - 회차[y.등록] || x.시작 - y.시작;
+    }).forEach(function (h) {
+      var 유형 = 유형알맹이_(h.유형), 열쇠 = h.시작 + '~' + h.끝 + '|' + 유형;
+      if (쓴범위[열쇠]) return;
+      쓴범위[열쇠] = 1; 쓴범위[h.시작 + '~' + h.끝] = 1;
+      진단.push(h.안낸수 + '명이 ' + 범위글(h.시작, h.끝) + ' ' + 유형 + 을를_(유형) + ' 못 냈습니다');
+      /* 못 낸 것이 누적이었으면 누적 그대로 다시 (통째 범위로 바꾸면 40개짜리가 된다) */
+      var s = 누적인가_(h.유형)
+        ? 단계('누적', h.시작, h.끝, 유형, h.안낸수 + '명이 못 냈습니다', 누적개수_(h.유형))
+        : 단계('보통', h.시작, h.끝, 유형, h.안낸수 + '명이 못 냈습니다');
+      if (함께누적인가_(h.유형)) s.함께 = true;
+      앞.push(s);
+    });
+
+    /* 2순위 — 최근 30일, 뜻은 아는데 철자가 약한가 (4지선다·첫 글자 평균 − 스펠링 평균 ≥ 12) */
+    var 평균 = function (맞나) {
+      var 합 = 0, n = 0;
+      기록들.forEach(function (r) {
+        if (맞나(String(r.유형 || ''))) { 합 += Number(r.점수) || 0; n++; }
+      });
+      return n ? Math.round(합 / n) : null;
+    };
+    var 뜻점 = 평균(function (t) { return /4지|뜻|첫/.test(t); });
+    var 철점 = 평균(function (t) { return /스펠/.test(t); });
+    약철자 = !동사 && 뜻점 !== null && 철점 !== null && 뜻점 - 철점 >= 12;
+    if (약철자) 진단.push('뜻 고르기 ' + 뜻점 + '점 / 스펠링 ' + 철점 + '점 — 철자가 약합니다');
+
+    /* 3순위 — 마지막으로 본 것이 2·4·8수업 전인 범위 (잊을 때쯤 다시 본다) */
+    var 마지막 = {};
+    숙제들.forEach(function (h) {
+      var n = 회차[h.등록];
+      if (!n || 누적인가_(h.유형)) return;
+      var k = h.시작 + '~' + h.끝;
+      if (!마지막[k] || n < 마지막[k].n) 마지막[k] = { n: n, 시작: h.시작, 끝: h.끝 };
+    });
+    Object.keys(마지막).map(function (k) { return 마지막[k]; })
+      .filter(function (x) { return [2, 4, 8].indexOf(x.n) > -1 && !쓴범위[x.시작 + '~' + x.끝]; })
+      .sort(function (x, y) { return y.n - x.n || x.시작 - y.시작; })
+      .forEach(function (x) {
+        var 글 = 범위글(x.시작, x.끝);
+        진단.push(글 + 을를_(글) + ' 본 지 ' + x.n + '수업 됐습니다');
+        var s = 단계('누적', x.시작, x.끝, 기본유형, x.n + '수업 전에 봤습니다', Math.min(20, x.끝 - x.시작 + 1));
+        s.지난 = x.n;
+        누적.push(s);
+      });
+
+    /* 4순위 — 반의 1/3 이상이 함께 틀린 단어가 5개를 넘으면, 그 단어들이 있는 자리를 「함께」 누적으로.
+       아이 화면은 「함께」 누적을 열면 반이 함께 틀린 단어부터 낸다 (내오답 … 함께) */
+    var 함께 = 함께틀린_(기록들, 재료.학생수);
+    if (함께.length > 5) {
+      var 단어들 = (재료.단어들 || []).map(function (w) { return String(w).toLowerCase().trim(); });
+      var 자리 = [];
+      함께.forEach(function (x) { var i = 단어들.indexOf(x.글.toLowerCase()); if (i > -1) 자리.push(i + 1); });
+      var 보기 = 함께.slice(0, 3).map(function (x) { return x.글; }).join(', ') + (함께.length > 3 ? ' …' : '');
+      진단.push('반이 함께 틀린 단어 ' + 함께.length + '개 (' + 보기 + ')');
+      if (자리.length) {
+        var a = Math.min.apply(null, 자리), b = Math.max.apply(null, 자리);
+        var s = 단계('누적', a, b, 기본유형, '반이 함께 틀린 단어 ' + 함께.length + '개', 자리.length);
+        s.이름 = '함께 틀린 단어 ' + 자리.length + '개';
+        if (s.종류 === '누적') s.함께 = true;
+        묶음.push(s);
+      }
+    }
+  }
+
+  /* 5순위 — 나간 데까지의 다음 (철자가 약하면 스펠링 대신 듣고 쓰기 + 첫 글자).
+     「마지막으로 낸 숙제」 가 복습이면 진도가 뒤로 가므로, 최근 8수업(과 오늘) 중 가장 멀리 간 끝을 본다.
+     더 옛날 것은 안 본다 — 새 학년이 같은 교재를 처음부터 시작해도 따라가게. */
+  var 끝본 = 0;
+  숙제들.forEach(function (h) {
+    if (누적인가_(h.유형)) return;
+    var n = 회차[h.등록];
+    if (!(n && n <= 8) && String(h.등록) < 오늘) return;
+    끝본 = Math.max(끝본, Number(h.끝) || 0);
+  });
+  var 새시작 = 끝본 + 1;
+  if (총 && 새시작 > 총) {
+    진단.push('단어장을 끝까지 나갔습니다 — 진도 단계는 넣지 않았습니다');
+  } else {
+    var 새끝 = Math.ceil(새시작 / 레슨) * 레슨;
+    if (총) 새끝 = Math.min(새끝, 총);
+    진도 = 약철자
+      ? [단계('보통', 새시작, 새끝, '듣고 쓰기', '철자가 약합니다'),
+         단계('보통', 새시작, 새끝, '첫 글자', '철자가 약합니다')]
+      : [단계('보통', 새시작, 새끝, 기본유형, '진도')];
+  }
+
+  /* 같은 범위·같은 유형이 두 번 들어가지 않게 (못 낸 숙제와 새 진도가 겹칠 때) */
+  var 본단계 = {};
+  var 순서 = (기록적음 ? 진도 : 앞.concat(약철자 ? 진도 : [], 누적, 묶음, 약철자 ? [] : 진도))
+    .filter(function (s) {
+      var k = s.종류 + '|' + s.시작 + '~' + s.끝 + '|' + s.유형;
+      if (본단계[k]) return false;
+      본단계[k] = 1;
+      return true;
+    });
+  /* 시간 예산 — 위에서부터 채우다가 넘치면 거기서 뒤를 자른다 (한 단계는 꼭 넣는다) */
+  var 단계들 = [], 합 = 0;
+  for (var i = 0; i < 순서.length; i++) {
+    if (단계들.length && 합 + 순서[i].분 > 예산) break;
+    단계들.push(순서[i]);
+    합 += 순서[i].분;
+  }
+  if (순서.length > 단계들.length) {
+    진단.push('시간 예산 ' + 예산 + '분을 넘어서 뒤의 ' + (순서.length - 단계들.length) + '단계는 뺐습니다');
+  }
+  return { 교재: 교재, 오늘: 오늘, 예산: 예산, 진단: 진단, 단계: 단계들, 합계분: 합, 기록적음: 기록적음 };
+}
+/* ==== 수업 짜기 공용 끝 ==== */
+
 var 보통유형_ = ['스펠링','4지선다','첫 글자'];
 var 본문유형_ = ['빈칸 채우기','순서 맞추기','영작','듣고 쓰기'];
 function 책종류_(이름, 목록){
@@ -9854,7 +10406,7 @@ function 책유형들_(이름, 목록){
   if(k === '문법') return ['빈칸 채우기'];
   if(k === '본문') return 본문유형_.slice();
   if(k === '3단변화') return ['3단변화'].concat(보통유형_);
-  return 보통유형_.concat(['3단변화']);
+  return 보통유형_.concat(['듣고 쓰기', '3단변화']);
 }
 
 /* ---------- 숙제 목록을 단어장별로 묶어서 그리기 ---------- */
@@ -10087,88 +10639,308 @@ function 숙제손잡이(d){
     칸.innerHTML = 것.map(function(t){ return '<option>'+esc(t)+'</option>'; }).join('');
     칸.value = (것.indexOf(전) > -1) ? 전 : 것[0];
   }
-  /* ---------------- 수업 내주기 ---------------- */
+  /* ---------------- 수업 짜기 — 단계를 조립하고, 「오늘 추천」 이 먼저 초안을 짠다 ----------------
+     · 단계는 둘뿐이다 — 보통(단어장·범위·유형), 누적(지난 N수업 · 유형 → 범위는 앱이 찾는다)
+     · 짜던 것은 T.수업 에 들고 있어서, 선생님 화면을 다시 그려도 날아가지 않는다
+     · 추천과 짜개는 한 화면이다 — 「고치기」 는 추천을 그대로 아래 짜개에 채운다 */
   (function(){
-    if(!$('lsKit')) return;
-    var 꾸러미 = (T.data && T.data.수업꾸러미) || [];
-    if(!꾸러미.length){
-      api('수업꾸러미목록').then(function(r){
-        if(!r || !r.length) return;
-        T.data = T.data || {}; T.data.수업꾸러미 = r;
-        drawTab();
-      }).catch(function(){});
+    var 상자 = $('lsBox'); if(!상자) return;
+    var 책들 = d.단어장목록 || [];
+    var 단어책들 = 책들.filter(function(x){ var k=String(x.종류||''); return k!=='본문' && k!=='문법'; });
+    var 짐 = T.수업 = T.수업 || { 단계:[], 추천:null, 짜는중:false, 이름:'', 교재:'',
+                                  예산:추천예산기본_, 종류:'당일', 마감:'', 고른틀:'' };
+    if(!짐.교재 || !단어책들.some(function(x){ return x.이름===짐.교재; })) 짐.교재 = (단어책들[0]||{}).이름 || '';
+    var 오늘 = 오늘값();
+    if(!T.수업틀 && !짐.틀부름){
+      짐.틀부름 = true;
+      api('수업틀목록', T.pw).then(function(r){
+        if(r && r.ok){ T.수업틀 = r.틀 || []; 틀칸그리기(); }
+      }).catch(function(){ 짐.틀부름 = false; });
     }
-    $('lsKit').innerHTML = 꾸러미.map(function(k){
-      return '<option value="'+esc(k.키)+'">'+esc(k.이름)+'</option>';
-    }).join('');
 
-    function 지금꾸러미(){
-      var v = $('lsKit').value;
-      var 것 = null;
-      꾸러미.forEach(function(k){ if(k.키===v) 것=k; });
-      return 것;
-    }
-    /* 꾸러미가 쓰는 단어장 종류만 골라 준다 */
-    function 책칸(어디, 라벨, 종류){
-      var 것 = (d.단어장목록||[]).filter(function(x){
-        if(종류==='단어') return String(x.종류||'')!=='본문' && String(x.종류||'')!=='문법';
-        return String(x.종류||'')===종류;
+    function 책정보(이름){ var o=null; 책들.forEach(function(x){ if(x.이름===이름) o=x; }); return o||{}; }
+    function 책레슨(이름){ return Number(책정보(이름).레슨) || 10; }
+    function 월일(ymd){ var p=String(ymd||'').split('-'); return Number(p[1])+'/'+Number(p[2]); }
+    function 숙제재료(){
+      /* 서버(수업재료_)처럼 시험은 수업 회차에 넣지 않는다 — 안 그러면 「지난 4수업」 이 추천과 어긋난다 */
+      return ((T.data && T.data.숙제목록) || []).filter(function(h){ return h.종류!=='시험'; }).map(function(h){
+        return {단어장:h.단어장, 시작:h.시작, 끝:h.끝, 유형:h.유형, 등록:h.등록일||''};
       });
-      if(!것.length) return '<div class="ff"><label>'+라벨+'</label>'+
-        '<div class="fnote" style="color:var(--ng)">'+종류+' 단어장이 없습니다</div></div>';
-      return '<div class="ff" style="min-width:200px"><label>'+라벨+'</label>'+
-          '<select id="ls'+어디+'Book">'+
-            것.map(function(x){ return '<option>'+esc(x.이름)+'</option>'; }).join('')+
-          '</select></div>'+
-        '<div class="ff" style="width:84px"><label>시작</label>'+
-          '<input id="ls'+어디+'From" type="tel" value="1"></div>'+
-        '<div class="ff" style="width:84px"><label>끝</label>'+
-          '<input id="ls'+어디+'To" type="tel" value="10"></div>';
     }
+    /* 누적 단계의 범위 — 추천이 짚어 준 범위가 있으면 그것, 아니면 지난 N수업을 묶는다 */
+    function 누적칸(s){
+      if(s.시작 && s.끝) return {시작:s.시작, 끝:s.끝};
+      return 누적범위_(숙제재료(), s.단어장 || 짐.교재, Number(s.지난)||4, 오늘);
+    }
+    function 개수(s){
+      return s.종류==='누적' ? (Number(s.개수)||20) : Math.max(1, (Number(s.끝)||0) - (Number(s.시작)||0) + 1);
+    }
+    function 분(s){
+      if(s.분고침) return Number(s.분) || 0;
+      return 단계분_(s.유형, 개수(s), s.종류==='누적' ? '' : 책종류_(s.단어장, 책들));
+    }
+    function 합계(){ var t=0; 짐.단계.forEach(function(s){ t += 분(s); }); return t; }
+    function 새단계(누적){
+      if(누적) return {종류:'누적', 지난:4, 개수:20, 유형:'스펠링'};
+      var 책 = 짐.교재 || (책들[0]||{}).이름 || '';
+      var 레 = 책레슨(책);
+      return {종류:'보통', 단어장:책, 시작:1, 끝:레, 유형:책유형들_(책, 책들)[0]};
+    }
+    function 옵션(목록, 고른){
+      return 목록.map(function(v){
+        return '<option'+(String(v)===String(고른)?' selected':'')+'>'+esc(v)+'</option>';
+      }).join('');
+    }
+    function 단계줄(s, i){
+      var 몸;
+      if(s.종류==='누적'){
+        var 칸 = 누적칸(s), 유형들 = ['스펠링','첫 글자','듣고 쓰기','4지선다'];
+        if(유형들.indexOf(유형알맹이_(s.유형)) < 0) s.유형 = 유형들[0];
+        몸 = '<span class="sjkind cum">누적</span><span class="sjauto">앱이 고름</span>'+
+          '<select data-f="지난">'+[2,3,4,6,8].map(function(n){
+            return '<option value="'+n+'"'+(Number(s.지난)===n?' selected':'')+'>지난 '+n+'수업</option>';
+          }).join('')+'</select>'+
+          '<input data-f="개수" type="tel" value="'+(Number(s.개수)||20)+'"><span class="sjunit">개</span>'+
+          '<select data-f="유형">'+옵션(유형들, 유형알맹이_(s.유형))+'</select>'+
+          '<span class="sjrange">'+(칸 ? '→ '+칸.시작+'~'+칸.끝+'번' : '→ 지난 수업 숙제가 없어요')+'</span>';
+      }else{
+        var 종 = 책종류_(s.단어장, 책들), 유형들2 = 책유형들_(s.단어장, 책들);
+        if(유형들2.indexOf(유형알맹이_(s.유형)) < 0) s.유형 = 유형들2[0];
+        몸 = '<span class="sjkind">'+(종==='본문' ? '본문' : 종==='문법' ? '문법' : '단어')+'</span>'+
+          '<select data-f="단어장">'+옵션(책들.map(function(x){ return x.이름; }), s.단어장)+'</select>'+
+          '<input data-f="시작" type="tel" value="'+(Number(s.시작)||1)+'"><span class="sjunit">~</span>'+
+          '<input data-f="끝" type="tel" value="'+(Number(s.끝)||'')+'">'+
+          '<select data-f="유형">'+옵션(유형들2, 유형알맹이_(s.유형))+'</select>';
+      }
+      return '<div class="sjstep" data-i="'+i+'"><span class="sjn">'+(i+1)+'</span>'+몸+
+        '<span class="sjmin"><input data-f="분" type="tel" value="'+분(s)+'"'+(s.분고침?' class="hand"':'')+'>분</span>'+
+        '<span class="sjmv"><button type="button" data-mv="-1" aria-label="위로"'+(i===0?' disabled':'')+'>↑</button>'+
+        '<button type="button" data-mv="1" aria-label="아래로"'+(i===짐.단계.length-1?' disabled':'')+'>↓</button>'+
+        '<button type="button" data-del aria-label="빼기">✕</button></span>'+
+        (s.이유 ? '<div class="sjwhy">← '+esc(s.이유)+'</div>' : '')+
+      '</div>';
+    }
+
     function 그리기(){
-      var k = 지금꾸러미();
-      if(!k){ $('lsWhat').textContent=''; $('lsBooks').innerHTML=''; return; }
-      $('lsWhat').innerHTML = '<b>'+esc(k.이름)+'</b> — '+esc(k.설명)+
-        ' · 숙제 <b>'+k.단계.length+'개</b>가 한 묶음으로 나갑니다';
-      var 쓴다 = {};
-      k.단계.forEach(function(x){ 쓴다[x.어디]=1; });
-      $('lsBooks').innerHTML =
-        (쓴다['단어'] ? 책칸('W','단어 단어장','단어') : '')+
-        (쓴다['본문'] ? 책칸('T','본문 단어장','본문') : '')+
-        (쓴다['문법'] ? 책칸('G','문법 단어장','문법') : '');
+      상자.innerHTML =
+        '<div class="hwbar">'+
+          '<div class="ff" style="min-width:220px"><label>수업 이름</label>'+
+            '<input id="lsName" placeholder="예) 중2 6과 3회차" value="'+esc(짐.이름)+'"></div>'+
+          '<div class="ff" style="min-width:190px"><label>대상 교재</label>'+
+            '<select id="lsBook">'+옵션(단어책들.map(function(x){ return x.이름; }), 짐.교재)+'</select></div>'+
+          '<div class="ff" style="width:96px"><label>시간 예산(분)</label>'+
+            '<input id="lsBudget" type="tel" value="'+(Number(짐.예산)||추천예산기본_)+'"></div>'+
+          '<div class="ff" style="min-width:150px"><label>언제까지</label>'+
+            '<div class="rchips">'+
+              '<label><input type="radio" name="lsKind" value="당일"'+(짐.종류!=='기한'?' checked':'')+'><span>오늘 안에</span></label>'+
+              '<label><input type="radio" name="lsKind" value="기한"'+(짐.종류==='기한'?' checked':'')+'><span>기한</span></label>'+
+            '</div></div>'+
+          '<div class="ff'+(짐.종류==='기한'?'':' hide')+'" id="lsDueWrap" style="width:150px"><label>마감일</label>'+
+            '<input id="lsDue" type="date" value="'+esc(짐.마감)+'"></div>'+
+          '<div class="ff" style="margin-left:auto"><label>&nbsp;</label>'+
+            '<button class="btn line" type="button" id="lsRec" style="margin:0;width:auto">오늘 추천</button></div>'+
+        '</div>'+
+        '<div id="lsRecBox"></div>'+
+        '<div class="sjsteps" id="lsSteps">'+
+          (짐.단계.length ? 짐.단계.map(단계줄).join('')
+            : '<div class="sjempty">아직 단계가 없어요 — 「+ 단계」 로 넣거나, 틀을 불러오거나, 「오늘 추천」 을 눌러 보세요</div>')+
+        '</div>'+
+        '<div class="sjfoot">'+
+          '<div class="sjbtns">'+
+            '<button class="btn line sm" type="button" id="lsAddStep">+ 단계</button>'+
+            '<button class="btn line sm" type="button" id="lsAddCum">+ 누적 단계</button>'+
+            '<select id="lsTpl" aria-label="틀 불러오기"></select>'+
+            '<button class="btn line sm" type="button" id="lsTplSave">이 틀로 저장</button>'+
+            '<button class="btn ghost sm" type="button" id="lsTplDel">틀 지우기</button>'+
+          '</div>'+
+          '<div class="sjsum" id="lsSum"></div>'+
+          '<button class="btn" type="button" id="btnLsAdd" style="margin:0;width:auto">수업 내주기</button>'+
+        '</div>';
+      틀칸그리기(); 합계그리기(); 추천그리기(); 붙이기();
     }
-    $('lsKit').onchange = 그리기;
-    그리기();
+    function 합계그리기(){
+      var e = $('lsSum'); if(!e) return;
+      var 합 = 합계(), 예 = Number(짐.예산) || 추천예산기본_;
+      e.innerHTML = '모두 <b>'+합+'분</b> / '+예+'분';
+      e.classList.toggle('over', 합 > 예);
+    }
+    function 틀칸그리기(){
+      var sel = $('lsTpl'); if(!sel) return;
+      sel.innerHTML = '<option value="">틀 불러오기 ▾</option>' + (T.수업틀||[]).map(function(t){
+        return '<option'+(t.이름===짐.고른틀?' selected':'')+'>'+esc(t.이름)+'</option>';
+      }).join('');
+    }
 
-    qsa('[name="lsKind"]').forEach(function(r){
-      r.onchange=function(){ $('lsDueWrap').classList.toggle('hide', this.value!=='기한'); };
-    });
-
-    $('btnLsAdd').onclick=function(){
-      var k = 지금꾸러미();
-      if(!k) return;
-      var 종류 = (document.querySelector('[name="lsKind"]:checked')||{}).value || '당일';
-      if(종류==='기한' && !$('lsDue').value){ toast('마감일을 골라 주세요'); return; }
-      var 값=function(id, 기본){ var e=$(id); return e ? e.value : 기본; };
-      var 짐 = {
-        이름: $('lsName').value.trim(),
-        꾸러미: k.키, 종류: 종류, 마감일: 값('lsDue',''),
-        단어장: 값('lsWBook',''), 단어시작: 값('lsWFrom',1), 단어끝: 값('lsWTo',0),
-        본문장: 값('lsTBook',''), 본문시작: 값('lsTFrom',1), 본문끝: 값('lsTTo',0),
-        문법장: 값('lsGBook',''), 문법시작: 값('lsGFrom',1), 문법끝: 값('lsGTo',0)
+    /* ---------- 오늘 추천 ---------- */
+    function 추천그리기(){
+      var 칸 = $('lsRecBox'); if(!칸) return;
+      if(짐.짜는중){ 칸.innerHTML = '<div class="sjrec"><div class="sjwait">짜는 중… 기록을 훑고 있어요</div></div>'; return; }
+      var r = 짐.추천;
+      if(!r){ 칸.innerHTML = ''; return; }
+      칸.innerHTML = '<div class="sjrec">'+
+        '<div class="sjrech"><b>오늘 추천 — '+esc(r.교재)+' · '+월일(r.오늘||오늘)+'</b><span>모두 '+r.합계분+'분</span></div>'+
+        '<div class="sjdiag"><div class="sjdt">진단</div><ul>'+
+          r.진단.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join('')+'</ul></div>'+
+        '<ol class="sjrecl">'+r.단계.map(function(s){
+          return '<li><b>'+esc(s.이름)+'</b><span class="sjm">'+s.분+'분</span>'+
+                 (s.이유 ? '<i>← '+esc(s.이유)+'</i>' : '')+'</li>';
+        }).join('')+'</ol>'+
+        '<div class="sjrecb"><button class="btn" type="button" id="lsRecGo">이대로 내기</button>'+
+          '<button class="btn line" type="button" id="lsRecEdit">고치기</button>'+
+          '<button class="btn ghost" type="button" id="lsRecAgain">다시 추천</button></div>'+
+      '</div>';
+      $('lsRecGo').onclick = function(){ 채우기(r); 그리기(); 내기(); };
+      $('lsRecEdit').onclick = function(){
+        채우기(r); 짐.추천 = null; 그리기();
+        toast('추천을 아래에 채웠어요 — 고쳐서 내 주세요');
       };
-      if(!짐.이름){ toast('수업 이름을 적어 주세요'); return; }
-      this.disabled=true;
-      api('수업내주기', T.pw, 짐).then(function(r){
+      $('lsRecAgain').onclick = function(){ 추천받기(true); };
+    }
+    /* 추천 단계를 짜개로 — 분은 다시 계산하게 비우고, 이유는 그대로 달고 간다 */
+    function 채우기(r){
+      짐.단계 = r.단계.map(function(s){
+        var o = JSON.parse(JSON.stringify(s)); delete o.분; delete o.이름; return o;
+      });
+    }
+    function 추천받기(새로){
+      if(!짐.교재){ toast('대상 교재를 골라 주세요'); return; }
+      짐.짜는중 = true; 짐.추천 = null; 추천그리기();
+      api('수업추천', T.pw, 짐.교재, Number(짐.예산)||추천예산기본_, !!새로).then(function(r){
+        짐.짜는중 = false;
+        if(r && r.ok) 짐.추천 = r.추천; else toast((r && r.메시지) || '추천을 짜지 못했어요');
+        추천그리기();
+      }).catch(function(){
+        짐.짜는중 = false; 추천그리기();
+        toast('추천을 짜지 못했어요 — 앱스 스크립트를 새로 배포했는지 확인해 주세요');
+      });
+    }
+
+    /* ---------- 틀 ---------- */
+    function 틀불러오기(이름){
+      var t = (T.수업틀||[]).filter(function(x){ return x.이름===이름; })[0];
+      if(!t) return;
+      짐.단계 = (t.단계||[]).map(function(s){
+        var 손 = s.분 !== undefined && s.분 !== '';
+        if(s.종류==='누적') return {종류:'누적', 지난:Number(s.지난)||4, 개수:Number(s.개수)||20,
+                                    유형:s.유형||'스펠링', 분:s.분, 분고침:손};
+        /* 틀에 적힌 단어장이 지금도 있으면 그것, 없으면 그 종류(단어·본문·문법)의 첫 단어장 */
+        var 어디 = s.어디 || '단어', 책 = '';
+        if(s.단어장 && 책정보(s.단어장).이름) 책 = s.단어장;
+        else if(어디==='단어') 책 = 짐.교재;
+        else 책 = ((책들.filter(function(x){ return String(x.종류||'')===어디; })[0]) || {}).이름 || '';
+        return {종류:'보통', 단어장:책, 시작:Number(s.시작)||1, 끝:Number(s.끝)||책레슨(책),
+                유형:s.유형, 분:s.분, 분고침:손};
+      });
+      그리기();
+      toast('「'+이름+'」 틀을 불러왔어요 — 범위만 고쳐서 내면 됩니다');
+    }
+    function 틀저장(){
+      if(!짐.단계.length){ toast('단계를 먼저 넣어 주세요'); return; }
+      var 이름 = window.prompt('틀 이름', 짐.이름 || 짐.고른틀 || '');
+      if(이름 === null) return;
+      이름 = String(이름).trim();
+      if(!이름){ toast('틀 이름을 적어 주세요'); return; }
+      var 단계 = 짐.단계.map(function(s){
+        var o = {종류:s.종류, 유형:유형알맹이_(s.유형)};
+        if(s.종류==='누적'){ o.지난 = Number(s.지난)||4; o.개수 = Number(s.개수)||20; }
+        else {
+          var k = 책종류_(s.단어장, 책들);
+          o.어디 = (k==='본문' || k==='문법') ? k : '단어';
+          o.단어장 = s.단어장; o.시작 = Number(s.시작)||1; o.끝 = Number(s.끝)||0;
+        }
+        if(s.분고침) o.분 = Number(s.분)||0;
+        return o;
+      });
+      api('수업틀저장', T.pw, 이름, 단계).then(function(r){
+        if(r && r.ok){ T.수업틀 = r.틀 || []; 짐.고른틀 = 이름; 틀칸그리기(); toast('「'+이름+'」 틀로 저장했어요'); }
+        else toast((r && r.메시지) || '저장하지 못했어요');
+      }).catch(function(){ toast('저장하지 못했어요'); });
+    }
+    function 틀지우기(){
+      var 이름 = ($('lsTpl')||{}).value || '';
+      if(!이름){ toast('지울 틀을 먼저 고르세요'); return; }
+      if(!confirm('「'+이름+'」 틀을 지울까요?')) return;
+      api('수업틀삭제', T.pw, 이름).then(function(r){
+        if(r && r.ok){ T.수업틀 = r.틀 || []; 짐.고른틀 = ''; 틀칸그리기(); toast('「'+이름+'」 틀을 지웠어요'); }
+      }).catch(function(){ toast('지우지 못했어요'); });
+    }
+
+    /* ---------- 내주기 — 누적 단계는 여기서 범위를 찾아 「스펠링 (누적 20)」 으로 보낸다 ---------- */
+    function 보낼단계(){
+      var 탈 = '';
+      var 것 = 짐.단계.map(function(s, i){
+        if(s.종류==='누적'){
+          var 칸 = 누적칸(s);
+          if(!칸){ 탈 = 탈 || (i+1)+'단계 누적: 지난 '+(Number(s.지난)||4)+'수업에 나간 숙제가 없어요'; return null; }
+          return {단어장:s.단어장 || 짐.교재, 시작:칸.시작, 끝:칸.끝, 유형:누적유형_(s.유형, s.개수, s.함께)};
+        }
+        if(!s.단어장){ 탈 = 탈 || (i+1)+'단계: 단어장을 골라 주세요'; return null; }
+        return {단어장:s.단어장, 시작:Number(s.시작)||1, 끝:Number(s.끝)||0, 유형:유형알맹이_(s.유형)};
+      });
+      return 탈 ? {탈:탈} : {것:것};
+    }
+    function 내기(){
+      if(짐.보내는중) return;                     /* 「이대로 내기」 를 두 번 누르면 숙제가 두 벌 나간다 */
+      if(!짐.단계.length){ toast('단계를 하나 이상 넣어 주세요'); return; }
+      if(짐.종류==='기한' && !짐.마감){ toast('마감일을 골라 주세요'); return; }
+      var 이름 = String(짐.이름||'').trim() || ((짐.교재 || '수업') + ' ' + 월일(오늘));
+      var b = 보낼단계();
+      if(b.탈){ toast(b.탈); return; }
+      짐.보내는중 = true;
+      qsa('#btnLsAdd, #lsRecGo').forEach(function(x){ x.disabled = true; });
+      api('수업내주기', T.pw, {이름:이름, 종류:짐.종류, 마감일:짐.마감, 단계:b.것}).then(function(r){
         if(r && r.ok){
           toast('「'+r.이름+'」 수업을 냈습니다 (숙제 '+r.단계수+'개)');
           if(r.메시지) setTimeout(function(){ toast(r.메시지); }, 2200);
-          $('lsName').value='';
+          /* 낸 단계는 비운다 — 남겨 두면 다음 수업에 또 누르기 쉽다 (다시 쓰려면 틀로 저장) */
+          짐.이름 = ''; 짐.추천 = null; 짐.단계 = [];
           loadTeacher();
-        } else toast((r&&r.메시지)||'실패했습니다');
+        } else toast((r && r.메시지) || '실패했습니다');
       }).catch(function(){ toast('실패했습니다'); })
-        .then(function(){ var b=$('btnLsAdd'); if(b) b.disabled=false; });
-    };
+        .then(function(){ 짐.보내는중 = false; qsa('#btnLsAdd, #lsRecGo').forEach(function(x){ x.disabled = false; }); });
+    }
+
+    function 붙이기(){
+      $('lsName').oninput = function(){ 짐.이름 = this.value; };
+      $('lsBook').onchange = function(){ 짐.교재 = this.value; 짐.추천 = null; 그리기(); };
+      $('lsBudget').oninput = function(){ 짐.예산 = Number(this.value) || 추천예산기본_; 합계그리기(); };
+      qsa('[name="lsKind"]').forEach(function(r){
+        r.onchange = function(){ 짐.종류 = this.value; $('lsDueWrap').classList.toggle('hide', this.value!=='기한'); };
+      });
+      $('lsDue').onchange = function(){ 짐.마감 = this.value; };
+      $('lsRec').onclick = function(){ 추천받기(false); };
+      $('lsAddStep').onclick = function(){ 짐.단계.push(새단계(false)); 그리기(); };
+      $('lsAddCum').onclick = function(){ 짐.단계.push(새단계(true)); 그리기(); };
+      $('lsTpl').onchange = function(){ 짐.고른틀 = this.value; if(this.value) 틀불러오기(this.value); };
+      $('lsTplSave').onclick = 틀저장;
+      $('lsTplDel').onclick = 틀지우기;
+      $('btnLsAdd').onclick = 내기;
+      qsa('#lsSteps .sjstep').forEach(function(row){
+        var i = +row.dataset.i, s = 짐.단계[i];
+        qsa('[data-f]', row).forEach(function(el){
+          var f = el.dataset.f;
+          el.addEventListener(el.tagName==='SELECT' ? 'change' : 'input', function(){
+            if(f==='분'){ s.분 = Number(el.value) || 0; s.분고침 = true; el.classList.add('hand'); 합계그리기(); return; }
+            s[f] = (f==='시작' || f==='끝' || f==='개수' || f==='지난') ? (Number(el.value) || 0) : el.value;
+            if(f==='지난'){ delete s.시작; delete s.끝; }          /* 범위는 앱이 다시 찾는다 */
+            if(f==='단어장'){ s.시작 = 1; s.끝 = 책레슨(s.단어장); }
+            if(el.tagName==='SELECT'){ 그리기(); return; }          /* 고르개가 바뀌면 줄 모양이 바뀔 수 있다 */
+            var m = row.querySelector('[data-f="분"]'); if(m && !s.분고침) m.value = 분(s);
+            합계그리기();
+          });
+        });
+        row.querySelector('[data-del]').onclick = function(){ 짐.단계.splice(i, 1); 그리기(); };
+        qsa('[data-mv]', row).forEach(function(b){
+          b.onclick = function(){
+            var j = i + Number(b.dataset.mv);
+            if(j < 0 || j >= 짐.단계.length) return;
+            var t = 짐.단계[i]; 짐.단계[i] = 짐.단계[j]; 짐.단계[j] = t;
+            그리기();
+          };
+        });
+      });
+    }
+    그리기();
   })();
 
   if($('hwBook')) $('hwBook').onchange=function(){
@@ -10734,7 +11506,7 @@ function 파일검사(){
         var t=b.dataset.hbt;
         if(t==='hw') return show('home');
         if(t==='game'){ try{ 게임책고르기(null, function(){ drawGames(); }); }catch(e){} return show('games'); }
-        보기바꾸기(t); show('study');
+        show(t==='test' ? 'exam' : 'study');
       };
     });
   }
@@ -10756,13 +11528,25 @@ function 파일검사(){
       if(name==='games'){ var g=$('hbGameSub'); if(g) g.textContent=이름()+' · 놀면서 외우기'; }
     };
   }
-  /* 시험 화면으로 가라는 것은 「시험」 탭으로 */
+  /* 외우기·시험은 한 화면(s-study)을 보기만 바꿔 쓴다. 그래도 뒤로가기는 둘을 다른 칸으로 세야
+     시험 → 뒤로 가 외우기로 돌아온다. 그래서 시험 보기일 때 「지금 화면」 은 'exam' 이라 부르고,
+     show('exam') 은 시험 보기, show('study') 는 외우기 보기로 연다. */
+  var 원래지금 = window.지금화면_;
+  window.지금화면_ = function(){
+    var n = 원래지금();
+    return (n==='study' && window.HB_view==='test') ? 'exam' : n;
+  };
   var 앞show = window.show;
   window.show = function(name){
-    if(name==='exam'){ 보기바꾸기('test'); name='study'; arguments[0]='study'; }
+    var 이전 = 지금화면_();
+    if(name==='exam'){ 보기바꾸기('test'); name='study'; }
+    else if(name==='study' && window.HB_view!=='mem') 보기바꾸기('mem');
     B.setAttribute('data-cur', name);
     if(name!=='study') B.classList.remove('hbverb');
-    return 앞show.apply(this, arguments);
+    /* 발자국은 보기까지 넣은 이름으로 여기서 남기고, 원래 show 는 남기지 않게 한다 */
+    뒤로기록_(이전, name==='study' && window.HB_view==='test' ? 'exam' : name);
+    var 앞뒤로중 = 뒤로중_; 뒤로중_ = true;
+    try{ return 앞show.call(this, name); } finally { 뒤로중_ = 앞뒤로중; }
   };
 
   /* 2. 숙제 탭 — 큰 제목 */
@@ -10784,7 +11568,8 @@ function 파일검사(){
     var exWrap=el('<div id="hbExam"><div class="hbsec"><span>선생님이 낸 시험</span><button type="button" id="hbExRef">↻ 새로고침</button></div></div>');
     head.insertAdjacentElement('afterend', exWrap);
     if(ex) exWrap.appendChild(ex);
-    $('hbExRef').onclick=function(){ try{ 시험탭열기(); }catch(e){} };
+    /* 다시 그리기만 하면 선생님이 방금 낸 시험이 안 온다 — ↻ 와 같이 숙제 목록을 새로 받는다 */
+    $('hbExRef').onclick=function(){ try{ 새로불러오기_(); }catch(e){} };
 
     /* 단어장 바텀시트 */
     var sh=el('<div id="hbSheet"><div class="hbdim"></div><div class="hbpanel"><div class="hbgrab"></div><div class="hbst">단어장 · 범위</div><div id="hbSheetBody"></div><button class="btn hbdone" type="button">다 골랐어요</button></div></div>');
@@ -10826,7 +11611,7 @@ function 파일검사(){
   if(gm){
     gm.insertBefore(el('<div class="hbhead"><div><div class="hbsub" id="hbGameSub"></div><div class="hbtitle">게임</div></div><button class="hbchip" id="hbGBook" type="button">단어장 고르기</button></div>'), gm.firstChild);
     window.HB_time=function(){
-      보기바꾸기('test'); show('study');
+      show('exam');
       setTimeout(function(){ try{ 방법고르기('time'); var s=$('btnStartMode'); if(s) s.click(); }catch(e){} }, 500);
     };
     /* 게임 단어장도 바텀시트로 */
@@ -10950,7 +11735,7 @@ function 파일검사(){
   var app=$('app'); if(app) app.appendChild(판);
   var 닫=function(){ $('hbStkSheet').classList.remove('on'); };
   판.querySelector('#hbStkSheet .hbdim').onclick=닫; $('hbStkClose').onclick=닫;
-  판.querySelector('[data-back]').onclick=function(){ 안전(function(){ show('study'); }); };
+  판.querySelector('[data-back]').onclick=function(){ 안전(function(){ show('exam'); }); };  /* 스티커판은 시험 칸에서 들어온다 */
   window.HB_스티커판 = function(){ 큰판(); show('sticker'); };
 
   /* 시험 칸 — 스티커판 작은 카드 */
