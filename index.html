@@ -2894,6 +2894,7 @@ html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(
               <button data-tab="today" data-g="오늘">시험 결과</button>
               <button data-tab="notice" data-g="오늘">공지 보내기</button>
               <button data-tab="hw" data-g="숙제">숙제 내주기 <span class="nbadge hide" id="navHw"></span></button>
+              <button data-tab="exam" data-g="숙제">시험 <span class="nbadge warn hide" id="navExam"></span></button>
               <button data-tab="miss" data-g="숙제">안 한 학생 <span class="nbadge warn hide" id="navMiss"></span></button>
               <button data-tab="paper" data-g="숙제">시험지 뽑기</button>
               <button data-tab="students" data-g="학생">학생별 성적</button>
@@ -2958,7 +2959,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-07a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-07b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3064,7 +3065,7 @@ var DEMO_HW = [
    대상수:2,한사람:['홍길동','김영희'],안한사람:[]},
   {행:5,단어장:'예시 단어장',시작:21,끝:25,유형:'첫 글자',마감일:'2026-12-31',학생:'홍길동',색:'#FF7A3D',종류:'보충',지남:false,
    대상수:1,한사람:[],안한사람:['홍길동']},
-  {행:6,단어장:'예시 단어장',시작:1,끝:25,유형:'스펠링',마감일:'2026-12-20',학생:'',색:'#FF7A3D',종류:'시험',지남:false,외우기분:5,제한시간:20,
+  {행:6,단어장:'예시 단어장',시작:1,끝:25,유형:'스펠링',마감일:'2026-12-20',학생:'',색:'#FF7A3D',종류:'시험',지남:false,외우기분:5,제한시간:20,평균:null,
    대상수:2,한사람:[],안한사람:['홍길동','김영희']},
   /* 마감이 지난 것들 — 목록이 길어졌을 때를 보여 주려고 */
   {행:7,단어장:'예시 단어장',시작:1,끝:5,유형:'스펠링',마감일:DEMO_지난(3),등록일:DEMO_지난(3),학생:'',색:'#FF7A3D',종류:'기한',지남:true,
@@ -3268,19 +3269,23 @@ var DEMO = {
     x.한마디=글; return {ok:true,이름:이름,한마디:글};
   },
   학부모미리보기:function(pw,이름){
-    var 이번주=DEMO_HW.filter(function(h){
+    function 짧(d){ return d?Number(String(d).slice(5,7))+'/'+Number(String(d).slice(8,10)):''; }
+    var 내것=DEMO_HW.filter(function(h){
       return !h.지남 && (h.한사람||[]).concat(h.안한사람||[]).indexOf(이름)>-1;
-    }).map(function(h){
-      var 낸=(h.한사람||[]).indexOf(이름)>-1;
-      return {제목:h.단어장+' '+h.시작+'~'+h.끝, 유형:h.유형, 종류:h.종류, 완료:낸, 점수:낸?90:null,
-              마감일:h.마감일||'', 마감글:h.마감일?Number(String(h.마감일).slice(5,7))+'/'+Number(String(h.마감일).slice(8,10)):''};
     });
-    var 시험=(DEMO.선생님요약().시험목록||[]).filter(function(t){ return t.이름===이름 && !t.재시험; }).slice(0,8)
-      .map(function(t){ return {날짜:String(t.시각).slice(0,5).replace(/^0/,'').replace('/0','/'), 단어장:t.단어장, 범위:t.범위, 유형:t.유형, 점수:t.점수}; });
+    /* 숙제와 시험은 두 묶음 — 숙제엔 점수가 없다 */
+    var 이번주=내것.filter(숙제인가_).map(function(h){
+      var 낸=(h.한사람||[]).indexOf(이름)>-1, 다시=!낸 && (h.모자란사람||[]).indexOf(이름)>-1;
+      return {제목:h.단어장+' '+h.시작+'~'+h.끝, 유형:h.유형, 종류:h.종류, 완료:낸, 다시:다시, 마감일:h.마감일||'', 마감글:짧(h.마감일)};
+    });
+    var 시험=내것.filter(function(h){ return 시험인가_(h) && (h.한사람||[]).indexOf(이름)<0; }).map(function(h){
+      return {날짜:짧(h.마감일), 단어장:h.단어장, 범위:h.시작+'~'+h.끝, 유형:h.유형, 점수:null, 봤나:false};
+    }).concat((DEMO.선생님요약().시험목록||[]).filter(function(t){ return t.이름===이름 && t.구분==='시험'; }).slice(0,8)
+      .map(function(t){ return {날짜:String(t.시각).slice(0,5).replace(/^0/,'').replace('/0','/'), 단어장:t.단어장, 범위:t.범위, 유형:t.유형, 점수:t.점수, 봤나:true}; }));
     var x=null; DEMO_배정.forEach(function(y){ if(y.이름===이름) x=y; });
     return {ok:true, 이름:이름, 한마디:(x&&x.한마디)||'', 이번주숙제:이번주,
       낸수:이번주.filter(function(h){return h.완료;}).length, 안낸수:이번주.filter(function(h){return !h.완료;}).length,
-      최근시험:시험, 자주틀린:[{단어:'assume',번:2}], 진도:[], 학원:{이름:'홍제인왕해법영어',전화:''}};
+      시험:시험, 자주틀린:[{단어:'assume',번:2}], 진도:[], 학원:{이름:'홍제인왕해법영어',전화:''}};
   },
   교재일괄:function(pw,행들,교재들,방식){
     var 고른=교재목록(교재들), 바뀐=0;
@@ -3521,7 +3526,7 @@ var DEMO = {
       교재:교재, 종류:책.종류||'', 오늘:DEMO_지난(0), 예산:Number(예산)||추천예산기본_,
       레슨:책.레슨||DEMO_레슨[교재]||10, 총:책.개수||단어들.length, 칸수:책.칸수||{},
       학생수:DEMO_교재학생(교재).length,
-      숙제들:DEMO_HW.filter(function(h){ return h.단어장===교재 && h.종류!=='시험'; }).map(function(h){
+      숙제들:DEMO_HW.filter(function(h){ return h.단어장===교재 && 숙제인가_(h); }).map(function(h){
         return {단어장:h.단어장,칸:h.칸||'',시작:h.시작,끝:h.끝,유형:h.유형,등록:h.등록일||'',제한시간:h.제한시간||0,안낸수:(h.안한사람||[]).length};
       }),
       기록들:DEMO_기록.filter(function(r){ return r.단어장===교재 && r.날>=한달전; }),
@@ -4645,7 +4650,7 @@ function 합격점(){
 function 숙제컷(h){
   if(h && h.단계==='연습') return 0;
   if(h && h.단계==='시험') return (h.통과점수!=='' && h.통과점수!==undefined && h.통과점수!==null) ? Number(h.통과점수)||0 : 합격점();
-  return (h && h.종류==='시험') ? 0 : 합격점();
+  return (h && 시험인가_(h)) ? 0 : 합격점();
 }
 function 오늘한글_(){
   var d=new Date();
@@ -5433,11 +5438,16 @@ if($('kStReset')) $('kStReset').onclick = function(){
    시험 탭 — 선생님이 낸 「시험」 만 여기 모인다
    시작을 누르면 ① 단어장을 보며 외우는 시간 → ② 저절로 시험
 ================================================================ */
+/* 숙제 종류 「시험」 은 숙제가 아니라 학원에서 보는 시험이다 — 숙제와 시험을 가르는 곳은 여기 한 군데.
+   (수업 안의 연습/시험 「단계」 와는 다른 것이다 — 그건 h.단계) 종류가 빈 옛 숙제는 숙제 쪽 */
+function 시험인가_(h){ return !!h && String(h.종류) === '시험'; }
+function 숙제인가_(h){ return !시험인가_(h); }
+
 var 시험판 = null;     /* {방법, 단계:'외우기'|'시험'} */
 function 시험중_(){ return !!(시험판 && 시험판.단계 === '시험'); }
 
 function 내시험들_(){
-  return (S.숙제 || []).filter(function(h){ return h.종류 === '시험'; });
+  return (S.숙제 || []).filter(function(h){ return 시험인가_(h); });
 }
 function 안본시험수_(){
   return 내시험들_().filter(function(h){ return !h.완료; }).length;
@@ -6256,7 +6266,7 @@ function 알림시험(){
 
 /* 숙제 탭에는 시험을 넣지 않는다 — 시험은 「시험」 칸에서 본다 */
 function 숙제만_(){
-  return (S.숙제 || []).filter(function(h){ return h.종류 !== '시험'; });
+  return (S.숙제 || []).filter(function(h){ return 숙제인가_(h); });
 }
 
 function drawHw(){
@@ -6281,7 +6291,7 @@ function drawHw(){
   function 언제(h){
     if(h.종류==='보충') return '보충 · 오늘까지';
     if(h.종류==='당일') return '오늘까지';
-    if(h.종류==='시험') return '시험 · 한 번만';
+    if(시험인가_(h)) return '시험 · 한 번만';
     var d=h.남은일수;
     if(d===0) return '오늘까지';
     if(d===1) return '내일까지';
@@ -7334,7 +7344,7 @@ function startSheet(mode, list, 범위){
 
 function 시험지제목(){
   return S.단어장+' '+지금범위글_()+' · '+(유형이름표[S.모드]||'')+
-         (S.현재숙제 ? (S.현재숙제.종류==='시험' ? ' (시험)' : ' (숙제)') : '');
+         (S.현재숙제 ? (시험인가_(S.현재숙제) ? ' (시험)' : ' (숙제)') : '');
 }
 
 function drawSheet(){
@@ -7617,7 +7627,7 @@ function finishQuiz(){
   var 초 = Math.round((Date.now()-S.시작시각)/1000);
   var 유형이름 = 유형이름표[S.모드];
   var 탭시험 = !!시험판;
-  var 시험숙제 = !!(S.현재숙제 && S.현재숙제.종류==='시험');
+  var 시험숙제 = !!(S.현재숙제 && 시험인가_(S.현재숙제));
 
   $('rTitle').textContent = S.단어장+' '+지금범위글_()+' · '+유형이름+
     (탭시험 ? ' (시험)' : (S.현재숙제 ? (시험숙제?' (시험)':' (숙제)') : ''));
@@ -7986,7 +7996,7 @@ function finishVerb(){
 
   var 탭시험 = !!시험판;
   $('rTitle').textContent=S.단어장+' '+지금범위글_()+' · 3단변화'+
-    (탭시험 ? ' (시험)' : (S.현재숙제 ? (S.현재숙제.종류==='시험'?' (시험)':' (숙제)') : ''));
+    (탭시험 ? ' (시험)' : (S.현재숙제 ? (시험인가_(S.현재숙제)?' (시험)':' (숙제)') : ''));
   $('btnSeeSheet').classList.add('hide');
   $('rScore').textContent=점수;
   $('rRight').textContent=S.칸정답+' / '+총;  $('rRightL').textContent='맞은 칸';
@@ -8171,17 +8181,21 @@ function 기록기다림_(){
   return '<div class="tskl">'+판하나+판하나+'</div>';
 }
 function 사이드배지(){
-  var d=T.data||{}; var 숙제=(d.숙제목록||[]);
+  var d=T.data||{}; var 숙제=(d.숙제목록||[]).filter(숙제인가_);
   var 진행=숙제.filter(function(h){return !h.지남;});
   var 안낸=진행.filter(function(h){return (h.안한사람||[]).length;}).length;
-  var m=$('navMiss'), w=$('navHw');
+  var 안본=(d.숙제목록||[]).filter(function(h){ return 시험인가_(h) && !h.지남 && (h.안한사람||[]).length; }).length;
+  var m=$('navMiss'), w=$('navHw'), x=$('navExam');
   if(m){ m.textContent=안낸; m.classList.toggle('hide',!안낸); }
   if(w){ w.textContent=진행.length; w.classList.toggle('hide',!진행.length); }
+  if(x){ x.textContent=안본; x.classList.toggle('hide',!안본); }
 }
 qsa('[data-tab]').forEach(function(b){
   b.onclick=function(){
     qsa('[data-tab]').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on'); T.tab=b.dataset.tab;
+    b.classList.add('on');
+    if(T.tab!==b.dataset.tab){ T.선택숙제={}; T.시간고칠숙제=null; T.묶어시간=null; T.펼친미제출=null; }
+    T.tab=b.dataset.tab;
     T.수정숙제=null;
     drawTab();
     window.scrollTo(0,0);
@@ -8264,7 +8278,7 @@ function 숙제묶기(list){
 function 마감칩(g){
   if(g.종류==='보충') return '<span class="pill bochung">오늘까지 · 보충</span>';
   if(g.종류==='당일') return '<span class="pill today">오늘까지</span>';
-  if(g.종류==='시험') return '<span class="pill siheom">'+esc(g.마감일||'시험')+'</span>';
+  if(시험인가_(g)) return '<span class="pill siheom">'+esc(g.마감일||'시험')+'</span>';
   return '<span class="muted">'+esc(g.마감일||'기한 없음')+'</span>';
 }
 function 낸칸(한, 대상){
@@ -8506,7 +8520,7 @@ function 밀린줄(p, 최대){
   var 칩들 = p.건.slice(0,최대).map(function(h){
     var 모 = (h.모자란사람||[]).indexOf(p.이름)>-1;
     return '<span class="mchip'+(모?' fail':'')+'">'+esc(h.단어장)+' '+esc(선생님범위글_(h.단어장,h.시작,h.끝))+
-      (모 ? ' · '+(h.종류==='보충'?'보충':'점수 모자람') : (h.종류==='시험'?' · 시험':''))+'</span>';
+      (모 ? ' · '+(h.종류==='보충'?'보충':'점수 모자람') : (시험인가_(h)?' · 시험':''))+'</span>';
   }).join('');
   var 더 = p.건.length>최대 ? '<span class="mchip off">외 '+(p.건.length-최대)+'건</span>' : '';
   return '<div class="mcard">'+
@@ -8566,7 +8580,7 @@ function 책진도_(단어장, 전체, 목록){
     /* 진도는 평소 숙제(당일·기한)로만 센다.
        보충은 지난 데를 다시 하는 것이고, 시험은 여러 레슨을 한꺼번에 묶으므로
        이것들로 진도를 밀면 레슨이 건너뛰어진다. */
-    if(h.종류 === '보충' || h.종류 === '시험') return;
+    if(h.종류 === '보충' || 시험인가_(h)) return;
     var 끝 = Number(h.끝) || 0;
     if(끝 > 마지막끝) 마지막끝 = 끝;
     최근 = h;                                  /* 시트 차례대로라 마지막이 가장 최근 */
@@ -8635,7 +8649,7 @@ function 진도손잡이(전체, 목록){
         r.checked = (r.value === h.종류);
         if(r.checked && r.onchange) r.onchange();
       });
-      if($('hwDue') && (h.종류==='기한' || h.종류==='시험')) $('hwDue').value = 오늘값();
+      if($('hwDue') && (h.종류==='기한' || 시험인가_(h))) $('hwDue').value = 오늘값();
       if(typeof 숙제레슨다시 === 'function') 숙제레슨다시();
       if(typeof 숙제대상다시 === 'function') 숙제대상다시();
       toast('“'+p.단어장+' '+레슨글_(p.묶음,p.총,p.시작,p.끝,true)+'”으로 채웠습니다 — 확인하고 등록하세요');
@@ -8683,7 +8697,7 @@ function 지난숙제손잡이(전체){
         r.checked = (r.value===h.종류);
         if(r.checked && r.onchange) r.onchange();
       });
-      if($('hwDue') && (h.종류==='기한'||h.종류==='시험')) $('hwDue').value=h.마감일||'';
+      if($('hwDue') && (h.종류==='기한'||시험인가_(h))) $('hwDue').value=h.마감일||'';
       if(typeof 숙제레슨다시==='function') 숙제레슨다시();
       toast('“'+h.단어장+' '+선생님범위글_(h.단어장,h.시작,h.끝)+'”으로 채웠습니다');
     };
@@ -8769,9 +8783,10 @@ function drawTab(){
     var 평균 = 본시험.length
       ? Math.round(본시험.reduce(function(a,t){return a+t.점수;},0)/본시험.length) : null;
     var 사람 = {}; 오늘것.forEach(function(t){ 사람[t.이름]=1; });
-    var 숙제 = (d.숙제목록||[]);
+    var 숙제 = (d.숙제목록||[]).filter(숙제인가_);
     var 진행 = 숙제.filter(function(h){return !h.지남;});
     var 안낸건 = 진행.filter(function(h){return (h.안한사람||[]).length;});
+    var 안본시험 = (d.숙제목록||[]).filter(function(h){ return 시험인가_(h) && !h.지남 && (h.안한사람||[]).length; });
     var 안낸명 = 0; 안낸건.forEach(function(h){ 안낸명 += h.안한사람.length; });
 
     var 밀린 = 밀린사람들(진행);
@@ -8798,7 +8813,8 @@ function drawTab(){
           '<div class="d">숙제 '+본시험.length+'건 기준</div></div>'+
         '<div class="kpi"><div class="k">진행 중인 숙제</div>'+
           '<div class="v">'+진행.length+'<small>건</small></div>'+
-          '<div class="d">마감 지난 것 '+(숙제.length-진행.length)+'건</div></div>'+
+          '<div class="d">마감 지난 것 '+(숙제.length-진행.length)+'건'+
+            (안본시험.length ? ' · 안 본 시험 '+안본시험.length+'건' : '')+'</div></div>'+
       '</div>'+
 
       '<div class="cols c2">'+
@@ -8894,7 +8910,7 @@ function drawTab(){
 
   /* ---------------- 학생 한 명씩 (1b) — 누르면 그 학생 것만 한곳에 ---------------- */
   else if(T.tab==='people'){
-    var 진행p=(d.숙제목록||[]).filter(function(h){return !h.지남;});
+    var 진행p=(d.숙제목록||[]).filter(function(h){return 숙제인가_(h) && !h.지남;});
     var 시험p=d.시험목록||[];
     var 성적={}; (d.학생별||[]).forEach(function(x){ 성적[x.이름]=x; });
     var 안본={}; (d.미응시||[]).forEach(function(m){ 안본[m.이름]=m; });
@@ -9544,24 +9560,28 @@ function drawTab(){
 
 
   /* ---------------- 숙제 ---------------- */
-  else if(T.tab==='hw'){
-    var 전체숙 = d.숙제목록||[];
+  else if(T.tab==='hw' || T.tab==='exam'){
+    /* 시험(종류 「시험」)은 숙제가 아니다 — 숙제 탭에서는 아예 안 보이고, 시험 탭에서만 낸다 */
+    var 시험탭 = (T.tab==='exam');
+    var 전체숙 = (d.숙제목록||[]).filter(시험탭 ? 시험인가_ : 숙제인가_);
     var 진행숙 = 전체숙.filter(function(h){return !h.지남;});
     var 지난숙 = 전체숙.filter(function(h){return h.지남;});
     var 첫책 = ((d.단어장목록||[])[0]||{}).이름 || '';
     var 유형들 = 책유형들_(첫책, d.단어장목록);
 
     b.innerHTML =
-      머리('숙제 내주기', '한 줄로 고르고 오른쪽 끝에서 내줍니다 · '+
-           (d.합격점||합격점())+'점을 못 넘긴 학생은 아직 안 낸 것으로 둡니다 (시험은 한 번만)')+
+      (시험탭
+        ? 머리('시험', '학원에서 보는 시험 · 아이는 「시험」 칸에서 <b>한 번만</b> 봅니다 · 점수(평균)는 여기에서 봅니다')
+        : 머리('숙제 내주기', '한 줄로 고르고 오른쪽 끝에서 내줍니다 · '+
+           (d.합격점||합격점())+'점을 못 넘긴 학생은 아직 안 낸 것으로 둡니다 · 시험은 「시험」 탭에서')+
 
       판('수업 짜기 <span class="pill note">중·고등</span>',
         '<span class="sub">단계를 묶어서 한 번에 — 아이 화면엔 순서대로 뜨고, 앞엣것을 끝내야 다음이 열립니다</span>',
-        '<div class="panel-b" id="lsBox"></div>')+
+        '<div class="panel-b" id="lsBox"></div>'))+
 
       판('', '',
         '<div class="panel-b">'+
-          진도줄(전체숙, d.단어장목록)+
+          (시험탭 ? '' : 진도줄(전체숙, d.단어장목록))+
           '<div class="hwbar">'+
 
             '<div class="ff" style="min-width:190px">'+
@@ -9584,19 +9604,21 @@ function drawTab(){
               '<select id="hwType">'+
                 유형들.map(function(t){return '<option>'+t+'</option>';}).join('')+
               '</select></div>'+
-            '<div class="ff" id="hwMemWrap" style="width:104px"><label>외우는 시간 <span class="tsrc" id="hwMemSrc">자동</span></label>'+
+            '<div class="ff'+(시험탭?'':' hide')+'" id="hwMemWrap" style="width:104px"><label>외우는 시간 <span class="tsrc" id="hwMemSrc">자동</span></label>'+
               '<div class="row" style="gap:4px;align-items:center"><input id="hwMemMin" type="tel" placeholder="없음"><span class="sub">분</span></div></div>'+
-            '<div class="ff" id="hwTestWrap" style="width:104px"><label>시험 시간 <span class="tsrc" id="hwTestSrc">자동</span></label>'+
+            '<div class="ff'+(시험탭?'':' hide')+'" id="hwTestWrap" style="width:104px"><label>시험 시간 <span class="tsrc" id="hwTestSrc">자동</span></label>'+
               '<div class="row" style="gap:4px;align-items:center"><input id="hwTestMin" type="tel" placeholder="없음"><span class="sub">분</span></div></div>'+
 
-            '<div class="ff" style="min-width:250px"><label>언제까지</label>'+
-              '<div class="rchips">'+
-                '<label><input type="radio" name="hwKind" value="당일" checked><span>오늘 안에</span></label>'+
-                '<label><input type="radio" name="hwKind" value="기한"><span>기한</span></label>'+
-                '<label><input type="radio" name="hwKind" value="보충"><span>보충</span></label>'+
-                '<label><input type="radio" name="hwKind" value="시험"><span>시험</span></label>'+
-              '</div>'+
-            '</div>'+
+            /* 종류 — 숙제 탭은 당일·기한·보충만, 시험 탭은 「시험」 으로 못 박는다 (두 군데서 낼 수 있으면 헷갈린다) */
+            (시험탭
+              ? '<input type="radio" name="hwKind" value="시험" checked class="hide">'
+              : '<div class="ff" style="min-width:250px"><label>언제까지</label>'+
+                '<div class="rchips">'+
+                  '<label><input type="radio" name="hwKind" value="당일" checked><span>오늘 안에</span></label>'+
+                  '<label><input type="radio" name="hwKind" value="기한"><span>기한</span></label>'+
+                  '<label><input type="radio" name="hwKind" value="보충"><span>보충</span></label>'+
+                '</div>'+
+              '</div>')+
 
             '<div class="ff hide" id="hwDueWrap" style="width:150px"><label>마감일</label>'+
               '<input id="hwDue" type="date"></div>'+
@@ -9604,7 +9626,7 @@ function drawTab(){
               '<div class="fnote">오늘까지</div></div>'+
 
             '<div class="ff" style="margin-left:auto"><label>&nbsp;</label>'+
-              '<button class="btn" id="btnHwAdd" style="margin:0;width:auto">숙제 등록</button></div>'+
+              '<button class="btn" id="btnHwAdd" style="margin:0;width:auto">'+(시험탭?'시험 내기':'숙제 등록')+'</button></div>'+
           '</div>'+
 
           '<div class="hwsub">'+
@@ -9620,23 +9642,23 @@ function drawTab(){
           지난숙제줄(전체숙)+
         '</div>')+
 
-      판('진행 중인 숙제 '+진행숙.length+'건',
+      판((시험탭?'앞으로 볼 시험 ':'진행 중인 숙제 ')+진행숙.length+'건',
         '<span class="row" style="gap:8px">'+
           '<label class="hwall"><input type="checkbox" class="hwAll" data-scope="now">전체 선택</label>'+
           '<button class="btn line hwTimeSel" data-scope="now" disabled>선택 시간 바꾸기</button>'+
           '<button class="btn line hwDelSel" data-scope="now" disabled>선택 삭제</button></span>',
         (T.묶어시간==='now' ? 묶어시간판('now') : '')+
-        (진행숙.length ? 숙제표(진행숙) : 빈칸('진행 중인 숙제가 없습니다.')), true)+
+        (진행숙.length ? 숙제표(진행숙, 시험탭) : 빈칸(시험탭 ? '앞으로 볼 시험이 없습니다.' : '진행 중인 숙제가 없습니다.')), true)+
 
       (지난숙.length ?
-        판('마감 지난 숙제 '+지난숙.length+'건',
+        판((시험탭?'지난 시험 ':'마감 지난 숙제 ')+지난숙.length+'건',
           '<span class="row" style="gap:8px">'+
             '<span class="sub">학생 화면에는 이미 안 보입니다</span>'+
             (T.지난숙제?'<label class="hwall"><input type="checkbox" class="hwAll" data-scope="old">전체 선택</label>'+
               '<button class="btn line hwTimeSel" data-scope="old" disabled>선택 시간 바꾸기</button>'+
               '<button class="btn line hwDelSel" data-scope="old" disabled>선택 삭제</button>':'')+
             '<button class="btn line" id="btnOldHw">'+(T.지난숙제?'접기':'펼치기')+'</button></span>',
-          T.지난숙제 ? (T.묶어시간==='old' ? 묶어시간판('old') : '')+숙제표(지난숙) : '', T.지난숙제) : '');
+          T.지난숙제 ? (T.묶어시간==='old' ? 묶어시간판('old') : '')+숙제표(지난숙, 시험탭) : '', T.지난숙제) : '');
     /* 고른 줄의 시간을 한꺼번에 — 일부러 고른 줄만 같이 바뀐다. 비우면 그대로, 0 이면 제한 없음 */
     function 묶어시간판(scope){
       return '<div class="tmbox tmbulk" data-scope="'+scope+'">'+
@@ -9835,7 +9857,7 @@ function drawTab(){
 
   /* ---------------- 안 한 학생 ---------------- */
   else if(T.tab==='miss'){
-    var 전부 = (d.숙제목록||[]).filter(function(h){return (h.안한사람||[]).length;});
+    var 전부 = (d.숙제목록||[]).filter(function(h){return 숙제인가_(h) && (h.안한사람||[]).length;});   /* 안 본 시험은 시험 탭에서 */
     var 진행m = 전부.filter(function(h){return !h.지남;});
     var 지난m = 전부.filter(function(h){return h.지남;});
 
@@ -11336,13 +11358,15 @@ function 글복사_(글){
 function 이번주요약문자_(r, 학원){
   var 줄=[], 숙=r.이번주숙제||[];
   줄.push('['+학원+'] '+r.이름+' 이번 주 학습');
+  /* 숙제는 냈나 안 냈나만 (점수 없음), 시험은 따로 — 섞어 세지 않는다 */
   if(숙.length){
     줄.push('숙제 '+숙.length+'개 중 '+(r.낸수||0)+'개 냈어요');
     숙.forEach(function(h){
-      줄.push((h.완료?'✓ ':'○ ')+h.제목+' '+h.유형+(h.완료 ? (h.점수!==null&&h.점수!==undefined?' '+h.점수+'점':'') : ' — 아직 안 냈어요'));
+      줄.push((h.완료?'✓ ':'○ ')+h.제목+' '+h.유형+(h.완료 ? '' : (h.다시 ? ' — 다시 하고 있어요' : ' — 아직 안 냈어요')));
     });
   } else 줄.push('이번 주에 나간 숙제가 없어요');
-  var 시=(r.최근시험||[])[0];
+  (r.시험||[]).filter(function(t){ return !t.봤나; }).forEach(function(t){ 줄.push('시험 '+t.날짜+' '+t.단어장+' '+t.범위+' '+t.유형+' — '+(t.지남?'안 봤어요':'볼 예정')); });
+  var 시=(r.시험||[]).filter(function(t){ return t.봤나; })[0];
   if(시) 줄.push('최근 시험 '+시.날짜+' '+시.유형+' '+시.점수+'점');
   if((r.자주틀린||[]).length) 줄.push('자주 틀리는 단어: '+r.자주틀린.slice(0,5).map(function(w){return w.단어;}).join(', '));
   if(r.한마디) 줄.push('선생님 한마디: '+r.한마디);
@@ -11385,7 +11409,11 @@ function 행당기기_(목록, 지운행){
 
 /* ---------- 숙제 목록을 단어장별로 묶어서 그리기 ---------- */
 /* ---------- 숙제 표 ---------- */
-function 숙제표(list){
+function 숙제표(list, 시험표){
+  var 칸수 = 시험표 ? 10 : 9;
+  var 말 = 시험표 ? {안:'안 봄', 다:'다 봤어요', 안사람:'안 본 학생', 한사람:'본 학생'}
+                  : {안:'안 함', 다:'다 냈어요', 안사람:'안 낸 학생', 한사람:'낸 학생'};
+  function 평균칸(h){ return 시험표 ? '<td class="nw">'+((h && h.평균!==null && h.평균!==undefined) ? '<b>'+esc(h.평균)+'점</b>' : '<span class="muted">—</span>')+'</td>' : ''; }
   /* 외우는 시간 / 시험 시간 — 비면 「–」 */
   function 시간글(h){
     var m = Number(h.외우기분)||0, t = Number(h.제한시간)||0;
@@ -11401,7 +11429,7 @@ function 숙제표(list){
       return '<label class="tmf">'+이름+' <input class="'+cls+'" type="tel" placeholder="없음" value="'+
         (v===''||v===null||v===undefined||v===0 ? '' : esc(String(v)))+'"> '+뒤+'</label>';
     }
-    return '<tr class="tmedit"><td colspan="9"><div class="tmbox" data-tmrow="'+h.행+'">'+
+    return '<tr class="tmedit"><td colspan="'+칸수+'"><div class="tmbox" data-tmrow="'+h.행+'">'+
       칸('외우는 시간','tmMem',Number(h.외우기분)||'','분')+
       칸('시험 시간','tmTest',Number(h.제한시간)||'','분')+
       (시험 ? 칸('통과점수','tmPass',h.통과점수===''||h.통과점수===undefined?80:h.통과점수,'점')+
@@ -11415,8 +11443,8 @@ function 숙제표(list){
     var 책들 = (T.data && T.data.단어장목록) ? T.data.단어장목록 : [{이름:h.단어장}];
     var 유형들 = 책유형들_(h.단어장, 책들);
     if(유형들.indexOf(h.유형) < 0) 유형들 = 유형들.concat([h.유형]);
-    var 종류지금 = (h.종류==='보충'||h.종류==='기한'||h.종류==='시험') ? h.종류 : '당일';
-    return '<tr class="hwediting"><td colspan="9" style="padding:0">'+
+    var 종류지금 = (h.종류==='보충'||h.종류==='기한'||시험인가_(h)) ? h.종류 : '당일';
+    return '<tr class="hwediting"><td colspan="'+칸수+'" style="padding:0">'+
       '<div class="hwedit">'+
         '<div class="sub mb">'+(h.학생?esc(h.학생)+' 학생':esc(h.단어장)+' 배우는 학생 전원')+
           ' — 대상은 못 바꿉니다. 바꾸려면 지우고 새로 내세요</div>'+
@@ -11454,13 +11482,13 @@ function 숙제표(list){
     var 대상 = h.대상수 || (안한.length + 한);
     var 상태 = 대상
       ? '<span data-miss="'+h.행+'" style="cursor:pointer">'+낸칸(한, 대상)+
-        (안한.length?' <span class="pill miss">'+안한.length+'명 안 함</span>'
-                    :' <span class="pill ok">다 냈어요</span>')+'</span>'
+        (안한.length?' <span class="pill miss">'+안한.length+'명 '+말.안+'</span>'
+                    :' <span class="pill ok">'+말.다+'</span>')+'</span>'
       : '<span class="muted">-</span>';
     var 펼침 = (T.펼친미제출===h.행 && 안한.length)
-      ? '<tr class="misstr"><td colspan="9" style="padding:0 14px 12px">'+
-        '<div class="misslist"><b>안 낸 학생 '+안한.length+'명</b> — '+안한.map(esc).join(', ')+
-        (한?'<div class="sub mt" style="margin-top:5px">낸 학생 '+한+'명 — '+
+      ? '<tr class="misstr"><td colspan="'+칸수+'" style="padding:0 14px 12px">'+
+        '<div class="misslist"><b>'+말.안사람+' '+안한.length+'명</b> — '+안한.map(esc).join(', ')+
+        (한?'<div class="sub mt" style="margin-top:5px">'+말.한사람+' '+한+'명 — '+
           (h.한사람||[]).map(esc).join(', ')+'</div>':'')+
         '</div></td></tr>' : '';
     return '<tr class="hwrow">'+
@@ -11473,10 +11501,10 @@ function 숙제표(list){
         : '<span class="pill ok">교재 전원</span>')+
         ' <span class="muted">'+(h.대상수||0)+'명</span></td>'+
       '<td class="nw muted">'+esc(h.유형)+'</td>'+
-      '<td class="nw muted">'+(h.종류==='기한'||h.종류==='시험'
+      '<td class="nw muted">'+(h.종류==='기한'||시험인가_(h)
         ? esc(h.마감일||'기한 없음') : '오늘까지')+'</td>'+
       '<td class="nw">'+시간칸(h)+'</td>'+
-      '<td class="nw">'+상태+'</td>'+
+      '<td class="nw">'+상태+'</td>'+평균칸(h)+
       '<td class="nw w"><button class="btn line sm" style="width:auto;padding:6px 12px;margin:0" '+
         'onclick="event.stopPropagation()" data-edit="'+h.행+'">수정</button></td>'+
     '</tr>'+(T.시간고칠숙제===h.행 ? 시간줄(h) : '')+펼침;
@@ -11496,11 +11524,11 @@ function 숙제표(list){
         ' <span class="pill hw">'+g.줄들.length+'건 묶음</span></td>'+
       '<td class="nw muted">'+esc(g.대상글)+'</td>'+
       '<td class="nw muted">'+esc(g.유형)+'</td>'+
-      '<td class="nw muted">'+(g.종류==='기한'||g.종류==='시험'
+      '<td class="nw muted">'+(g.종류==='기한'||시험인가_(g)
         ? esc(g.마감일||'기한 없음') : '오늘까지')+'</td>'+
       '<td class="nw muted">'+(g.줄들.every(function(x){ return 시간글(x)===시간글(g.줄들[0]); })
         ? 시간글(g.줄들[0]) : '제각각')+'</td>'+
-      '<td class="nw">'+낸칸(g.한, g.대상)+'</td>'+
+      '<td class="nw">'+낸칸(g.한, g.대상)+'</td>'+평균칸(g.줄들.length===1 ? g.줄들[0] : null)+
       '<td class="nw w"><span class="sub">'+(펼침?'접기 ▴':'펼치기 ▾')+'</span></td>'+
     '</tr>' +
     (펼침 ? g.줄들.map(줄).join('') : '');
@@ -11509,7 +11537,7 @@ function 숙제표(list){
   var 묶음 = 숙제묶기(list);
   return '<table class="tb"><thead><tr>'+
     '<th class="w">　</th><th>종류</th><th>단어장 / 범위</th><th>대상</th>'+
-    '<th>유형</th><th>마감</th><th>시간</th><th>제출</th><th class="w">　</th></tr></thead><tbody>'+
+    '<th>유형</th><th>'+(시험표?'시험날':'마감')+'</th><th>시간</th><th>'+(시험표?'본 사람':'제출')+'</th>'+(시험표?'<th>평균</th>':'')+'<th class="w">　</th></tr></thead><tbody>'+
     묶음.map(function(g,i){
       return g.줄들.length > 1 ? 묶음줄(g,i) : 줄(g.줄들[0]);
     }).join('')+'</tbody></table>';
@@ -11729,7 +11757,7 @@ function 숙제손잡이(d){
     function 월일(ymd){ var p=String(ymd||'').split('-'); return Number(p[1])+'/'+Number(p[2]); }
     function 숙제재료(){
       /* 서버(수업재료_)처럼 시험은 수업 회차에 넣지 않는다 — 안 그러면 「지난 4수업」 이 추천과 어긋난다 */
-      return ((T.data && T.data.숙제목록) || []).filter(function(h){ return h.종류!=='시험'; }).map(function(h){
+      return ((T.data && T.data.숙제목록) || []).filter(function(h){ return 숙제인가_(h); }).map(function(h){
         return {단어장:h.단어장, 칸:h.칸||'', 시작:h.시작, 끝:h.끝, 유형:h.유형, 등록:h.등록일||''};
       });
     }
@@ -12095,6 +12123,7 @@ function 숙제손잡이(d){
     교재대상보기();
   };
   숙제유형그리기();
+  (function(){ var k=document.querySelector('input[name=hwKind]:checked'); if(k && k.value==='시험' && k.onchange) k.onchange(); })();
   if($('btnHwHand')) $('btnHwHand').onclick=function(){
     var 열림 = $('hwHand').classList.toggle('hide') === false;
     this.textContent = 열림 ? '－ 직접 정하기' : '＋ 직접 정하기';
