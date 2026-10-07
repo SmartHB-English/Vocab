@@ -841,6 +841,16 @@ html[data-theme="high"] .podium-row + .podium-row{border-top-color:rgba(255,255,
 .item.hwrow .grow{flex:1}
 .hwPick{width:19px;height:19px;flex:none;margin-top:2px}
 /* 시험 결과 — 한 줄을 누르면 틀린 단어 전문 */
+/* 명단 — 학부모 칸 */
+.pvbtn{width:auto!important;padding:5px 10px!important;margin:0!important}
+.pvseen{font-size:12px;color:var(--sub,#6b7280)}
+.pvnot{font-size:12px;color:#B45309;font-weight:700}
+.pvbox{display:flex;flex-direction:column;gap:10px;padding:12px 14px;background:var(--soft,#f8fafc);border-radius:12px;margin:4px 0 8px}
+.pvrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pvrow>b{min-width:92px;font-size:13px}
+.pvrow .btn{width:auto;margin:0;padding:7px 14px}
+.pvurl{flex:1;min-width:240px;margin:0;font-size:12px}
+.pvsay{flex:1;min-width:240px;margin:0}
 .wmemo{padding:8px 14px 12px;font-size:13px;line-height:1.6;background:var(--soft,#f8fafc);border-radius:10px;margin:0 6px 6px}
 /* 숙제 시간 — 「자동」/「직접」 표시, 연습이면 흐리게, 목록의 「⏱ 5분 / 8분 ✎」 */
 .tsrc{display:inline-block;font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px;background:var(--line,#e5e7eb);color:var(--sub,#6b7280);margin-left:2px;vertical-align:1px}
@@ -2948,7 +2958,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-06k';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-07a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3239,7 +3249,39 @@ var DEMO = {
       항목:DEMO_항목.slice(), 항목전체:['숙제','시험','보충','오답노트']};},
   명단가져오기:function(){return {ok:true, 학생:DEMO_배정.map(function(x){
     return {행:x.행,이름:x.이름,비밀번호:x.비밀번호||'1234',학년구분:x.학년구분,
-            학년:x.학년||'',학교:x.학교||'',교재:(x.교재||[]).slice()};})};},
+            학년:x.학년||'',학교:x.학교||'',교재:(x.교재||[]).slice(),
+            학부모주소:x.학부모토큰?'https://smarthb-english.github.io/Vocab/parent.html#k='+x.학부모토큰:'',
+            학부모마지막:x.학부모마지막||'', 한마디:x.한마디||''};})};},
+  /* 학부모 — 진짜로는 학생 시트 9·10·11번째 칸 */
+  학부모링크발급:function(pw,이름){
+    var x=null; DEMO_배정.forEach(function(y){ if(y.이름===이름) x=y; });
+    if(!x) return {ok:false,메시지:'학생을 찾지 못했습니다.'};
+    var t=''; for(var i=0;i<64;i++) t+='0123456789abcdef'.charAt(Math.floor(Math.random()*16));
+    x.학부모토큰=t; x.학부모마지막='';
+    return {ok:true,이름:이름,주소:'https://smarthb-english.github.io/Vocab/parent.html#k='+t};
+  },
+  학부모한마디:function(pw,이름,글){
+    글=String(글||'').trim();
+    if(글.length>200) return {ok:false,메시지:'한마디는 200자까지 적을 수 있어요. (지금 '+글.length+'자)'};
+    var x=null; DEMO_배정.forEach(function(y){ if(y.이름===이름) x=y; });
+    if(!x) return {ok:false,메시지:'학생을 찾지 못했습니다.'};
+    x.한마디=글; return {ok:true,이름:이름,한마디:글};
+  },
+  학부모미리보기:function(pw,이름){
+    var 이번주=DEMO_HW.filter(function(h){
+      return !h.지남 && (h.한사람||[]).concat(h.안한사람||[]).indexOf(이름)>-1;
+    }).map(function(h){
+      var 낸=(h.한사람||[]).indexOf(이름)>-1;
+      return {제목:h.단어장+' '+h.시작+'~'+h.끝, 유형:h.유형, 종류:h.종류, 완료:낸, 점수:낸?90:null,
+              마감일:h.마감일||'', 마감글:h.마감일?Number(String(h.마감일).slice(5,7))+'/'+Number(String(h.마감일).slice(8,10)):''};
+    });
+    var 시험=(DEMO.선생님요약().시험목록||[]).filter(function(t){ return t.이름===이름 && !t.재시험; }).slice(0,8)
+      .map(function(t){ return {날짜:String(t.시각).slice(0,5).replace(/^0/,'').replace('/0','/'), 단어장:t.단어장, 범위:t.범위, 유형:t.유형, 점수:t.점수}; });
+    var x=null; DEMO_배정.forEach(function(y){ if(y.이름===이름) x=y; });
+    return {ok:true, 이름:이름, 한마디:(x&&x.한마디)||'', 이번주숙제:이번주,
+      낸수:이번주.filter(function(h){return h.완료;}).length, 안낸수:이번주.filter(function(h){return !h.완료;}).length,
+      최근시험:시험, 자주틀린:[{단어:'assume',번:2}], 진도:[], 학원:{이름:'홍제인왕해법영어',전화:''}};
+  },
   교재일괄:function(pw,행들,교재들,방식){
     var 고른=교재목록(교재들), 바뀐=0;
     (행들||[]).forEach(function(n){
@@ -3412,6 +3454,7 @@ var DEMO = {
       학생별:d.학생별,              /* 흉내 학생별은 교재를 손으로 적어 두었다 — 그대로 (기록붙이기_ 는 없을 때만 채운다) */
       미응시:d.미응시, 오답:d.오답, 교재맵:맵};
   },
+  틀린전문:function(){ return {ok:false}; },   /* 미리보기 숙제는 틀린 단어를 줄에 다 들고 있다 */
   기록메모:function(pw,줄,키){
     var t=(DEMO.선생님요약(pw,7).시험목록||[]).filter(function(x){ return x.키===Number(키); })[0];
     if(!t) return {ok:false, 메시지:'기록을 찾지 못했습니다 (정리했거나 지워진 기록)'};
@@ -3437,16 +3480,16 @@ var DEMO = {
       if(!꾸) return {ok:false,메시지:'꾸러미를 골라 주세요.'};
       return {ok:true, 이름:c.이름, 단계수:꾸.단계.length, 숙제목록:DEMO_HW.slice()};
     }
-    var 됨=0, 탈=[];
+    var 됨=0, 탈=[], 새것들=[];
     c.단계.forEach(function(d,i){
       var r = DEMO.숙제등록(pw,{단어장:d.단어장,칸:d.칸||'',시작:d.시작,끝:d.끝,유형:d.유형,제한시간:d.제한시간,
         단계:d.단계,통과점수:d.통과점수,재응시:d.재응시,종류:c.종류,
         마감일:c.마감일,학생들:c.학생들,수업:c.이름,순서:i+1});
-      if(r.ok) 됨++; else 탈.push((i+1)+'단계 '+d.유형+' — '+r.메시지);
+      if(r.ok){ 됨++; 새것들.push(r.숙제); } else 탈.push((i+1)+'단계 '+d.유형+' — '+r.메시지);
     });
     if(!됨) return {ok:false, 메시지:탈[0]||'수업을 내지 못했습니다.'};
     return {ok:true, 이름:c.이름, 단계수:됨, 메시지:탈.length?('일부만 나갔습니다 — '+탈.join(' / ')):'',
-            숙제목록:DEMO_HW.slice()};
+            숙제들:새것들};
   },
   수업틀목록:function(){ return {ok:true, 틀:JSON.parse(JSON.stringify(DEMO_틀들()))}; },
   수업틀저장:function(pw,이름,단계){
@@ -3519,21 +3562,31 @@ var DEMO = {
       재응시:h.단계==='시험'&&h.재응시!==''&&h.재응시!==undefined?Number(h.재응시)||0:'',
       막힌사람:[],등록일:오늘,
       대상수:대상들.length,한사람:[],안한사람:대상들.slice()});
-    return {ok:true,개수:1,대상:대상들.length,숙제목록:DEMO_HW.slice()};},
+    return {ok:true,개수:1,대상:대상들.length,숙제:JSON.parse(JSON.stringify(DEMO_HW[DEMO_HW.length-1]))};},
   교재대상:function(pw,교재){
     var 학생=DEMO_교재학생(교재);
     return {ok:true, 교재:교재, 인원:학생.length, 학생:학생};},
   숙제삭제:function(pw,행){
-    DEMO_HW=DEMO_HW.filter(function(h){return h.행!==Number(행);});
-    return {ok:true,숙제목록:DEMO_HW.slice()};},
+    var r = DEMO.숙제여러개삭제(pw,[행]);
+    return {ok:r.ok, 지운행:r.지운행};},
   미제출시트:function(){
     var n=DEMO_HW.filter(function(h){return (h.안한사람||[]).length;}).length;
     return {ok:true,건수:n,인원:n};},
   숙제여러개삭제:function(pw,행들){
-    var 셋={}; (행들||[]).forEach(function(r){셋[Number(r)]=1;});
-    var n=DEMO_HW.length;
-    DEMO_HW=DEMO_HW.filter(function(h){return !셋[h.행];});
-    return {ok:true,개수:n-DEMO_HW.length,숙제목록:DEMO_HW.slice()};},
+    /* 시트처럼 — 지운 줄 아래 줄들은 번호가 당겨진다 ({행, 낸때} 도 받는다) */
+    var 셋={};
+    (행들||[]).forEach(function(r){
+      var n = Number(r && typeof r==='object' ? r.행 : r);
+      if(DEMO_HW.some(function(h){ return h.행===n; })) 셋[n]=1;
+    });
+    var 지운 = Object.keys(셋).map(Number).sort(function(a,b){return a-b;});
+    DEMO_HW = DEMO_HW.filter(function(h){ return !셋[h.행]; }).map(function(h){
+      var 앞 = 지운.filter(function(n){ return n < h.행; }).length;
+      if(앞) h.행 -= 앞;
+      return h;
+    });
+    DEMO_HW다음행 -= 지운.length;
+    return {ok:true,개수:지운.length,지운행:지운};},
   숙제수정:function(pw,행,h){
     h=h||{};
     var 색맵={'예시 단어장':'#FF7A3D','불규칙 동사 50':'#3B82F6'};
@@ -3560,12 +3613,13 @@ var DEMO = {
       });
       return true;
     }
+    function 줄(n){ var x=null; DEMO_HW.forEach(function(h){ if(h.행===n) x=h; }); return x ? JSON.parse(JSON.stringify(x)) : null; }
     if(Array.isArray(행)){
-      var 된=행.filter(하나).length;
-      return {ok:true,개수:된,숙제목록:DEMO_HW.slice()};
+      var 된줄=행.filter(하나);
+      return {ok:true,개수:된줄.length,숙제들:된줄.map(function(r){ return 줄(Number(r&&r.행!==undefined?r.행:r)); })};
     }
     if(!하나(행)) return {ok:false,메시지:'이미 지워진 숙제입니다'};
-    return {ok:true,숙제목록:DEMO_HW.slice()};},
+    return {ok:true,숙제:줄(Number(행))};},
   단어붙여넣기:function(){return {ok:true,개수:0,메시지:'미리보기에서는 저장되지 않습니다.'};},
   학생붙여넣기:function(pw,본문,기본비번,학년구분,학년,학교,교재){
     var 있는것={}; DEMO_배정.forEach(function(x){ 있는것[x.이름]=1; });
@@ -5829,6 +5883,7 @@ function 숙제냈음(점수){
     h.마지막점수 = 점수;
     if(h.단계==='시험'){
       h.마지막틀린 = (S.오답||[]).map(function(w){ return w.en; });
+      h.마지막틀린더 = 0; h.마지막자리 = null;          /* 방금 푼 것은 전부 들고 있다 */
       if(h.남은응시 !== null && h.남은응시 !== undefined) h.남은응시 = Math.max(0, Number(h.남은응시) - 1);
     }
   }
@@ -7055,13 +7110,19 @@ function 다시연습시작_(h){
   var 표 = ++숙제열기표_;
   S.종류 = '';
   ((시작정보&&시작정보.단어장목록)||[]).concat(내책들()).forEach(function(x){ if(x.이름===h.단어장) S.종류 = x.종류||''; });
-  api('단어가져오기', h.단어장).then(function(w){
+  /* 숙제 목록엔 틀린 단어가 다섯 개까지만 온다 (기록 칸의 짧은 쪽). 더 있으면 그 한 줄의 메모만 가져온다 */
+  var 자리 = h.마지막자리;
+  var 전문p = (Number(h.마지막틀린더) > 0 && 자리)
+    ? api('틀린전문', (S.학생&&S.학생.이름)||'', 자리.시트, 자리.줄, 자리.키).catch(function(){ return null; })
+    : Promise.resolve(null);
+  Promise.all([api('단어가져오기', h.단어장), 전문p]).then(function(둘){
+    var w = 둘[0], 전문 = 둘[1];
     if(표 !== 숙제열기표_) return;
     S.단어 = w||[]; S.단어장 = h.단어장;
     과단어받기_(w, h.칸); 모드박스();
     var a = Math.max(1, Number(h.시작)||1), b = Math.min(S.단어.length, Number(h.끝)||S.단어.length);
     var 범위 = S.단어.slice(a-1, b), 틀 = {};
-    (h.마지막틀린||[]).forEach(function(x){ 틀[norm(x)] = 1; });
+    ((전문 && 전문.ok) ? 전문.틀린 : (h.마지막틀린||[])).forEach(function(x){ 틀[norm(x)] = 1; });
     /* 그 시험에서 틀린 것만 — 5개보다 적으면 범위에서 더 뽑아 10개를 채운다 */
     var 고른 = 범위.filter(function(x){ return 틀[norm(x.en)]; });
     if(고른.length < 5){
@@ -8475,9 +8536,9 @@ function 보충손잡이(사람들){
       대상.forEach(function(h){
         api('숙제등록',T.pw,{
           단어장:h.단어장, 시작:h.시작, 끝:h.끝,
-          유형:h.유형, 마감일:'', 종류:'보충', 학생들:[p.이름]
+          유형:h.유형, 마감일:'', 종류:'보충', 학생들:[p.이름], 바뀐줄만:true
         }).then(function(r){
-          if(r&&r.ok){ 된것++; if(r.숙제목록) T.data.숙제목록=r.숙제목록; }
+          if(r&&r.ok){ 된것++; 숙제반영_(r); }
         }).catch(function(){}).then(function(){
           if(--남음) return;
           toast(된것 ? p.이름+' 학생에게 보충 '+된것+'건을 냈습니다' : '내지 못했습니다');
@@ -10438,7 +10499,7 @@ function drawTab(){
     });
 
     function 수정줄s(st){
-      return '<tr class="stediting"><td colspan="9" style="padding:0">'+
+      return '<tr class="stediting"><td colspan="10" style="padding:0">'+
         '<div class="hwedit">'+
           '<div class="row wrap" style="gap:10px;align-items:flex-end">'+
             '<div style="min-width:120px"><label>이름</label>'+
@@ -10489,9 +10550,39 @@ function drawTab(){
         '<td class="nw">'+(st.학교?esc(st.학교):'<span class="muted">-</span>')+'</td>'+
         '<td class="nw muted">'+esc(st.학년구분)+'</td>'+
         '<td class="nw muted">'+esc(st.비밀번호)+'</td>'+
+        '<td class="nw">'+학부모칸s(st)+'</td>'+
         '<td class="nw w"><button class="btn line sm" style="width:auto;padding:6px 12px;margin:0" '+
           'data-sedit="'+st.행+'">수정</button></td>'+
-      '</tr>';
+      '</tr>'+(T.학부모펼침===st.이름 ? 학부모줄s(st) : '');
+    }
+    /* 학부모 — 링크가 있나 · 마지막으로 본 때 (안 보고 계신 분을 알 수 있게) */
+    function 학부모칸s(st){
+      var 글 = !st.학부모주소 ? '<span class="muted">링크 없음</span>'
+             : st.학부모마지막 ? '<span class="pvseen">'+esc(st.학부모마지막)+' 봄</span>'
+             : '<span class="pvnot">아직 안 보심</span>';
+      return '<button class="btn line sm pvbtn" type="button" data-pv="'+esc(st.이름)+'">학부모</button> '+글;
+    }
+    function 학부모줄s(st){
+      return '<tr class="pvtr"><td colspan="10"><div class="pvbox" data-pvname="'+esc(st.이름)+'">'+
+        '<div class="pvrow"><b>학부모 링크</b>'+
+          (st.학부모주소
+            ? '<input class="pvurl" readonly value="'+esc(st.학부모주소)+'">'+
+              '<button class="btn sm" type="button" data-pvcopy="1">복사</button>'+
+              '<button class="btn line sm" type="button" data-pvnew="1">다시 발급</button>'
+            : '<span class="sub">아직 없습니다</span><button class="btn sm" type="button" data-pvnew="0">링크 만들기</button>')+
+        '</div>'+
+        '<div class="pvrow"><b>선생님 한마디</b>'+
+          '<textarea class="pvsay" maxlength="200" rows="2" placeholder="예) 철자가 많이 좋아졌어요.">'+esc(st.한마디||'')+'</textarea>'+
+          '<button class="btn sm" type="button" data-pvsay="1">저장</button>'+
+          '<span class="sub pvcnt">'+String(st.한마디||'').length+'/200</span>'+
+        '</div>'+
+        '<div class="pvrow"><b>문자</b>'+
+          '<button class="btn line sm" type="button" data-pvsms="1">안내 문자 복사</button>'+
+          '<button class="btn line sm" type="button" data-pvweek="1">이번 주 요약 문자 복사</button>'+
+          '<span class="sub">복사한 글을 문자에 붙여 보내시면 됩니다</span>'+
+        '</div>'+
+        (st.학부모마지막 ? '<div class="sub">학부모가 마지막으로 본 때 — '+esc(st.학부모마지막)+'</div>' : '')+
+      '</div></td></tr>';
     }
 
     b.innerHTML =
@@ -10557,7 +10648,7 @@ function drawTab(){
           ? '<table class="tb"><thead><tr>'+
             '<th class="w"><input type="checkbox" id="stPickAll"></th>'+
             '<th>교재</th><th>이름</th><th>학년</th><th>학교</th><th>학생 화면</th>'+
-            '<th>비밀번호</th><th class="w">　</th></tr></thead><tbody>'+
+            '<th>비밀번호</th><th>학부모</th><th class="w">　</th></tr></thead><tbody>'+
             보임s.map(줄s).join('')+'</tbody></table>'
           : 빈칸('해당하는 학생이 없습니다.'), true)+
         '</div>'+
@@ -10585,6 +10676,54 @@ function drawTab(){
         '</div></div>'+
         '</div>'+
       '</div>';
+
+    /* --- 학부모 --- */
+    function 학생찾기pv(이름){ var x=null; (T.명단||[]).forEach(function(y){ if(y.이름===이름) x=y; }); return x; }
+    function 안내문자(st){
+      return st.이름+' 어머님, '+(((typeof 시작정보!=='undefined'&&시작정보&&시작정보.학원이름))||'홍제인왕해법영어')+'입니다.\n'+
+        '아이의 학습 현황을 아래 링크에서 보실 수 있습니다.\n'+
+        st.학부모주소+'\n'+
+        '· 링크를 눌러 바로 보시면 됩니다. 따로 설치하실 것은 없습니다.\n'+
+        '· 카카오톡 안에서 열리면 「다른 브라우저로 열기」를 눌러 주세요.';
+    }
+    function 발급(st, 다음){
+      api('학부모링크발급',T.pw,st.이름).then(function(r){
+        if(!r || !r.ok){ toast((r&&r.메시지)||'링크를 만들지 못했습니다'); return; }
+        st.학부모주소=r.주소; st.학부모마지막='';
+        drawTab();
+        if(다음) 다음(st);
+      }).catch(function(){ toast('링크를 만들지 못했습니다'); });
+    }
+    qsa('[data-pv]').forEach(function(btn){
+      btn.onclick=function(){ T.학부모펼침 = (T.학부모펼침===btn.dataset.pv) ? null : btn.dataset.pv; drawTab(); };
+    });
+    qsa('.pvbox').forEach(function(box){
+      var st=학생찾기pv(box.dataset.pvname); if(!st) return;
+      var 복사단추=box.querySelector('[data-pvcopy]');
+      if(복사단추) 복사단추.onclick=function(){ 글복사_(st.학부모주소).then(function(){ toast('링크를 복사했습니다'); }); };
+      box.querySelector('[data-pvnew]').onclick=function(){
+        if(st.학부모주소 && !confirm('옛 링크는 바로 막힙니다. 그래도 바꿀까요?')) return;
+        발급(st, function(){ toast('새 링크를 만들었습니다'); });
+      };
+      var 칸=box.querySelector('.pvsay');
+      칸.oninput=function(){ box.querySelector('.pvcnt').textContent=칸.value.length+'/200'; };
+      box.querySelector('[data-pvsay]').onclick=function(){
+        api('학부모한마디',T.pw,st.이름,칸.value).then(function(r){
+          if(!r || !r.ok){ toast((r&&r.메시지)||'저장하지 못했습니다'); return; }
+          st.한마디=r.한마디; toast(r.한마디 ? '한마디를 저장했습니다' : '한마디를 지웠습니다');
+        }).catch(function(){ toast('저장하지 못했습니다'); });
+      };
+      box.querySelector('[data-pvsms]').onclick=function(){
+        function 복사(st){ 글복사_(안내문자(st)).then(function(){ toast('안내 문자를 복사했습니다'); }); }
+        if(st.학부모주소) 복사(st); else 발급(st, 복사);
+      };
+      box.querySelector('[data-pvweek]').onclick=function(){
+        api('학부모미리보기',T.pw,st.이름).then(function(r){
+          if(!r || !r.ok){ toast((r&&r.메시지)||'자료를 가져오지 못했습니다'); return; }
+          글복사_(이번주요약문자_(r, ((typeof 시작정보!=='undefined'&&시작정보&&시작정보.학원이름)||'홍제인왕해법영어'))).then(function(){ toast('이번 주 요약을 복사했습니다'); });
+        }).catch(function(){ toast('자료를 가져오지 못했습니다'); });
+      };
+    });
 
     /* --- 고르기 --- */
     qsa('.stPick').forEach(function(c){
@@ -11175,6 +11314,73 @@ function 책유형들_(이름, 목록, 칸){
   if(k === '본문') return 본문유형_.slice();
   if(k === '3단변화') return ['3단변화'].concat(보통유형_);
   return 보통유형_.concat(['듣고 쓰기', '3단변화']);
+}
+
+/* ---------- 글 복사 — clipboard 가 안 되면 숨은 칸 + execCommand 로 ---------- */
+function 글복사_(글){
+  function 옛길(){
+    var t=document.createElement('textarea');
+    t.value=글; t.setAttribute('readonly',''); t.style.position='fixed'; t.style.left='-9999px';
+    document.body.appendChild(t); t.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(t);
+  }
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText)
+      return navigator.clipboard.writeText(글).catch(function(){ 옛길(); });
+  }catch(e){}
+  옛길();
+  return Promise.resolve();
+}
+/* 설치도 알림도 못 하시는 분께 — 원장님이 문자로 보낼 짧은 글 (다른 아이 이야기는 없다) */
+function 이번주요약문자_(r, 학원){
+  var 줄=[], 숙=r.이번주숙제||[];
+  줄.push('['+학원+'] '+r.이름+' 이번 주 학습');
+  if(숙.length){
+    줄.push('숙제 '+숙.length+'개 중 '+(r.낸수||0)+'개 냈어요');
+    숙.forEach(function(h){
+      줄.push((h.완료?'✓ ':'○ ')+h.제목+' '+h.유형+(h.완료 ? (h.점수!==null&&h.점수!==undefined?' '+h.점수+'점':'') : ' — 아직 안 냈어요'));
+    });
+  } else 줄.push('이번 주에 나간 숙제가 없어요');
+  var 시=(r.최근시험||[])[0];
+  if(시) 줄.push('최근 시험 '+시.날짜+' '+시.유형+' '+시.점수+'점');
+  if((r.자주틀린||[]).length) 줄.push('자주 틀리는 단어: '+r.자주틀린.slice(0,5).map(function(w){return w.단어;}).join(', '));
+  if(r.한마디) 줄.push('선생님 한마디: '+r.한마디);
+  return 줄.join('\n');
+}
+
+/* ---------- 서버가 돌려준 바뀐 줄만 목록에 — 통째로 다시 받지 않는다 ----------
+   숙제: 새 줄이나 고친 줄 하나 · 숙제들: 여러 줄 · 지운행: 지운 줄번호들 (그 아래 줄번호를 당긴다).
+   옛 서버(숙제목록 통째)도 받는다 — 재배포 순서가 어긋나도 돌게. 반영한 게 없으면 false */
+function 숙제반영_(r){
+  if(!T.data || !r) return false;
+  T.숙제판 = (T.숙제판||0) + 1;                       /* 목록이 바뀐 차례 — 늦게 온 지우기 답이 알아본다 */
+  if(r.숙제목록){ T.data.숙제목록 = r.숙제목록; return true; }
+  var L = (T.data.숙제목록||[]).slice(), 했나 = false, 못맞춤 = false;
+  if(r.지운행 && r.지운행.length){ L = 행당기기_(L, r.지운행); 했나 = true; }
+  (r.숙제 ? [r.숙제] : []).concat(r.숙제들||[]).forEach(function(h){
+    if(!h) return;
+    /* 등록시각(낸때)으로 먼저 찾는다 — 답이 오는 사이 다른 줄을 지워 줄번호가 당겨졌을 수 있다 */
+    var i = -1;
+    if(h.낸때) L.forEach(function(x, j){ if(x.낸때 === h.낸때) i = j; });
+    if(i < 0) L.forEach(function(x, j){ if(x.행 === h.행 && (!h.낸때 || !x.낸때)) i = j; });
+    if(i > -1){ L[i] = Object.assign({}, L[i], h, {행: h.낸때 ? L[i].행 : h.행}); 했나 = true; return; }
+    if(!h.단어장){ 못맞춤 = true; return; }          /* 시간만 온 줄인데 짝이 없다 — 지어내지 말고 서버 것으로 맞춘다 */
+    L.push(JSON.parse(JSON.stringify(h)));
+    했나 = true;
+  });
+  T.data.숙제목록 = L;
+  if(못맞춤){ setTimeout(loadTeacher, 0); return true; }
+  return 했나;
+}
+/* 줄을 지우면 그 아래 줄들의 행 번호가 하나씩 밀린다 — 시트와 똑같이 당겨 둬야 다음 삭제·수정이 엉뚱한 줄을 안 건드린다 */
+function 행당기기_(목록, 지운행){
+  var 지 = {}; (지운행||[]).forEach(function(n){ 지[Number(n)] = 1; });
+  var 차례 = (지운행||[]).map(Number);
+  return (목록||[]).filter(function(h){ return !지[h.행]; }).map(function(h){
+    var 앞 = 0; 차례.forEach(function(n){ if(n < h.행) 앞++; });
+    return 앞 ? Object.assign({}, h, {행: h.행 - 앞}) : h;
+  });
 }
 
 /* ---------- 숙제 목록을 단어장별로 묶어서 그리기 ---------- */
@@ -11811,13 +12017,14 @@ function 숙제손잡이(d){
       if(b.탈){ toast(b.탈); return; }
       짐.보내는중 = true;
       qsa('#btnLsAdd, #lsRecGo').forEach(function(x){ x.disabled = true; });
-      api('수업내주기', T.pw, {이름:이름, 종류:짐.종류, 마감일:짐.마감, 단계:b.것}).then(function(r){
+      api('수업내주기', T.pw, {이름:이름, 종류:짐.종류, 마감일:짐.마감, 단계:b.것, 바뀐줄만:true}).then(function(r){
         if(r && r.ok){
           toast('「'+r.이름+'」 수업을 냈습니다 (숙제 '+r.단계수+'개)');
           if(r.메시지) setTimeout(function(){ toast(r.메시지); }, 2200);
           /* 낸 단계는 비운다 — 남겨 두면 다음 수업에 또 누르기 쉽다 (다시 쓰려면 틀로 저장) */
           짐.이름 = ''; 짐.추천 = null; 짐.단계 = [];
-          loadTeacher();
+          /* 새 줄들만 목록에 더한다 — 화면 전체를 다시 불러오지 않는다 */
+          if(숙제반영_(r)){ 사이드배지(); drawTab(); } else loadTeacher();
         } else toast((r && r.메시지) || '실패했습니다');
       }).catch(function(){ toast('실패했습니다'); })
         .then(function(){ 짐.보내는중 = false; qsa('#btnLsAdd, #lsRecGo').forEach(function(x){ x.disabled = false; }); });
@@ -11927,14 +12134,14 @@ function 숙제손잡이(d){
       시작:$('hwFrom').value, 끝:$('hwTo').value,
       유형:$('hwType').value, 마감일:$('hwDue').value,
       종류:종류값(), 학생들:학생들, 칸:지금구분(),
-      외우기분: 시간값('hwMemMin'), 제한시간: 시간값('hwTestMin')
+      외우기분: 시간값('hwMemMin'), 제한시간: 시간값('hwTestMin'), 바뀐줄만:true
     }).then(function(r){
       if(!r.ok){ toast(r.메시지||'내지 못했습니다'); return; }
       시간채우기(true);                      /* 손으로 적은 시간은 이 숙제 한 번뿐 */
       toast(학생들.length
         ? 학생들.length+'명에게 냈습니다'
         : '“'+책+'” 배우는 '+(r.대상||0)+'명에게 냈습니다');
-      T.data.숙제목록=r.숙제목록; 사이드배지(); drawTab();
+      숙제반영_(r); 사이드배지(); drawTab();
     }).catch(function(){ toast('내지 못했습니다'); });
   };
   if($('btnOldHw')) $('btnOldHw').onclick=function(){ T.지난숙제=!T.지난숙제; drawTab(); };
@@ -11981,10 +12188,11 @@ function 숙제손잡이(d){
   function 시간보내기(행, 값, 행들){
     var n = 푼수(행들);
     if(n && !confirm('이미 '+n+'명이 풀었습니다. 그래도 바꿀까요?\n바꾼 뒤에 푸는 아이부터 새 시간이고, 이미 낸 기록은 그대로입니다.')) return null;
+    값.바뀐줄만 = true;
     return api('숙제수정',T.pw,행,값).then(function(r){
       if(r && r.ok){
         toast(Array.isArray(행) ? (r.개수||행.length)+'건의 시간을 바꿨습니다' : '시간을 고쳤습니다');
-        T.시간고칠숙제=null; T.묶어시간=null; T.data.숙제목록=r.숙제목록; 사이드배지(); drawTab();
+        T.시간고칠숙제=null; T.묶어시간=null; 숙제반영_(r); 사이드배지(); drawTab();
       } else { toast((r&&r.메시지)||'고치지 못했습니다'); drawTab(); }
     });
   }
@@ -12072,13 +12280,34 @@ function 숙제손잡이(d){
         .filter(function(행){return T.선택숙제[행];});
       if(!행들.length) return;
       if(!confirm(행들.length+'건을 지울까요?\n학생 화면에서도 바로 사라집니다.')) return;
-      btn.disabled=true; btn.textContent='지우는 중…';
-      api('숙제여러개삭제',T.pw,행들).then(function(r){
-        if(r.ok){
-          toast(r.개수+'건 삭제했습니다');
-          T.선택숙제={}; T.수정숙제=null; T.data.숙제목록=r.숙제목록; 사이드배지(); drawTab();
-        } else { toast(r.메시지||'삭제하지 못했습니다'); drawTab(); }
-      });
+      /* 기다렸다 지우지 않는다 — 누르면 바로 목록에서 빼고(아래 줄번호도 당긴다), 서버가 실패하면 되돌린다.
+         줄번호와 함께 등록시각(낸때)을 보낸다 — 서버가 엉뚱한 줄을 지우지 않게 맞춰 본다 */
+      var 전 = (T.data.숙제목록||[]).slice();
+      var 보낼 = 전.filter(function(h){ return 행들.indexOf(h.행) > -1; })
+                   .map(function(h){ return {행:h.행, 낸때:h.낸때||0}; });
+      T.data.숙제목록 = 행당기기_(전, 행들);
+      var 판 = T.숙제판 = (T.숙제판||0) + 1;
+      T.선택숙제={}; T.수정숙제=null; T.시간고칠숙제=null; T.펼친미제출=null; T.묶어시간=null;
+      사이드배지(); drawTab();
+      function 되돌리기(말){
+        toast(말||'지우지 못했습니다 — 목록을 되돌렸습니다');
+        if(T.숙제판===판){ T.data.숙제목록 = 전; 사이드배지(); drawTab(); } else loadTeacher();
+      }
+      function 받기(r){
+        if(!r || !r.ok){ 되돌리기(r && r.메시지); return; }
+        /* 옛 서버는 {행, 낸때} 를 모른다 — 하나도 못 지웠으면 줄번호만으로 다시 보낸다 (재배포 순서가 어긋나도 돌게) */
+        if(r.숙제목록 && !r.지운행 && !r.개수 && 보낼.length && !받기.다시){
+          받기.다시 = true;
+          api('숙제여러개삭제',T.pw,보낼.map(function(x){ return x.행; })).then(받기).catch(function(){ 되돌리기(); });
+          return;
+        }
+        toast(r.개수+'건 삭제했습니다');
+        if(r.숙제목록 && !r.지운행){ T.data.숙제목록=r.숙제목록; 사이드배지(); drawTab(); return; }     /* 옛 서버 */
+        var 같다 = (r.지운행||[]).length===행들.length &&
+                   행들.slice().sort(function(a,b){return a-b;}).join(',')===(r.지운행||[]).join(',');
+        if(!같다) loadTeacher();          /* 그 사이 시트가 바뀌었다 — 서버 것으로 맞춘다 */
+      }
+      api('숙제여러개삭제',T.pw,보낼,true).then(받기).catch(function(){ 되돌리기(); });
     };
   });
   버튼갱신();
@@ -12127,11 +12356,13 @@ function 숙제손잡이(d){
         시작: f, 끝: t,
         유형: box.querySelector('.eType').value,
         종류: 종류값2,
-        마감일: 마감
+        마감일: 마감,
+        낸때: (function(){ var x=null; (T.data.숙제목록||[]).forEach(function(h){ if(h.행===Number(btn.dataset.save)) x=h; }); return x&&x.낸때||0; })(),
+        바뀐줄만: true
       }).then(function(r){
         if(r.ok){
           toast('고쳤습니다');
-          T.수정숙제=null; T.data.숙제목록=r.숙제목록; 사이드배지(); drawTab();
+          T.수정숙제=null; 숙제반영_(r); 사이드배지(); drawTab();
         } else { toast(r.메시지||'고치지 못했습니다'); drawTab(); }
       });
     };

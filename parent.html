@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- 주소(토큰)가 바깥 사이트로 새어 나가지 않게 — 전화 걸기 말고는 밖으로 나가는 링크도 없다 -->
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#F6F4F1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="해법 학부모">
+<title>홍제인왕해법영어 학부모</title>
+<link rel="manifest" href="parent-manifest.json" id="mfLink">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{
+  --bg:#F6F4F1; --card:#FFFFFF; --text:#000000; --sub:#6B6660; --line:#ECE7E1;
+  --accent:#FF9500; --accent-soft:#FFF1DE; --good:#16A34A; --good-soft:#E8F7EE;
+  --warn:#D9480F; --warn-soft:#FFE8DC; --r:20px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+  font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%;overflow-x:hidden}
+.wrap{max-width:560px;margin:0 auto;padding:12px 16px calc(28px + env(safe-area-inset-bottom))}
+.hide{display:none!important}
+
+/* 설치 안내 — 위에 작은 띠 하나. 화면을 덮지 않는다 */
+.band{position:sticky;top:0;z-index:5;background:#1F1B16;color:#fff;font-size:14px;line-height:1.45;
+  padding:10px 44px 10px 14px;margin:0 -16px 12px;}
+.band b{color:#FFC46B}
+.band .bandact{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.band button.bbtn{border:0;border-radius:999px;background:var(--accent);color:#000;font-weight:800;
+  font-size:14px;padding:8px 14px;cursor:pointer}
+.band button.bbtn.line{background:transparent;color:#fff;border:1px solid #6B6660}
+.band .bandx{position:absolute;right:6px;top:6px;width:34px;height:34px;border:0;background:transparent;
+  color:#C9C2B9;font-size:22px;line-height:1;cursor:pointer}
+.band svg{vertical-align:-4px}
+
+.top{display:flex;align-items:baseline;justify-content:space-between;padding:6px 4px 12px}
+.top h1{margin:0;font-size:26px;font-weight:900;letter-spacing:-.5px}
+.top .date{color:var(--sub);font-size:15px;font-weight:700}
+
+.card{background:var(--card);border-radius:var(--r);padding:16px 16px 14px;margin:0 0 12px;
+  box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card h2{margin:0 0 10px;font-size:16px;font-weight:900;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h2 small{font-size:14px;font-weight:800;color:var(--sub)}
+.note{font-size:13px;color:var(--sub);margin-top:8px}
+
+.alert{border-radius:var(--r);padding:14px 16px;margin:0 0 12px;font-weight:800;font-size:15px}
+.alert.warn{background:var(--warn-soft);color:var(--warn)}
+.alert.good{background:var(--good-soft);color:var(--good)}
+.alert small{display:block;font-weight:600;font-size:13px;margin-top:3px;color:inherit;opacity:.85}
+
+.say{background:var(--accent-soft)}
+.say p{margin:0;font-size:16px;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+
+.hw{list-style:none;margin:0;padding:0}
+.hw li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.hw li:first-child{border-top:0}
+.hw .mk{width:24px;height:24px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:900}
+.hw .done .mk{background:var(--good-soft);color:var(--good)}
+.hw .todo .mk{background:var(--warn-soft);color:var(--warn);border:2px solid var(--warn)}
+.hw .t{flex:1;min-width:0}
+.hw .t b{display:block;font-size:15px;font-weight:800;overflow-wrap:anywhere}
+.hw .t span{font-size:13px;color:var(--sub)}
+.hw .r{flex:none;font-weight:900;font-size:15px;text-align:right}
+.hw .todo .r{color:var(--warn);font-size:13px}
+.hw .todo{background:linear-gradient(90deg,rgba(255,232,220,.55),rgba(255,232,220,0));margin:0 -16px;padding-left:16px;padding-right:16px}
+
+.chart{width:100%;height:auto;display:block;margin:2px 0 6px}
+.tests{list-style:none;margin:0;padding:0}
+.tests li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.tests li:first-child{border-top:0}
+.tests .d{color:var(--sub);width:42px;flex:none;font-weight:700}
+.tests .n{flex:1;min-width:0;overflow-wrap:anywhere}
+.tests .s{font-weight:900;flex:none}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--bg);border-radius:999px;padding:6px 12px;font-weight:800;font-size:15px;overflow-wrap:anywhere}
+.chip em{font-style:normal;color:var(--accent);font-size:13px;margin-left:4px}
+
+.prog{margin:8px 0 12px}
+.prog:last-child{margin-bottom:2px}
+.prog .pt{display:flex;justify-content:space-between;font-weight:800;font-size:15px;gap:8px}
+.prog .pt span{color:var(--sub);font-weight:700;flex:none}
+.bar{height:10px;background:var(--bg);border-radius:6px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:6px}
+
+.foot{text-align:center;color:var(--sub);font-size:14px;padding:14px 4px 4px;line-height:1.7}
+.foot b{color:var(--text)}
+.foot a{color:var(--text);font-weight:800}
+
+.btn{display:block;width:100%;border:0;border-radius:16px;background:var(--accent);color:#000;font-weight:900;
+  font-size:16px;padding:14px;cursor:pointer;margin:4px 0 12px}
+.btn.line{background:var(--card);border:1px solid var(--line)}
+.msg{text-align:center;padding:36px 18px}
+.msg .big{font-size:40px;line-height:1}
+.msg p{margin:12px 0 0;font-weight:800;font-size:16px}
+.msg small{display:block;color:var(--sub);margin-top:6px;font-size:14px}
+
+.skl{height:14px;border-radius:7px;background:linear-gradient(90deg,#EEE9E3,#F7F3EE,#EEE9E3);background-size:200% 100%;
+  animation:skl 1.2s infinite;margin:10px 0}
+.w40{width:40%}.w70{width:70%}.w90{width:90%}
+@keyframes skl{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:#1F1B16;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;font-weight:700;
+  opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="band" class="band hide" role="status"></div>
+  <main id="app">
+    <div class="card"><div class="skl w40"></div><div class="skl w90"></div><div class="skl w70"></div></div>
+    <div class="card"><div class="skl w40"></div><div class="skl w90"></div><div class="skl w90"></div></div>
+  </main>
+</div>
+<div id="toast"></div>
+<script>
+/* ==================================================================
+   해법 영단어 — 학부모 화면
+   · 아이마다 비밀 링크 …/parent/#k=토큰 으로 들어온다. 토큰은 해시(#) 뒤 — 서버 기록·바깥 사이트로 안 간다.
+   · 읽기만 한다. 쓰는 일은 하나도 없다 (알림 받기 등록만 — 그것도 그 아이 이름으로만).
+   · 설치·알림은 「하면 더 편한 것」 일 뿐 — 링크만 누르면 전부 보인다.
+   · 파일로 열면(미리보기) 흉내 자료로 돈다.
+================================================================== */
+/* 학생 앱(index.html)과 같은 창구 — 바꿀 때는 둘 다 바꾼다 */
+var 창구주소 = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
+var 미리보기 = (location.protocol === 'file:') ||
+               ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.search.indexOf('real') < 0) ||
+               location.search.indexOf('demo') > -1;
+var 토큰열쇠 = '해법학부모_토큰';
+var 닫음열쇠 = '해법학부모_안내닫음';
+var 자료 = null;
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function 저장읽기(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function 저장쓰기(k, v){ try{ if(v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){} }
+var 토스트시계 = null;
+function toast(글){
+  var t = $('toast'); t.textContent = 글; t.classList.add('on');
+  clearTimeout(토스트시계); 토스트시계 = setTimeout(function(){ t.classList.remove('on'); }, 2200);
+}
+
+/* ---------- 토큰 — 해시에서. 홈 화면에서 열면 해시가 없을 수 있어 이 기기에 적어 둔 것을 쓴다 ---------- */
+function 해시토큰_(){
+  var m = /(?:^#|[#&])k=([0-9a-fA-F]{32,128})(?:&|$)/.exec(location.hash || '');
+  return m ? m[1].toLowerCase() : '';
+}
+var 해시에서 = 해시토큰_();
+var 토큰 = 해시에서 || (저장읽기(토큰열쇠) || '');
+
+/* ---------- 창구 ---------- */
+function api(fn){
+  var args = [].slice.call(arguments, 1);
+  if(미리보기){
+    return new Promise(function(res, rej){
+      setTimeout(function(){
+        try{ var f = 흉내[fn]; res(typeof f === 'function' ? f.apply(null, args) : null); }catch(e){ rej(e); }
+      }, 150);
+    });
+  }
+  return fetch(창구주소, {
+    method:'POST', redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},     /* 미리 묻기(preflight)를 피한다 */
+    body: JSON.stringify({fn:fn, args:args})
+  }).then(function(r){ return r.json(); }).then(function(r){
+    if(!r || !r.ok) throw new Error((r && r.메시지) || '실패');
+    return r.값;
+  });
+}
+
+/* ---------- 미리보기 흉내 — 진짜 아이 자료가 아니다 ---------- */
+var 흉내 = (function(){
+  function 토(c){ return new Array(65).join(c); }
+  var 아이들 = {};
+  아이들[토('a')] = { ok:true, 이름:'홍길동', 오늘:'10/7', 한마디:'철자가 많이 좋아졌어요. 이번 주는 본문 영작을 조금 더 챙겨 주세요.',
+    이번주숙제:[
+      {제목:'중2 6과 문법 1~5', 유형:'빈칸 채우기', 종류:'당일', 완료:false, 점수:null, 마감일:'2026-10-07', 마감글:'10/7', 오늘까지:true, 지남:false},
+      {제목:'중2 5과 단어 41~60', 유형:'스펠링', 종류:'기한', 완료:true, 점수:92, 마감일:'2026-10-06', 마감글:'10/6', 오늘까지:false, 지남:true},
+      {제목:'중2 5과 본문 1~12', 유형:'빈칸 채우기', 종류:'기한', 완료:true, 점수:88, 마감일:'2026-10-08', 마감글:'10/8', 오늘까지:false, 지남:false}],
+    낸수:2, 안낸수:1,
+    최근시험:[
+      {날짜:'10/6', 단어장:'중2 5과 단어', 범위:'41~60', 유형:'스펠링', 점수:92},
+      {날짜:'10/5', 단어장:'중2 5과 본문', 범위:'1~12', 유형:'빈칸 채우기', 점수:88},
+      {날짜:'10/2', 단어장:'중2 5과 단어', 범위:'21~40', 유형:'스펠링', 점수:76},
+      {날짜:'9/30', 단어장:'중2 5과 단어', 범위:'1~20', 유형:'첫 글자', 점수:84},
+      {날짜:'9/26', 단어장:'중2 4과 단어', 범위:'1~20', 유형:'스펠링', 점수:70}],
+    자주틀린:[{단어:'especially', 번:3}, {단어:'knowledge', 번:2}, {단어:'environment', 번:2}],
+    진도:[{단어장:'중2 5과', 칸:'단어', 끝:60, 총:155}, {단어장:'중2 5과', 칸:'본문', 끝:12, 총:28}],
+    학원:{이름:'홍제인왕해법영어', 전화:'02-000-0000'} };
+  /* 한마디도 시험 기록도 없고, 숙제는 다 낸 아이 */
+  아이들[토('b')] = { ok:true, 이름:'김영희', 오늘:'10/7', 한마디:'',
+    이번주숙제:[{제목:'예시 단어장 1~10', 유형:'스펠링', 종류:'당일', 완료:true, 점수:100, 마감일:'2026-10-07', 마감글:'10/7', 오늘까지:true, 지남:false}],
+    낸수:1, 안낸수:0, 최근시험:[], 자주틀린:[], 진도:[], 학원:{이름:'홍제인왕해법영어', 전화:''} };
+  return {
+    학부모보기: function(t, 알림만){
+      var r = 아이들[String(t || '').toLowerCase()];
+      if(!r) return {ok:false, 메시지:'링크가 맞지 않습니다. 선생님께 문의해 주세요.'};
+      if(알림만) return {ok:true, 이름:r.이름, 안낸수:r.안낸수};
+      return JSON.parse(JSON.stringify(r));
+    },
+    푸시공개키: function(){ return ''; },
+    구독등록: function(){ return {ok:true}; }
+  };
+})();
+
+/* ---------- 그리기 ---------- */
+function 메시지(큰, 글, 작은, 단추){
+  $('app').innerHTML = '<div class="card msg"><div class="big">'+큰+'</div><p>'+esc(글)+'</p>'+
+    (작은 ? '<small>'+esc(작은)+'</small>' : '')+(단추 || '')+'</div>';
+}
+
+/* 점수 흐름 — 가벼운 인라인 SVG (라이브러리 없이). 오래된 것 → 최근 */
+function 꺾은선_(시험들){
+  var 점 = 시험들.slice().reverse().map(function(t){ return Math.max(0, Math.min(100, Number(t.점수) || 0)); });
+  if(!점.length) return '';
+  var W = 320, H = 132, 왼 = 18, 오 = 18, 위 = 22, 아래 = 22;
+  var 칸 = 점.length > 1 ? (W - 왼 - 오) / (점.length - 1) : 0;
+  function x(i){ return 점.length > 1 ? 왼 + i * 칸 : W / 2; }
+  function y(v){ return 위 + (100 - v) / 100 * (H - 위 - 아래); }
+  var 선 = 점.map(function(v, i){ return x(i).toFixed(1) + ',' + y(v).toFixed(1); }).join(' ');
+  var 줄 = [0, 50, 100].map(function(v){
+    return '<line x1="'+왼+'" x2="'+(W-오)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#ECE7E1" stroke-width="1"/>';
+  }).join('');
+  var 날 = 시험들.slice().reverse();
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="최근 시험 점수 흐름">'+줄+
+    (점.length > 1 ? '<polyline points="'+선+'" fill="none" stroke="#FF9500" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>' : '')+
+    점.map(function(v, i){
+      return '<circle cx="'+x(i)+'" cy="'+y(v)+'" r="4.5" fill="#fff" stroke="#FF9500" stroke-width="3"/>'+
+        '<text x="'+x(i)+'" y="'+(y(v) - 9)+'" text-anchor="middle" font-size="11" font-weight="800" fill="#000">'+v+'</text>'+
+        '<text x="'+x(i)+'" y="'+(H - 6)+'" text-anchor="middle" font-size="10" fill="#6B6660">'+esc(날[i].날짜)+'</text>';
+    }).join('')+'</svg>';
+}
+
+function 그리기(r){
+  var h = [], 숙 = r.이번주숙제 || [], 시험 = r.최근시험 || [], 자주 = r.자주틀린 || [], 진도 = r.진도 || [];
+  h.push('<header class="top"><h1>'+esc(r.이름)+'</h1><span class="date">'+esc(r.오늘 || '')+'</span></header>');
+
+  /* 안 낸 숙제가 있으면 맨 위에 눈에 띄게 — 없으면 칭찬 */
+  var 안낸 = 숙.filter(function(x){ return !x.완료; });
+  if(숙.length){
+    if(안낸.length){
+      var 먼저 = 안낸[0];
+      h.push('<div class="alert warn" id="pAlert">아직 안 낸 숙제가 '+안낸.length+'개 있어요'+
+        '<small>'+esc(먼저.제목)+' '+esc(먼저.유형)+' — '+esc(마감말_(먼저))+'</small></div>');
+    } else {
+      h.push('<div class="alert good" id="pAlert">이번 주 숙제를 다 냈어요 👏<small>잘하고 있어요. 칭찬 한마디 해 주세요.</small></div>');
+    }
+  }
+
+  if(String(r.한마디 || '').trim()){
+    h.push('<section class="card say" id="pSay"><h2>선생님 한마디</h2><p>'+esc(r.한마디)+'</p></section>');
+  }
+
+  if(숙.length){
+    h.push('<section class="card" id="pHw"><h2>이번 주 숙제<small>'+(숙.length - 안낸.length)+'/'+숙.length+' 냈어요</small></h2><ul class="hw">'+
+      숙.map(function(x){
+        return '<li class="'+(x.완료 ? 'done' : 'todo')+'"><span class="mk">'+(x.완료 ? '✓' : '')+'</span>'+
+          '<span class="t"><b>'+esc(x.제목)+'</b><span>'+esc(x.유형)+(x.종류 === '시험' ? ' · 시험' : '')+'</span></span>'+
+          '<span class="r">'+(x.완료 ? (x.점수 !== null && x.점수 !== undefined ? x.점수+'점' : '냈어요') : esc(마감말_(x)))+'</span></li>';
+      }).join('')+'</ul></section>');
+  }
+
+  if(시험.length){
+    h.push('<section class="card" id="pTest"><h2>최근 시험</h2>'+꺾은선_(시험)+'<ul class="tests">'+
+      시험.map(function(t){
+        return '<li><span class="d">'+esc(t.날짜)+'</span><span class="n">'+esc(t.단어장)+' '+esc(t.범위)+' · '+esc(t.유형)+'</span>'+
+          '<span class="s">'+esc(t.점수)+'점</span></li>';
+      }).join('')+'</ul></section>');
+  }
+
+  if(자주.length){
+    h.push('<section class="card" id="pWrong"><h2>자주 틀리는 단어</h2><div class="chips">'+
+      자주.map(function(w){ return '<span class="chip">'+esc(w.단어)+'<em>'+esc(w.번)+'번</em></span>'; }).join('')+
+      '</div><div class="note">집에서 이것만 봐 주셔도 됩니다.</div></section>');
+  }
+
+  if(진도.length){
+    h.push('<section class="card" id="pProg"><h2>지금 배우는 것</h2>'+
+      진도.map(function(p){
+        var 몫 = p.총 ? Math.round(Math.min(1, (Number(p.끝) || 0) / p.총) * 100) : 0;
+        return '<div class="prog"><div class="pt">'+esc(p.단어장)+(p.칸 ? ' · '+esc(p.칸) : '')+
+          '<span>'+esc(p.끝)+(p.총 ? '/'+esc(p.총) : '번까지')+'</span></div>'+
+          (p.총 ? '<div class="bar"><i style="width:'+몫+'%"></i></div>' : '')+'</div>';
+      }).join('')+'</section>');
+  }
+
+  h.push('<div id="pPush"></div>');
+  var 학원 = r.학원 || {};
+  h.push('<footer class="foot"><b>'+esc(학원.이름 || '홍제인왕해법영어')+'</b>'+
+    (학원.전화 ? '<br><a href="tel:'+esc(String(학원.전화).replace(/[^0-9+]/g, ''))+'">'+esc(학원.전화)+'</a>' : '')+
+    '<br>궁금한 점은 문자 주세요.</footer>');
+  $('app').innerHTML = h.join('');
+}
+function 마감말_(x){
+  if(x.지남) return '못 냈어요';
+  if(x.오늘까지) return '오늘까지';
+  return x.마감글 ? x.마감글+'까지' : '아직 안 냈어요';
+}
+
+/* ---------- 들어오기 ---------- */
+function 열기(){
+  if(!토큰){
+    메시지('🔗', '선생님께 받은 링크를 눌러 들어와 주세요.', '문자로 받은 주소를 그대로 누르시면 됩니다.');
+    return;
+  }
+  api('학부모보기', 토큰).then(function(r){
+    if(!r || !r.ok){
+      /* 왜 안 되는지는 말하지 않는다 — 없는 링크인지 막힌 링크인지 가려지면 안 된다 */
+      if(!해시에서) 저장쓰기(토큰열쇠, null);
+      메시지('🔒', '링크가 맞지 않습니다. 선생님께 문의해 주세요.');
+      배지_(0, true);
+      return;
+    }
+    자료 = r;
+    저장쓰기(토큰열쇠, 토큰);
+    그리기(r);
+    배지_(r.안낸수);
+    설치안내();
+    알림단추();
+    일꾼에알리기_();
+  }).catch(function(){
+    메시지('📶', '잠시 연결이 안 돼요.', '잠시 뒤에 다시 열어 주세요.',
+      '<button class="btn line" type="button" id="pRetry" style="margin-top:16px">다시 불러오기</button>');
+    $('pRetry').onclick = function(){ location.reload(); };
+  });
+}
+
+/* 아이콘 숫자 — 안 낸 숙제 수. 안 되는 기기면 조용히 넘어간다 */
+function 배지_(n, 지우기){
+  try{
+    if(!('setAppBadge' in navigator)) return;
+    if(n && !지우기) navigator.setAppBadge(n).catch(function(){});
+    else navigator.clearAppBadge().catch(function(){});
+  }catch(e){}
+}
+
+/* ==================================================================
+   홈 화면에 추가 안내 — 지금 환경을 알아보고, 확실히 아는 경우에만 그 환경에 맞는 말을 한다
+     홈 화면에서 열림        → 안 보인다
+     인앱 브라우저           → 「○○ 안에서 열렸어요 … 다른 브라우저로 열기」 + [주소 복사]
+     아이폰 사파리           → 「아래 공유 □↑ → 홈 화면에 추가」
+     아이폰 사파리 아님       → 「사파리로 열어 주세요」 + [주소 복사]
+     안드로이드 + 설치 가능   → [홈 화면에 추가] 단추 (beforeinstallprompt 가 왔을 때만)
+     그 밖 / 못 가리겠음      → 아무것도 안 보인다 (사이트는 그대로 다 보인다)
+================================================================== */
+function 홈화면인가_(){
+  try{
+    if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+  }catch(e){}
+  return navigator.standalone === true;
+}
+var 인앱표_ = [
+  [/KAKAOTALK/i, '카카오톡'], [/NAVER/, '네이버 앱'], [/Instagram/i, '인스타그램'],
+  [/\bLine\//, '라인'], [/FBAN|FBAV/, '페이스북'], [/DaumApps/i, '다음 앱']
+];
+function 인앱이름_(ua){
+  for(var i = 0; i < 인앱표_.length; i++) if(인앱표_[i][0].test(ua)) return 인앱표_[i][1];
+  return '';
+}
+function 아이폰인가_(ua){ return /iPhone|iPad|iPod/.test(ua); }
+/* 진짜 사파리 — 아이폰의 다른 브라우저(크롬·파이어폭스·엣지·웨일·구글 앱)도 「Safari」 를 달고 온다 */
+function 사파리인가_(ua){
+  return /Safari\//.test(ua) && /Version\//.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|Whale|GSA\/|YaBrowser|DuckDuckGo/.test(ua);
+}
+function 환경_(){
+  var ua = navigator.userAgent || '';
+  if(홈화면인가_()) return {종류:'홈'};
+  var 앱 = 인앱이름_(ua);
+  if(앱) return {종류:'인앱', 앱:앱, 아이폰:아이폰인가_(ua)};
+  if(아이폰인가_(ua)) return {종류: 사파리인가_(ua) ? '아이폰사파리' : '아이폰다른'};
+  return {종류:'모름'};                       /* 안드로이드는 설치 가능 신호(beforeinstallprompt)가 오면 그때 */
+}
+
+var 설치신호 = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();                          /* 브라우저가 멋대로 띄우지 않게 — 우리 띠의 단추로 */
+  설치신호 = e;
+  if(자료) 설치안내();
+});
+window.addEventListener('appinstalled', function(){ 설치신호 = null; 띠닫기(false); });
+
+var 공유그림 = '<svg width="18" height="20" viewBox="0 0 18 20" aria-label="공유"><path d="M9 1v11M5 5l4-4 4 4" fill="none" stroke="#FFC46B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 8H3.5A1.5 1.5 0 0 0 2 9.5v8A1.5 1.5 0 0 0 3.5 19h11a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 8H13" fill="none" stroke="#FFC46B" stroke-width="2" stroke-linecap="round"/></svg>';
+
+function 설치안내(){
+  var 띠 = $('band');
+  if(저장읽기(닫음열쇠) === '1'){ 띠.classList.add('hide'); return; }
+  var 환경 = 환경_(), 글 = '', 단추 = '';
+  if(환경.종류 === '홈'){ 띠.classList.add('hide'); return; }
+  if(환경.종류 === '인앱'){
+    var 어디 = 환경.앱 === '카카오톡'
+      ? (환경.아이폰 ? '오른쪽 아래 <b>⋯</b> 를 누르고 <b>「다른 브라우저로 열기」</b>를 눌러 주세요.'
+                     : '오른쪽 위 <b>⋮</b> 를 누르고 <b>「다른 브라우저로 열기」</b>를 눌러 주세요.')
+      : '메뉴(<b>⋯</b>)에서 <b>「다른 브라우저로 열기」</b>를 눌러 주세요.';
+    글 = esc(환경.앱)+' 안에서 열렸어요. 홈 화면에 두시려면 '+어디;
+    단추 = '<button class="bbtn" type="button" data-copy="1">주소 복사</button>';
+  } else if(환경.종류 === '아이폰사파리'){
+    글 = '홈 화면에 두면 앱처럼 바로 열려요. 아래 <b>공유</b> '+공유그림+' → <b>「홈 화면에 추가」</b>를 눌러 주세요.';
+  } else if(환경.종류 === '아이폰다른'){
+    글 = '홈 화면에 두시려면 <b>사파리</b>로 열어 주세요. 주소를 복사해 사파리에 붙여 넣으시면 됩니다.';
+    단추 = '<button class="bbtn" type="button" data-copy="1">주소 복사</button>';
+  } else if(설치신호){
+    글 = '홈 화면에 두면 앱처럼 바로 열려요.';
+    단추 = '<button class="bbtn" type="button" id="pInstall">홈 화면에 추가</button>';
+  } else { 띠.classList.add('hide'); return; }      /* 확실히 모르면 말하지 않는다 */
+
+  띠.innerHTML = '<div>'+글+'</div>'+(단추 ? '<div class="bandact">'+단추+'</div>' : '')+
+    '<button class="bandx" type="button" aria-label="닫기" id="bandX">×</button>';
+  띠.dataset.kind = 환경.종류 === '모름' ? '설치' : 환경.종류;
+  띠.classList.remove('hide');
+  $('bandX').onclick = function(){ 띠닫기(true); };
+  var 복사 = 띠.querySelector('[data-copy]');
+  if(복사) 복사.onclick = function(){ 주소복사(); };
+  if($('pInstall')) $('pInstall').onclick = function(){
+    if(!설치신호) return;
+    설치신호.prompt();
+    var 신호 = 설치신호; 설치신호 = null;
+    (신호.userChoice || Promise.resolve({})).then(function(c){ if(c && c.outcome === 'accepted') 띠닫기(false); });
+  };
+}
+function 띠닫기(기억){
+  $('band').classList.add('hide');
+  if(기억) 저장쓰기(닫음열쇠, '1');               /* 닫으면 이 기기에서는 다시 안 뜬다 */
+}
+
+/* [주소 복사] — 인앱 브라우저에서 제일 많이 쓰는 단추. clipboard 가 막혀 있으면 숨은 칸 + execCommand 로 */
+function 주소복사(){
+  var 주소 = location.href.split('#')[0] + '#k=' + 토큰;
+  function 옛길(){
+    var t = document.createElement('textarea');
+    t.value = 주소; t.setAttribute('readonly', '');
+    t.style.position = 'fixed'; t.style.left = '-9999px'; t.style.top = '0';
+    document.body.appendChild(t);
+    t.focus(); t.select();
+    try{ t.setSelectionRange(0, 주소.length); }catch(e){}
+    var 됨 = false;
+    try{ 됨 = document.execCommand('copy'); }catch(e){ 됨 = false; }
+    document.body.removeChild(t);
+    toast(됨 ? '주소를 복사했어요. 다른 브라우저에 붙여 넣어 주세요.' : '복사가 안 되면 주소창을 길게 눌러 복사해 주세요.');
+  }
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext !== false){
+      navigator.clipboard.writeText(주소).then(function(){
+        toast('주소를 복사했어요. 다른 브라우저에 붙여 넣어 주세요.');
+      }, 옛길);
+      return;
+    }
+  }catch(e){}
+  옛길();
+}
+
+/* ==================================================================
+   알림 — 받을 수 있는 곳에서만 권한다. 아이폰은 홈 화면에서 열었을 때만 된다.
+   안 되는 곳에서는 단추를 아예 숨긴다 (안 되는 걸 권하면 고장 난 줄 아신다)
+================================================================== */
+function 알림되나_(){
+  try{
+    if(!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) return false;
+    if(window.isSecureContext === false) return false;
+    if(아이폰인가_(navigator.userAgent || '') && !홈화면인가_()) return false;
+    if(Notification.permission === 'denied') return false;
+    return true;
+  }catch(e){ return false; }
+}
+function 알림단추(){
+  var 칸 = $('pPush'); if(!칸) return;
+  if(!알림되나_()){ 칸.innerHTML = ''; return; }
+  var 켜짐 = Notification.permission === 'granted' && 저장읽기('해법학부모_알림') === 토큰;
+  칸.innerHTML = 켜짐
+    ? '<div class="note" style="text-align:center;margin:4px 0 8px">🔔 알림을 받고 있어요</div>'
+    : '<button class="btn line" type="button" id="pPushBtn">🔔 숙제 알림 받기</button>';
+  if($('pPushBtn')) $('pPushBtn').onclick = 알림켜기;
+}
+function 바이트_(b64){
+  var p = '='.repeat((4 - b64.length % 4) % 4), s = atob((b64 + p).replace(/-/g, '+').replace(/_/g, '/'));
+  var a = new Uint8Array(s.length);
+  for(var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i);
+  return a;
+}
+function 기기글_(){
+  var ua = navigator.userAgent || '';
+  return '학부모 · ' + (아이폰인가_(ua) ? '아이폰' : /Android/.test(ua) ? '안드로이드' : '컴퓨터');
+}
+function 알림켜기(){
+  var 등록 = null;
+  navigator.serviceWorker.register('parent-sw.js', {scope:'./parent.html'}).then(function(r){
+    등록 = r;
+    return Notification.requestPermission();
+  }).then(function(p){
+    if(p !== 'granted') throw new Error('거절');
+    return api('푸시공개키');
+  }).then(function(키){
+    if(!키) throw new Error('열쇠');
+    return navigator.serviceWorker.ready.then(function(r){
+      return r.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:바이트_(String(키))});
+    });
+  }).then(function(구독){
+    var j = 구독.toJSON();
+    return api('구독등록', 자료.이름, {주소:j.endpoint, p256dh:(j.keys||{}).p256dh, auth:(j.keys||{}).auth}, 기기글_());
+  }).then(function(){
+    저장쓰기('해법학부모_알림', 토큰);
+    일꾼에알리기_();
+    toast('이제 숙제 소식을 알림으로 보내 드려요');
+    알림단추();
+  }).catch(function(e){
+    toast(String(e && e.message) === '거절' ? '알림을 허용하지 않으셨어요. 그래도 링크로는 다 보실 수 있어요.'
+                                           : '알림을 켜지 못했어요. 링크로는 그대로 다 보실 수 있어요.');
+  });
+}
+/* 알림 일꾼에게 「어디로 묻고, 누구 것인지」 알려 둔다 — 알림이 오면 일꾼이 숙제 수를 물어본다 */
+function 일꾼에알리기_(){
+  try{
+    if(미리보기 || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+    navigator.serviceWorker.controller.postMessage({무엇:'내정보', 값:{창구:창구주소, 토큰:토큰,
+      주소: location.href.split('#')[0] + '#k=' + 토큰}});
+  }catch(e){}
+}
+
+/* 홈 화면에서 열 때도 토큰이 따라가게 — 아이폰의 홈 화면 앱은 사파리와 저장소가 따로라
+   이 기기에 적어 둔 토큰을 못 본다. 그래서 「지금 주소(토큰 포함)」 를 시작 주소로 하는 설명서를 그 자리에서 만든다.
+   안드로이드는 홈 화면 앱이 브라우저와 저장소를 같이 쓰므로 파일 설명서(parent-manifest.json)를 그대로 둔다 */
+(function(){
+  try{
+    if(!토큰 || !아이폰인가_(navigator.userAgent || '')) return;
+    var 이쪽 = location.href.split('#')[0].split('?')[0], 밑 = 이쪽.replace(/[^\/]*$/, '');
+    var 설명 = { name:'홍제인왕해법영어 학부모', short_name:'해법 학부모', start_url: 이쪽 + '#k=' + 토큰, scope: 이쪽,
+      display:'standalone', background_color:'#F6F4F1', theme_color:'#F6F4F1', lang:'ko',
+      icons:[{src: 밑 + 'icon-192.png', sizes:'192x192', type:'image/png'}, {src: 밑 + 'icon-512.png', sizes:'512x512', type:'image/png'}] };
+    $('mfLink').setAttribute('href', 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(설명)));
+  }catch(e){}
+})();
+
+if(!미리보기 && 'serviceWorker' in navigator && window.isSecureContext !== false){
+  /* 일꾼은 미리 깔아 둔다 — 안드로이드에서 「홈 화면에 추가」 가 뜨는 데도 쓰인다. 실패해도 화면은 그대로 */
+  try{ navigator.serviceWorker.register('parent-sw.js', {scope:'./parent.html'}).catch(function(){}); }catch(e){}
+}
+열기();
+</script>
+</body>
+</html>
