@@ -64,10 +64,19 @@ body{background:var(--bg);color:var(--text);
 .hw .done .mk{background:var(--good-soft);color:var(--good)}
 .hw .todo .mk{background:var(--warn-soft);color:var(--warn);border:2px solid var(--warn)}
 .hw .t{flex:1;min-width:0}
-.hw .t b{display:block;font-size:15px;font-weight:800;overflow-wrap:anywhere}
+.hw .t b{display:block;font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 숙제 줄의 작은 둘째 줄 — 언제 것인지 · 언제 냈는지. 늦게 냈어도 빨갛게 하지 않는다 */
+.hw .t .sub{display:block;margin-top:2px;font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hw .t .sub small{font-size:11px;margin-left:3px}
 .hw .t span{font-size:13px;color:var(--sub)}
 .hw .r{flex:none;font-weight:900;font-size:15px;text-align:right}
 .hw .todo .r{color:var(--warn);font-size:13px}
+.hw .r em{font-style:normal;font-size:12px;font-weight:700;margin-left:1px}
+/* 풀었는데 합격점을 못 넘긴 줄 — 빨갛게 하지 않는다 (어머님 화면의 빨간 글씨는 아이를 혼나게 만든다) */
+.hw .again .r{color:var(--sub);font-size:13px;font-weight:700}
+.hw .again .r b{color:var(--text);font-size:15px;font-weight:900}
+.hw .todo.again{background:none}
+.hw .again .mk{background:var(--line);color:var(--sub);border:2px solid var(--line)}
 .hw .todo{background:linear-gradient(90deg,rgba(255,232,220,.55),rgba(255,232,220,0));margin:0 -16px;padding-left:16px;padding-right:16px}
 
 .chart{width:100%;height:auto;display:block;margin:2px 0 6px}
@@ -77,6 +86,7 @@ body{background:var(--bg);color:var(--text);
 .tests .d{color:var(--sub);width:42px;flex:none;font-weight:700}
 .tests .n{flex:1;min-width:0;overflow-wrap:anywhere}
 .tests .s{font-weight:900;flex:none}
+.tests .yet .s{color:var(--accent);font-size:13px}
 
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{background:var(--bg);border-radius:999px;padding:6px 12px;font-weight:800;font-size:15px;overflow-wrap:anywhere}
@@ -183,23 +193,24 @@ var 흉내 = (function(){
   var 아이들 = {};
   아이들[토('a')] = { ok:true, 이름:'홍길동', 오늘:'10/7', 한마디:'철자가 많이 좋아졌어요. 이번 주는 본문 영작을 조금 더 챙겨 주세요.',
     이번주숙제:[
-      {제목:'중2 6과 문법 1~5', 유형:'빈칸 채우기', 종류:'당일', 완료:false, 점수:null, 마감일:'2026-10-07', 마감글:'10/7', 오늘까지:true, 지남:false},
-      {제목:'중2 5과 단어 41~60', 유형:'스펠링', 종류:'기한', 완료:true, 점수:92, 마감일:'2026-10-06', 마감글:'10/6', 오늘까지:false, 지남:true},
-      {제목:'중2 5과 본문 1~12', 유형:'빈칸 채우기', 종류:'기한', 완료:true, 점수:88, 마감일:'2026-10-08', 마감글:'10/8', 오늘까지:false, 지남:false}],
-    낸수:2, 안낸수:1,
-    최근시험:[
-      {날짜:'10/6', 단어장:'중2 5과 단어', 범위:'41~60', 유형:'스펠링', 점수:92},
-      {날짜:'10/5', 단어장:'중2 5과 본문', 범위:'1~12', 유형:'빈칸 채우기', 점수:88},
-      {날짜:'10/2', 단어장:'중2 5과 단어', 범위:'21~40', 유형:'스펠링', 점수:76},
-      {날짜:'9/30', 단어장:'중2 5과 단어', 범위:'1~20', 유형:'첫 글자', 점수:84},
-      {날짜:'9/26', 단어장:'중2 4과 단어', 범위:'1~20', 유형:'스펠링', 점수:70}],
+      {제목:'중2 6과 문법 1~5', 유형:'빈칸 채우기', 종류:'당일', 완료:false, 다시:false, 점수:null, 마감일:'2026-10-07', 마감글:'10/7', 날짜글:'10/7', 낸때글:'', 오늘까지:true, 지남:false},
+      {제목:'중2 5과 본문 13~20', 유형:'영작', 종류:'기한', 완료:false, 다시:true, 점수:68, 마감일:'2026-10-09', 마감글:'10/9', 날짜글:'10/9', 낸때글:'10/7 · 새벽 1:20', 오늘까지:false, 지남:false},
+      {제목:'중2 5과 단어 41~60', 유형:'첫 글자', 종류:'기한', 완료:true, 다시:false, 점수:92, 마감일:'2026-10-06', 마감글:'10/6', 날짜글:'10/6', 낸때글:'10/7 · 밤 11:52', 늦음:true, 오늘까지:false, 지남:true},
+      {제목:'중2 5과 본문 1~12', 유형:'빈칸 채우기', 종류:'기한', 완료:true, 다시:false, 점수:null, 마감일:'2026-10-08', 마감글:'10/8', 날짜글:'10/8', 낸때글:'', 오늘까지:false, 지남:false}],
+    낸수:2, 안낸수:2,
+    시험:[
+      {날짜:'10/10', 단어장:'중2 5과 단어', 범위:'61~80', 유형:'스펠링', 점수:null, 봤나:false, 지남:false},
+      {날짜:'10/5', 단어장:'중2 5과 단어', 범위:'41~60', 유형:'스펠링', 점수:92, 봤나:true},
+      {날짜:'9/28', 단어장:'중2 5과 본문', 범위:'1~20', 유형:'영작', 점수:85, 봤나:true},
+      {날짜:'9/21', 단어장:'중2 5과 단어', 범위:'21~40', 유형:'스펠링', 점수:76, 봤나:true},
+      {날짜:'9/14', 단어장:'중2 4과 단어', 범위:'1~20', 유형:'스펠링', 점수:70, 봤나:true}],
     자주틀린:[{단어:'especially', 번:3}, {단어:'knowledge', 번:2}, {단어:'environment', 번:2}],
     진도:[{단어장:'중2 5과', 칸:'단어', 끝:60, 총:155}, {단어장:'중2 5과', 칸:'본문', 끝:12, 총:28}],
     학원:{이름:'홍제인왕해법영어', 전화:'02-000-0000'} };
   /* 한마디도 시험 기록도 없고, 숙제는 다 낸 아이 */
   아이들[토('b')] = { ok:true, 이름:'김영희', 오늘:'10/7', 한마디:'',
-    이번주숙제:[{제목:'예시 단어장 1~10', 유형:'스펠링', 종류:'당일', 완료:true, 점수:100, 마감일:'2026-10-07', 마감글:'10/7', 오늘까지:true, 지남:false}],
-    낸수:1, 안낸수:0, 최근시험:[], 자주틀린:[], 진도:[], 학원:{이름:'홍제인왕해법영어', 전화:''} };
+    이번주숙제:[{제목:'예시 단어장 1~10', 유형:'스펠링', 종류:'당일', 완료:true, 다시:false, 점수:100, 마감일:'2026-10-07', 마감글:'10/7', 날짜글:'10/7', 낸때글:'10/7 · 저녁 7:02', 오늘까지:true, 지남:false}],
+    낸수:1, 안낸수:0, 시험:[], 자주틀린:[], 진도:[], 학원:{이름:'홍제인왕해법영어', 전화:''} };
   return {
     학부모보기: function(t, 알림만){
       var r = 아이들[String(t || '').toLowerCase()];
@@ -241,7 +252,9 @@ function 꺾은선_(시험들){
 }
 
 function 그리기(r){
-  var h = [], 숙 = r.이번주숙제 || [], 시험 = r.최근시험 || [], 자주 = r.자주틀린 || [], 진도 = r.진도 || [];
+  /* 숙제와 시험은 다른 것이다 — 두 칸으로 가르고, 숙제 수(「2/3 냈어요」)에 시험을 섞지 않는다. 숙제 점수는 푼 것만 */
+  var h = [], 숙 = r.이번주숙제 || [], 시험 = r.시험 || [], 자주 = r.자주틀린 || [], 진도 = r.진도 || [];
+  var 본시험 = 시험.filter(function(t){ return t.봤나; });
   h.push('<header class="top"><h1>'+esc(r.이름)+'</h1><span class="date">'+esc(r.오늘 || '')+'</span></header>');
 
   /* 안 낸 숙제가 있으면 맨 위에 눈에 띄게 — 없으면 칭찬 */
@@ -263,17 +276,17 @@ function 그리기(r){
   if(숙.length){
     h.push('<section class="card" id="pHw"><h2>이번 주 숙제<small>'+(숙.length - 안낸.length)+'/'+숙.length+' 냈어요</small></h2><ul class="hw">'+
       숙.map(function(x){
-        return '<li class="'+(x.완료 ? 'done' : 'todo')+'"><span class="mk">'+(x.완료 ? '✓' : '')+'</span>'+
-          '<span class="t"><b>'+esc(x.제목)+'</b><span>'+esc(x.유형)+(x.종류 === '시험' ? ' · 시험' : '')+'</span></span>'+
-          '<span class="r">'+(x.완료 ? (x.점수 !== null && x.점수 !== undefined ? x.점수+'점' : '냈어요') : esc(마감말_(x)))+'</span></li>';
+        return '<li class="'+(x.완료 ? 'done' : (x.다시 ? 'todo again' : 'todo'))+'"><span class="mk">'+(x.완료 ? '✓' : '')+'</span>'+
+          '<span class="t"><b>'+esc(x.제목)+'</b><span>'+esc(x.유형)+'</span>'+숙제둘째줄_(x)+'</span>'+
+          '<span class="r">'+숙제오른쪽_(x)+'</span></li>';
       }).join('')+'</ul></section>');
   }
 
   if(시험.length){
-    h.push('<section class="card" id="pTest"><h2>최근 시험</h2>'+꺾은선_(시험)+'<ul class="tests">'+
+    h.push('<section class="card" id="pTest"><h2>시험</h2>'+(본시험.length ? 꺾은선_(본시험) : '')+'<ul class="tests">'+
       시험.map(function(t){
-        return '<li><span class="d">'+esc(t.날짜)+'</span><span class="n">'+esc(t.단어장)+' '+esc(t.범위)+' · '+esc(t.유형)+'</span>'+
-          '<span class="s">'+esc(t.점수)+'점</span></li>';
+        return '<li'+(t.봤나 ? '' : ' class="yet"')+'><span class="d">'+esc(t.날짜)+'</span><span class="n">'+esc(t.단어장)+' '+esc(t.범위)+' · '+esc(t.유형)+'</span>'+
+          '<span class="s">'+(t.봤나 ? esc(t.점수)+'점' : (t.지남 ? '안 봤어요' : '볼 예정'))+'</span></li>';
       }).join('')+'</ul></section>');
   }
 
@@ -300,7 +313,30 @@ function 그리기(r){
     '<br>궁금한 점은 문자 주세요.</footer>');
   $('app').innerHTML = h.join('');
 }
+/* 숙제 줄 오른쪽 — 낸 것은 점수(없으면 「냈어요」), 풀었는데 못 넘긴 것은 「68점 · 다시 하고 있어요」, 안 푼 것은 마감 글 */
+function 숙제점수_(x){
+  if(x.점수 === null || x.점수 === undefined || x.점수 === '' || isNaN(Number(x.점수))) return '';
+  return Math.round(Number(x.점수))+'<em>점</em>';
+}
+function 숙제오른쪽_(x){
+  var 점 = 숙제점수_(x);
+  if(x.완료) return 점 || '냈어요';
+  if(x.다시 && 점) return '<b>'+점+'</b> · 다시 하고 있어요';
+  return esc(마감말_(x));
+}
+/* 둘째 줄 — 낸 것 「10/7 · 밤 9:14 냈어요」, 다시 하는 것은 마지막으로 푼 때(「… 풀었어요」), 안 낸 것 「10/8 마감」.
+   시각 글은 서버가 학원 시간대로 만들어 보낸다. 기록을 못 찾은 옛 숙제는 날짜만 */
+function 숙제둘째줄_(x){
+  var 날 = x.날짜글 || x.마감글 || '';
+  var 날글 = 날 ? 날+(x.등록일만 ? ' 낸 숙제' : ' 마감') : '';
+  var 글 = '';
+  if(x.완료 && x.낸때글) 글 = esc(x.낸때글)+' 냈어요'+(x.늦음 ? '<small>(늦게 냄)</small>' : '');
+  else if(!x.완료 && x.다시 && x.낸때글) 글 = esc(x.낸때글)+' 풀었어요';                 /* 마지막으로 푼 때 — 오른쪽 「68점 · 다시 하고 있어요」 옆이라 짧게 */
+  else 글 = esc(날글);
+  return 글 ? '<span class="sub">'+글+'</span>' : '';
+}
 function 마감말_(x){
+  if(x.다시) return '다시 하고 있어요';               /* 풀었는데 합격점을 못 넘겼다 */
   if(x.지남) return '못 냈어요';
   if(x.오늘까지) return '오늘까지';
   return x.마감글 ? x.마감글+'까지' : '아직 안 냈어요';
