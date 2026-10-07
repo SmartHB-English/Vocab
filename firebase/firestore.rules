@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function session() { return get(/databases/$(database)/documents/sessions/$(request.auth.uid)).data; }
+    function credential() { return get(/databases/$(database)/documents/vocabDatasets/$(session().dataset)/credentials/$(session().credentialId)).data; }
+    function member(dataset) {
+      return signedIn() && exists(/databases/$(database)/documents/sessions/$(request.auth.uid))
+        && session().dataset == dataset && dataset == get(/databases/$(database)/documents/runtime/config).data.dataset && session().proof == credential().pinHash;
+    }
+    function writable(dataset) { return member(dataset) && get(/databases/$(database)/documents/runtime/config).data.state == 'active'; }
+    function teacher(dataset) { return member(dataset) && credential().role in ['teacher','bridge']; }
+    match /runtime/config { allow get: if true; allow write: if false; }
+    match /sessions/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['dataset','credentialId','proof'])
+        && request.resource.data.dataset == get(/databases/$(database)/documents/runtime/config).data.dataset
+        && request.resource.data.proof == get(/databases/$(database)/documents/vocabDatasets/$(request.resource.data.dataset)/credentials/$(request.resource.data.credentialId)).data.pinHash;
+      allow delete: if signedIn() && request.auth.uid == uid;
+    }
+    match /vocabDatasets/{dataset} {
+      match /meta/catalog {
+        allow get: if signedIn();
+        allow write: if writable(dataset);
+      }
+      match /tables/{id} {
+        allow get: if signedIn() && (resource.data.public == true || member(dataset));
+        allow create, update, delete: if (teacher(dataset) && writable(dataset))
+          || (writable(dataset) && credential().role == 'student' && request.resource.data.name in ['기록','게임','푸시'] && request.resource.data.name == resource.data.name && request.resource.data.public == resource.data.public)
+          || (writable(dataset) && credential().role == 'parent' && request.resource.data.name in ['학생','푸시'] && request.resource.data.name == resource.data.name && request.resource.data.public == resource.data.public);
+      }
+      match /secrets/{id} { allow read: if teacher(dataset); allow write: if teacher(dataset) && writable(dataset); }
+      match /credentials/{id} { allow read: if teacher(dataset); allow write: if teacher(dataset) && writable(dataset); }
+      match /links/{token} { allow get: if signedIn(); allow write: if teacher(dataset) && writable(dataset); }
+      match /journal/{id} {
+        allow get: if teacher(dataset) || (member(dataset) && id.matches(request.auth.uid + '_.+'));
+        allow create: if writable(dataset) && request.resource.data.actor == request.auth.uid && id.matches(request.auth.uid + '_.+');
+        match /tables/{table} { allow get: if teacher(dataset); allow create: if writable(dataset) && id.matches(request.auth.uid + '_.+'); }
+      }
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

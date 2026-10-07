@@ -1,0 +1,61 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {createHash,randomUUID} from 'node:crypto';
+import {initializeApp,deleteApp} from 'firebase/app';
+import {getAuth,connectAuthEmulator,signInAnonymously} from 'firebase/auth';
+import {getFirestore,connectFirestoreEmulator,terminate} from 'firebase/firestore';
+import {createLegacyEngine} from '../services/legacy-engine.generated.mjs';
+import {formatDate} from '../services/seoul-date.mjs';
+import {createRuntime} from '../services/legacy-runtime.mjs';
+import {TableStore} from '../services/table-store.mjs';
+import {createDatasetDocuments} from '../services/dataset-model.mjs';
+import {FirestoreRepository,digest} from '../services/firestore-repository.mjs';
+import {pack,unpack,publicTable,tableMetadata,sheetId} from '../services/store-codec.mjs';
+import {toField,fromField} from '../services/firestore-wire.mjs';
+const project='demo-smarthb-vocab',dataset='fixture-bridge',fh=process.env.FIRESTORE_EMULATOR_HOST,ah=process.env.FIREBASE_AUTH_EMULATOR_HOST;
+assert.match(fh??'',/^(127\.0\.0\.1|localhost):\d+$/);assert.match(ah??'',/^(127\.0\.0\.1|localhost):\d+$/);
+const base=`http://${fh}/v1/projects/${project}/databases/(default)/documents`;
+const store=new TableStore();
+function add(name,rows){const s=store.insertSheet(name);for(const r of rows)s.appendRow(r);}
+add('학생',[['반','이름','비밀번호','학년구분','볼 수 있는 단어장','학년','학교','교재','학부모링크','학부모마지막','선생님한마디'],['A','브리지학생','0011','유치','','','','교재A','a'.repeat(64),'','']]);
+add('설정',[['항목','값'],['선생님비밀번호','9876'],['숙제합격점',80]]);
+add('단어장목록',[['단어장','종류','시트이름','색','레슨묶음','과'],['교재A','단어','단어_교재A','blue',10,'']]);
+add('단어_교재A',[['번호','영어','뜻','그림'],[1,'apple','사과','']]);
+for(const[name,width]of [['기록',26],['기록보관',26],['숙제',17],['게임',7],['공지',6],['푸시',7]])add(name,[Array.from({length:width},(_,i)=>'column'+i)]);
+let ctx,db,app;
+async function seed(path,data){const r=await fetch(base+'/'+path.split('/').map(encodeURIComponent).join('/'),{method:'PATCH',headers:{Authorization:'Bearer owner','Content-Type':'application/json'},body:JSON.stringify({fields:toField(data).mapValue.fields})});assert.equal(r.status,200);}
+const hash=value=>createHash('sha256').update(String(value)).digest('hex');
+test('existing GAS REST adapter updates credentials and parent links under real rules',async()=>{
+ const compiled=await createDatasetDocuments(store,{digest,newId:()=> 'bridge-fixture'});compiled.documents.set('credentials/bridge',{role:'bridge',pinHash:hash('bridge-proof-fixture')});
+ for(const[p,v]of compiled.documents)await seed('vocabDatasets/'+dataset+'/'+p,v);await seed('runtime/config',{dataset,state:'active'});
+ const auth=await fetch(`http://${ah}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fixture`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({returnSecureToken:true})}).then(r=>r.json());assert.ok(auth.idToken);
+ await seed('sessions/'+auth.localId,{dataset,credentialId:'bridge',proof:hash('bridge-proof-fixture')});
+ ctx={FB_RPC_NAMES:['학생수정','학부모링크발급','로그인','결과저장','내기록'],VocabBridgeCore:{createLegacyEngine,createRuntime,TableStore,pack,unpack,publicTable,tableMetadata,sheetId,toField,fromField},CacheService:{getScriptCache:()=>({get:()=>null,put(){},remove(){},removeAll(){}})},Utilities:{formatDate,getUuid:randomUUID,newBlob:value=>({getBytes:()=>new TextEncoder().encode(value)})},PropertiesService:{},DriveApp:{},UrlFetchApp:{},ScriptApp:{},ContentService:{},매월시상(){},doPost(){}};
+ vm.createContext(ctx);vm.runInContext(readFileSync(new URL('../server/FirebaseBridge.gs.template',import.meta.url),'utf8').replace('__BRIDGE_CONFIG__',JSON.stringify({project,dataset})),ctx);
+ ctx.fbHash_=hash;ctx.fbAuth_=()=>({uid:auth.localId,idToken:auth.idToken});ctx.fbSession_=()=>{};
+ ctx.fbHttp_=(url,method,body)=>{
+  assert.ok(url.startsWith('https://firestore.googleapis.com/v1/'));
+  const target=url.replace('https://firestore.googleapis.com','http://'+fh);
+  const args=['--silent','--show-error','--max-time','15','--request',method.toUpperCase(),'--header','Content-Type: application/json','--header','Authorization: Bearer '+auth.idToken];
+  if(body!==undefined)args.push('--data-binary','@-');args.push(target);
+  const value=JSON.parse(execFileSync('curl',args,{input:body===undefined?undefined:JSON.stringify(body),encoding:'utf8',maxBuffer:8e6}));
+  if(value.error){const e=Error(value.error.status);e.retryable=['ABORTED','FAILED_PRECONDITION'].includes(value.error.status);throw e;}return value;
+ };
+ const edit=ctx.fbRequest_('학생수정',['9876',2,{이름:'브리지학생',비밀번호:'0044',반:'A',학년구분:'유치',교재:'교재A'}]);
+ assert.equal(edit.ok,true);
+ assert.equal(ctx.fbRequest_('로그인',['브리지학생','0044']).ok,true);assert.equal(ctx.fbRequest_('로그인',['브리지학생','0011']).ok,false);
+ const link=ctx.fbRequest_('학부모링크발급',['9876','브리지학생']);assert.equal(link.ok,true);
+ const oldLink=await fetch(base+'/vocabDatasets/'+dataset+'/links/'+'a'.repeat(64),{headers:{Authorization:'Bearer owner'}});assert.equal(oldLink.status,404);
+});
+test('SDK sees bridge credential changes and both writers preserve submissions',async()=>{
+ app=initializeApp({projectId:project,apiKey:'fixture'},'mixed-bridge-fixture');const auth=getAuth(app);connectAuthEmulator(auth,'http://'+ah,{disableWarnings:true});db=getFirestore(app);const[h,p]=fh.split(':');connectFirestoreEmulator(db,h,Number(p));const{user}=await signInAnonymously(auth);const repo=new FirestoreRepository(db,dataset,{user});
+ assert.equal((await repo.call('로그인',['브리지학생','0044'])).ok,true);
+ const payload={이름:'브리지학생',단어장:'교재A',범위:'1~10',유형:'스펠링',점수:80,틀린단어:'a,b,c,d,e,f'};
+ assert.equal(ctx.fbRequest_('결과저장',[payload]).ok,true);
+ assert.equal((await repo.call('결과저장',[{...payload,점수:90}])).ok,true);
+ const records=await repo.call('내기록',['브리지학생']);assert.equal(records.length,2);assert.equal(records.reduce((n,r)=>n+r.점수,0),170);
+});
+test.after(async()=>{if(db)await terminate(db);if(app)await deleteApp(app);});

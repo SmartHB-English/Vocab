@@ -132,6 +132,43 @@ body{background:var(--bg);color:var(--text);
 </div>
 <div id="toast"></div>
 <script>
+/* BEGIN GENERATED services/api-client.js */
+/* Single owner of the legacy HTTP RPC protocol. No automatic write retries. */
+(function (root) {
+  'use strict';
+
+  var legacyEndpoint = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
+
+  var firestoreReady;
+  function firestore() {
+    if (!firestoreReady) firestoreReady = Promise.resolve().then(function () {
+      if (typeof importScripts === 'function') importScripts('./services/firestore.bundle.js');
+      else return import('./services/firestore.bundle.js');
+    }).then(function () { return root.VocabFirestore; });
+    return firestoreReady;
+  }
+
+  function post(endpoint, fn, args) {
+    if (endpoint === 'firestore:v1') return firestore().then(function (service) { return service.call(fn, args); }).then(function (value) { return {ok:true, 값:value}; });
+    return fetch(endpoint, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: fn, args: args })
+    }).then(function (response) { return response.json(); });
+  }
+
+  function request(endpoint, fn, args, failureMessage) {
+    return post(endpoint, fn, args).then(function (response) {
+      if (response && response.ok) return response.값;
+      throw new Error((response && response.메시지) || failureMessage || '서버가 답하지 않았습니다');
+    });
+  }
+
+  root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request };
+})(typeof self !== 'undefined' ? self : globalThis);
+/* END GENERATED services/api-client.js */
+
 /* ==================================================================
    해법 영단어 — 학부모 화면
    · 아이마다 비밀 링크 …/parent/#k=토큰 으로 들어온다. 토큰은 해시(#) 뒤 — 서버 기록·바깥 사이트로 안 간다.
@@ -139,8 +176,8 @@ body{background:var(--bg);color:var(--text);
    · 설치·알림은 「하면 더 편한 것」 일 뿐 — 링크만 누르면 전부 보인다.
    · 파일로 열면(미리보기) 흉내 자료로 돈다.
 ================================================================== */
-/* 학생 앱(index.html)과 같은 창구 — 바꿀 때는 둘 다 바꾼다 */
-var 창구주소 = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
+/* 학생 앱과 공통 창구 — services/api-client.js 수정 후 npm run build:services */
+var 창구주소 = VocabApi.defaultEndpoint;
 var 미리보기 = (location.protocol === 'file:') ||
                ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.search.indexOf('real') < 0) ||
                location.search.indexOf('demo') > -1;
@@ -177,14 +214,7 @@ function api(fn){
       }, 150);
     });
   }
-  return fetch(창구주소, {
-    method:'POST', redirect:'follow',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},     /* 미리 묻기(preflight)를 피한다 */
-    body: JSON.stringify({fn:fn, args:args})
-  }).then(function(r){ return r.json(); }).then(function(r){
-    if(!r || !r.ok) throw new Error((r && r.메시지) || '실패');
-    return r.값;
-  });
+  return VocabApi.request(창구주소, fn, args, '실패');
 }
 
 /* ---------- 미리보기 흉내 — 진짜 아이 자료가 아니다 ---------- */

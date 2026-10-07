@@ -1,0 +1,11 @@
+import {build} from 'esbuild';
+import{readFileSync,writeFileSync}from'node:fs';
+import{firebaseConfig,dataset}from'../services/firebase-config.mjs';
+const result=await build({entryPoints:['server/bridge-entry.mjs'],bundle:true,write:false,format:'iife',platform:'neutral',target:'es2019',minify:false,legalComments:'none'});
+const config={project:firebaseConfig.projectId,apiKey:firebaseConfig.apiKey,dataset};
+const legacy=readFileSync('tests/fixtures/legacy/Code.gs','utf8');
+const map=legacy.slice(legacy.indexOf('var 열린기능_ = {'),legacy.indexOf('function doPost'));
+const names=[...map.matchAll(/\s+([^\s:,{}]+):\s*[^,\n]+/g)].map(m=>m[1]);
+const template='var FB_RPC_NAMES = '+JSON.stringify(names)+';\n'+readFileSync('server/FirebaseBridge.gs.template','utf8').replace('__BRIDGE_CONFIG__',JSON.stringify(config));
+writeFileSync('work/FirebaseBridge.gs',result.outputFiles[0].text+'\n'+template,{mode:0o600});
+console.log('Prepared private Apps Script bridge in ignored work/FirebaseBridge.gs');

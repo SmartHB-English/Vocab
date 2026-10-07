@@ -1,3 +1,39 @@
+/* BEGIN GENERATED services/api-client.js */
+/* Single owner of the legacy HTTP RPC protocol. No automatic write retries. */
+(function (root) {
+  'use strict';
+
+  var legacyEndpoint = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
+
+  var firestoreReady;
+  function firestore() {
+    if (!firestoreReady) firestoreReady = Promise.resolve().then(function () {
+      if (typeof importScripts === 'function') importScripts('./services/firestore.bundle.js');
+      else return import('./services/firestore.bundle.js');
+    }).then(function () { return root.VocabFirestore; });
+    return firestoreReady;
+  }
+
+  function post(endpoint, fn, args) {
+    if (endpoint === 'firestore:v1') return firestore().then(function (service) { return service.call(fn, args); }).then(function (value) { return {ok:true, 값:value}; });
+    return fetch(endpoint, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: fn, args: args })
+    }).then(function (response) { return response.json(); });
+  }
+
+  function request(endpoint, fn, args, failureMessage) {
+    return post(endpoint, fn, args).then(function (response) {
+      if (response && response.ok) return response.값;
+      throw new Error((response && response.메시지) || failureMessage || '서버가 답하지 않았습니다');
+    });
+  }
+
+  root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request };
+})(typeof self !== 'undefined' ? self : globalThis);
+/* END GENERATED services/api-client.js */
 /* 해법 영단어 — 알림 일꾼(서비스 워커)
  * 알림이 오면 깨어나서, 스프레드시트에 무슨 공지가 있는지 물어본 뒤 띄운다.
  * 알림 안에 글을 실어 보내지 않으므로(빈 알림) 암호화가 필요 없다. */
@@ -29,11 +65,7 @@ self.addEventListener('push', function(e){
   e.waitUntil(내정보().then(function(me){
     var 기본 = { 제목:'해법 영단어', 글:'선생님이 알림을 보냈어요.' };
     if(!me || !me.창구) return 띄우기(기본);
-    return fetch(me.창구, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({ fn:'공지가져오기', args:[me.반] })
-    }).then(function(r){ return r.json(); }).then(function(r){
+    return VocabApi.post(me.창구, '공지가져오기', [me.반]).then(function(r){
       var 목록 = (r && r.ok && r.값) || [];
       if(!목록.length) return 띄우기(기본);
       var n = 목록[0];

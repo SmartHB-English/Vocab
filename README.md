@@ -70,8 +70,36 @@
 ## 알아 두실 것
 
 - 알림은 **글을 싣지 않고** 보냅니다. 알림이 도착하면 일꾼이 깨어나
-  스프레드시트에서 공지를 직접 읽어와 띄웁니다. 그래서 암호화가 필요 없습니다.
+  Firestore에서 공지를 직접 읽어와 띄웁니다. 그래서 암호화가 필요 없습니다.
 - 「알림 다시 준비하기」를 누르면 **지금 켠 아이들이 모두 다시 켜야 합니다.**
   웬만하면 누르지 마세요.
 - 아이가 휴대폰을 바꾸거나 앱을 지우면 다시 켜야 합니다.
   선생님 화면의 「아직 안 켠 학생」 칸에서 누군지 바로 보입니다.
+
+## 개발 및 Firebase 이관 작업
+
+운영 데이터는 Firestore에 있습니다. 웹은 Firebase SDK 공통 서비스를 사용하며 이전 웹과 Drive·Web Push 보조 기능은 Firestore에 연결된 Apps Script를 통해 동작합니다. 기존 이름/PIN을 그대로 사용합니다. 이관 결정·진행 조건은 `docs/decisions.md`, `docs/migration-design.md`, `docs/gate-reviews.md`를 참고하세요. Firebase 백업 적재와 운영 트래픽 전환은 별개 단계입니다.
+
+Node.js 22 이상에서 다음 명령을 사용합니다.
+
+```sh
+npm run build:legacy
+npm run build:services
+npm run build:firestore
+npm test
+npm run test:emulators
+```
+
+HTTP 요청 공통 소스는 `services/api-client.js`입니다. 변경 후 빌드하면 학생/교사·학부모 HTML과 두 서비스워커에 반영됩니다. 생성 구간을 직접 수정하지 마세요. Emulator 테스트에는 Firebase CLI와 Java 21 이상이 필요합니다.
+
+시트 백업 도구는 Python 3 및 openpyxl을 사용합니다.
+
+```sh
+python3 -m unittest discover -s tests/migration
+python3 scripts/migration/normalize_xlsx.py work/source/snapshot.xlsx work/source/snapshot.normalized.json
+python3 scripts/migration/firestore_snapshot.py work/source/snapshot.normalized.json --project PROJECT_ID --firebase-account ACCOUNT_EMAIL
+```
+
+실제 학생 정보·PIN·학부모 토큰·원본 백업은 Git에 넣지 않습니다. 정규화 출력은 `work/`에만 저장되며 기존 파일을 덮어쓰지 않습니다. 적재기는 불변 스냅샷을 재조회 검증하고, 기존 웹의 연결 주소나 운영 데이터를 변경하지 않습니다.
+
+GitHub Pages는 main 브랜치 루트 정적 파일을 배포합니다. `services/firestore.bundle.js`는 이 배포에 필요한 공개 브라우저 실행 파일로 저장소에 포함합니다. 수정 후 `npm run build:firestore`로 재생성하세요. 학생 데이터와 비밀 자격증명은 번들에 포함되지 않습니다.

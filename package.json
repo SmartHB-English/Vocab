@@ -1,0 +1,28 @@
+{
+  "name": "smarthb-vocab",
+  "private": true,
+  "scripts": {
+    "build:services": "node scripts/build-services.mjs",
+    "check:services": "node scripts/build-services.mjs --check",
+    "inventory": "node scripts/api-inventory.mjs",
+    "test": "node scripts/build-services.mjs --check && node scripts/build-legacy.mjs && node --test tests/*.test.mjs",
+    "test:emulators": "firebase emulators:exec --only auth,firestore --project demo-smarthb-vocab \"node --test --test-concurrency=1 tests/firestore-emulator.integration.mjs tests/firestore-repository.integration.mjs tests/firestore-bridge.integration.mjs\"",
+    "build:legacy": "node scripts/build-legacy.mjs",
+    "prebuild:firestore": "node scripts/build-legacy.mjs",
+    "build:firestore": "node scripts/build-firestore.mjs",
+    "prebuild:bridge": "node scripts/build-legacy.mjs",
+    "build:bridge": "node scripts/build-bridge.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "firebase": "^12.19.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.14.5"
+  }
+}

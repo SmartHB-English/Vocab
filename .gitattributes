@@ -1,0 +1,2 @@
+# Firebase SDK bundle contains intentional whitespace in template strings.
+services/firestore.bundle.js -whitespace

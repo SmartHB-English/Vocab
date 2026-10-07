@@ -1,0 +1,211 @@
+/* Existing Code.gs remains intact. This adapter owns the HTTP entry point after cutover. */
+var FB_BRIDGE_CONFIG = __BRIDGE_CONFIG__;
+// The owner changes this selector only after final snapshot verification.
+// A failed selector read must never fall back to Sheets after cutover.
+function fbNativeEngine_(locks){
+  // Use the deployed v80 source even if the editor contains unpublished changes.
+  return VocabBridgeCore.createLegacyEngine({SpreadsheetApp:SpreadsheetApp,Utilities:Utilities,Session:Session,LockService:locks||LockService,CacheService:CacheService,Date:Date,PropertiesService:PropertiesService,DriveApp:DriveApp,UrlFetchApp:UrlFetchApp,ScriptApp:ScriptApp,Logger:Logger,ContentService:ContentService,HtmlService:HtmlService});
+}
+function fbPhase_(){
+  var url='https://firestore.googleapis.com/v1/projects/'+FB_BRIDGE_CONFIG.project+'/databases/(default)/documents/runtime/config';
+  var config=VocabBridgeCore.fromField({mapValue:{fields:fbHttp_(url,'get').fields}});
+  if(['staged','frozen','active'].indexOf(config.state)<0)throw new Error('자료 전환 상태를 확인하지 못했습니다.');
+  if(config.state==='frozen')throw new Error('자료를 옮기는 중입니다. 잠시 후 다시 해 주세요.');
+  FB_BRIDGE_CONFIG.dataset=config.dataset;
+  return config.state;
+}
+function fbDispatch_(fn,args){
+  if(fbPhase_()==='staged'){
+    if(fn==='__그림파일')throw new Error('자료 이관 준비가 끝나지 않았습니다.');
+    var readOnly=['시작정보','로그인','단어가져오기','숙제가져오기','내기록','월간순위','연속가져오기','게임순위','공지가져오기','푸시공개키','선생님로그인','선생님요약','선생님기본','선생님기록','기록메모','학부모미리보기','틀린전문','수업꾸러미목록','수업틀목록','과목록','수업추천','내오답','명단가져오기','배정가져오기','교재대상','단어목록','시상집계','시상달목록','공지목록','설정가져오기','푸시열쇠','구독목록','구독현황'].indexOf(fn)>=0 || (fn==='학부모보기'&&args[1]===true);
+    if(readOnly)return fbNativeEngine_().call(fn,args);
+    var lock=LockService.getScriptLock();lock.waitLock(30000);
+    try{
+      // Recheck inside the lock so queued old calls cannot write after freeze.
+      if(fbPhase_()!=='staged')throw new Error('자료 전환이 끝났습니다. 다시 시도해 주세요.');
+      var held={getScriptLock:function(){return {waitLock:function(){},releaseLock:function(){}};}};
+      var engine=fbNativeEngine_(held);
+      return fn==='__월시상'?engine.monthly():engine.call(fn,args);
+    }finally{lock.releaseLock();}
+  }
+  return fbRequest_(fn,args);
+}
+
+function fbHash_(text) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,String(text),Utilities.Charset.UTF_8)
+    .map(function(x){return ('0'+((x+256)%256).toString(16)).slice(-2);}).join('');
+}
+function fbHttp_(url,method,body,token) {
+  var options={method:method,contentType:'application/json',muteHttpExceptions:true};
+  if(body!==undefined)options.payload=JSON.stringify(body);
+  if(token)options.headers={Authorization:'Bearer '+token};
+  var response=UrlFetchApp.fetch(url,options),status=response.getResponseCode();
+  var value=JSON.parse(response.getContentText()||'{}');
+  if(status<200||status>=300) { var e=new Error('자료 서버 요청에 실패했습니다. 잠시 후 다시 해 주세요. ('+status+')');e.status=status;e.retryable=value.error&&['ABORTED','FAILED_PRECONDITION'].indexOf(value.error.status)>=0;throw e; }
+  return value;
+}
+function fbAuth_() {
+  var props=PropertiesService.getScriptProperties(),saved=props.getProperty('FB_AUTH_V1');
+  var auth=saved?JSON.parse(saved):null;
+  if(auth&&auth.until>Date.now()+60000)return auth;
+  if(auth) {
+    var response=UrlFetchApp.fetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(FB_BRIDGE_CONFIG.apiKey),{
+      method:'post',payload:{grant_type:'refresh_token',refresh_token:auth.refreshToken},muteHttpExceptions:true});
+    if(response.getResponseCode()===200){var r=JSON.parse(response.getContentText());auth={idToken:r.id_token,refreshToken:r.refresh_token,uid:r.user_id,until:Date.now()+Number(r.expires_in)*1000};}
+    else auth=null;
+  }
+  if(!auth){var r=fbHttp_('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+encodeURIComponent(FB_BRIDGE_CONFIG.apiKey),'post',{returnSecureToken:true});auth={idToken:r.idToken,refreshToken:r.refreshToken,uid:r.localId,until:Date.now()+Number(r.expiresIn)*1000};}
+  props.setProperty('FB_AUTH_V1',JSON.stringify(auth));
+  return auth;
+}
+function fbBridgeProof_(){
+  var props=PropertiesService.getScriptProperties(),proof=props.getProperty('FB_BRIDGE_PROOF_V1');if(proof)return proof;
+  var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('설정'),pin='1234';
+  sheet.getDataRange().getValues().forEach(function(row){if(String(row[0]).trim()==='선생님비밀번호')pin=String(row[1]).trim();});
+  proof=fbHash_(pin);props.setProperty('FB_BRIDGE_PROOF_V1',proof);return proof;
+}
+function fbSession_(auth) {
+  var C=VocabBridgeCore;
+  var name='projects/'+FB_BRIDGE_CONFIG.project+'/databases/(default)/documents/sessions/'+auth.uid;
+  fbHttp_('https://firestore.googleapis.com/v1/'+name,'patch',{fields:C.toField({dataset:FB_BRIDGE_CONFIG.dataset,credentialId:'bridge',proof:fbBridgeProof_()}).mapValue.fields},auth.idToken);
+}
+function fbDatabase_(auth,suffix,body) {
+  var base='https://firestore.googleapis.com/v1/projects/'+FB_BRIDGE_CONFIG.project+'/databases/(default)/documents';
+  // Firebase ID tokens use optimistic transactions (the Web SDK protocol).
+  // Explicit REST beginTransaction requires IAM credentials and is not used here.
+  if(suffix===':beginTransaction')return {transaction:{reads:{},readTime:null}};
+  if(suffix===':rollback')return {};
+  if(suffix===':commit'&&body.transaction){
+    var read=body.transaction.reads,touched={},writes=body.writes.map(function(write){
+      var name=write.update?write.update.name:write.delete;touched[name]=true;
+      return Object.assign({},write,{currentDocument:read[name]||{exists:false}});
+    });
+    Object.keys(read).forEach(function(name){if(!touched[name])writes.push({verify:name,currentDocument:read[name]});});
+    body={writes:writes};
+  }
+  return fbHttp_(base+suffix,'post',body,auth.idToken);
+}
+function fbRead_(auth,paths,transaction) {
+  var prefix='projects/'+FB_BRIDGE_CONFIG.project+'/databases/(default)/documents/';
+  var body={documents:paths.map(function(p){return prefix+'vocabDatasets/'+FB_BRIDGE_CONFIG.dataset+'/'+p;})};
+  if(transaction&&transaction.readTime)body.readTime=transaction.readTime;
+  var replies=fbDatabase_(auth,':batchGet',body),out={};
+  replies.forEach(function(r){
+    if(transaction){if(!transaction.readTime&&r.readTime)transaction.readTime=r.readTime;
+      if(r.found)transaction.reads[r.found.name]={updateTime:r.found.updateTime};
+      if(r.missing)transaction.reads[r.missing]={exists:false};}
+    if(r.found){var relative=r.found.name.slice((prefix+'vocabDatasets/'+FB_BRIDGE_CONFIG.dataset+'/').length);out[relative]=VocabBridgeCore.fromField({mapValue:{fields:r.found.fields||{}}});}});
+  return out;
+}
+function fbWrites_(documents,deleted) {
+  var prefix='projects/'+FB_BRIDGE_CONFIG.project+'/databases/(default)/documents/vocabDatasets/'+FB_BRIDGE_CONFIG.dataset+'/';
+  var C=VocabBridgeCore,writes=[];
+  Object.keys(documents).forEach(function(path){writes.push({update:{name:prefix+path,fields:C.toField(documents[path]).mapValue.fields}});});
+  (deleted||[]).forEach(function(path){writes.push({delete:prefix+path});});
+  return writes;
+}
+function fbSave_(auth,store,catalog,transaction,fn,original,answer) {
+  var C=VocabBridgeCore,documents={},deleted=[],tables=store.getSheets(),metadata=[],changes=[];
+  tables.forEach(function(table,position){
+    var old=catalog.tables.filter(function(m){return m.name===table.name;})[0];
+    if(!table.dirty){metadata.push(old);return;}
+    var full=table.export(),visible=C.publicTable(full),payload=C.pack(visible),version=fbHash_(payload);
+    if(Utilities.newBlob(payload).getBytes().length>850000)throw new Error('자료가 커서 나누어 저장해야 합니다.');
+    var meta=Object.assign(C.tableMetadata(full,position),{version:version});
+    documents['tables/'+C.sheetId(full.name)]={payload:payload,version:version,name:full.name,public:['학생','설정','단어장목록','공지'].indexOf(full.name)>=0||full.name.indexOf('단어_')===0};
+    if(['학생','설정'].indexOf(full.name)>=0){
+      var cells={};Object.keys(full.cells).forEach(function(k){if(C.pack(full.cells[k])!==C.pack(visible.cells[k]))cells[k]=full.cells[k];});
+      var secretPayload=C.pack({name:full.name,cells:cells}),secretVersion=fbHash_(secretPayload);
+      documents['secrets/'+C.sheetId(full.name)]={payload:secretPayload,version:secretVersion};meta.secretVersion=secretVersion;
+    } else if(old&&old.secretVersion)meta.secretVersion=old.secretVersion;
+    metadata.push(meta);changes.push(full.name);
+  });
+  store.deleted.forEach(function(name){if(!store.getSheetByName(name)){deleted.push('tables/'+C.sheetId(name));changes.push(name);}});
+  if(!changes.length){fbDatabase_(auth,':rollback',{transaction:transaction});return;}
+  var identities=catalog.identities;
+  if(store.getSheetByName('학생').dirty||store.getSheetByName('설정').dirty){
+    identities=[];var s=store.getSheetByName('학생');
+    for(var row=2;row<=s.getLastRow();row++){
+      var r=s.getRange(row,1,1,Math.max(11,s.getLastColumn())).getValues()[0],name=String(r[1]||'').trim();if(!name)continue;
+      var old=catalog.identities.filter(function(i){return i.row===row;})[0],id=old?old.id:'student-'+Utilities.getUuid();
+      identities.push({id:id,name:name,row:row});documents['credentials/'+id]={role:'student',name:name,row:row,pinHash:fbHash_(String(r[2]===undefined?'':r[2]).trim())};
+      var token=String(r[8]||'').trim().toLowerCase();
+      if(/^[0-9a-f]{32,128}$/.test(token)){var parentId='parent-'+id;documents['credentials/'+parentId]={role:'parent',name:name,row:row,pinHash:fbHash_(token)};documents['links/'+token]={credentialId:parentId,name:name,row:row};}
+      else deleted.push('credentials/parent-'+id);
+    }
+    catalog.identities.forEach(function(i){if(!documents['credentials/'+i.id])deleted.push('credentials/'+i.id);if(!documents['credentials/parent-'+i.id])deleted.push('credentials/parent-'+i.id);});
+    var oldStudents=original.filter(function(t){return t.name==='학생';})[0];
+    Object.keys(oldStudents.cells).forEach(function(key){if(!/:9$/.test(key))return;var token=String(oldStudents.cells[key].value||'').trim().toLowerCase();if(/^[0-9a-f]{32,128}$/.test(token)&&!documents['links/'+token])deleted.push('links/'+token);});
+    var settings=store.getSheetByName('설정'),rows=settings.getRange(2,1,Math.max(1,settings.getLastRow()-1),2).getValues(),pin='1234';
+    rows.forEach(function(r){if(String(r[0]).trim()==='선생님비밀번호')pin=String(r[1]).trim();});documents['credentials/teacher']={role:'teacher',pinHash:fbHash_(pin)};
+  }
+  var requestId=auth.uid+'_'+Utilities.getUuid();
+  documents['meta/catalog']=Object.assign({},catalog,{tables:metadata,identities:identities,revision:fn==='학부모보기'?catalog.revision:requestId});
+  documents['journal/'+requestId]={actor:auth.uid,fn:fn,result:C.pack(answer),changes:changes,at:Date.now()};
+  tables.forEach(function(t){if(t.dirty)documents['journal/'+requestId+'/tables/'+C.sheetId(t.name)]={payload:C.pack(t.export())};});
+  deleted=deleted.filter(function(path,index,all){return !documents[path]&&all.indexOf(path)===index;});
+  // Existing credentials/links are not part of the table load. Read every write
+  // target at the original snapshot so updates are not mistaken for creates.
+  var prefix='projects/'+FB_BRIDGE_CONFIG.project+'/databases/(default)/documents/vocabDatasets/'+FB_BRIDGE_CONFIG.dataset+'/';
+  var unread=Object.keys(documents).concat(deleted).filter(function(path){return !transaction.reads[prefix+path];});
+  if(unread.length)fbRead_(auth,unread,transaction);
+  fbDatabase_(auth,':commit',{transaction:transaction,writes:fbWrites_(documents,deleted)});
+}
+function fbRequest_(fn,args){
+  var request={now:Date.now(),ids:[],images:{}};
+  for(var attempt=0;attempt<3;attempt++){
+    try{return fbRequestOnce_(fn,args,request);}catch(e){if(!e.retryable||attempt===2)throw e;}
+  }
+}
+function fbRequestOnce_(fn,args,request) {
+  var C=VocabBridgeCore,auth=fbAuth_();fbSession_(auth);
+  var tx=fbDatabase_(auth,':beginTransaction',{}).transaction;
+  try{
+    var catalog=fbRead_(auth,['meta/catalog'],tx)['meta/catalog'];
+    var paths=catalog.tables.map(function(t){return 'tables/'+C.sheetId(t.name);});paths.push('secrets/'+C.sheetId('학생'),'secrets/'+C.sheetId('설정'));
+    var docs=fbRead_(auth,paths,tx),tables=catalog.tables.map(function(t){var table=C.unpack(docs['tables/'+C.sheetId(t.name)].payload);var secret=docs['secrets/'+C.sheetId(t.name)];if(secret)Object.assign(table.cells,C.unpack(secret.payload).cells);return table;});
+    var store=new C.TableStore(tables),original=store.export();
+    var nativeCache=CacheService.getScriptCache(),prefix='fb-v1|'+catalog.revision+'|';
+    var cache={get:function(k){return nativeCache.get(prefix+k);},put:function(k,v,ttl){nativeCache.put(prefix+k,v,ttl);},remove:function(k){nativeCache.remove(prefix+k);},getAll:function(keys){var out={};keys.forEach(function(k){var v=nativeCache.get(prefix+k);if(v!==null)out[k]=v;});return out;},putAll:function(values,ttl){Object.keys(values).forEach(function(k){nativeCache.put(prefix+k,values[k],ttl);});},removeAll:function(keys){nativeCache.removeAll(keys.map(function(k){return prefix+k;}));}};
+    var effects={cache:cache,Utilities:{formatDate:function(d,z,f){return Utilities.formatDate(d,z,f);},base64Decode:function(x){return Utilities.base64Decode(x);},newBlob:function(){return Utilities.newBlob.apply(Utilities,arguments);}},PropertiesService:PropertiesService,DriveApp:DriveApp,UrlFetchApp:UrlFetchApp,ScriptApp:ScriptApp};
+    var uuidIndex=0;
+    effects.saveImage=function(){
+      var job=Array.prototype.slice.call(arguments),key=JSON.stringify(job),cached=request.images[key];
+      if(!cached){cached={};request.images[key]=cached;try{cached.url=fbImageFile_.apply(null,job);}catch(e){cached.error=e;}}
+      if(cached.error)throw cached.error;return cached.url;
+    };
+    var engine=C.createRuntime(store,{now:function(){return request.now;},uuid:function(){var i=uuidIndex++;return request.ids[i]||(request.ids[i]=Utilities.getUuid());},effects:effects});
+    if(fn==='__그림파일'){
+      if(!engine.call('선생님로그인',[args[0]]).ok)throw new Error('비밀번호가 다릅니다.');
+      // The existing uploader is accessed through the injected Drive capability.
+      var r=fbImageFile_(args[1],args[2],args[3],args[4]);fbDatabase_(auth,':rollback',{transaction:tx});return r;
+    }
+    if(fn==='푸시전송'){fbDatabase_(auth,':rollback',{transaction:tx});return engine.call(fn,args);}
+    var answer=fn==='__월시상'?engine.monthly():engine.call(fn,args);fbSave_(auth,store,catalog,tx,fn,original,answer);return answer;
+  }catch(e){try{fbDatabase_(auth,':rollback',{transaction:tx});}catch(ignore){}throw e;}
+}
+function fbImageFile_(book,name,data,type){
+  // Reuse the existing Drive folder and upload implementation without a Sheet write.
+  return 그림저장_(book,name,data,type);
+}
+doPost = function(e){
+  var reply;
+  try{var request=JSON.parse(e&&e.postData&&e.postData.contents||'{}');if(FB_RPC_NAMES.indexOf(String(request.fn||'').trim())<0&&request.fn!=='__그림파일')throw new Error('쓸 수 없는 기능입니다: '+request.fn);reply={ok:true,값:fbDispatch_(String(request.fn||'').trim(),request.args||[])};}
+  catch(err){reply={ok:false,메시지:String(err&&err.message||err)};}
+  return ContentService.createTextOutput(JSON.stringify(reply)).setMimeType(ContentService.MimeType.JSON);
+};
+
+// Route google.script.run clients and the existing scheduled award handler to the same DB.
+FB_RPC_NAMES.forEach(function(name){globalThis[name]=function(){return fbDispatch_(name,Array.prototype.slice.call(arguments));};});
+매월시상=function(){return fbDispatch_('__월시상',[]);};
+
+// Owner-only editor check. Not part of the public HTTP RPC allowlist.
+function firebaseMigrationCheck(){
+  var phase=fbPhase_(),native=fbNativeEngine_(),local=native.call('시작정보',[]),remote=fbRequest_('시작정보',[]);
+  Logger.log(JSON.stringify({phase:phase,dataset:FB_BRIDGE_CONFIG.dataset,startInfoMatches:JSON.stringify(local)===JSON.stringify(remote)}));
+}
+
+function firebaseMigrationDrain(){
+  var lock=LockService.getScriptLock();lock.waitLock(30000);
+  try{Logger.log(JSON.stringify({legacyWritesDrained:true}));}finally{lock.releaseLock();}
+}

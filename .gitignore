@@ -1,0 +1,17 @@
+# Local migration exports and credentials (never commit student data)
+work/
+.env
+.env.*
+!.env.example
+*service-account*.json
+*serviceAccount*.json
+firebase-debug.log*
+firestore-debug.log*
+.firebase/
+node_modules/
+
+__pycache__/
+*.pyc
+
+# Recreated from the production fixture before builds/tests
+services/legacy-engine.generated.mjs

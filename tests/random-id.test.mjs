@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+import {TableStore} from '../services/table-store.mjs';
+import {createRuntime} from '../services/legacy-runtime.mjs';
+test('parent link generation works on a browser with getRandomValues but no randomUUID',()=>{
+ let counter=0;
+ const context={crypto:{getRandomValues:bytes=>{bytes.fill(++counter);return bytes;}}};
+ vm.createContext(context);vm.runInContext(readFileSync(new URL('../services/random-id.mjs',import.meta.url),'utf8').replace('export function','function'),context);
+ const store=new TableStore();
+ const add=(name,rows)=>{const t=store.insertSheet(name);rows.forEach(row=>t.appendRow(row));};
+ add('학생',[['반','이름','비밀번호','학년구분','','','','','학부모링크','학부모마지막','선생님한마디'],['A','가상학생','0011','유치']]);
+ add('설정',[['항목','값'],['선생님비밀번호','9876']]);
+ add('단어장목록',[['단어장','종류','시트이름','색','레슨묶음','과']]);
+ for(const name of ['기록','기록보관','숙제','게임'])add(name,[Array.from({length:26},(_,i)=>'column'+i)]);
+ const engine=createRuntime(store,{uuid:()=>context.randomId()});
+ const result=engine.call('학부모링크발급',['9876','가상학생']);assert.equal(result.ok,true);
+ const token=result.주소.split('k=')[1];assert.match(token,/^[0-9a-f]{64}$/);
+ assert.equal(engine.call('학부모보기',[token,true]).이름,'가상학생');
+});
