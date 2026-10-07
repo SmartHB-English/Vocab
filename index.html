@@ -511,6 +511,15 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .clock.soon{color:#fff;background:#DC2626}   /* 1분 남으면 빨갛게 */
 .clock.over{color:#fff;background:#DC2626;animation:시계깜빡 1s step-end infinite}
 @keyframes 시계깜빡{50%{opacity:.45}}
+/* 떠 있는 시계 — 스크롤해도 · 자판이 올라와도 · 가로로 돌려도 늘 오른쪽 위 (「← 그만」 은 왼쪽 위).
+   pointer-events:none — 시계 밑의 단추가 그대로 눌리게 */
+.fixclock{position:fixed;top:calc(10px + env(safe-area-inset-top));right:14px;z-index:9999;pointer-events:none;
+  font-size:16px;padding:6px 12px;background:var(--card,#fff);border:1.5px solid var(--line);
+  box-shadow:0 2px 10px rgba(0,0,0,.14)}
+.fixclock.soon,.fixclock.over{font-size:20px;padding:7px 14px;border-color:#DC2626}   /* 1분 남으면 크게 — 그때가 제일 중요하다 */
+@media print{.fixclock{display:none !important}}
+/* 시계가 떠 있는 동안 그 화면 오른쪽 위의 「가로」 단추를 시계 폭만큼 비켜 준다 — 시계 밑에 숨지 않게 */
+body.fixon .screen.on .rotbtn{margin-right:118px}
 .rotbtn{margin-left:auto;white-space:nowrap;
   border:1.5px solid var(--line);background:transparent;color:var(--text);
   font-size:12.5px;font-weight:800;padding:6px 14px;border-radius:99px;min-width:54px}
@@ -2313,6 +2322,8 @@ html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(
 </style>
 </head>
 <body>
+<!-- 떠 있는 시계 — #app 밖에 둔다. 조상에 overflow·transform 이 끼면 sticky 가 조용히 안 먹어서, fixed 하나로 세 화면이 같이 쓴다 -->
+<div class="clock fixclock hide" id="fixClock" role="timer"></div>
 <div id="app">
 
   <!-- ========================= 로그인 ========================= -->
@@ -2943,52 +2954,15 @@ html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(
 <div id="printArea"></div>
 
 <script>
-/* BEGIN GENERATED services/api-client.js */
-/* Single owner of the legacy HTTP RPC protocol. No automatic write retries. */
-(function (root) {
-  'use strict';
-
-  var legacyEndpoint = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
-
-  var firestoreReady;
-  function firestore() {
-    if (!firestoreReady) firestoreReady = Promise.resolve().then(function () {
-      if (typeof importScripts === 'function') importScripts('./services/firestore.bundle.js');
-      else return import('./services/firestore.bundle.js');
-    }).then(function () { return root.VocabFirestore; });
-    return firestoreReady;
-  }
-
-  function post(endpoint, fn, args) {
-    if (endpoint === 'firestore:v1') return firestore().then(function (service) { return service.call(fn, args); }).then(function (value) { return {ok:true, 값:value}; });
-    return fetch(endpoint, {
-      method: 'POST',
-      redirect: 'follow',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ fn: fn, args: args })
-    }).then(function (response) { return response.json(); });
-  }
-
-  function request(endpoint, fn, args, failureMessage) {
-    return post(endpoint, fn, args).then(function (response) {
-      if (response && response.ok) return response.값;
-      throw new Error((response && response.메시지) || failureMessage || '서버가 답하지 않았습니다');
-    });
-  }
-
-  root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request };
-})(typeof self !== 'undefined' ? self : globalThis);
-/* END GENERATED services/api-client.js */
-
 /* ==================================================================
    해법 영단어 — 학생 웹앱
    구글 Apps Script 안에서는 실제 시트와 통신하고,
    그냥 파일로 열면 예시 자료로 미리보기 됩니다.
 ================================================================== */
 /* 스프레드시트에 붙은 창구 주소.
-   창구 주소는 services/api-client.js에서 수정 후 npm run build:services로 반영합니다.
+   화면을 깃헙에 올려 쓸 때 이 줄만 주인님 주소로 바꾸면 됩니다.
    (앱스 스크립트 안에서 그대로 쓸 때는 비워 두어도 알아서 동작합니다.) */
-var 창구주소 = VocabApi.defaultEndpoint;
+var 창구주소 = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
 
 var 안쪽 = (typeof google !== 'undefined' && google.script && google.script.run);
 var 미리보기 = (location.protocol === 'file:') ||
@@ -2996,7 +2970,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-07d';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-08a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3767,7 +3741,14 @@ function 부르기_(fn, args){
     }
     /* 바깥(깃헙 등)에 올려 두고 창구로 말을 걸 때.
        글 종류를 text/plain 으로 보내야 브라우저가 미리 물어보지 않는다. */
-    VocabApi.request(창구주소, fn, args, '서버가 답하지 않았습니다').then(res, rej);
+    fetch(창구주소, {
+      method:'POST', redirect:'follow',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({fn:fn, args:args})
+    }).then(function(r){ return r.json(); }).then(function(r){
+      if(r && r.ok) res(r.값);
+      else rej(new Error((r && r.메시지) || '서버가 답하지 않았습니다'));
+    }).catch(rej);
   });
 }
 
@@ -3832,6 +3813,7 @@ function show(name){
   var t = $('s-'+name); if(t) t.classList.add('on');
   칠하기_탭(name);
   try{ 돌리기단추그리기_(); }catch(e){}
+  try{ 떠있는시계맞추기_(); }catch(e){}
   /* 그 화면에 있어야 할 자료는 그 화면을 열 때 받는다 */
   if(name === 'study') try{ 연습자료받기_(); }catch(e){}
   if(name === 'exam') try{ 시험탭열기(); }catch(e){}
@@ -7074,8 +7056,18 @@ function 시각글_(초){
   return m + ':' + (x < 10 ? '0'+x : x);
 }
 
+/* 화면 안의 시계(shClock·vClock·wbClock)는 늘 숨겨 두고, 글자는 떠 있는 시계에 쓴다.
+   제한.어디 는 「어느 화면의 시계인가」 — 그 화면이 떠 있을 때만 보인다 (「← 그만」 으로 나가도 셈은 이어진다) */
+function 떠있는시계맞추기_(){
+  var el = $('fixClock'); if(!el) return;
+  var 칸 = 제한.어디 ? $(제한.어디) : null;
+  var 화면 = 칸 && 칸.closest ? 칸.closest('.screen') : null;
+  el.classList.toggle('hide', !칸 || !!(화면 && !화면.classList.contains('on')));
+  document.body.classList.toggle('fixon', !el.classList.contains('hide'));
+}
 function 제한그리기_(){
-  var el = $(제한.어디); if(!el) return;
+  var el = $('fixClock'); if(!el || !제한.어디) return;
+  떠있는시계맞추기_();
   var 남 = Math.ceil((제한.끝날때 - Date.now())/1000);
   /* 10초부터는 초를 센다 */
   el.textContent = (남 <= 10 && 남 > 0) ? '⏱ ' + 남 + '초' : '⏱ ' + 시각글_(남);
@@ -7190,9 +7182,10 @@ function 숙제제한_(){
 
 function 제한멈춤_(){
   if(제한.시계){ clearInterval(제한.시계); 제한.시계 = null; }
-  ['shClock','vClock','wbClock'].forEach(function(id){
+  ['shClock','vClock','wbClock','fixClock'].forEach(function(id){
     var el = $(id); if(el){ el.classList.add('hide'); el.classList.remove('soon','over'); }
   });
+  document.body.classList.remove('fixon');
   제한.어디 = ''; 제한.끝날때 = 0; 제한.예고함 = false;
 }
 
@@ -7203,8 +7196,7 @@ function 제한시작_(어디, 다됐을때, 분, 끝날때){
   if(!분) return;                       /* 0 이면 시간을 안 잰다 */
   제한.어디 = 어디;
   제한.끝날때 = Number(끝날때) || (Date.now() + 분*60000);
-  var el = $(어디); if(el) el.classList.remove('hide');
-  제한그리기_();
+  제한그리기_();                          /* 떠 있는 시계를 보인다 — 화면 안의 시계는 숨긴 채로 둔다 */
   제한.시계 = setInterval(function(){
     var 남 = Math.ceil((제한.끝날때 - Date.now())/1000);
     제한그리기_();
