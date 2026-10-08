@@ -31,8 +31,9 @@
   function start() { if (!done) { done = true; box.remove(); } }
   setTimeout(start, TIMEOUT_MS);
 
+  var shown = 0;   /* capgo가 단계마다 0부터 다시 보내서 뒤로 가지 않게 */
   C.addListener('CapacitorUpdater', 'download', function (e) {
-    var p = Math.round((e && e.percent) || 0);
+    var p = shown = Math.max(shown, Math.round((e && e.percent) || 0));
     msg.textContent = '업데이트 중… ' + p + '%';
     bar.style.width = p + '%';
   });
