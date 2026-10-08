@@ -15,6 +15,7 @@ on:
       - '*.png'
       - services/firestore.bundle.js
       - app/app-boot.js
+      - app/app.css
       - scripts/build-app.mjs
   workflow_dispatch:
 
