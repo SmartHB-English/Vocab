@@ -7,36 +7,72 @@
 
 ---
 
-## 여기가 작업 폴더다
+## 파일 — 일은 `H:\haebeop-vocab` 에서 한다
 
-`H:\학습 프로그램\웹앱` — 고치는 일은 전부 여기서 한다.
+2026-10-08 Firebase 이관 뒤로 **진짜 저장소는 `H:\haebeop-vocab`** (깃허브 `SmartHB-English/Vocab`) 다.
+이 폴더(`H:\학습 프로그램\웹앱`)의 `index.html` · `Code.gs` · `test*.js` 는 **이관 전 옛것**이라 고쳐도 아무 데도 안 나간다.
+손대기 전에 저장소의 `docs/decisions.md` · `docs/migration-spec.md` · `package.json` 의 scripts 를 먼저 읽는다.
 
-| 파일 | 하는 일 |
+| 파일 (`H:\haebeop-vocab` 안) | 하는 일 |
 |---|---|
-| `index.html` | 앱 전부 (학생 화면 + 선생님 화면, 한 덩어리 약 60만 자) |
-| `Code.gs` | 앱스 스크립트 뒷단 — 구글 시트를 자료 창고로 쓴다 |
-| `test*.js` · `runall.sh` · `도구.js` | Playwright 검사 |
-| `백업\` | 판올림마다 쌓아 두는 되돌리기용 |
-| `parent.html` · `parent-manifest.json` · `parent-sw.js` | 학부모 사이트 (한 덩어리) · 그 설명서 · 그 알림 일꾼 |
+| `index.html` | 앱 전부 (학생 + 선생님, 한 덩어리 약 75만 자) — 깃허브 페이지로 나간다 |
+| `parent.html` · `parent-manifest.json` · `parent-sw.js` | 학부모 사이트 · 그 설명서 · 그 알림 일꾼 (폴더를 안 쓴다) |
+| `tests/fixtures/legacy/Code.gs` | **업무 엔진 원본 한 곳** (운영 v80 기준). 웹과 GAS 가 둘 다 이것으로 계산한다 |
+| `services/api-client.js` | 웹 공통 창구 — 손으로 고치고 `npm run build:services` 로 네 파일에 박아 넣는다 |
+| `services/` 의 나머지 | Firestore 를 직접 읽는 저장소 · 엔진 실행 틀 (`legacy-runtime.mjs` 등) |
+| `services/legacy-engine.generated.mjs` | **생성물** — `node scripts/build-legacy.mjs` 가 `Code.gs` 로 만든다 (.gitignore 에 있다) |
+| `services/firestore.bundle.js` | **생성물** — `npm run build:firestore`. 엔진이 이 안에 묶여 들어간다 (커밋한다) |
+| `server/` | 앱스 스크립트 쪽 다리 (`FirebaseBridge.gs.template` · `bridge-entry.mjs`) |
+| `work/FirebaseBridge.gs` | **생성물** — `npm run build:bridge`. 원장님이 앱스 스크립트에 붙여넣는 파일 (`work/` 는 .gitignore — 개인정보 자리) |
+| `scripts/` | 위 생성물 만들기 (`build-*.mjs`) · `migration/` (시트 → Firestore 옮기기 · 대조) |
+| `firebase/` | Firestore 규칙 · 색인 |
+| `tests/*.test.mjs` · `tests/helpers/` | 검사 (`node:test` + `vm`) |
+| `docs/` | 이관 결정 · 설계 · 관문 기록 |
+| `app/` · `android/` · `ios/` · `capacitor.config.json` | Capacitor 앱 (안드로이드 · 아이폰) |
+| `app-update/` | 앱 OTA 번들 — `scripts/build-app.mjs` 가 만든다. main 에 웹 파일이 올라가면 CI(`.github/workflows/app-update.yml`)가 다시 만들어 커밋한다 |
+| `.github/workflows/` | `checks.yml` (`check:services` — 옛 index.html 덮어쓰기 막기) · `app-update.yml` |
 
-### 다 고치면 두 군데로 나간다
+### 고치면 어디가 바뀌나
 
-| 무엇 | 어디로 |
-|---|---|
-| `index.html` | `H:\haebeop-vocab\` 에 복사 → 거기서 깃허브로 (깃허브 페이지 저장소) |
-| `Code.gs` | **원장님이 직접** 앱스 스크립트에 붙여넣고 재배포 |
-| `parent.html` | `H:\haebeop-vocab\parent.html` 로 그대로 (→ `…/Vocab/parent.html`) — 폴더를 안 쓴다 (깃허브 웹 올리기에서 폴더가 꼬인다) |
-| `parent-manifest.json` · `parent-sw.js` | `H:\haebeop-vocab\` 맨 위에 그대로. 일꾼 범위는 `./parent.html` 로 좁혀 학생 앱 `sw.js` 를 안 건드린다 |
+| 고친 것 | 다시 만들 것 | 나가는 곳 |
+|---|---|---|
+| `index.html` · `parent.html` | (없음) | main → 깃허브 페이지. 앱은 CI 가 OTA 번들을 만든다 |
+| `services/api-client.js` | `npm run build:services` | 같음 |
+| `tests/fixtures/legacy/Code.gs` | `node scripts/build-legacy.mjs` → `npm run build:firestore` **와** `npm run build:bridge` | 웹(번들) **와** GAS(다리) **둘 다** |
 
-깃허브에 올린다고 뒷단이 바뀌지 않는다. 그 반대도 마찬가지다.
-`H:\haebeop-vocab` 에는 `index.html` 말고도 `manifest.json` · `sw.js` · `icon-*.png` · `img\`(유치부 그림 90장)가
-같이 있는데, 그건 거의 안 바뀐다.
+- 업무 엔진을 고치면 **GAS 쪽도 같이 올라가야** 한다 (지금 운영 GAS 는 **v84**). 한쪽만 내보내면 **웹(Firestore 길)과 GAS 길의 판정이 갈린다.**
+- 업무 엔진은 운영 v80 에 고정하는 것이 이관의 전제다 (`docs/decisions.md` 7번). 바꾸려면 원장님이 정하시고, 그 예외를 `docs/decisions.md` 에 적는다.
+- 생성물(`*.generated.mjs` · `firestore.bundle.js` · `work/FirebaseBridge.gs`)은 **손으로 고치지 않는다.**
+- 앱스 스크립트의 `Code.gs` 는 이제 **안 쓴다** — 다리(`FirebaseBridge.gs`)가 자기 안에 묶인 엔진으로 계산한다.
+
+---
+
+## 일하는 차례 — 늘 이대로
+
+깃 일은 고치는 파일이 있는 저장소에서 한다 — 앱 · 엔진은 `H:\haebeop-vocab` (main),
+이 규칙 파일(`CLAUDE.md`)은 `H:\학습 프로그램\웹앱` (「작업」 가지).
+
+1. **먼저 받는다** — `git pull --ff-only`
+   - 충돌이 나거나 ff 가 안 되면 **거기서 멈추고 원장님께 물어라.**
+     혼자 merge 하거나 rebase 하지 마라.
+   - 손대지 않은 변경이 남아 있으면(`git status` 가 더럽다) 그것도 먼저 알려라.
+2. 고친다
+3. `npm test` 가 전부 통과하는지 본다. **하나라도 빨가면 커밋하지 않는다.**
+4. `var 앱버전` 을 올린다 (`'2026-10-08b'` 꼴)
+5. **커밋하고 올린다** — `git add -A && git commit && git push`
+   - 커밋 글은 한국어 한 줄로, 무엇을 왜 바꿨는지.
+     `feat(web): …` · `fix(app): …` 처럼 지금 쓰는 꼴을 따른다.
+   - **`work/` 와 `.env` 는 커밋하지 않는다** (.gitignore 에 있다 — 아이들 개인정보다).
+6. 끝에 **원장님이 할 일**을 적는다 — GAS 재배포가 필요한지, 앱 번들을 다시 올려야 하는지.
+
+- 푸시가 거절되면(뒤처짐) **다시 1번부터.** `--force` 를 쓰지 마라.
+- 한 번에 하나씩 — 여러 일을 한 커밋에 섞지 마라.
 
 ---
 
 ## 손대기 전에
 
-1. **큰 파일은 절대 다시 타이핑하지 않는다.** `index.html` 은 60만 자다.
+1. **큰 파일은 절대 다시 타이핑하지 않는다.** `index.html` 은 75만 자다.
    앞의 도구 출력이 잘려 있을 수 있으니, 반드시 **찾아 바꾸기**로 고친다.
 
    ```python
@@ -54,11 +90,12 @@
 
    `assert count==1` 을 빼지 않는다. 한 군데만 바뀌는지 확인하는 안전장치다.
    CSS 의 `%` 때문에 파이썬 `%` 서식은 깨진다 — `.replace('__칸__', x)` 를 쓴다.
+   **기존 파일의 CRLF 를 지킨다** — `open(p, encoding='utf-8', newline='')` 으로 읽고 바꿀 글도 `\r\n` 으로 맞춘다.
 
 2. **CSS 이름이 겹치는지 먼저 본다.** 한 덩어리 파일이라 `.phead`, `.sheetwrap` 같은 이름이
    인쇄물·시험지에서 이미 쓰이고 있다. 새 이름을 붙이기 전에 `grep` 한 번.
 
-3. **크게 고치기 전에 백업.** `백업\vYYYY-MM-DD?_무엇\` 폴더에 `index.html`(+ 고쳤으면 `Code.gs`)과
+3. **크게 고치기 전에 백업.** `H:\학습 프로그램\웹앱\백업\vYYYY-MM-DD?_무엇\` 에 고치기 전 `index.html`(+ 고쳤으면 `Code.gs`)과
    `메모.txt`(무엇을 왜 바꿨는지)를 넣는다. 되돌려 달라는 말이 자주 나온다.
 
 ---
@@ -75,25 +112,27 @@
 
 ## 검사
 
-```bash
-./runall.sh          # 전부 돌린다 (이 폴더에서)
-node test41.js       # 하나만
-```
-
-처음 한 번은 설치가 필요하다.
+`H:\haebeop-vocab` 에서
 
 ```bash
-npm i -D playwright && npx playwright install chromium
+npm test                  # build 확인(build-services --check · build-legacy) + node --test tests/*.test.mjs
+npm run check:services    # index.html 등에 api-client.js 가 최신으로 박혀 있나 (main 에 올리면 CI 도 이것을 본다)
+npm run test:emulators    # Firestore 에뮬레이터 — 저장소 · 규칙 · 다리를 건드렸을 때만
 ```
 
 - **하나라도 빨가면 내보내지 않는다.** 아이들 휴대폰에 깨진 앱이 올라간다.
-- 고칠 때마다 **검사를 하나 짓는다.** `testNN.js` (번호는 이어서)
-  - `확인(이름, 실제, 기대)` 도우미, **항목 이름은 한국어로**
-  - 앱 주소는 `앱주소` 를 쓴다 (파일 맨 위에 만들어 둔다 — 폴더가 어디든 돌아간다)
-  - 미리보기로 들어간다 — 학생 `홍길동` / `1234`, 선생님 `1234`
-  - `pageerror` 를 모아 마지막에 같이 실패로 친다
-  - **정답을 검사에 박아 넣지 않는다.** 문제가 섞이므로 화면에서 읽어 온다
-- 여러 검사가 같이 쓰는 도우미는 `도구.js` 에 있다 (탭 옮기기, 단어장 고르기 등).
+- 고칠 때마다 `tests/` 에 **검사를 하나 짓는다** — `무엇.test.mjs`, 다른 검사와 같은 꼴(`node:test` + `vm`).
+  - 엔진은 `tests/helpers/legacy-server.mjs` 의 `legacy({ 시트이름: 줄들 })` 로 띄운다. 「지금」 은 2026-10-07 21:00(서울)로 고정이다.
+  - 항목 이름은 한국어로. 본보기: `tests/exam-retry.test.mjs`.
+- **이 PC 에서 주의 (2026-10-08 기준)**
+  - `core.autocrlf=true` 라 작업 사본이 CRLF 다 (기존 파일의 CRLF 는 지킨다). 그래서 `check:services` 가 **CRLF 때문에만** 「Stale」 로 빨갛다.
+  - `node_modules` 가 깨져 있었다 (esbuild 실행 파일이 잘렸고 firebase 가 없다) — `build:firestore` · `build:bridge` 가 안 돈다.
+  - 그래서 검사 · 빌드는 **LF 로 뽑은 깨끗한 사본**에서 돌린다 —
+    `git -c core.autocrlf=false worktree add --detach <임시폴더> HEAD` → `git diff | git apply` (새 파일은 복사) → 고친 파일의 CR 을 뗀다 → `npm ci` → `npm test`.
+    거기서 만든 `firestore.bundle.js` · `work/FirebaseBridge.gs` 를 가져오고, `git hash-object` 로 두 쪽이 같은지 본다.
+- 화면 검사(Playwright)는 아직 `tests/` 에 없다. 이 폴더(`웹앱`)의 `test*.js` · `runall.sh` · `도구.js` 는 **이 폴더의 옛 `index.html`** 을 연다.
+  새 화면을 보려면 같은 꼴로 `H:\haebeop-vocab\index.html` 을 미리보기로 연다 — 학생 `홍길동` / `1234`, 선생님 `1234`.
+  크로미움이 안 받아져 있으면 `chromium.launch({ channel: 'chrome' })`. `pageerror` 를 모아 실패로 친다.
 
 ---
 
@@ -268,21 +307,26 @@ I saw a boy [running] in the park. | 나는 … | (run) 지각동사+-ing
 
 ## 내보내기
 
-1. `var 앱버전` 을 올린다 (`'2026-10-06c'` 꼴). `test23.js` 가 이 값을 보므로 **같이 고친다.**
-   원장님이 파일이 제대로 올라갔는지 눈으로 보는 표시다.
-2. `./runall.sh` 전부 통과를 확인한다.
-3. `백업\` 에 이번 판을 넣는다 (`index.html` + `메모.txt`).
-4. `index.html` 을 `H:\haebeop-vocab\` 로 복사한다. 거기서 깃허브로 올라간다.
-5. `Code.gs` 를 고쳤으면 **원장님께 알린다** —
-   **배포 → 배포 관리 → 연필 → 버전: 새 버전 → 배포** 를 해야 반영된다.
+「일하는 차례」 그대로다. 그 위에 —
+
+1. `Code.gs`(업무 엔진)를 고쳤으면 커밋 전에 `node scripts/build-legacy.mjs` → `npm run build:firestore` → `npm run build:bridge`.
+   `firestore.bundle.js` 는 커밋하고, `work/FirebaseBridge.gs` 는 커밋하지 않는다.
+2. 크게 고쳤으면 `H:\학습 프로그램\웹앱\백업\` 에 고치기 전 판을 넣는다 (`index.html` + 고쳤으면 `Code.gs` + `메모.txt`).
+3. main 에 올라가면 CI 가 `check:services` 를 다시 보고, 앱 OTA 번들(`app-update/`)을 만들어 커밋한다.
+   CI 가 빨가면 원장님께 알린다.
+4. **원장님이 할 일**을 끝에 적는다 —
+   - `Code.gs` 를 고쳤으면 **GAS 재배포** — `work/FirebaseBridge.gs` 를 앱스 스크립트의 `FirebaseBridge.gs` 에 통째로 붙여넣고
+     **배포 → 배포 관리 → 연필 → 버전: 새 버전 → 배포** (지금 v84 → 다음은 v85).
+   - 앱(Capacitor) 자체를 고쳤으면(`android/` · `ios/` · 플러그인) 앱을 다시 빌드해서 올려야 한다. 웹 파일만 바뀐 것은 OTA 로 간다.
 
 ---
 
 ## 하면 안 되는 것
 
 - **구글 로그인·승인·배포는 언제나 원장님이 직접** 하신다. 대신 로그인하지 않는다.
-- **열쇠(API 키)를 `index.html` 에 넣지 않는다.** 깃허브에 공개로 올라가는 파일이다.
-  AI 같은 걸 붙인다면 **반드시 `Code.gs` 쪽**으로 보낸다.
+- **열쇠(API 키)를 깃허브에 올라가는 어떤 파일에도 넣지 않는다.** `index.html` 은 물론이고,
+  `tests/fixtures/legacy/Code.gs`(엔진)도 이제 **웹 번들(`firestore.bundle.js`)에 묶여 공개된다.**
+  AI 같은 걸 붙인다면 열쇠는 **앱스 스크립트의 스크립트 속성**에 두고 다리(GAS) 쪽에서만 부른다.
 - 막힌 웹 주소를 `curl`·파이썬으로 우회해서 받아 오지 않는다.
 - 인쇄물(시험지·정답지·상장·안내문)을 고쳤으면 **진짜 A4 PDF 로 뽑아 눈으로 확인**한다.
   화면 검사만으로는 한 장에 들어가는지 알 수 없다.
