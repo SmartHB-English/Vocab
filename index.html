@@ -2954,15 +2954,52 @@ html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(
 <div id="printArea"></div>
 
 <script>
+/* BEGIN GENERATED services/api-client.js */
+/* Single owner of the legacy HTTP RPC protocol. No automatic write retries. */
+(function (root) {
+  'use strict';
+
+  var legacyEndpoint = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
+
+  var firestoreReady;
+  function firestore() {
+    if (!firestoreReady) firestoreReady = Promise.resolve().then(function () {
+      if (typeof importScripts === 'function') importScripts('./services/firestore.bundle.js');
+      else return import('./services/firestore.bundle.js');
+    }).then(function () { return root.VocabFirestore; });
+    return firestoreReady;
+  }
+
+  function post(endpoint, fn, args) {
+    if (endpoint === 'firestore:v1') return firestore().then(function (service) { return service.call(fn, args); }).then(function (value) { return {ok:true, 값:value}; });
+    return fetch(endpoint, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: fn, args: args })
+    }).then(function (response) { return response.json(); });
+  }
+
+  function request(endpoint, fn, args, failureMessage) {
+    return post(endpoint, fn, args).then(function (response) {
+      if (response && response.ok) return response.값;
+      throw new Error((response && response.메시지) || failureMessage || '서버가 답하지 않았습니다');
+    });
+  }
+
+  root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request };
+})(typeof self !== 'undefined' ? self : globalThis);
+/* END GENERATED services/api-client.js */
+
 /* ==================================================================
    해법 영단어 — 학생 웹앱
    구글 Apps Script 안에서는 실제 시트와 통신하고,
    그냥 파일로 열면 예시 자료로 미리보기 됩니다.
 ================================================================== */
 /* 스프레드시트에 붙은 창구 주소.
-   화면을 깃헙에 올려 쓸 때 이 줄만 주인님 주소로 바꾸면 됩니다.
+   창구 주소는 services/api-client.js에서 수정 후 npm run build:services로 반영합니다.
    (앱스 스크립트 안에서 그대로 쓸 때는 비워 두어도 알아서 동작합니다.) */
-var 창구주소 = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
+var 창구주소 = VocabApi.defaultEndpoint;
 
 var 안쪽 = (typeof google !== 'undefined' && google.script && google.script.run);
 var 미리보기 = (location.protocol === 'file:') ||
@@ -3741,14 +3778,7 @@ function 부르기_(fn, args){
     }
     /* 바깥(깃헙 등)에 올려 두고 창구로 말을 걸 때.
        글 종류를 text/plain 으로 보내야 브라우저가 미리 물어보지 않는다. */
-    fetch(창구주소, {
-      method:'POST', redirect:'follow',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({fn:fn, args:args})
-    }).then(function(r){ return r.json(); }).then(function(r){
-      if(r && r.ok) res(r.값);
-      else rej(new Error((r && r.메시지) || '서버가 답하지 않았습니다'));
-    }).catch(rej);
+    VocabApi.request(창구주소, fn, args, '서버가 답하지 않았습니다').then(res, rej);
   });
 }
 

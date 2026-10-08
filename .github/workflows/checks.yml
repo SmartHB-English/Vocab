@@ -1,0 +1,16 @@
+# 웹 파일을 옛 버전으로 덮어써 Firestore 클라이언트가 빠지는 사고를 push 즉시 잡는다
+# (2026-10-08: 이관 전 index.html이 업로드돼 학생 화면이 Apps Script 경유로 되돌아갔다 — 요청당 ~5초)
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  services:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: index.html · parent.html · 서비스워커에 Firestore 클라이언트가 최신으로 들어 있는지
+        run: node scripts/build-services.mjs --check
