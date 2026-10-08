@@ -8218,6 +8218,15 @@ function 선생님들어가기_(pw, 기억할까){
 }
 $('tPw').addEventListener('keydown',function(e){ if(e.key==='Enter') $('btnTLogin').click(); });
 $('btnReload').onclick=function(){ loadTeacher(); toast('새로 불러왔습니다'); };
+/* 자동 로그인 뒤로는 앱·탭을 몇 시간씩 열어 둔 채 다시 보게 된다 — 그 사이 아이들이 본 시험이 안 보였다.
+   1분 넘게 가려져 있다가 다시 보이면 새로 부른다. 숙제를 고치는 중이면 쓰던 것이 날아가니 건드리지 않는다 */
+var 가려진때_ = 0;
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState !== 'visible'){ 가려진때_ = Date.now(); return; }
+  var 오래 = 가려진때_ && Date.now() - 가려진때_ > 60000; 가려진때_ = 0;
+  var 선생님화면 = $('s-teacher') && $('s-teacher').classList.contains('on');
+  if(오래 && 선생님화면 && T.pw && T.data && !T.수정숙제 && !T.시간고칠숙제 && !T.묶어시간) loadTeacher();
+});
 
 /* 선생님 화면은 둘로 나눠 부른다 — 가벼운 「기본」(숙제·학생·단어장)이 오면 바로 그리고,
    무거운 「기록」(시험목록·학생별·미응시·오답)이 오면 기록 쓰는 탭만 다시 그린다.
