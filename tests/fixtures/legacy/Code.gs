@@ -1,5 +1,5 @@
 /*******************************************************************
- *  해법 영단어 — 구글 Apps Script 백엔드
+ *  영단어학습프로그램 — 구글 Apps Script 백엔드
  *  스프레드시트에 붙어서 동작합니다.
  *  처음 한 번만 [초기설정] 함수를 실행하면 필요한 시트가 자동으로 만들어집니다.
  *******************************************************************/
@@ -65,7 +65,7 @@ function doGet(e) {
 
   if (페이지 === 'guide') {           // 학생용 사용법
     return HtmlService.createHtmlOutputFromFile('guide')
-      .setTitle('해법 영단어 사용법')
+      .setTitle('영단어학습프로그램 사용법')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
@@ -76,7 +76,7 @@ function doGet(e) {
   t.새주소 = 새주소;
   try { t.앱주소 = ScriptApp.getService().getUrl(); } catch (err) { t.앱주소 = ''; }
   return t.evaluate()
-    .setTitle('해법 영단어')
+    .setTitle('영단어학습프로그램')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -191,7 +191,7 @@ function doPost(e) {
 
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu('해법 영단어')
+    .createMenu('영단어학습프로그램')
     .addItem('초기설정 (처음 한 번)', '초기설정')
     .addItem('예시 단어 넣기', '예시단어넣기')
     .addSeparator()
@@ -244,7 +244,7 @@ function 초기설정() {
   if (st.getLastRow() < 2) {
     st.getRange(2, 1, 9, 2).setValues([
       ['선생님비밀번호', '1234'],
-      ['학원이름', '홍제인왕해법영어'],
+      ['학원이름', '홍제인왕영어'],
       ['기본테마', '자동'],
       ['시상시작일', ''],
       ['시상항목', '숙제'],
@@ -279,11 +279,11 @@ function 초기설정() {
   SpreadsheetApp.getActiveSpreadsheet().toast(
     (탈.length ? '초기설정을 마쳤지만 ' + 탈.length + '군데가 안 됐습니다.' : '초기설정이 끝났습니다.') +
     (옮김 ? ' 예전 단어장 ' + 옮김 + '개를 시트로 나눴습니다.' : ''),
-    '해법 영단어', 8);
+    '영단어학습프로그램', 8);
   if (탈.length) {
     Logger.log(탈.join('\n'));
     try {
-      SpreadsheetApp.getUi().alert('해법 영단어 · 초기설정',
+      SpreadsheetApp.getUi().alert('영단어학습프로그램 · 초기설정',
         '아래는 안 됐습니다. 나머지는 끝났습니다.\n\n' + 탈.join('\n'),
         SpreadsheetApp.getUi().ButtonSet.OK);
     } catch (e) { }
@@ -357,7 +357,7 @@ function 기록서식정리() {
     기록날짜묶기_(sh);
     기록필터_(sh);
   });
-  ss_().toast('기록 시트를 날짜별로 묶고 숙제·오답노트를 색으로 나눴습니다.', '해법 영단어', 8);
+  ss_().toast('기록 시트를 날짜별로 묶고 숙제·오답노트를 색으로 나눴습니다.', '영단어학습프로그램', 8);
 }
 
 /**
@@ -420,7 +420,7 @@ function 기록필터_(sh) {
 function 단어장별정렬() {
   var sh = sheet_(SHEET.기록);
   var last = sh.getLastRow();
-  if (last < 3) { ss_().toast('정리할 기록이 없습니다.', '해법 영단어', 5); return; }
+  if (last < 3) { ss_().toast('정리할 기록이 없습니다.', '영단어학습프로그램', 5); return; }
 
   var f = sh.getFilter(); if (f) f.remove();
   var cols = Math.max(sh.getLastColumn(), HEADERS.기록.length);
@@ -449,7 +449,7 @@ function 단어장별정렬() {
 
   기록필터_(sh);
   ss_().toast('단어장별로 묶었습니다. 날짜별로 되돌리려면 [기록 시트 보기 좋게 정리] 를 누르세요.',
-    '해법 영단어', 6);
+    '영단어학습프로그램', 6);
 }
 
 function 보관시트_() {
@@ -489,7 +489,7 @@ function 선택기록정리() {
   var ui = SpreadsheetApp.getUi();
   var sh = SpreadsheetApp.getActiveSheet();
   if (sh.getName() !== SHEET.기록) {
-    ui.alert('해법 영단어', '"기록" 시트에서 지울 줄을 고른 뒤 다시 눌러 주세요.', ui.ButtonSet.OK);
+    ui.alert('영단어학습프로그램', '"기록" 시트에서 지울 줄을 고른 뒤 다시 눌러 주세요.', ui.ButtonSet.OK);
     return;
   }
   var 행들 = [];
@@ -498,22 +498,22 @@ function 선택기록정리() {
       if (r >= 2 && 행들.indexOf(r) < 0) 행들.push(r);
     }
   });
-  if (!행들.length) { ui.alert('해법 영단어', '옮길 줄을 먼저 골라 주세요.', ui.ButtonSet.OK); return; }
-  var res = ui.alert('해법 영단어', 행들.length + '개 줄을 보관함으로 옮길까요?\n(기록 시트에서는 사라지고 "기록보관" 시트에 남습니다)', ui.ButtonSet.OK_CANCEL);
+  if (!행들.length) { ui.alert('영단어학습프로그램', '옮길 줄을 먼저 골라 주세요.', ui.ButtonSet.OK); return; }
+  var res = ui.alert('영단어학습프로그램', 행들.length + '개 줄을 보관함으로 옮길까요?\n(기록 시트에서는 사라지고 "기록보관" 시트에 남습니다)', ui.ButtonSet.OK_CANCEL);
   if (res !== ui.Button.OK) return;
   var n = 행보관_(행들);
-  ss_().toast(n + '개를 보관함으로 옮겼습니다.', '해법 영단어', 5);
+  ss_().toast(n + '개를 보관함으로 옮겼습니다.', '영단어학습프로그램', 5);
 }
 
 /** 메뉴: 오래된 기록 보관 */
 function 오래된기록정리() {
   var ui = SpreadsheetApp.getUi();
-  var r = ui.prompt('해법 영단어', '며칠보다 오래된 기록을 보관함으로 옮길까요?\n숫자만 적어 주세요. (예: 30)', ui.ButtonSet.OK_CANCEL);
+  var r = ui.prompt('영단어학습프로그램', '며칠보다 오래된 기록을 보관함으로 옮길까요?\n숫자만 적어 주세요. (예: 30)', ui.ButtonSet.OK_CANCEL);
   if (r.getSelectedButton() !== ui.Button.OK) return;
   var days = parseInt(r.getResponseText(), 10);
-  if (!days || days < 1) { ui.alert('해법 영단어', '숫자를 적어 주세요.', ui.ButtonSet.OK); return; }
+  if (!days || days < 1) { ui.alert('영단어학습프로그램', '숫자를 적어 주세요.', ui.ButtonSet.OK); return; }
   var n = 오래된기록보관_(days);
-  ui.alert('해법 영단어', n + '개를 보관함으로 옮겼습니다.', ui.ButtonSet.OK);
+  ui.alert('영단어학습프로그램', n + '개를 보관함으로 옮겼습니다.', ui.ButtonSet.OK);
 }
 
 function 오래된기록보관_(days) {
@@ -536,12 +536,12 @@ function 보관함비우기() {
   var ui = SpreadsheetApp.getUi();
   var sh = 보관시트_();
   var n = Math.max(0, sh.getLastRow() - 1);
-  if (!n) { ui.alert('해법 영단어', '보관함이 비어 있습니다.', ui.ButtonSet.OK); return; }
-  var res = ui.alert('해법 영단어',
+  if (!n) { ui.alert('영단어학습프로그램', '보관함이 비어 있습니다.', ui.ButtonSet.OK); return; }
+  var res = ui.alert('영단어학습프로그램',
     '보관함의 ' + n + '개 기록을 완전히 지웁니다.\n되돌릴 수 없습니다. 계속할까요?', ui.ButtonSet.OK_CANCEL);
   if (res !== ui.Button.OK) return;
   sh.deleteRows(2, n);
-  ui.alert('해법 영단어', '보관함을 비웠습니다.', ui.ButtonSet.OK);
+  ui.alert('영단어학습프로그램', '보관함을 비웠습니다.', ui.ButtonSet.OK);
 }
 
 function 예시단어넣기() {
@@ -656,7 +656,7 @@ function 조회만들기() {
 
   sh.setFrozenRows(6);
   ss.setActiveSheet(sh);
-  ss.toast('조회 시트를 만들었습니다. B1~B3을 골라 보세요.', '해법 영단어', 8);
+  ss.toast('조회 시트를 만들었습니다. B1~B3을 골라 보세요.', '영단어학습프로그램', 8);
 }
 
 /* ------------------------------------------------------------------ 유틸 */
@@ -766,7 +766,7 @@ function 시작정보() {
   var 담긴 = 캐시읽기_('시작정보');
   if (담긴 && 담긴.단어장목록) return 담긴;
   var r = {
-    학원이름: setting_('학원이름', '해법 영단어'),
+    학원이름: setting_('학원이름', '영단어학습프로그램'),
     합격점: 합격점_(),
     단어장목록: 단어장목록()
   };
@@ -2246,11 +2246,11 @@ function 점수입력표() {
 
   var 학생들 = 전체명단_();
   if (!학생들.length) {
-    ui.alert('해법 영단어', '학생 명단이 비어 있습니다.', ui.ButtonSet.OK);
+    ui.alert('영단어학습프로그램', '학생 명단이 비어 있습니다.', ui.ButtonSet.OK);
     return;
   }
 
-  var r2 = ui.prompt('해법 영단어', '시험 이름을 적어 주세요. (예: 3과 단어시험)', ui.ButtonSet.OK_CANCEL);
+  var r2 = ui.prompt('영단어학습프로그램', '시험 이름을 적어 주세요. (예: 3과 단어시험)', ui.ButtonSet.OK_CANCEL);
   if (r2.getSelectedButton() !== ui.Button.OK) return;
   var 시험 = r2.getResponseText().trim();
 
@@ -2263,7 +2263,7 @@ function 점수입력표() {
 
   ss_().setActiveSheet(sh);
   sh.setActiveRange(sh.getRange(start, 5, 값.length, 1));
-  ui.alert('해법 영단어',
+  ui.alert('영단어학습프로그램',
     학생들.length + '명의 줄을 만들었습니다.\n맨 오른쪽 [점수] 칸에 숫자만 넣어 주세요.\n\n' +
     '시험을 안 본 학생은 점수 칸을 비워 두면 순위에서 빠집니다.', ui.ButtonSet.OK);
 }
@@ -3114,7 +3114,7 @@ function 알림권한확인() {
            '선생님 화면에서 [알림 시험 보내기] 를 눌러 보세요.';
   Logger.log(글);
   try {
-    SpreadsheetApp.getUi().alert('해법 영단어 · 알림 권한', 글,
+    SpreadsheetApp.getUi().alert('영단어학습프로그램 · 알림 권한', 글,
       SpreadsheetApp.getUi().ButtonSet.OK);
   } catch (e) { /* 편집기에서 실행하면 화면이 없다 — 로그로 충분하다 */ }
   return 글;
@@ -4891,7 +4891,10 @@ function 단어추가(비번, 단어장, en, ko) {
    그 주소를 단어장 시트 「그림」 칸(D열)에 적어 둔다.
    이 그림은 유치부 화면에서 쓴다.
 ================================================================ */
-var 그림폴더이름 = '해법 영단어 그림';
+var 그림폴더이름 = '영단어학습프로그램 그림';
+/* 2026-10-08 앱 이름을 「영단어학습프로그램」 으로 바꾸면서 폴더 이름도 바꿨다. 폴더는 스크립트 속성의 아이디로 찾으니 대개 상관없지만,
+   아이디가 없어졌을 때 새 빈 폴더를 만들지 않도록 옛 이름 폴더도 찾아 본다 */
+var 옛그림폴더이름 = '해법 영단어 그림';
 
 /** 그림을 모아 둘 드라이브 폴더 — 없으면 만들고, 링크가 있으면 누구나 보게 열어 둔다 */
 function 그림폴더_() {
@@ -4901,6 +4904,7 @@ function 그림폴더_() {
     try { return DriveApp.getFolderById(id); } catch (e) { /* 지워졌으면 새로 만든다 */ }
   }
   var it = DriveApp.getFoldersByName(그림폴더이름);
+  if (!it.hasNext()) it = DriveApp.getFoldersByName(옛그림폴더이름);
   var f = it.hasNext() ? it.next() : DriveApp.createFolder(그림폴더이름);
   try { f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
   P.setProperty('그림폴더', f.getId());
@@ -4934,7 +4938,7 @@ function 열쇠말_(v) {
    무엇을 해야 하는지로 바꿔 준다. */
 var 그림권한안내 =
   '사진을 올릴 권한이 아직 없습니다.\n\n' +
-  '스프레드시트 상단 메뉴 [해법 영단어] → [사진 올릴 권한 확인] 을 한 번 누르고,\n' +
+  '스프레드시트 상단 메뉴 [영단어학습프로그램] → [사진 올릴 권한 확인] 을 한 번 누르고,\n' +
   '구글이 묻는 창에서 [허용] 을 눌러 주세요.\n' +
   '그다음 앱스 스크립트에서 배포 → 배포 관리 → 새 버전 → 배포 를 하시면 됩니다.';
 
@@ -4970,7 +4974,7 @@ function 그림권한확인() {
   }
   Logger.log(글);
   try {
-    SpreadsheetApp.getUi().alert('해법 영단어 · 사진 권한', 글,
+    SpreadsheetApp.getUi().alert('영단어학습프로그램 · 사진 권한', 글,
       SpreadsheetApp.getUi().ButtonSet.OK);
   } catch (e2) { /* 편집기에서 실행하면 화면이 없다 — 로그로 충분하다 */ }
   return 글;
@@ -5366,7 +5370,7 @@ function 학부모자료_(이름, x) {
       시험: 볼시험.concat(본시험),                                       // 앞으로 볼 것 → 본 것(최근부터)
       자주틀린: 자주틀린,
       진도: 진도,
-      학원: { 이름: s_(setting_('학원이름', '홍제인왕해법영어')), 전화: s_(setting_('학원전화', '')) }
+      학원: { 이름: s_(setting_('학원이름', '홍제인왕영어')), 전화: s_(setting_('학원전화', '')) }
     };
   });
 }

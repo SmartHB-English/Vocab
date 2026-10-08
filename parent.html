@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#F6F4F1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="해법 학부모">
-<title>홍제인왕해법영어 학부모</title>
+<meta name="apple-mobile-web-app-title" content="영단어학습프로그램 학부모">
+<title>홍제인왕영어 학부모</title>
 <link rel="manifest" href="parent-manifest.json" id="mfLink">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -170,7 +170,7 @@ body{background:var(--bg);color:var(--text);
 /* END GENERATED services/api-client.js */
 
 /* ==================================================================
-   해법 영단어 — 학부모 화면
+   영단어학습프로그램 — 학부모 화면
    · 아이마다 비밀 링크 …/parent/#k=토큰 으로 들어온다. 토큰은 해시(#) 뒤 — 서버 기록·바깥 사이트로 안 간다.
    · 읽기만 한다. 쓰는 일은 하나도 없다 (알림 받기 등록만 — 그것도 그 아이 이름으로만).
    · 설치·알림은 「하면 더 편한 것」 일 뿐 — 링크만 누르면 전부 보인다.
@@ -181,8 +181,14 @@ var 창구주소 = VocabApi.defaultEndpoint;
 var 미리보기 = (location.protocol === 'file:') ||
                ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.search.indexOf('real') < 0) ||
                location.search.indexOf('demo') > -1;
-var 토큰열쇠 = '해법학부모_토큰';
-var 닫음열쇠 = '해법학부모_안내닫음';
+var 열쇠앞 = '영단어학습-학부모_';
+var 토큰열쇠 = 열쇠앞 + '토큰';
+var 닫음열쇠 = 열쇠앞 + '안내닫음';
+var 알림열쇠 = 열쇠앞 + '알림';
+/* 2026-10-08 앱 이름을 「영단어학습프로그램」 으로 바꾸면서 기기에 적는 열쇠 이름도 바꿨다.
+   홈 화면에서 여는 학부모는 주소에 토큰이 없어 이 기기에 적힌 토큰으로만 들어온다 — 옛 열쇠를 못 읽으면 다 막힌다.
+   그래서 처음 열 때 옛 열쇠의 값을 한 번 옮기고 옛 열쇠는 지운다. 모든 기기가 한 번씩 열린 뒤(한참 뒤) 지운다 */
+var 옛열쇠앞 = '해법학부모_';
 var 자료 = null;
 
 function $(id){ return document.getElementById(id); }
@@ -190,6 +196,12 @@ function esc(s){ return String(s === null || s === undefined ? '' : s).replace(/
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function 저장읽기(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function 저장쓰기(k, v){ try{ if(v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){} }
+['토큰', '안내닫음', '알림'].forEach(function(k){
+  var 옛 = 저장읽기(옛열쇠앞 + k);
+  if(옛 === null) return;
+  if(저장읽기(열쇠앞 + k) === null) 저장쓰기(열쇠앞 + k, 옛);   /* 새 열쇠에 이미 있으면 새것이 맞다 */
+  저장쓰기(옛열쇠앞 + k, null);
+});
 var 토스트시계 = null;
 function toast(글){
   var t = $('toast'); t.textContent = 글; t.classList.add('on');
@@ -236,11 +248,11 @@ var 흉내 = (function(){
       {날짜:'9/14', 단어장:'중2 4과 단어', 범위:'1~20', 유형:'스펠링', 점수:70, 봤나:true}],
     자주틀린:[{단어:'especially', 번:3}, {단어:'knowledge', 번:2}, {단어:'environment', 번:2}],
     진도:[{단어장:'중2 5과', 칸:'단어', 끝:60, 총:155}, {단어장:'중2 5과', 칸:'본문', 끝:12, 총:28}],
-    학원:{이름:'홍제인왕해법영어', 전화:'02-000-0000'} };
+    학원:{이름:'홍제인왕영어', 전화:'02-000-0000'} };
   /* 한마디도 시험 기록도 없고, 숙제는 다 낸 아이 */
   아이들[토('b')] = { ok:true, 이름:'김영희', 오늘:'10/7', 한마디:'',
     이번주숙제:[{제목:'예시 단어장 1~10', 유형:'스펠링', 종류:'당일', 완료:true, 다시:false, 점수:100, 마감일:'2026-10-07', 마감글:'10/7', 날짜글:'10/7', 낸때글:'10/7 · 저녁 7:02', 오늘까지:true, 지남:false}],
-    낸수:1, 안낸수:0, 시험:[], 자주틀린:[], 진도:[], 학원:{이름:'홍제인왕해법영어', 전화:''} };
+    낸수:1, 안낸수:0, 시험:[], 자주틀린:[], 진도:[], 학원:{이름:'홍제인왕영어', 전화:''} };
   return {
     학부모보기: function(t, 알림만){
       var r = 아이들[String(t || '').toLowerCase()];
@@ -338,7 +350,7 @@ function 그리기(r){
 
   h.push('<div id="pPush"></div>');
   var 학원 = r.학원 || {};
-  h.push('<footer class="foot"><b>'+esc(학원.이름 || '홍제인왕해법영어')+'</b>'+
+  h.push('<footer class="foot"><b>'+esc(학원.이름 || '홍제인왕영어')+'</b>'+
     (학원.전화 ? '<br><a href="tel:'+esc(String(학원.전화).replace(/[^0-9+]/g, ''))+'">'+esc(학원.전화)+'</a>' : '')+
     '<br>궁금한 점은 문자 주세요.</footer>');
   $('app').innerHTML = h.join('');
@@ -539,7 +551,7 @@ function 알림되나_(){
 function 알림단추(){
   var 칸 = $('pPush'); if(!칸) return;
   if(!알림되나_()){ 칸.innerHTML = ''; return; }
-  var 켜짐 = Notification.permission === 'granted' && 저장읽기('해법학부모_알림') === 토큰;
+  var 켜짐 = Notification.permission === 'granted' && 저장읽기(알림열쇠) === 토큰;
   칸.innerHTML = 켜짐
     ? '<div class="note" style="text-align:center;margin:4px 0 8px">🔔 알림을 받고 있어요</div>'
     : '<button class="btn line" type="button" id="pPushBtn">🔔 숙제 알림 받기</button>';
@@ -572,7 +584,7 @@ function 알림켜기(){
     var j = 구독.toJSON();
     return api('구독등록', 자료.이름, {주소:j.endpoint, p256dh:(j.keys||{}).p256dh, auth:(j.keys||{}).auth}, 기기글_());
   }).then(function(){
-    저장쓰기('해법학부모_알림', 토큰);
+    저장쓰기(알림열쇠, 토큰);
     일꾼에알리기_();
     toast('이제 숙제 소식을 알림으로 보내 드려요');
     알림단추();
@@ -597,7 +609,7 @@ function 일꾼에알리기_(){
   try{
     if(!토큰 || !아이폰인가_(navigator.userAgent || '')) return;
     var 이쪽 = location.href.split('#')[0].split('?')[0], 밑 = 이쪽.replace(/[^\/]*$/, '');
-    var 설명 = { name:'홍제인왕해법영어 학부모', short_name:'해법 학부모', start_url: 이쪽 + '#k=' + 토큰, scope: 이쪽,
+    var 설명 = { name:'홍제인왕영어 학부모', short_name:'영단어학습프로그램 학부모', start_url: 이쪽 + '#k=' + 토큰, scope: 이쪽,
       display:'standalone', background_color:'#F6F4F1', theme_color:'#F6F4F1', lang:'ko',
       icons:[{src: 밑 + 'icon-192.png', sizes:'192x192', type:'image/png'}, {src: 밑 + 'icon-512.png', sizes:'512x512', type:'image/png'}] };
     $('mfLink').setAttribute('href', 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(설명)));

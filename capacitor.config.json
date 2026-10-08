@@ -1,6 +1,6 @@
 {
   "appId": "com.smarthb.vocab",
-  "appName": "해법 영단어",
+  "appName": "영단어학습프로그램",
   "webDir": "www",
   "server": {
     "hostname": "app.smarthb-vocab",

@@ -1,7 +1,7 @@
 {
-  "name": "해법 영단어",
-  "short_name": "해법 영단어",
-  "description": "홍제인왕해법영어 단어 학습",
+  "name": "영단어학습프로그램",
+  "short_name": "영단어학습프로그램",
+  "description": "홍제인왕영어 단어 학습",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

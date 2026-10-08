@@ -4,12 +4,12 @@
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>해법 영단어</title>
+<title>영단어학습프로그램</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <meta name="theme-color" content="#F6F4F1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="해법 영단어">
+<meta name="apple-mobile-web-app-title" content="영단어학습프로그램">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -1938,7 +1938,7 @@ body.desk .kpi.alert .v,body.desk .kpi.alert .k{color:var(--tileFg)}
 body.desk .panel{border:0;border-radius:22px}
 body.desk .tmain > div > *{animation:hbRise .45s var(--ease) both}
 
-/* ===== iOS 구조 (2026-10-06) — 해법 영단어 iOS 시안과 같은 짜임 ===== */
+/* ===== iOS 구조 (2026-10-06) — 영단어학습프로그램 iOS 시안과 같은 짜임 ===== */
 html[data-theme] body:not(.hb0) .hbhead{padding:8px 4px 14px;display:flex;flex-direction:column;gap:12px}
 html[data-theme] body:not(.hb0) .hbsub{font-size:13px;font-weight:600;color:var(--sub)}
 html[data-theme] body:not(.hb0) .hbtitle{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-top:2px;color:var(--text)}
@@ -2047,7 +2047,7 @@ html[data-theme] body:not(.hb0)[data-cur="result"] #app{padding-top:34px}
 html[data-theme] body:not(.hb0) #s-result{background:var(--bg);border-radius:24px 24px 0 0;margin:0 -14px;padding:10px 14px 40px;min-height:calc(100vh - 34px);box-sizing:border-box}
 html[data-theme] body:not(.hb0) #s-result:before{content:"";display:block;width:36px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 6px}
 
-/* ===================== 시안 맞추기 (2026-10-06c) — 「해법 영단어 (단일 파일)」 시안 =====================
+/* ===================== 시안 맞추기 (2026-10-06c) — 「영단어학습프로그램 (단일 파일)」 시안 =====================
    iOS 디자인 위에 덮어쓴다. 이 덩어리를 지우면 10-06a 모습으로 돌아간다. */
 /* 아래 탭 — 시안 b : 판 없이, 고른 칸만 주황 글씨 */
 html[data-theme] body:not(.hb0) .tabbar button::before{content:none}
@@ -2254,7 +2254,7 @@ html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(
 /* 태블릿 전용 꾸밈 — 폰에서는 숨김 */
 .hbtbrand,.hbtfoot,.hbloginart{display:none}
 
-/* ===================== 태블릿 (가로 900px 이상) — 시안 「해법 영단어 태블릿」 ===================== */
+/* ===================== 태블릿 (가로 900px 이상) — 시안 「영단어학습프로그램 태블릿」 ===================== */
 @media (min-width:900px) and (min-height:600px){
   /* 왼쪽 메뉴 */
   html[data-theme] body.hastab:not(.desk) .tabbar{top:0;bottom:0;right:auto;width:260px;flex-direction:column;align-items:stretch;gap:4px;
@@ -2335,8 +2335,8 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
   <section id="s-login" class="screen on">
     <div id="demoBadge" class="demo hide">미리보기 모드입니다 — 예시 자료로 돌아갑니다. 구글에 올리면 실제 명단과 단어장이 뜹니다.</div>
     <div class="signboard">
-      <div class="sbname" id="academyName">홍제인왕해법영어</div>
-      <div class="sbtitle">해법 영단어</div>
+      <div class="sbname" id="academyName">홍제인왕영어</div>
+      <div class="sbtitle">영단어학습프로그램</div>
       <div class="sbrule"><i></i><b>단어는 매일, 조금씩</b><i></i></div>
     </div>
     <div class="card">
@@ -2359,7 +2359,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
     </div>
     <div class="mt"><button class="btn line sm" id="btnGuide">처음이신가요? 사용법 보기</button></div>
     <div class="mt"><button class="btn line sm" id="btnTeacherGo">선생님이신가요?</button></div>
-    <div class="foot">홍제인왕해법영어 <span id="verTag" style="opacity:.55"></span></div>
+    <div class="foot">홍제인왕영어 <span id="verTag" style="opacity:.55"></span></div>
   </section>
 
   <!-- ========================= 홈 = 숙제 ========================= -->
@@ -2478,7 +2478,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
       <button class="btn line grow sm" id="btnRecords">내 숙제 기록</button>
       <button class="btn line grow sm" id="btnGuide2">사용법 보기</button>
     </div>
-    <div class="foot">해법 영단어</div>
+    <div class="foot">영단어학습프로그램</div>
   </section>
 
   <!-- ========================= 플래시카드 ========================= -->
@@ -2896,7 +2896,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
     <div id="tMain" class="hide">
       <div class="tshell">
         <aside class="tside">
-          <div class="tbrand"><span id="tAcademy">홍제인왕해법영어</span>해법 영단어<small id="tBrandSub">선생님 화면</small></div>
+          <div class="tbrand"><span id="tAcademy">홍제인왕영어</span>영단어학습프로그램<small id="tBrandSub">선생님 화면</small></div>
           <nav class="tnav">
             <div class="tgrps">
               <button type="button" class="tgrp" data-grp="학생">학생</button>
@@ -2997,7 +2997,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
 /* END GENERATED services/api-client.js */
 
 /* ==================================================================
-   해법 영단어 — 학생 웹앱
+   영단어학습프로그램 — 학생 웹앱
    구글 Apps Script 안에서는 실제 시트와 통신하고,
    그냥 파일로 열면 예시 자료로 미리보기 됩니다.
 ================================================================== */
@@ -3012,7 +3012,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-08a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-08b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3205,7 +3205,7 @@ var DEMO = {
   },
   시작정보: function(){
     return {
-      학원이름:'홍제인왕해법영어',
+      학원이름:'홍제인왕영어',
       합격점:80,
       단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']}].concat(DEMO_과목록_())
     };
@@ -3338,7 +3338,7 @@ var DEMO = {
     var x=null; DEMO_배정.forEach(function(y){ if(y.이름===이름) x=y; });
     return {ok:true, 이름:이름, 한마디:(x&&x.한마디)||'', 이번주숙제:이번주,
       낸수:이번주.filter(function(h){return h.완료;}).length, 안낸수:이번주.filter(function(h){return !h.완료;}).length,
-      시험:시험, 자주틀린:[{단어:'assume',번:2}], 진도:[], 학원:{이름:'홍제인왕해법영어',전화:''}};
+      시험:시험, 자주틀린:[{단어:'assume',번:2}], 진도:[], 학원:{이름:'홍제인왕영어',전화:''}};
   },
   교재일괄:function(pw,행들,교재들,방식){
     var 고른=교재목록(교재들), 바뀐=0;
@@ -4025,7 +4025,7 @@ function initLogin(){
   }catch(e){}
   api('시작정보').then(function(d){
     시작정보 = d;
-    $('academyName').textContent = d.학원이름 || '홍제인왕해법영어';
+    $('academyName').textContent = d.학원이름 || '홍제인왕영어';
   }).catch(function(e){ $('loginMsg').textContent='앱을 불러오지 못했습니다. '+e; });
   자동로그인_();
 }
@@ -4713,7 +4713,7 @@ function drawStreak(){
    따로 창을 띄우지 않고, 화면에 안 보이는 #printArea 에 종이를 그린 뒤
    브라우저 인쇄를 부른다. 인쇄 창에서 'PDF로 저장' 을 고르면 PDF 가 된다.
 ================================================================ */
-function 학원이름_(){ return (시작정보 && 시작정보.학원이름) || '홍제인왕해법영어'; }
+function 학원이름_(){ return (시작정보 && 시작정보.학원이름) || '홍제인왕영어'; }
 /* 숙제로 인정받으려면 넘겨야 하는 점수 (기본 80점). 시험은 한 번만 보므로 컷이 없다. */
 function 합격점(){
   var n = 시작정보 && 시작정보.합격점;
@@ -6291,7 +6291,7 @@ function 알림안내(){
       '<span class="nt"><b>아이폰은 홈 화면에 넣어야 알림이 와요</b>'+
       '<i>① 사파리 아래 <b>공유</b> 단추(네모에 화살표)를 누르세요\n'+
       '② <b>홈 화면에 추가</b>를 고르고 추가를 누르세요\n'+
-      '③ 바탕화면에 생긴 <b>해법 영단어</b> 아이콘으로 다시 여세요\n'+
+      '③ 바탕화면에 생긴 <b>영단어학습프로그램</b> 아이콘으로 다시 여세요\n'+
       '④ 그 다음 <b>알림 켜기</b>를 누르면 됩니다</i></span></div>'
     : '<div class="notirow"><span class="ni">'+알림아이콘_('공지')+'</span>'+
       '<span class="nt"><b>이 기기에서는 알림을 켤 수 없어요</b>'+
@@ -6329,9 +6329,9 @@ function 알림시험(){
     toast('알림이 허용돼 있지 않아요 — 껐다 다시 켜 주세요'); return;
   }
   navigator.serviceWorker.ready.then(function(r){
-    return r.showNotification('해법 영단어', {
+    return r.showNotification('영단어학습프로그램', {
       body: '알림이 잘 오고 있어요! 이제 숙제가 나오면 이렇게 떠요.',
-      icon: 'icon-192.png', badge: 'icon-192.png', tag: '해법영단어시험'
+      icon: 'icon-192.png', badge: 'icon-192.png', tag: '영단어학습프로그램-시험'
     });
   }).then(function(){
     toast('알림을 띄웠어요 — 화면 위를 봐 주세요');
@@ -8557,13 +8557,13 @@ function 알림결과글_(k){
   if(권한) 도움 += '<div class="plog bad"><b>구글이 아직 허락하지 않았습니다</b>'+
     '<div>앱스 스크립트가 <b>바깥 주소로 나가는 권한</b>을 아직 못 받았습니다. '+
     '한 번만 허락해 주면 됩니다.<br><br>'+
-    '스프레드시트 메뉴 <b>해법 영단어 → 알림 보낼 권한 확인</b> 을 누르세요. '+
+    '스프레드시트 메뉴 <b>영단어학습프로그램 → 알림 보낼 권한 확인</b> 을 누르세요. '+
     '구글 허용 창이 뜨면 <b>검토 → 계정 고르기 → 고급 → '+
     '…(안전하지 않음)으로 이동 → 허용</b> 순서로 눌러 주세요.<br>'+
     '그다음 이 화면에서 <b>알림 시험 보내기</b> 를 다시 누르시면 됩니다.</div></div>';
   if(막힘) 도움 += '<div class="plog bad"><b>보내는 데서 막혔습니다</b>'+
     '<div>앱스 스크립트가 알림 서버로 보내다가 걸렸습니다. '+
-    '먼저 스프레드시트 메뉴 <b>해법 영단어 → 알림 보낼 권한 확인</b> 을 한 번 눌러 보세요.</div></div>';
+    '먼저 스프레드시트 메뉴 <b>영단어학습프로그램 → 알림 보낼 권한 확인</b> 을 한 번 눌러 보세요.</div></div>';
   if(원문) 도움 += '<div class="plog warn"><b>서버가 남긴 말 (그대로 알려 주세요)</b>'+
     '<div style="word-break:break-all;font-weight:500">'+esc(원문)+'</div></div>';
   if(열쇠) 도움 += '<div class="plog warn"><b>열쇠가 안 맞습니다 — 곧 저절로 풀립니다</b>'+
@@ -9532,7 +9532,7 @@ function drawTab(){
         '한 번 넣어 두고 그냥 두시면 됩니다. 비워 두면 언제나 그달 전체를 셉니다.<br><br>'+
         '<b>매월 1일 아침에 지난달 시상이 자동으로 집계</b>되어 스프레드시트 '+
         '<b>시상</b> 시트에 남습니다. 한 번만 켜 두시면 됩니다 — 시트 메뉴 '+
-        '<b>해법 영단어 → 매월 1일 자동 집계 켜기</b>.<br>'+
+        '<b>영단어학습프로그램 → 매월 1일 자동 집계 켜기</b>.<br>'+
         '지금 보고 있는 달을 바로 남기려면 위 <b>시트에 남기기</b> 를 누르세요. '+
         '같은 달을 다시 누르면 덮어씁니다.<br><br>'+
         '<b>어떻게 세나요.</b> 그달에 <b>낸 숙제</b>만 셉니다. 혼자 연습한 것과 '+
@@ -10219,7 +10219,7 @@ function drawTab(){
               '<div class="sub" style="margin-bottom:8px">'+
                 '그림은 <b>유치부</b> 화면에서 씁니다 · 파일 이름을 영어 단어와 같게 하면 '+
                 '(cat.png → cat) 한꺼번에 올려도 저절로 붙습니다.<br>'+
-                '처음 한 번은 스프레드시트 메뉴 <b>[해법 영단어] → [사진 올릴 권한 확인]</b> 에서 '+
+                '처음 한 번은 스프레드시트 메뉴 <b>[영단어학습프로그램] → [사진 올릴 권한 확인]</b> 에서 '+
                 '허용해 주셔야 합니다.</div>'+
               '<div class="sub" id="bkLesHint" style="margin-bottom:8px"></div>'+
               '<div id="bkExportBox" class="hide"><textarea id="bkExportText" rows="8" readonly></textarea>'+
@@ -10788,7 +10788,7 @@ function drawTab(){
     /* --- 학부모 --- */
     function 학생찾기pv(이름){ var x=null; (T.명단||[]).forEach(function(y){ if(y.이름===이름) x=y; }); return x; }
     function 안내문자(st){
-      return st.이름+' 어머님, '+(((typeof 시작정보!=='undefined'&&시작정보&&시작정보.학원이름))||'홍제인왕해법영어')+'입니다.\n'+
+      return st.이름+' 어머님, '+(((typeof 시작정보!=='undefined'&&시작정보&&시작정보.학원이름))||'홍제인왕영어')+'입니다.\n'+
         '아이의 학습 현황을 아래 링크에서 보실 수 있습니다.\n'+
         st.학부모주소+'\n'+
         '· 링크를 눌러 바로 보시면 됩니다. 따로 설치하실 것은 없습니다.\n'+
@@ -10828,7 +10828,7 @@ function drawTab(){
       box.querySelector('[data-pvweek]').onclick=function(){
         api('학부모미리보기',T.pw,st.이름).then(function(r){
           if(!r || !r.ok){ toast((r&&r.메시지)||'자료를 가져오지 못했습니다'); return; }
-          글복사_(이번주요약문자_(r, ((typeof 시작정보!=='undefined'&&시작정보&&시작정보.학원이름)||'홍제인왕해법영어'))).then(function(){ toast('이번 주 요약을 복사했습니다'); });
+          글복사_(이번주요약문자_(r, ((typeof 시작정보!=='undefined'&&시작정보&&시작정보.학원이름)||'홍제인왕영어'))).then(function(){ toast('이번 주 요약을 복사했습니다'); });
         }).catch(function(){ toast('자료를 가져오지 못했습니다'); });
       };
     });
@@ -13051,7 +13051,7 @@ function 파일검사(){
   }
 })();
 
-/* ===== 시안 맞추기 (2026-10-06c) — 「해법 영단어 (단일 파일)」 시안의 나머지 =====
+/* ===== 시안 맞추기 (2026-10-06c) — 「영단어학습프로그램 (단일 파일)」 시안의 나머지 =====
    비밀번호 점 · 순위 시상대 · 결과 둥근 그래프 · 내 스티커판 · 플래시카드 */
 (function(){
   function $(id){ return document.getElementById(id); }
@@ -13263,7 +13263,7 @@ function 파일검사(){
   function el(h){ var d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
   var bar=$('tabbar');
   if(bar){
-    bar.insertBefore(el('<div class="hbtbrand"><small>홍제인왕해법영어</small><b>해법 영단어</b></div>'), bar.firstChild);
+    bar.insertBefore(el('<div class="hbtbrand"><small>홍제인왕영어</small><b>영단어학습프로그램</b></div>'), bar.firstChild);
     var 꼬리=el('<div class="hbtfoot"><b id="hbTName"></b><button type="button" id="hbTOut"><span>나가기</span></button></div>');
     bar.appendChild(꼬리);
     $('hbTOut').onclick=function(){ var o=$('btnLogout'); if(o) o.click(); };

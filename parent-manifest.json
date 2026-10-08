@@ -1,6 +1,6 @@
 {
-  "name": "홍제인왕해법영어 학부모",
-  "short_name": "해법 학부모",
+  "name": "홍제인왕영어 학부모",
+  "short_name": "영단어학습프로그램 학부모",
   "description": "아이의 숙제와 시험을 보는 곳",
   "start_url": "parent.html",
   "scope": "parent.html",

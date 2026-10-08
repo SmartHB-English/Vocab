@@ -19,7 +19,7 @@
   box.setAttribute('role', 'status');
   box.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#F6F4F1;display:flex;' +
     'flex-direction:column;align-items:center;justify-content:center;gap:18px;font-family:inherit;color:#1C1917';
-  box.innerHTML = '<div style="font-size:30px;font-weight:800;letter-spacing:-.03em">해법 영단어</div>' +
+  box.innerHTML = '<div style="font-size:30px;font-weight:800;letter-spacing:-.03em">영단어학습프로그램</div>' +
     '<div id="abMsg" style="font-size:15px;color:#78716C">업데이트 확인 중…</div>' +
     '<div style="width:180px;height:4px;border-radius:2px;background:#E7E5E4;overflow:hidden">' +
     '<div id="abBar" style="width:0;height:100%;background:#FF9500;transition:width .2s"></div></div>';

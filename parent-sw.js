@@ -34,13 +34,36 @@
   root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request };
 })(typeof self !== 'undefined' ? self : globalThis);
 /* END GENERATED services/api-client.js */
-/* 해법 영단어 학부모 — 알림 일꾼(서비스 워커)
+/* 영단어학습프로그램 학부모 — 알림 일꾼(서비스 워커)
  * 내보낼 때 H:\haebeop-vocab\parent-sw.js 로 그대로 복사한다 (저장소 맨 위, 학생 앱의 sw.js 와 따로).
  * parent.html 이 범위를 「./parent.html」 로 좁혀 등록한다 — 학생 앱(index.html)의 알림 일꾼을 건드리지 않게.
  * 알림이 오면 깨어나서, 우리 아이 숙제가 몇 개 남았는지 물어본 뒤 띄운다.
  * 알림 안에 글을 실어 보내지 않으므로(빈 알림) 암호화가 필요 없다.
  * 묻는 것은 학부모보기(토큰, 알림만) — 이름과 안 낸 숙제 수만 받는다. 「본 때」 는 안 적힌다. */
-var 칸이름 = '해법학부모-설정';
+var 칸이름 = '영단어학습-학부모-설정';
+
+/* 2026-10-08 앱 이름을 「영단어학습프로그램」 으로 바꾸면서 저장 칸 이름도 바꿨다 (옛칸이름 → 칸이름).
+   이미 설치한 기기의 옛 칸에 적힌 것을 activate 때 한 번 새 칸으로 옮기고 옛 칸은 지운다.
+   모든 기기가 한 번씩 깨어난 뒤(한참 뒤) 이 상수와 옛칸옮기기_ 를 지운다.
+   여기서 터지면 알림이 통째로 죽는다 — 무슨 일이 있어도 넘어간다 */
+var 옛칸이름 = '해법학부모-설정';
+function 옛칸옮기기_(){
+  try{
+    return caches.has(옛칸이름).then(function(있다){
+      if(!있다) return;
+      return Promise.all([caches.open(옛칸이름), caches.open(칸이름)]).then(function(둘){
+        var 옛 = 둘[0], 새 = 둘[1];
+        return 옛.keys().then(function(요청들){
+          return Promise.all(요청들.map(function(q){
+            return Promise.all([옛.match(q), 새.match(q)]).then(function(r){
+              return (r[0] && !r[1]) ? 새.put(q, r[0]) : null;     /* 새 칸에 이미 있으면 새것이 맞다 */
+            });
+          }));
+        });
+      }).then(function(){ return caches.delete(옛칸이름); });
+    }).catch(function(){});
+  }catch(e){ return Promise.resolve(); }
+}
 var 내정보칸 = '/__학부모정보';
 
 function 내정보(){
@@ -52,7 +75,9 @@ function 내정보(){
 }
 
 self.addEventListener('install', function(){ self.skipWaiting(); });
-self.addEventListener('activate', function(e){ e.waitUntil(self.clients.claim()); });
+self.addEventListener('activate', function(e){
+  e.waitUntil(옛칸옮기기_().then(function(){ return self.clients.claim(); }));
+});
 /* fetch 는 가로채지 않는다 — 늘 새 자료를 본다 (빈 fetch 손잡이는 오히려 느리게 한다) */
 
 /* 화면이 「창구 · 토큰 · 주소」 를 알려 주면 적어 둔다 */
@@ -74,7 +99,7 @@ function 배지(n){
 
 self.addEventListener('push', function(e){
   e.waitUntil(내정보().then(function(me){
-    var 기본 = { 제목:'해법 영단어', 글:'아이의 학습 소식이 있어요.' };
+    var 기본 = { 제목:'영단어학습프로그램', 글:'아이의 학습 소식이 있어요.' };
     if(!me || !me.창구 || !me.토큰) return 띄우기(기본, me);
     return VocabApi.post(me.창구, '학부모보기', [me.토큰, true]).then(function(r){
       var v = r && r.ok && r.값;
@@ -93,7 +118,7 @@ function 띄우기(x, me){
     body: x.글,
     icon: 'icon-192.png',
     badge: 'icon-192.png',
-    tag: '해법학부모',
+    tag: '영단어학습프로그램-학부모',
     renotify: true,
     data: { 열기: (me && me.주소) || './parent.html' }      /* 토큰이 든 주소로 연다 — 「./」 만 열면 토큰이 없다 */
   });
