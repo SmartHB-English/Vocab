@@ -4001,7 +4001,7 @@ function 자동로그인_(){
   var 가림 = document.createElement('div');
   가림.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:var(--bg,#F6F4F1);display:flex;' +
     'align-items:center;justify-content:center;font-size:16px;color:var(--sub,#78716C)';
-  가림.textContent = '들어가는 중…';
+  가림.textContent = '로그인 중…';
   document.body.appendChild(가림);
   var 치우기 = function(){ if(가림.parentNode) 가림.remove(); };
   setTimeout(치우기, 15000);   /* 그래도 안 끝나면 로그인 화면이라도 보여 준다 */
