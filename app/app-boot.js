@@ -40,9 +40,9 @@
   fetch(VERSION_URL + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (v) {
-      if (!v || !v.version || !v.url || v.version === BUNDLE_VERSION) return start();
+      if (!v || !v.version || !v.url || !v.checksum || v.version === BUNDLE_VERSION) return start();
       msg.textContent = '업데이트 중… 0%';
-      return updater('download', { url: v.url, version: v.version }).then(function (b) {
+      return updater('download', { url: v.url, version: v.version, checksum: v.checksum }).then(function (b) {
         if (done) return updater('next', { id: b.id });   /* 20초를 넘겼으면 다음 실행 때 적용 */
         msg.textContent = '업데이트 적용 중…';
         return updater('set', { id: b.id });               /* 새 번들로 다시 연다 */

@@ -25,5 +25,7 @@ rmSync('app-update', { recursive: true, force: true });
 mkdirSync('app-update');
 const zip = `bundle-${version}.zip`;
 execFileSync('zip', ['-qrX', `../app-update/${zip}`, '.'], { cwd: 'www' });
-writeFileSync('app-update/version.json', JSON.stringify({ version, url: PAGES + zip }, null, 2) + '\n');
+// capgo v8은 sha256 체크섬이 없으면 다운로드를 거부한다
+const checksum = createHash('sha256').update(readFileSync(`app-update/${zip}`)).digest('hex');
+writeFileSync('app-update/version.json', JSON.stringify({ version, url: PAGES + zip, checksum }, null, 2) + '\n');
 console.log(`www/ + app-update/${zip}`);
