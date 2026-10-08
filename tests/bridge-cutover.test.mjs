@@ -90,3 +90,19 @@ test('bridge account edits distinguish existing credentials from new links befor
  const deleted=committed.writes.find(w=>w.delete===prefix+'links/'+oldToken);assert.equal(deleted.currentDocument.updateTime,'2026-10-07T11:00:00Z');
  assert.ok(committed.writes.some(w=>w.verify===prefix+'tables/'+sheetId('설정')));
 });
+test('push send splits app(FCM) subscriptions from web push and keeps line order',()=>{
+ const {context}=bridge('active');const calls=[];
+ const engine={call:(fn,args)=>{calls.push([fn,args]);
+   if(fn==='선생님로그인')return {ok:args[0]==='9876'};
+   if(fn==='공지가져오기')return [{제목:'숙제',내용:'오늘 30개'}];
+   if(fn==='푸시전송')return {ok:true,줄:args[1].map(x=>({주소:x.주소,상태:201,글:''}))};}};
+ let sent;context.fbFcmSend_=(tokens,title,body)=>{sent={tokens,title,body};return tokens.map(()=>({상태:200,글:''}));};
+ const list=[{주소:'fcm:A'},{주소:'https://web.push/1',표:'t',공개키:'k'},{주소:'fcm:B'}];
+ const r=context.fbPushSend_(engine,['9876',list]);
+ assert.deepEqual(JSON.parse(JSON.stringify(r.줄)).map(x=>[x.주소,x.상태]),[['fcm:A',200],['https://web.push/1',201],['fcm:B',200]]);
+ assert.deepEqual(JSON.parse(JSON.stringify(sent)),{tokens:['A','B'],title:'숙제',body:'오늘 30개'});
+ assert.deepEqual(JSON.parse(JSON.stringify(calls.find(c=>c[0]==='푸시전송')[1][1])),[list[1]]);
+ assert.equal(context.fbPushSend_(engine,['0000',list]).ok,false);
+ context.fbFcmSend_=()=>{throw Error('앱 알림 설정이 없습니다');};
+ assert.deepEqual(JSON.parse(JSON.stringify(context.fbPushSend_(engine,['9876',[{주소:'fcm:A'}]]).줄)),[{주소:'fcm:A',상태:0,글:'앱 알림 설정이 없습니다'}]);
+});

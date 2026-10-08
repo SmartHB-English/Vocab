@@ -98,6 +98,8 @@ var 열린기능_ = {
   게임순위: 게임순위,
   공지가져오기: 공지가져오기,
   푸시공개키: 푸시공개키,
+  내구독목록: 내구독목록,
+  알림받기: 알림받기,
   구독등록: 구독등록,
   구독해제: 구독해제,
   선생님로그인: 선생님로그인,
@@ -3009,6 +3011,40 @@ function 구독해제(주소) {
     if (s_(줄들[i][3]) === t) { sh.deleteRow(i + 2); 지움++; }
   }
   return { ok: true, 개수: 지움 };
+}
+
+/** 학부모 페이지가 적은 줄인가 (parent.html 기기글_) — 학생 알림 받는 곳과 따로 센다 */
+function 학부모기기_(기기) { return s_(기기).indexOf('학부모') === 0; }
+
+/** 학생 알림 받기 — 한 곳(앱 또는 웹)만. 이 학생의 다른 기기는 지우고 이 기기를 적는다. 학부모 기기는 그대로 */
+function 알림받기(이름, 구독, 기기) {
+  var t = s_(이름), 주소 = s_(구독 && 구독.주소);
+  if (!t || !주소) return { ok: false, 메시지: '주소가 없습니다.' };
+  var sh = 푸시시트_();
+  var 줄들 = [];
+  try { 줄들 = rows_(SHEET.푸시); } catch (e) { 줄들 = []; }
+  for (var i = 줄들.length - 1; i >= 0; i--) {
+    var 내것 = s_(줄들[i][2]) === t && !학부모기기_(줄들[i][6]);
+    if (내것 || s_(줄들[i][3]) === 주소) sh.deleteRow(i + 2);
+  }
+  sh.appendRow([new Date(), '', t, 주소, s_(구독.p256dh), s_(구독.auth), s_(기기)]);
+  sh.getRange(sh.getLastRow(), 1).setNumberFormat('yyyy-MM-dd HH:mm');
+  return { ok: true };
+}
+
+/** 학생 화면 — 내 알림 받는 곳 (앱 'fcm:' / 웹 주소, 학부모 기기 빼고) */
+function 내구독목록(이름) {
+  var t = s_(이름);
+  if (!t) return [];
+  var 줄들 = [];
+  try { 줄들 = rows_(SHEET.푸시); } catch (e) { return []; }
+  var out = [];
+  줄들.forEach(function (x) {
+    if (s_(x[2]) !== t || !s_(x[3]) || 학부모기기_(x[6])) return;
+    out.push({ 주소: s_(x[3]), 기기: s_(x[6]),
+               켠때: x[0] instanceof Date ? ymd_(x[0]) : s_(x[0]).slice(0, 10) });
+  });
+  return out;
 }
 
 /** 선생님이 알림을 쏠 대상 목록 (이름들을 주면 그 학생들만) */

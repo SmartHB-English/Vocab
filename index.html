@@ -3428,6 +3428,8 @@ var DEMO = {
     return {ok:true, 공개키:DEMO_열쇠.공개키};
   },
   구독등록:function(){ return {ok:true}; },
+  내구독목록:function(){ return []; },
+  알림받기:function(){ return {ok:true}; },
   구독해제:function(){ return {ok:true}; },
   구독목록:function(pw,이름들){
     var 고른=(이름들||[]).slice();
@@ -6144,15 +6146,66 @@ function 그리기_공지줄(){
    휴대폰 알림 — 앱을 안 열어도 뜨는 것
    아이폰은 홈 화면에 추가한 뒤에만 켤 수 있다.
 ================================================================ */
-var 알림 = { 됨:false, 일꾼:null, 공개키:'', 지금:'물어보는중' };
+var 알림 = { 됨:false, 일꾼:null, 공개키:'', 지금:'물어보는중', 목록:[], 내주소:'' };  // 목록 = 서버의 내 받는 곳
 
 function 아이폰_(){ return /iPad|iPhone|iPod/.test(navigator.userAgent); }
 function 홈화면_(){
   return window.matchMedia('(display-mode: standalone)').matches ||
          navigator.standalone === true;
 }
+/* 앱(Capacitor) WebView에는 웹 푸시가 없다 — FCM 토큰을 'fcm:토큰' 주소로 같은 푸시 표에 적는다.
+   플러그인이 없는 옛 앱 빌드(웹만 OTA로 새것)에서는 알림 줄을 숨긴다. */
+function 앱_(){ var C=window.Capacitor; return !!(C && C.isNativePlatform && C.isNativePlatform()); }
+function 앱푸시됨_(){ return 앱_() && window.Capacitor.isPluginAvailable('FirebaseMessaging'); }
+function 앱푸시_(m, o){ return window.Capacitor.nativePromise('FirebaseMessaging', m, o||{}); }
+
+/* 학생은 한 곳(앱 또는 웹)에서만 받는다.
+   알림받기 = 이 학생의 다른 기기를 지우고 이 기기를 적는다 (학부모 기기는 그대로). */
+function 받는곳등록_(주소, p256dh, auth){
+  var 기기 = navigator.userAgent.slice(0,80);
+  return api('알림받기', S.학생.이름, {주소:주소, p256dh:p256dh||'', auth:auth||''}, 기기)
+    .then(function(r){
+      if(!r || !r.ok) throw new Error((r && r.메시지) || '등록하지 못했어요');
+      알림.내주소 = 주소;
+      알림.목록 = [{주소:주소, 기기:기기}];
+    });
+}
+/* 내 알림 받는 곳 — 실패하면 null 이라 '등록 안 됨'으로 착각하지 않는다 */
+function 내구독읽기_(){
+  if(!S.학생) return Promise.resolve(null);
+  return api('내구독목록', S.학생.이름).then(function(r){
+    알림.목록 = Array.isArray(r) ? r : [];
+    return 알림.목록;
+  }).catch(function(){ return null; });
+}
+function 목록에있나_(목록, 주소){
+  return !!주소 && (목록||[]).some(function(x){ return x.주소===주소; });
+}
+/* 지금 다른 기기에서 받고 있으면 그 줄 */
+function 다른곳_(){
+  return (알림.목록||[]).filter(function(x){ return x.주소!==알림.내주소; })[0] || null;
+}
+function 곳이름_(x){
+  return (짧은기기_(x.기기) || '다른 기기') + (x.주소.indexOf('fcm:')===0 ? ' 앱' : ' 웹');
+}
+function 여기로바꿀까_(){
+  var x = 다른곳_();
+  return !x || confirm('지금은 '+곳이름_(x)+'에서 알림을 받고 있어요.\n이 기기로 바꿀까요? (그쪽은 더 이상 안 와요)');
+}
+var 앱알림듣는중 = false;
+/* 앱을 보고 있을 때 온 알림 — 아이폰은 배너가 뜨지만 안드로이드는 안 떠서 토스트로 보여 준다 */
+function 앱알림듣기_(){
+  if(앱알림듣는중 || window.Capacitor.getPlatform()!=='android') return;
+  앱알림듣는중 = true;
+  window.Capacitor.addListener('FirebaseMessaging', 'notificationReceived', function(e){
+    var n = (e && e.notification) || {};
+    toast(n.title ? n.title+(n.body ? ' — '+n.body : '') : '선생님이 알림을 보냈어요');
+  });
+}
+
 /* 이 기기에서 알림을 켤 수 있나 */
 function 알림가능_(){
+  if(앱_()) return 앱푸시됨_();
   if(!('serviceWorker' in navigator) || !('PushManager' in window) ||
      !('Notification' in window)) return false;
   if(아이폰_() && !홈화면_()) return false;      // 아이폰은 홈 화면 앱에서만
@@ -6173,10 +6226,19 @@ function b64로_(buf){
 
 /* 일꾼을 등록하고 지금 상태를 알아 둔다 */
 function 알림채비_(){
+  if(앱_()) return 앱알림채비_();
   if(!('serviceWorker' in navigator)) { 알림.지금='안됨'; return Promise.resolve(); }
   var 일꾼 = null;
   return navigator.serviceWorker.register('sw.js')
     .then(function(r){ 알림.일꾼=r; 일꾼=r; return r.pushManager.getSubscription(); })
+    .then(function(sub){
+      /* 받는 곳이 다른 기기로 바뀌었으면 여기서도 끈다 (목록을 못 읽으면 그대로 둔다) */
+      return 내구독읽기_().then(function(목록){
+        if(sub && 목록 && !목록에있나_(목록, sub.endpoint))
+          return sub.unsubscribe().catch(function(){}).then(function(){ return null; });
+        return sub;
+      });
+    })
     .then(function(sub){
       /* 선생님이 열쇠를 새로 만들었으면, 예전 열쇠로 켜 둔 것은 안 먹는다.
          아이에게 다시 켜라고 하지 말고 앱이 알아서 맞춘다. */
@@ -6189,10 +6251,28 @@ function 알림채비_(){
     })
     .then(function(sub){
       알림.됨 = !!sub;
+      알림.내주소 = sub ? sub.endpoint : '';
       알림.지금 = sub ? '켬' : (Notification.permission==='denied' ? '막힘' : '끔');
       내정보보내기_();
     })
     .catch(function(){ 알림.지금='안됨'; });
+}
+function 앱알림채비_(){
+  if(!앱푸시됨_()){ 알림.지금='안됨'; return Promise.resolve(); }
+  앱알림듣기_();
+  /* 로그인하면 바로 권한을 묻는다 (이미 답했으면 OS가 다시 묻지 않는다).
+     등록은 하지 않는다 — 이 기기 토큰이 지금 받는 곳인지만 본다. */
+  return 앱푸시_('requestPermissions').then(function(p){
+    var 허락 = p && p.receive;
+    return Promise.all([
+      허락==='granted' ? 앱푸시_('getToken') : null,
+      내구독읽기_()
+    ]).then(function(둘){
+      알림.내주소 = 둘[0] ? 'fcm:'+둘[0].token : '';
+      알림.됨 = 허락==='granted' && 목록에있나_(둘[1], 알림.내주소);
+      알림.지금 = 알림.됨 ? '켬' : (허락==='denied' ? '막힘' : '끔');
+    });
+  }).catch(function(){ 알림.됨=false; 알림.지금='끔'; });
 }
 /* 켜 둔 구독이 지금 열쇠로 만든 것인가 — 글자가 아니라 바이트로 견준다 */
 function 열쇠같나_(sub, 공개키){
@@ -6236,10 +6316,12 @@ function 내정보보내기_(){
 }
 
 function 알림켜기(){
+  if(앱_()) return 앱알림켜기_();
   if(!알림가능_()){ 알림안내(); return; }
   if(Notification.permission==='denied'){
     toast('휴대폰 설정에서 이 앱의 알림을 막아 두었어요'); return;
   }
+  if(!여기로바꿀까_()) return;
   api('푸시공개키').then(function(k){
     알림.공개키 = String(k||'');
     if(!알림.공개키){ toast('선생님이 아직 알림을 켜 두지 않았어요'); return; }
@@ -6252,11 +6334,7 @@ function 알림켜기(){
         });
       }).then(function(sub){
         var j = sub.toJSON();
-        return api('구독등록', S.학생.이름, {
-          주소: sub.endpoint,
-          p256dh: (j.keys&&j.keys.p256dh)||'',
-          auth: (j.keys&&j.keys.auth)||''
-        }, navigator.userAgent.slice(0,80));
+        return 받는곳등록_(sub.endpoint, j.keys&&j.keys.p256dh, j.keys&&j.keys.auth);
       }).then(function(){
         알림.됨=true; 알림.지금='켬';
         내정보보내기_();
@@ -6268,13 +6346,37 @@ function 알림켜기(){
   }).catch(function(){ toast('알림을 켜지 못했어요'); });
 }
 
+function 앱알림켜기_(){
+  if(!앱푸시됨_() || !여기로바꿀까_()) return;
+  앱푸시_('requestPermissions').then(function(p){
+    if(!p || p.receive!=='granted'){ toast('휴대폰 설정에서 이 앱의 알림을 허용해 주세요'); return; }
+    return 앱푸시_('getToken').then(function(r){ return 받는곳등록_('fcm:'+r.token); }).then(function(){
+      알림.됨=true; 알림.지금='켬';
+      그리기_알림줄();
+      toast('알림을 켰어요 — 숙제가 나오면 알려 줄게요');
+      반짝('🔔');
+    });
+  }).catch(function(){ toast('알림을 켜지 못했어요'); });
+}
+function 앱알림끄기_(){
+  var 주소 = 알림.내주소;
+  api('구독해제', 주소).then(function(){
+    알림.목록 = 알림.목록.filter(function(x){ return x.주소!==주소; });
+    알림.됨=false; 알림.지금='끔'; 그리기_알림줄();
+    toast('알림을 껐어요');
+  }).catch(function(){ toast('끄지 못했어요'); });
+}
+
 function 알림끄기(){
+  if(앱_()) return 앱알림끄기_();
   if(!알림.일꾼) return;
   navigator.serviceWorker.ready.then(function(r){ return r.pushManager.getSubscription(); })
     .then(function(sub){
       if(!sub) return;
       var 주소=sub.endpoint;
-      return sub.unsubscribe().then(function(){ return api('구독해제', 주소); });
+      return sub.unsubscribe().then(function(){ return api('구독해제', 주소); }).then(function(){
+        알림.목록 = 알림.목록.filter(function(x){ return x.주소!==주소; });
+      });
     }).then(function(){
       알림.됨=false; 알림.지금='끔'; 그리기_알림줄();
       toast('알림을 껐어요');
@@ -6304,19 +6406,21 @@ function 알림안내(){
 /* 홈 맨 아래 알림 줄 */
 function 그리기_알림줄(){
   var box=$('bellBox'); if(!box) return;
-  if(알림.지금==='안됨' && !아이폰_()){ box.innerHTML=''; return; }
+  if(알림.지금==='안됨' && (앱_() || !아이폰_())){ box.innerHTML=''; return; }
   var 켬 = 알림.됨;
-  var 아이폰안내 = 아이폰_() && !홈화면_();
+  var 아이폰안내 = !앱_() && 아이폰_() && !홈화면_();
+  var 다른 = !켬 && 다른곳_();
   box.innerHTML =
     '<button class="bellbar'+(켬?' on':'')+'" id="bellGo" type="button">'+
       '<span class="bi">'+알림아이콘_('공지')+'</span>'+
-      '<span class="bt"><b>'+(켬?'알림을 받고 있어요':'휴대폰으로 알림 받기')+'</b>'+
+      '<span class="bt"><b>'+(켬?'이 기기에서 알림을 받고 있어요':'휴대폰으로 알림 받기')+'</b>'+
         '<i>'+(켬 ? '숙제가 나오면 휴대폰에 떠요'
+              : 다른 ? '지금은 '+esc(곳이름_(다른))+'에서 받고 있어요'
               : (아이폰안내 ? '홈 화면에 추가하면 켤 수 있어요'
                             : '숙제·공지를 앱을 안 켜도 받아요'))+'</i></span>'+
-      '<span class="bg">'+(켬?'끄기':'켜기')+'</span>'+
+      '<span class="bg">'+(켬?'끄기':다른?'여기로':'켜기')+'</span>'+
     '</button>'+
-    (켬 ? '<button class="belltest" id="bellTest" type="button">'+
+    (켬 && !앱_() ? '<button class="belltest" id="bellTest" type="button">'+
             '알림이 잘 오는지 시험해 보기</button>' : '');
   $('bellGo').onclick = 켬 ? 알림끄기 : 알림켜기;
   if($('bellTest')) $('bellTest').onclick = 알림시험;
@@ -8467,12 +8571,13 @@ function 알림탈_(상태, 글){
    브라우저에서 알림 서버로 바로 보내면 CORS 로 막히기 때문이다. */
 function 알림쏘기(구독들, 열쇠){
   /* 표는 '알림 서버 주소(origin)' 마다 하나면 된다 — 한 번만 만들어 돌려 쓴다 */
+  /* 'fcm:' 주소는 앱 — 표가 필요 없고 앱스 스크립트가 FCM으로 보낸다 */
   var 집들 = {};
   구독들.forEach(function(sub){
+    if(String(sub.주소).indexOf('fcm:')===0) return;
     try { 집들[new URL(sub.주소).origin] = 1; } catch(e){}
   });
   var 이름들 = Object.keys(집들);
-  if(!이름들.length) return Promise.resolve({보냄:0, 실패:0, 죽은주소:[], 줄:[]});
 
   return Promise.all(이름들.map(function(집){
     return 알림표_(열쇠.비밀키, 집).then(function(표){ return {집:집, 표:표}; });
@@ -8482,6 +8587,7 @@ function 알림쏘기(구독들, 열쇠){
 
     var 보낼것 = [], 짝 = [];
     구독들.forEach(function(sub){
+      if(String(sub.주소).indexOf('fcm:')===0){ 보낼것.push({ 주소:sub.주소 }); 짝.push(sub); return; }
       var 집 = '';
       try { 집 = new URL(sub.주소).origin; } catch(e){ return; }
       보낼것.push({ 주소:sub.주소, 표:표맵[집], 공개키:열쇠.공개키 });

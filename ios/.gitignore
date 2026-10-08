@@ -11,3 +11,6 @@ capacitor-cordova-ios-plugins
 # Generated Config files
 App/App/capacitor.config.json
 App/App/config.xml
+
+# cap sync가 만드는 SPM 심볼릭 링크 (절대경로)
+App/CapApp-SPM/symlinks

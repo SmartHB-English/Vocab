@@ -117,3 +117,16 @@ test('result: lock contention returns retry message without writing', () => {
   c.sheet_ = () => {throw new Error('must not write');};
   assert.match(c.결과저장({}).메시지,/잠시 후/);
 });
+test('push: student sees only own app/web subscriptions', () => {
+  const c = legacy({ 푸시: [
+    [new Date('2026-10-01T09:00:00+09:00'), '', '테스트 학생', 'fcm:TOKEN', '', '', 'iPhone'],
+    ['2026-09-20 10:00', '', '테스트 학생', 'https://web.push/1', 'p', 'a', 'Windows'],
+    ['2026-09-20 10:00', '', '다른 학생', 'https://web.push/2', 'p', 'a', 'Android'],
+    ['2026-09-20 10:00', '', '테스트 학생', 'https://web.push/3', 'p', 'a', '학부모 · 아이폰'],
+  ] });
+  assert.deepEqual(plain(c.내구독목록('테스트 학생')), [
+    { 주소: 'fcm:TOKEN', 기기: 'iPhone', 켠때: '2026-10-01' },
+    { 주소: 'https://web.push/1', 기기: 'Windows', 켠때: '2026-09-20' },
+  ]);
+  assert.deepEqual(plain(c.내구독목록('')), []);
+});
