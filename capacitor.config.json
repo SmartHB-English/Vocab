@@ -1,0 +1,20 @@
+{
+  "appId": "com.smarthb.vocab",
+  "appName": "해법 영단어",
+  "webDir": "www",
+  "server": {
+    "hostname": "app.smarthb-vocab",
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#F6F4F1"
+    },
+    "CapacitorUpdater": {
+      "autoUpdate": false,
+      "statsUrl": "",
+      "channelUrl": ""
+    }
+  }
+}
