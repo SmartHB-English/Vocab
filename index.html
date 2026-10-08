@@ -2319,6 +2319,11 @@ html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(
 }
 /* ===== 시안 맞추기 끝 ===== */
 
+/* 자동 로그인 체크 — 테마의 로그인 label·input 규칙이 덮지 못하게 */
+html #s-login .autochk,html #tLogin .autochk{display:flex !important;align-items:center;justify-content:center;gap:8px;
+  margin:14px 0 12px !important;font-size:15px !important;font-weight:600;color:var(--sub) !important;text-align:center;cursor:pointer;user-select:none}
+html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !important;height:20px !important;margin:0 !important;
+  accent-color:var(--primary,#FF9500) !important;flex:none !important;cursor:pointer}
 </style>
 </head>
 <body>
@@ -2348,7 +2353,7 @@ html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(
         <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
         <button type="button" class="kf" data-k="clr">다 지우기</button><button type="button" data-k="0">0</button><button type="button" class="kf" data-k="del">⌫</button>
       </div>
-      <div class="mt2"></div>
+      <label class="autochk"><input type="checkbox" id="inAuto"> 자동 로그인</label>
       <button class="btn" id="btnLogin">시작하기</button>
       <div id="loginMsg" class="center sub mt"></div>
     </div>
@@ -2883,7 +2888,7 @@ html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(
     <div id="tLogin" class="card">
       <label>선생님 비밀번호</label>
       <input id="tPw" type="password" placeholder="비밀번호">
-      <div class="mt"></div>
+      <label class="autochk"><input type="checkbox" id="tAuto"> 자동 로그인</label>
       <button class="btn" id="btnTLogin">들어가기</button>
       <div class="center sub mt" id="tMsg"></div>
     </div>
@@ -3990,7 +3995,7 @@ function 반짝(emoji){
    로그인 화면
 ================================================================ */
 var 시작정보 = null;
-/* 자동 로그인 — 개인 폰 전제. 한 번 들어오면 「나가기」 전까지 다음에 켜도 바로 들어간다.
+/* 자동 로그인 — 로그인 화면의 「자동 로그인」을 체크했을 때만(기본 꺼짐). 「나가기」 전까지 다음에 켜도 바로 들어간다.
    마지막에 들어온 쪽(학생/선생님) 하나만 기억한다. PIN이 바뀌면 들어가기가 실패해 조용히 풀린다. */
 var 자동열쇠 = 'hb_auto';
 function 자동기억_(v){ try{ v ? localStorage.setItem(자동열쇠, JSON.stringify(v)) : localStorage.removeItem(자동열쇠); }catch(e){} }
@@ -4005,9 +4010,9 @@ function 자동로그인_(){
   document.body.appendChild(가림);
   var 치우기 = function(){ if(가림.parentNode) 가림.remove(); };
   setTimeout(치우기, 15000);   /* 그래도 안 끝나면 로그인 화면이라도 보여 준다 */
-  if(a.역할 === '선생님'){ show('teacher'); 선생님들어가기_(a.비번).then(치우기, 치우기); return; }
+  if(a.역할 === '선생님'){ show('teacher'); 선생님들어가기_(a.비번, true).then(치우기, 치우기); return; }
   api('로그인',a.이름,a.비번).then(function(r){
-    if(r.ok) 학생들어가기_(r, a.이름, a.비번);
+    if(r.ok) 학생들어가기_(r, a.이름, a.비번, true);
     else 자동기억_(null);
   }).catch(function(){}).then(치우기);   /* 네트워크 탓이면 기억은 남긴다 */
 }
@@ -4030,11 +4035,11 @@ $('btnLogin').onclick = function(){
   $('loginMsg').textContent='확인 중…';
   api('로그인',n,p).then(function(r){
     if(!r.ok){ $('loginMsg').textContent=r.메시지; return; }
-    학생들어가기_(r, n, p);
+    학생들어가기_(r, n, p, $('inAuto').checked);
   }).catch(function(e){ $('loginMsg').textContent='들어가지 못했습니다. '+e; });
 };
-function 학생들어가기_(r, n, p){
-    자동기억_({역할:'학생', 이름:n, 비번:p});
+function 학생들어가기_(r, n, p, 기억할까){
+    if(기억할까) 자동기억_({역할:'학생', 이름:n, 비번:p});
     $('loginMsg').textContent='';
     S.학생=r.학생;
     S.내단어장 = r.단어장목록 || null;   // 선생님이 지정한 것만. 없으면 전부
@@ -8197,12 +8202,12 @@ function 월간순위보기(){
    선생님 화면
 ================================================================ */
 var T={pw:'',data:null,tab:'people',선택숙제:{},수정숙제:null,배정:null,배정변경:{},배정반:'',배정선택:null,배정찾기:'',명단:null,학생수정:null,명단반:'',명단찾기:'',시상:null,시상달:'',시상달목록:null,책단어:{},종이:null};
-$('btnTLogin').onclick=function(){ 선생님들어가기_($('tPw').value); };
-function 선생님들어가기_(pw){
+$('btnTLogin').onclick=function(){ 선생님들어가기_($('tPw').value, $('tAuto').checked); };
+function 선생님들어가기_(pw, 기억할까){
   $('tMsg').textContent='확인 중…';
   return api('선생님로그인',pw).then(function(r){
     if(!r.ok){ $('tMsg').textContent='비밀번호가 다릅니다.'; if((자동읽기_()||{}).역할==='선생님') 자동기억_(null); return; }
-    자동기억_({역할:'선생님', 비번:pw});
+    if(기억할까) 자동기억_({역할:'선생님', 비번:pw});
     T.pw=pw; $('tMsg').textContent='';
     $('tLogin').classList.add('hide'); $('tMain').classList.remove('hide');
     document.body.classList.add('desk');
