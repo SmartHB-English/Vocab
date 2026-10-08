@@ -485,6 +485,7 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
   padding:7px 15px;border-radius:99px}
 .exdone{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--ok)}
 .exsub{font-size:12px;font-weight:600;color:var(--sub);margin-top:6px}
+.exfail{font-size:12.5px;font-weight:800;color:var(--ng);margin-top:6px}
 .extime{display:flex;align-items:center;gap:8px;margin-top:11px}
 .extime span{font-size:11.5px;font-weight:800;background:var(--line);
   padding:5px 11px;border-radius:99px}
@@ -3007,7 +3008,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-08a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-08b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3611,8 +3612,8 @@ var DEMO = {
       제한시간:Number(h.제한시간)>0?Math.round(Number(h.제한시간)):0,
       외우기분:Number(h.외우기분)>0?Math.round(Number(h.외우기분)):0,
       단계:(h.단계==='연습'||h.단계==='시험')?h.단계:'',
-      통과점수:h.단계==='시험'&&h.통과점수!==''&&h.통과점수!==undefined?Number(h.통과점수)||0:'',
-      재응시:h.단계==='시험'&&h.재응시!==''&&h.재응시!==undefined?Number(h.재응시)||0:'',
+      통과점수:(h.단계==='시험'||(!h.단계&&종류==='시험'))&&h.통과점수!==''&&h.통과점수!==undefined?Number(h.통과점수)||0:'',
+      재응시:(h.단계==='시험'||(!h.단계&&종류==='시험'))&&h.재응시!==''&&h.재응시!==undefined?Number(h.재응시)||0:'',
       막힌사람:[],등록일:오늘,
       대상수:대상들.length,한사람:[],안한사람:대상들.slice()});
     return {ok:true,개수:1,대상:대상들.length,숙제:JSON.parse(JSON.stringify(DEMO_HW[DEMO_HW.length-1]))};},
@@ -4709,17 +4710,19 @@ function drawStreak(){
    브라우저 인쇄를 부른다. 인쇄 창에서 'PDF로 저장' 을 고르면 PDF 가 된다.
 ================================================================ */
 function 학원이름_(){ return (시작정보 && 시작정보.학원이름) || '홍제인왕해법영어'; }
-/* 숙제로 인정받으려면 넘겨야 하는 점수 (기본 80점). 시험은 한 번만 보므로 컷이 없다. */
+/* 숙제로 인정받으려면 넘겨야 하는 점수 (기본 80점). 시험도 그 시험의 통과점수(비면 이 점수)를 넘겨야 한다. */
 function 합격점(){
   var n = 시작정보 && 시작정보.합격점;
   n = Number(n);
   return (isFinite(n) && n>=0 && n<=100) ? n : 80;
 }
-/* 숙제로 인정하는 점수 — 수업의 연습 단계는 0 (한 번 내면 끝), 시험 단계는 그 숙제의 통과점수 */
+/* 숙제로 인정하는 점수 — 수업의 연습 단계는 0 (한 번 내면 끝), 시험 단계와 시험은 그 숙제의 통과점수.
+   서버 합격컷_ 과 같은 규칙이다 — 마감이 지난 시험만 예전처럼 0 (옛 시험을 되살리지 않는다) */
 function 숙제컷(h){
   if(h && h.단계==='연습') return 0;
-  if(h && h.단계==='시험') return (h.통과점수!=='' && h.통과점수!==undefined && h.통과점수!==null) ? Number(h.통과점수)||0 : 합격점();
-  return (h && 시험인가_(h)) ? 0 : 합격점();
+  if(h && !h.단계 && 시험인가_(h) && 옛시험_(h)) return 0;
+  if(h && (h.단계==='시험' || 시험인가_(h))) return (h.통과점수!=='' && h.통과점수!==undefined && h.통과점수!==null) ? Number(h.통과점수)||0 : 합격점();
+  return 합격점();
 }
 function 오늘한글_(){
   var d=new Date();
@@ -5511,6 +5514,19 @@ if($('kStReset')) $('kStReset').onclick = function(){
    (수업 안의 연습/시험 「단계」 와는 다른 것이다 — 그건 h.단계) 종류가 빈 옛 숙제는 숙제 쪽 */
 function 시험인가_(h){ return !!h && String(h.종류) === '시험'; }
 function 숙제인가_(h){ return !시험인가_(h); }
+/* 시험도 통과점수를 넘겨야 끝난다 — 못 넘기면 재응시만큼 다시 본다 (서버 다시보는시험_ · 시험다썼나_ 와 같은 셈).
+   마감이 지난 시험은 예전처럼 「봤으면 끝」. 남은응시가 안 오면(옛 서버 · 지난 시험) 셀 수 없으니 null */
+function 옛시험_(h){ return !!(h && h.마감일 && String(h.마감일) < 오늘값()); }
+function 시험남은_(h){ return (h && h.남은응시 !== null && h.남은응시 !== undefined) ? Number(h.남은응시)||0 : null; }
+function 시험다썼나_(h){ return !!h && !h.완료 && Number(h.응시수) > 0 && 시험남은_(h) === 0; }
+/* 들어가기 전에 보여 주는 말 — 몇 점을 넘겨야 하는지, 다시 볼 기회가 몇 번인지 */
+function 시험기회글_(h){
+  if(시험다썼나_(h)) return '다시 볼 기회를 다 썼어요';
+  var 남 = 시험남은_(h);
+  if(Number(h.응시수) > 0) return 남 > 1 ? 남+'번 더 볼 수 있어요' : '한 번 더 볼 수 있어요';
+  var 컷 = 숙제컷(h), 다시 = 남 === null ? 0 : 남 - 1;
+  return (컷 ? 컷+'점을 넘겨야 해요' : '시험') + (다시 > 0 ? ' · 다시 볼 기회 '+다시+'번' : '');
+}
 
 var 시험판 = null;     /* {방법, 단계:'외우기'|'시험'} */
 function 시험중_(){ return !!(시험판 && 시험판.단계 === '시험'); }
@@ -5519,7 +5535,7 @@ function 내시험들_(){
   return (S.숙제 || []).filter(function(h){ return 시험인가_(h); });
 }
 function 안본시험수_(){
-  return 내시험들_().filter(function(h){ return !h.완료; }).length;
+  return 내시험들_().filter(function(h){ return !h.완료 && !시험다썼나_(h); }).length;
 }
 
 function 시험탭열기(){
@@ -5548,8 +5564,9 @@ function 그리기_시험목록_(){
     return;
   }
 
-  var 안본것 = 것들.filter(function(h){ return !h.완료; });
-  var 본것 = 것들.filter(function(h){ return h.완료; });
+  /* 못 넘겼어도 기회가 남았으면 「봐야 할 시험」, 다 썼으면 아래로 */
+  var 안본것 = 것들.filter(function(h){ return !h.완료 && !시험다썼나_(h); });
+  var 본것 = 것들.filter(function(h){ return h.완료 || 시험다썼나_(h); });
   /* 시간은 시험마다 다르다 — 아래 안내는 안 본 시험 중에 외우기·제한이 하나라도 있는지로만 */
   var 외 = 안본것.some(function(h){ return 외우기분_(h) > 0; }),
       시 = 안본것.some(function(h){ return 시험분_(h) > 0; });
@@ -5557,17 +5574,21 @@ function 그리기_시험목록_(){
   function 카드(h){
     var 이름 = h.단어장 + ' ' + 학생범위글_(h.단어장, h.시작, h.끝);
     var 외 = 외우기분_(h), 시 = 시험분_(h);            /* 그 시험의 시간 */
-    var 끝났나 = !!h.완료;
-    return '<button class="excard' + (끝났나 ? ' done' : '') + '" data-ex="' +
-        S.숙제.indexOf(h) + '" type="button"' + (끝났나 ? ' disabled' : '') + '>' +
+    var 끝났나 = !!h.완료, 막힘 = 시험다썼나_(h), 닫힘 = 끝났나 || 막힘;
+    var 떨어짐 = !끝났나 && Number(h.응시수) > 0;       /* 못 넘겼다 — 그 점수를 먼저 보여 준다 */
+    return '<button class="excard' + (닫힘 ? ' done' : '') + '" data-ex="' +
+        S.숙제.indexOf(h) + '" type="button"' + (닫힘 ? ' disabled' : '') + '>' +
       '<div class="exhead">' +
         '<b>' + esc(이름) + '</b>' +
         (끝났나 ? '<span class="exdone">봤어요 · ' + (Number(h.점수)||0) + '점</span>'
-                : '<span class="exgo">시작</span>') + '</div>' +
+                : 막힘 ? ''
+                : '<span class="exgo">' + (떨어짐 ? '다시 보기' : '시작') + '</span>') + '</div>' +
+      (떨어짐 ? '<div class="exfail">✗ ' + (Number(h.마지막점수)||0) + '점 — ' + 숙제컷(h) + '점이 안 됐어요</div>' : '') +
       '<div class="exsub">' + esc(h.유형) + ' 시험' +
         (h.마감일 ? ' · ' + esc(h.마감일) + '까지' : '') +
-        ' · 한 번만 볼 수 있어요</div>' +
-      (끝났나 ? '' :
+        (끝났나 ? '' : ' · ' + 시험기회글_(h)) + '</div>' +
+      (막힘 ? '<div class="exfail">선생님께 말씀드리세요</div>' : '') +
+      (닫힘 ? '' :
         '<div class="extime">' +
           (외 ? '<span>외우기 ' + 외 + '분</span><em>›</em>' : '') +
           '<span>시험 ' + (시 ? 시 + '분' : '제한 없음') + '</span>' +
@@ -5587,7 +5608,8 @@ function 그리기_시험목록_(){
             '시간이 되면 저절로 시험이 시작돼요. 다 외웠으면 「바로 시험 보기」 로 미리 넘어가도 됩니다.<br>'
           : '시작을 누르면 바로 시험이 시작됩니다.<br>') +
       (시 ? '시험 시간이 다 되면 그때까지 쓴 것만 채점돼요.<br>' : '') +
-      '시험은 <b>한 번만</b> 볼 수 있고, 결과는 선생님께 전송됩니다.' +
+      '카드에 적힌 점수를 넘겨야 해요. 못 넘기면 <b>한 번 더</b> 볼 수 있어요 — 문제는 새로 섞이고 시간도 새로 가요.<br>' +
+      '결과는 선생님께 전송됩니다.' +
     '</div></div>';
 
   qsa('[data-ex]', box).forEach(function(b){
@@ -5951,16 +5973,31 @@ function drawQuick(){
   }
   낱말보이기();
 }
+/* 결과저장이 시험을 안 받았을 때 — 통과했거나 다시 볼 기회를 다 썼다. 까닭은 서버가 적어 보낸다 */
+function 시험막힘보이기_(r){
+  if(!(r && !r.ok && r.이미봄)) return false;
+  $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">'+
+    esc(r.메시지 || '이 시험은 더 볼 수 없어요.')+' 이번 결과는 저장되지 않았어요.</span>';
+  var h = S.현재숙제;
+  if(h){
+    if(r.다씀){ h.완료 = false; h.모자람 = true; h.남은응시 = 0; }
+    else { h.완료 = true; h.모자람 = false; }
+    if(유치인가_()) 유치길그리기_(); else { drawHw(); drawToday(); 그리기_시험목록_(); }
+  }
+  return true;
+}
 /* 숙제를 끝까지 내면 그 카드는 홈에서 사라진다 */
 function 숙제냈음(점수){
   if(!S.현재숙제 || S.재시험) return;
   var h = S.현재숙제;
   h.점수 = 점수;
-  /* 단계 숙제는 응시를 하나 센다 — 서버도 기록 개수로 세니 다시 불러와도 같다 */
-  if(h.단계){
+  /* 단계 숙제는 응시를 하나 센다 — 서버도 기록 개수로 세니 다시 불러와도 같다.
+     시험도 다시 보기가 있으니 센다 (남은 기회 · 시간 열쇠가 맞아야 한다) */
+  var 셀시험 = !h.단계 && 시험인가_(h) && 시험남은_(h) !== null;
+  if(h.단계 || 셀시험){
     h.응시수 = (Number(h.응시수)||0) + 1;
     h.마지막점수 = 점수;
-    if(h.단계==='시험'){
+    if(h.단계==='시험' || 셀시험){
       h.마지막틀린 = (S.오답||[]).map(function(w){ return w.en; });
       h.마지막틀린더 = 0; h.마지막자리 = null;          /* 방금 푼 것은 전부 들고 있다 */
       if(h.남은응시 !== null && h.남은응시 !== undefined) h.남은응시 = Math.max(0, Number(h.남은응시) - 1);
@@ -6360,7 +6397,7 @@ function drawHw(){
   function 언제(h){
     if(h.종류==='보충') return '보충 · 오늘까지';
     if(h.종류==='당일') return '오늘까지';
-    if(시험인가_(h)) return '시험 · 한 번만';
+    if(시험인가_(h)) return '시험 · '+시험기회글_(h);
     var d=h.남은일수;
     if(d===0) return '오늘까지';
     if(d===1) return '내일까지';
@@ -7140,7 +7177,9 @@ function 제한분_(h){ return (h && Number(h.제한시간) > 0) ? Number(h.제�
 function 제한열쇠_(h){
   return '제한시작_' + ((S.학생 && S.학생.이름) || '') + '|' +
          (h.낸때 || [h.단어장, h.칸||'', h.시작, h.끝, h.유형].join('/')) +
-         (h.단계==='시험' ? '|' + (Number(h.응시수)||0) : '');      /* 다시 보기는 새 응시 — 시간을 새로 센다 */
+         (h.단계==='시험' ? '|' + (Number(h.응시수)||0)      /* 다시 보기는 새 응시 — 시간을 새로 센다 */
+          /* 시험도 다시 볼 때는 새로 — 첫 응시는 예전 열쇠 그대로 (올리는 순간 보던 아이의 시간이 바뀌면 안 된다) */
+          : (시험인가_(h) && Number(h.응시수) > 0) ? '|' + Number(h.응시수) : '');
 }
 function 제한시작때_(h){ return Number(저장읽기_(제한열쇠_(h), 0)) || 0; }
 function 제한시작적기_(h){ 저장쓰기_(제한열쇠_(h), Date.now()); }
@@ -7745,12 +7784,7 @@ function finishQuiz(){
       $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">미리보기 모드 — 이 결과는 어디에도 저장되지 않았습니다.</span>';
       숙제냈음(점수);
     }else{
-      if(r && !r.ok && r.이미봄){
-        $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">'+
-          '이 시험은 이미 봤어요. 시험은 한 번만 볼 수 있어서 이번 결과는 저장되지 않았습니다.</span>';
-        숙제냈음(점수);
-        return;
-      }
+      if(시험막힘보이기_(r)) return;
       $('rSaved').textContent = (r&&r.ok)
         ? (탭시험 ? '시험이 끝났습니다. 선생님께 전송되었어요.'
            : (S.재시험 ? '오답노트를 한 것도 선생님께 전송되었어요.'
@@ -7802,10 +7836,16 @@ function 결과합격표시(점수){
   var h = S.재시험 ? null : S.현재숙제;
   var 컷 = h ? 숙제컷(h) : 0;
   var 모자람 = !!(h && 컷 && Number(점수) < 컷);
+  var 시험 = !!(h && !h.단계 && 시험인가_(h));
   f.classList.toggle('hide', !모자람);
-  b.classList.toggle('hide', !모자람);
+  b.classList.toggle('hide', !모자람 || 시험);      /* 시험은 「시험」 칸에서 다시 본다 — 외우기 · 시간을 새로 */
   var w=$('btnRetryWrong'); if(w) w.classList.toggle('ghost', 모자람);
-  if(모자람){
+  if(모자람 && 시험){
+    var 남 = 시험남은_(h); 남 = 남 === null ? 0 : Math.max(0, 남 - 1);   /* 방금 본 것을 뺀다 — 숙제냈음 은 저장 뒤에 센다 */
+    f.innerHTML='<b style="color:#B91C1C">'+컷+'점을 넘겨야 해요.</b><br>'+
+      '이번엔 '+Number(점수)+'점이에요. '+
+      (남 ? '틀린 단어를 보고 「시험」 칸에서 <b>한 번 더</b> 볼 수 있어요.' : '다시 볼 기회를 다 썼어요 — 선생님께 말씀드리세요.');
+  }else if(모자람){
     f.innerHTML='<b style="color:#B91C1C">'+컷+'점을 넘겨야 숙제가 인정돼요.</b><br>'+
       '이번엔 '+Number(점수)+'점이라 아직 <b>안 낸 숙제</b>로 남아 있어요. '+
       '틀린 단어를 한 번 보고 다시 풀어 보세요.';
@@ -8104,6 +8144,7 @@ function finishVerb(){
       $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">미리보기 모드 — 이 결과는 어디에도 저장되지 않았습니다.</span>';
       숙제냈음(점수);
     }else{
+      if(시험막힘보이기_(r)) return;
       $('rSaved').textContent = (r&&r.ok)
         ? (탭시험 ? '시험이 끝났습니다. 선생님께 전송되었어요.'
            : (S.재시험 ? '오답노트를 한 것도 선생님께 전송되었어요.' : '선생님께 결과가 전송되었어요.'))
@@ -8366,6 +8407,19 @@ function 낸칸(한, 대상){
   var 다 = 대상 && 한>=대상;
   return '<span class="sc '+(다?'good':(한?'mid':'bad'))+'">'+한+'</span>'+
          '<span class="muted"> / '+대상+'</span>';
+}
+/* 「재응시 한 번 더」 — 안 한 학생 탭과 시험 탭이 같이 쓴다 (재응시더주기 · 「재응시」 시트) */
+function 재응시단추붙이기_(){
+  qsa('[data-moretry]').forEach(function(btn){
+    btn.onclick = function(e){
+      if(e) e.stopPropagation();
+      btn.disabled = true;
+      api('재응시더주기', T.pw, Number(btn.dataset.moretry), btn.dataset.who, 1).then(function(r){
+        if(r && r.ok){ toast(btn.dataset.who+' — 재응시를 한 번 더 줬어요'); T.data.숙제목록 = r.숙제목록; drawTab(); }
+        else { btn.disabled = false; toast((r && r.메시지) || '주지 못했어요'); }
+      }).catch(function(){ btn.disabled = false; toast('주지 못했어요'); });
+    };
+  });
 }
 /* 안 낸 학생 — 그 가운데 풀긴 풀었는데 점수가 모자란 사람을 따로 알려 준다 */
 function 안낸줄(목록, 모자람){
@@ -9652,7 +9706,7 @@ function drawTab(){
 
     b.innerHTML =
       (시험탭
-        ? 머리('시험', '학원에서 보는 시험 · 아이는 「시험」 칸에서 <b>한 번만</b> 봅니다 · 점수(평균)는 여기에서 봅니다')
+        ? 머리('시험', '학원에서 보는 시험 · 아이는 「시험」 칸에서 봅니다 · <b>통과점수</b>를 못 넘기면 <b>재응시</b>만큼 다시 봅니다 · 점수(평균)는 여기에서 봅니다')
         : 머리('숙제 내주기', '한 줄로 고르고 오른쪽 끝에서 내줍니다 · '+
            (d.합격점||합격점())+'점을 못 넘긴 학생은 아직 안 낸 것으로 둡니다 · 시험은 「시험」 탭에서')+
 
@@ -9689,6 +9743,13 @@ function drawTab(){
               '<div class="row" style="gap:4px;align-items:center"><input id="hwMemMin" type="tel" placeholder="없음"><span class="sub">분</span></div></div>'+
             '<div class="ff'+(시험탭?'':' hide')+'" id="hwTestWrap" style="width:104px"><label>시험 시간 <span class="tsrc" id="hwTestSrc">자동</span></label>'+
               '<div class="row" style="gap:4px;align-items:center"><input id="hwTestMin" type="tel" placeholder="없음"><span class="sub">분</span></div></div>'+
+            /* 시험만 — 통과점수(기본 합격점) · 재응시(기본 1번). 비우면 기본값 */
+            (시험탭
+              ? '<div class="ff" id="hwPassWrap" style="width:92px"><label>통과점수</label>'+
+                '<div class="row" style="gap:4px;align-items:center"><input id="hwPass" type="tel" placeholder="'+(d.합격점||합격점())+'"><span class="sub">점</span></div></div>'+
+                '<div class="ff" id="hwRetryWrap" style="width:92px"><label>재응시</label>'+
+                '<div class="row" style="gap:4px;align-items:center"><input id="hwRetry" type="tel" placeholder="1"><span class="sub">번</span></div></div>'
+              : '')+
 
             /* 종류 — 숙제 탭은 당일·기한·보충만, 시험 탭은 「시험」 으로 못 박는다 (두 군데서 낼 수 있으면 헷갈린다) */
             (시험탭
@@ -10013,14 +10074,14 @@ function drawTab(){
     b.innerHTML =
       머리('안 한 학생', '아직 안 낸 숙제만 모았습니다',
         '<button class="btn line" id="btnMissSheet" style="width:auto;padding:9px 14px;margin:0;border-radius:9px">시트에 정리</button>')+
-      /* 수업 시험에서 재응시를 다 쓴 아이 — 단추 하나로 한 번 더 준다 */
+      /* 시험 · 수업 시험에서 재응시를 다 쓴 아이 — 단추 하나로 한 번 더 준다 */
       (function(){
         var 막 = (d.숙제목록||[]).filter(function(h){ return (h.막힌사람||[]).length; });
         if(!막.length) return '';
-        return 판('재응시를 다 쓴 학생', '<span class="sub">수업 시험에서 기회를 다 썼어요</span>',
+        return 판('재응시를 다 쓴 학생', '<span class="sub">시험 · 수업 시험에서 기회를 다 썼어요</span>',
           '<div class="panel-b">'+막.map(function(h){
             return h.막힌사람.map(function(n){
-              return '<div class="retryrow"><b>'+esc(n)+'</b> <span class="muted">'+esc(h.수업||'')+' · '+esc(h.단어장)+
+              return '<div class="retryrow"><b>'+esc(n)+'</b> <span class="muted">'+(h.수업 ? esc(h.수업) : '시험')+' · '+esc(h.단어장)+
                 (h.칸?' '+esc(h.칸):'')+' '+h.시작+'~'+h.끝+' '+esc(h.유형)+'</span>'+
                 '<button class="btn line sm" type="button" data-moretry="'+h.행+'" data-who="'+esc(n)+'">재응시 한 번 더</button></div>';
             }).join('');
@@ -10099,15 +10160,7 @@ function drawTab(){
       }).catch(function(){ toast('지우지 못했습니다'); btn.disabled=false; btn.textContent='30일 지난 것 지우기'; });
     };
 
-    qsa('[data-moretry]').forEach(function(btn){
-      btn.onclick = function(){
-        btn.disabled = true;
-        api('재응시더주기', T.pw, Number(btn.dataset.moretry), btn.dataset.who, 1).then(function(r){
-          if(r && r.ok){ toast(btn.dataset.who+' — 재응시를 한 번 더 줬어요'); T.data.숙제목록 = r.숙제목록; drawTab(); }
-          else { btn.disabled = false; toast((r && r.메시지) || '주지 못했어요'); }
-        }).catch(function(){ btn.disabled = false; toast('주지 못했어요'); });
-      };
-    });
+    재응시단추붙이기_();
     $('btnMissSheet').onclick=function(){
       var btn=this; btn.disabled=true; btn.textContent='정리 중…';
       api('미제출시트',T.pw).then(function(r){
@@ -11493,7 +11546,7 @@ function 행당기기_(목록, 지운행){
 /* ---------- 숙제 표 ---------- */
 function 숙제표(list, 시험표){
   var 칸수 = 시험표 ? 10 : 9;
-  var 말 = 시험표 ? {안:'안 봄', 다:'다 봤어요', 안사람:'안 본 학생', 한사람:'본 학생'}
+  var 말 = 시험표 ? {안:'안 봄', 다:'다 봤어요', 안사람:'안 본 학생', 한사람:'통과한 학생'}
                   : {안:'안 함', 다:'다 냈어요', 안사람:'안 낸 학생', 한사람:'낸 학생'};
   function 평균칸(h){ return 시험표 ? '<td class="nw">'+((h && h.평균!==null && h.평균!==undefined) ? '<b>'+esc(h.평균)+'점</b>' : '<span class="muted">—</span>')+'</td>' : ''; }
   /* 외우는 시간 / 시험 시간 — 비면 「–」 */
@@ -11504,9 +11557,9 @@ function 숙제표(list, 시험표){
   function 시간칸(h){
     return '<button class="tmbtn" type="button" data-tm="'+h.행+'" onclick="event.stopPropagation()">'+시간글(h)+' ✎</button>';
   }
-  /* 그 줄만 고친다 — 외우기분 · 제한시간 · (시험 단계면) 통과점수 · 재응시 */
+  /* 그 줄만 고친다 — 외우기분 · 제한시간 · (시험 단계 · 시험이면) 통과점수 · 재응시 */
   function 시간줄(h){
-    var 시험 = (h.단계==='시험');
+    var 시험 = (h.단계==='시험') || (!h.단계 && 시험인가_(h));
     function 칸(이름, cls, v, 뒤){
       return '<label class="tmf">'+이름+' <input class="'+cls+'" type="tel" placeholder="없음" value="'+
         (v===''||v===null||v===undefined||v===0 ? '' : esc(String(v)))+'"> '+뒤+'</label>';
@@ -11515,7 +11568,7 @@ function 숙제표(list, 시험표){
       칸('외우는 시간','tmMem',Number(h.외우기분)||'','분')+
       칸('시험 시간','tmTest',Number(h.제한시간)||'','분')+
       (시험 ? 칸('통과점수','tmPass',h.통과점수===''||h.통과점수===undefined?80:h.통과점수,'점')+
-              칸('재응시','tmRetry',h.재응시===''||h.재응시===undefined?2:h.재응시,'번') : '')+
+              칸('재응시','tmRetry',h.재응시===''||h.재응시===undefined?(h.단계==='시험'?2:1):h.재응시,'번') : '')+
       '<button class="btn sm" type="button" data-tmsave="'+h.행+'">저장</button>'+
       '<button class="btn line sm" type="button" data-tmcancel="1">취소</button>'+
       '<span class="sub">비우면 제한 없음 · 이미 낸 기록은 그대로 둡니다</span>'+
@@ -11562,14 +11615,22 @@ function 숙제표(list, 시험표){
     var 켬 = !!(T.선택숙제||{})[h.행];
     var 안한 = h.안한사람||[], 한 = (h.한사람||[]).length;
     var 대상 = h.대상수 || (안한.length + 한);
+    /* 시험은 「안 본 사람」 과 「못 넘긴 사람」 이 다른 뜻이다 — 숙제 표는 지금처럼 하나로 */
+    var 못 = 시험표 ? (h.모자란사람||[]) : [], 막 = h.막힌사람||[];
+    var 안본 = 안한.filter(function(n){ return 못.indexOf(n) < 0; });
     var 상태 = 대상
       ? '<span data-miss="'+h.행+'" style="cursor:pointer">'+낸칸(한, 대상)+
-        (안한.length?' <span class="pill miss">'+안한.length+'명 '+말.안+'</span>'
-                    :' <span class="pill ok">'+말.다+'</span>')+'</span>'
+        (안본.length?' <span class="pill miss">'+안본.length+'명 '+말.안+'</span>':'')+
+        (못.length?' <span class="pill fail">'+못.length+'명 못 넘김</span>':'')+
+        (안한.length?'':' <span class="pill ok">'+말.다+'</span>')+'</span>'
       : '<span class="muted">-</span>';
     var 펼침 = (T.펼친미제출===h.행 && 안한.length)
       ? '<tr class="misstr"><td colspan="'+칸수+'" style="padding:0 14px 12px">'+
-        '<div class="misslist"><b>'+말.안사람+' '+안한.length+'명</b> — '+안한.map(esc).join(', ')+
+        '<div class="misslist">'+(안본.length ? '<b>'+말.안사람+' '+안본.length+'명</b> — '+안본.map(esc).join(', ') : '')+
+        (못.length?'<div class="sub mt" style="margin-top:5px"><b>못 넘긴 학생 '+못.length+'명</b> — '+
+          못.map(function(n){ return esc(n)+(막.indexOf(n)>-1
+            ? ' <button class="btn line sm" type="button" data-moretry="'+h.행+'" data-who="'+esc(n)+'">재응시 한 번 더</button>' : ''); }).join(', ')+
+          '</div>':'')+
         (한?'<div class="sub mt" style="margin-top:5px">'+말.한사람+' '+한+'명 — '+
           (h.한사람||[]).map(esc).join(', ')+'</div>':'')+
         '</div></td></tr>' : '';
@@ -12233,6 +12294,13 @@ function 숙제손잡이(d){
     }
     var 책 = $('hwBook').value;
     if(!책){ toast('단어장을 골라 주세요'); return; }
+    var 통과 = '', 다시 = '';
+    if(종==='시험' && $('hwPass')){
+      통과 = $('hwPass').value.trim(); 다시 = $('hwRetry').value.trim();
+      if(통과!=='' && !(Number(통과)>=0 && Number(통과)<=100)){ toast('통과점수는 0에서 100 사이로 넣어 주세요'); return; }
+      if(다시!=='' && !(Number(다시)>=0 && Number(다시)<=20)){ toast('재응시는 0에서 20번 사이로 넣어 주세요'); return; }
+      통과 = 통과==='' ? '' : Math.round(Number(통과)); 다시 = 다시==='' ? '' : Math.round(Number(다시));
+    }
     var 대상 = 대상값();
     var 학생들=[];
     if(대상==='some'){
@@ -12245,7 +12313,7 @@ function 숙제손잡이(d){
       시작:$('hwFrom').value, 끝:$('hwTo').value,
       유형:$('hwType').value, 마감일:$('hwDue').value,
       종류:종류값(), 학생들:학생들, 칸:지금구분(),
-      외우기분: 시간값('hwMemMin'), 제한시간: 시간값('hwTestMin'), 바뀐줄만:true
+      외우기분: 시간값('hwMemMin'), 제한시간: 시간값('hwTestMin'), 통과점수: 통과, 재응시: 다시, 바뀐줄만:true
     }).then(function(r){
       if(!r.ok){ toast(r.메시지||'내지 못했습니다'); return; }
       시간채우기(true);                      /* 손으로 적은 시간은 이 숙제 한 번뿐 */
@@ -12321,6 +12389,7 @@ function 숙제손잡이(d){
     if(m===null && t===null){ toast('바꿀 시간을 적어 주세요'); return; }
     시간보내기(낸때들(행들), 값, 행들);
   };
+  재응시단추붙이기_();                   /* 시험 표에서 못 넘긴 학생을 펼쳤을 때 */
   /* 한 줄만 고치기 */
   qsa('[data-tm]').forEach(function(x){
     x.onclick=function(){ var n=Number(x.dataset.tm); T.시간고칠숙제 = (T.시간고칠숙제===n) ? null : n; drawTab(); };

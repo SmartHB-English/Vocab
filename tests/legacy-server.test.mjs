@@ -42,8 +42,10 @@ test('completion deadline: ignore before-assignment attempts and choose latest p
   assert.equal(c.낸것_({ '2026-10-05': 100 }, '기한', '2026-10-06', '2026-10-07'), null);
   assert.deepEqual(plain(c.낸것_({ '2026-10-06': 100, '2026-10-07': 80, '2026-10-08': 79 }, '기한', '2026-10-06', '2026-10-08')), { 날: '2026-10-07', 점수: 80 });
 });
-test('exam: zero score still counts as an attempt/completion', () => {
-  assert.deepEqual(plain(legacy().낸것_({ '2026-10-07': 0 }, '시험', '2026-10-06', '2026-10-07')), { 날: '2026-10-07', 점수: 0 });
+// 2026-10-08 부터 시험도 통과점수를 넘겨야 끝난다 (tests/exam-retry.test.mjs). 마감이 지난 시험만 예전처럼 본 것으로 친다
+test('exam: past-deadline zero score still counts as an attempt/completion', () => {
+  assert.deepEqual(plain(legacy().낸것_({ '2026-10-06': 0 }, '시험', '2026-10-05', '2026-10-06')), { 날: '2026-10-06', 점수: 0 });
+  assert.equal(legacy().낸것_({ '2026-10-07': 0 }, '시험', '2026-10-06', '2026-10-07'), null);
 });
 test('completion map: archives, daily maximum, student isolation and retest exclusion', () => {
   const c = legacy({ 기록: [record({score: 79}), record({score: 100, kind: '오답 재시험'}), record({name: '다른학생', score: 100})], 기록보관: [record({score: 90})] });
