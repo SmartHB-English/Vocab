@@ -1,0 +1,46 @@
+# 웹 파일이 main에 올라오면 앱 OTA 번들(app-update/)을 다시 만들어 커밋한다.
+# 앱은 실행할 때 app-update/version.json을 보고 내용이 바뀌었으면 새 번들을 받아간다.
+name: app-update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - parent.html
+      - sw.js
+      - parent-sw.js
+      - manifest.json
+      - parent-manifest.json
+      - '*.png'
+      - services/firestore.bundle.js
+      - app/app-boot.js
+      - scripts/build-app.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: app-update
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/build-app.mjs
+      - name: 바뀌었으면 커밋하고 Pages 다시 빌드
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add -A app-update
+          if git diff --cached --quiet; then echo "번들 변경 없음"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(app): 앱 OTA 번들 갱신 ($(node -p "require('./app-update/version.json').version"))"
+          git push
+          # 봇 토큰으로 한 push는 Pages 빌드를 안 깨울 수 있어 직접 요청한다
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages 빌드 요청 실패 — 다음 push 때 반영됨"

@@ -16,6 +16,5 @@ __pycache__/
 # Recreated from the production fixture before builds/tests
 services/legacy-engine.generated.mjs
 
-# Capacitor 앱 빌드 산출물 (npm run app:build 로 재생성)
+# Capacitor 앱 빌드 산출물 (npm run app:build 로 재생성). app-update/는 Pages로 서빙하므로 커밋한다
 www/
-app-update/
