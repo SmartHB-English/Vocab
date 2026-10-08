@@ -17,7 +17,7 @@ function fbPhase_(){
 function fbDispatch_(fn,args){
   if(fbPhase_()==='staged'){
     if(fn==='__그림파일')throw new Error('자료 이관 준비가 끝나지 않았습니다.');
-    var readOnly=['시작정보','로그인','단어가져오기','숙제가져오기','내기록','월간순위','연속가져오기','게임순위','공지가져오기','푸시공개키','선생님로그인','선생님요약','선생님기본','선생님기록','기록메모','학부모미리보기','틀린전문','수업꾸러미목록','수업틀목록','과목록','수업추천','내오답','명단가져오기','배정가져오기','교재대상','단어목록','시상집계','시상달목록','공지목록','설정가져오기','푸시열쇠','구독목록','구독현황'].indexOf(fn)>=0 || (fn==='학부모보기'&&args[1]===true);
+    var readOnly=['시작정보','로그인','단어가져오기','숙제가져오기','내기록','월간순위','연속가져오기','게임순위','공지가져오기','푸시공개키','내구독목록','선생님로그인','선생님요약','선생님기본','선생님기록','기록메모','학부모미리보기','틀린전문','수업꾸러미목록','수업틀목록','과목록','수업추천','내오답','명단가져오기','배정가져오기','교재대상','단어목록','시상집계','시상달목록','공지목록','설정가져오기','푸시열쇠','구독목록','구독현황'].indexOf(fn)>=0 || (fn==='학부모보기'&&args[1]===true);
     if(readOnly)return fbNativeEngine_().call(fn,args);
     var lock=LockService.getScriptLock();lock.waitLock(30000);
     try{
@@ -25,7 +25,7 @@ function fbDispatch_(fn,args){
       if(fbPhase_()!=='staged')throw new Error('자료 전환이 끝났습니다. 다시 시도해 주세요.');
       var held={getScriptLock:function(){return {waitLock:function(){},releaseLock:function(){}};}};
       var engine=fbNativeEngine_(held);
-      return fn==='__월시상'?engine.monthly():engine.call(fn,args);
+      return fn==='__월시상'?engine.monthly():fn==='푸시전송'?fbPushSend_(engine,args):engine.call(fn,args);
     }finally{lock.releaseLock();}
   }
   return fbRequest_(fn,args);
@@ -180,9 +180,47 @@ function fbRequestOnce_(fn,args,request) {
       // The existing uploader is accessed through the injected Drive capability.
       var r=fbImageFile_(args[1],args[2],args[3],args[4]);fbDatabase_(auth,':rollback',{transaction:tx});return r;
     }
-    if(fn==='푸시전송'){fbDatabase_(auth,':rollback',{transaction:tx});return engine.call(fn,args);}
+    if(fn==='푸시전송'){fbDatabase_(auth,':rollback',{transaction:tx});return fbPushSend_(engine,args);}
     var answer=fn==='__월시상'?engine.monthly():engine.call(fn,args);fbSave_(auth,store,catalog,tx,fn,original,answer);return answer;
   }catch(e){try{fbDatabase_(auth,':rollback',{transaction:tx});}catch(ignore){}throw e;}
+}
+// 앱 구독('fcm:토큰')은 VAPID 대신 FCM v1로 보낸다. 웹 구독은 기존 푸시전송 그대로.
+// 글은 서비스워커(sw.js)가 띄우는 것과 같게 — 가장 최근 공지.
+function fbPushSend_(engine,args){
+  var list=args[1]||[],web=[],app=[],lines=[];
+  list.forEach(function(x,i){(String(x&&x.주소).indexOf('fcm:')===0?app:web).push(i);});
+  if(!app.length)return engine.call('푸시전송',args);
+  if(!engine.call('선생님로그인',[args[0]]).ok)return {ok:false,메시지:'비밀번호가 다릅니다.'};
+  if(web.length){
+    var r=engine.call('푸시전송',[args[0],web.map(function(i){return list[i];})]);if(!r.ok)return r;
+    web.forEach(function(i,k){lines[i]=r.줄[k];});
+  }
+  var n=(engine.call('공지가져오기',[])||[])[0];
+  var title=n?(n.제목||'선생님 말씀'):'해법 영단어',body=n?(n.내용||''):'선생님이 알림을 보냈어요.';
+  var sent;
+  try{sent=fbFcmSend_(app.map(function(i){return String(list[i].주소).slice(4);}),title,body);}
+  catch(e){var why=String(e&&e.message||e).slice(0,200);sent=app.map(function(){return {상태:0,글:why};});}
+  app.forEach(function(i,k){lines[i]={주소:list[i].주소,상태:sent[k].상태,글:sent[k].글};});
+  return {ok:true,줄:lines};
+}
+// 서비스 계정 JSON(Firebase 콘솔 → 서비스 계정 → 새 비공개 키)을 스크립트 속성 FCM_SERVICE_ACCOUNT에 넣는다.
+function fbFcmAccessToken_(){
+  var cache=CacheService.getScriptCache(),hit=cache.get('fcm-oauth');if(hit)return hit;
+  var raw=PropertiesService.getScriptProperties().getProperty('FCM_SERVICE_ACCOUNT');
+  if(!raw)throw new Error('앱 알림 설정이 없습니다 (스크립트 속성 FCM_SERVICE_ACCOUNT)');
+  var sa=JSON.parse(raw),now=Math.floor(Date.now()/1000);
+  var b64=function(x){return Utilities.base64EncodeWebSafe(x).replace(/=+$/,'');};
+  var unsigned=b64(JSON.stringify({alg:'RS256',typ:'JWT'}))+'.'+b64(JSON.stringify({iss:sa.client_email,scope:'https://www.googleapis.com/auth/firebase.messaging',aud:'https://oauth2.googleapis.com/token',iat:now,exp:now+3600}));
+  var jwt=unsigned+'.'+b64(Utilities.computeRsaSha256Signature(unsigned,sa.private_key));
+  var r=UrlFetchApp.fetch('https://oauth2.googleapis.com/token',{method:'post',payload:{grant_type:'urn:ietf:params:oauth:grant-type:jwt-bearer',assertion:jwt},muteHttpExceptions:true});
+  if(r.getResponseCode()!==200)throw new Error('FCM 인증 실패: '+r.getContentText());
+  var token=JSON.parse(r.getContentText()).access_token;cache.put('fcm-oauth',token,3000);return token;
+}
+function fbFcmSend_(tokens,title,body){
+  var auth='Bearer '+fbFcmAccessToken_(),url='https://fcm.googleapis.com/v1/projects/'+FB_BRIDGE_CONFIG.project+'/messages:send';
+  var requests=tokens.map(function(t){return {url:url,method:'post',contentType:'application/json',headers:{Authorization:auth},muteHttpExceptions:true,
+    payload:JSON.stringify({message:{token:t,notification:{title:title,body:body},android:{priority:'high'},apns:{payload:{aps:{sound:'default'}}}}})};});
+  return UrlFetchApp.fetchAll(requests).map(function(r){return {상태:r.getResponseCode(),글:String(r.getContentText()||'').slice(0,200)};});
 }
 function fbImageFile_(book,name,data,type){
   // Reuse the existing Drive folder and upload implementation without a Sheet write.

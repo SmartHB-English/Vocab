@@ -98,6 +98,7 @@ var 열린기능_ = {
   게임순위: 게임순위,
   공지가져오기: 공지가져오기,
   푸시공개키: 푸시공개키,
+  내구독목록: 내구독목록,
   구독등록: 구독등록,
   구독해제: 구독해제,
   선생님로그인: 선생님로그인,
@@ -3009,6 +3010,21 @@ function 구독해제(주소) {
     if (s_(줄들[i][3]) === t) { sh.deleteRow(i + 2); 지움++; }
   }
   return { ok: true, 개수: 지움 };
+}
+
+/** 학생 화면 — 내 알림 받는 곳 (앱 'fcm:' / 웹 주소) */
+function 내구독목록(이름) {
+  var t = s_(이름);
+  if (!t) return [];
+  var 줄들 = [];
+  try { 줄들 = rows_(SHEET.푸시); } catch (e) { return []; }
+  var out = [];
+  줄들.forEach(function (x) {
+    if (s_(x[2]) !== t || !s_(x[3])) return;
+    out.push({ 주소: s_(x[3]), 기기: s_(x[6]),
+               켠때: x[0] instanceof Date ? ymd_(x[0]) : s_(x[0]).slice(0, 10) });
+  });
+  return out;
 }
 
 /** 선생님이 알림을 쏠 대상 목록 (이름들을 주면 그 학생들만) */

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "255547180105",
+    "project_id": "smarthb-vocab-20261007",
+    "storage_bucket": "smarthb-vocab-20261007.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:255547180105:android:03dd71983c98bfad3ceb98",
+        "android_client_info": {
+          "package_name": "com.smarthb.vocab"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD50oN8jxcIOJItFfzfs3fSponTgBhv9yA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
