@@ -7,10 +7,18 @@ import { createDatasetDocuments } from './dataset-model.mjs';
 
 export const digest = async text => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))), b => b.toString(16).padStart(2, '0')).join('');
 const jsonResult = result => result === undefined ? undefined : JSON.parse(JSON.stringify(result));
+// 푸시 전송 · 그림 파일은 Cloud Functions(functions/src/index.mjs aux)가 한다 — 예전엔 Apps Script 창구였다.
+const auxUrl = 'https://asia-northeast3-smarthb-vocab-20261007.cloudfunctions.net/aux';
+async function auxiliary(user, fn, args) {
+  const response = await fetch(auxUrl, {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+await user.getIdToken()}, body:JSON.stringify({fn,args})});
+  const reply = await response.json().catch(() => null);
+  if (!reply?.ok) throw new Error(reply?.메시지 || '서버가 답하지 않았습니다');
+  return reply.값;
+}
 const privileged = role => role === 'teacher' || role === 'bridge';
 
 export class FirestoreRepository {
-  constructor(db, dataset, identity) { this.db = db; this.dataset = dataset; this.identity = identity; this.cache = new Map(); this.parentCache = null; this.auxiliary = (fn,args) => globalThis.VocabApi.request(globalThis.VocabApi.legacyEndpoint,fn,args); }
+  constructor(db, dataset, identity) { this.db = db; this.dataset = dataset; this.identity = identity; this.cache = new Map(); this.parentCache = null; this.auxiliary = (fn,args) => auxiliary(this.identity.user,fn,args); }
   ref(path) { return doc(this.db, `vocabDatasets/${this.dataset}/${path}`); }
   async catalog(reader = ref => getDoc(ref)) {
     const d = await reader(this.ref('meta/catalog'));
@@ -111,7 +119,7 @@ export class FirestoreRepository {
     const execute = current => {
       let index = 0;
       const engine = createRuntime(current,{effects:{saveImage:imageOperation?saveImage:undefined},now:()=>started,uuid:()=>{ const i=index++; return ids[i] ?? (ids[i]=randomId()); }});
-      return engine.call(fn,args);
+      return fn==='__월시상' ? engine.monthly() : engine.call(fn,args);
     };
     const result = execute(store);
     if(imageOperation){planningImages=false;for(const cached of images.values()){try{cached.url=await this.auxiliary('__그림파일',[args[0],...cached.job]);}catch(error){cached.error=error;}}}

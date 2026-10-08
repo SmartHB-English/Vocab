@@ -78,6 +78,16 @@ test('teacher credential is validated without changing the existing PIN UI',asyn
  assert.equal((await teacher.repo.call('명단가져오기',['9876'])).ok,true);
  const secret=await getDoc(doc(teacher.db,`vocabDatasets/${dataset}/secrets/${sheetId('학생')}`));assert.equal(unpack(secret.data().payload).cells['2:3'].value,'0011');
 });
+test('teacher screen opened before a student exam shows the exam after reload',async()=>{
+ const 오늘=new Date(Date.now()+9*3600e3).toISOString().slice(0,10);
+ assert.equal((await teacher.repo.call('숙제등록',['9876',{단어장:'교재A',시작:21,끝:30,유형:'스펠링',종류:'시험',마감일:오늘,학생:'가상 학생'}])).ok,true);
+ const before=await teacher.repo.call('선생님기록',['9876',7]);
+ assert.deepEqual(await student.repo.call('결과저장',[{이름:'가상 학생',단어장:'교재A',범위:'21~30',유형:'스펠링',문항수:10,정답수:7,점수:70,숙제여부:true,구분:'시험'}]),{ok:true});
+ const after=await teacher.repo.call('선생님기록',['9876',7]);
+ assert.equal(after.시험목록.length,before.시험목록.length+1);
+ const exam=(await teacher.repo.call('선생님기본',['9876'])).숙제목록.find(h=>h.종류==='시험'&&h.시작===21);
+ assert.deepEqual(exam.한사람,['가상 학생']);
+});
 test('changing a student PIN keeps identity and prevents old-PIN login',async()=>{
  const list=await teacher.repo.call('명단가져오기',['9876']);
  assert.ok(list.ok);
