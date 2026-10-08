@@ -60,3 +60,17 @@ test('runtime preserves production login through the actual table adapter', () =
   assert.deepEqual(engine.call('로그인',[' 가상학생 ','0011']),{ok:true,학생:{이름:'가상 학생',학년구분:'유치'},단어장목록:[]});
   assert.throws(() => engine.call('constructor'), /쓸 수 없는/);
 });
+test('runtime 알림받기 keeps one student route; other students and parent devices stay', () => {
+  const store=table();
+  const push=store.insertSheet('푸시'); push.appendRow(['켠때','반','이름','주소','p256dh','auth','기기']);
+  push.appendRow(['2026-09-20 10:00','','테스트 학생','https://web.push/1','p','a','Windows']);
+  push.appendRow(['2026-09-20 10:00','','테스트 학생','fcm:OLD','','','Android']);
+  push.appendRow(['2026-09-20 10:00','','테스트 학생','https://web.push/p','p','a','학부모 · 아이폰']);
+  push.appendRow(['2026-09-20 10:00','','다른 학생','https://web.push/2','p','a','Android']);
+  const engine=createRuntime(store);
+  assert.equal(engine.call('알림받기',['테스트 학생',{주소:'fcm:NEW'},'iPhone']).ok,true);
+  assert.deepEqual(engine.call('내구독목록',['테스트 학생']).map(x=>x.주소),['fcm:NEW']);
+  const 남은=push.getRange(2,1,push.getLastRow()-1,7).getValues().map(x=>x[3]).sort();
+  assert.deepEqual(남은,['fcm:NEW','https://web.push/2','https://web.push/p']);
+  assert.equal(engine.call('알림받기',['테스트 학생',{},'']).ok,false);
+});
