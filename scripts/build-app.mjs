@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 
 const PAGES = 'https://smarthb-english.github.io/Vocab/app-update/';
 const FILES = ['index.html', 'parent.html', 'sw.js', 'parent-sw.js', 'manifest.json', 'parent-manifest.json',
-  'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'services/firestore.bundle.js', 'app/app-boot.js'];
+  'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'services/firestore.bundle.js', 'app/app-boot.js', 'app/app.css'];
 
 const hash = createHash('sha256');
 for (const f of FILES) hash.update(f).update(readFileSync(f));
@@ -16,10 +16,15 @@ if (!appVersion) throw new Error('index.html에서 앱버전을 못 찾음');
 const version = `${appVersion}-${hash.digest('hex').slice(0, 8)}`;
 
 rmSync('www', { recursive: true, force: true });
-for (const f of FILES) cpSync(f, `www/${f === 'app/app-boot.js' ? 'app-boot.js' : f}`);
+for (const f of FILES) cpSync(f, `www/${f.replace(/^app\//, '')}`);
 writeFileSync('www/app-boot.js', readFileSync('www/app-boot.js', 'utf8').replace('__BUNDLE_VERSION__', version));
 const html = readFileSync('www/index.html', 'utf8');
-writeFileSync('www/index.html', html.replace('</body>', '<script src="app-boot.js"></script>\n</body>'));
+const viewport = '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">';
+if (!html.includes(viewport)) throw new Error('index.html viewport 메타가 바뀜 — viewport-fit=cover 주입 위치 확인');
+writeFileSync('www/index.html', html
+  .replace(viewport, viewport.replace('user-scalable=no', 'user-scalable=no, viewport-fit=cover'))
+  .replace('</head>', '<link rel="stylesheet" href="app.css">\n</head>')
+  .replace('</body>', '<script src="app-boot.js"></script>\n</body>'));
 
 rmSync('app-update', { recursive: true, force: true });
 mkdirSync('app-update');
