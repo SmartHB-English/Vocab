@@ -1074,6 +1074,9 @@ body.desk .screen:not(#s-teacher){display:none !important}
 .tb tr.grow2.many:hover{background:var(--primary-soft)}
 .tb tr.offrow td{opacity:.45}
 .tb tr.offrow .pill.off{opacity:1}
+/* 학부모 화면에서만 감춘 숙제 — 지운 게 아니라 흐리게만 (학생 화면엔 그대로 나간다) */
+.tb tr.prhide td{opacity:.5}
+.pill.prhide{background:var(--line);color:var(--sub)}
 .misslist{margin-top:7px;padding:8px 10px;border-radius:9px;
   background:#FDE4E4;color:#8E2A1E;font-size:12.5px;line-height:1.55}
 .misslist .sub{color:#8E2A1E;opacity:.75}
@@ -3012,7 +3015,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-09a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-09b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
 var 앱주소 = "<?= 앱주소 ?>";
@@ -3645,6 +3648,15 @@ var DEMO = {
     });
     DEMO_HW다음행 -= 지운.length;
     return {ok:true,개수:지운.length,지운행:지운};},
+  숙제숨김바꾸기:function(pw,행들,숨길까){
+    /* 지우지 않는다 — 그 줄의 학부모숨김만. 줄번호는 그대로 */
+    var 바꾼=[];
+    (행들||[]).forEach(function(r){
+      var n = Number(r && typeof r==='object' ? r.행 : r);
+      DEMO_HW.forEach(function(h){ if(h.행===n && 바꾼.indexOf(n)<0){ h.학부모숨김=!!숨길까; 바꾼.push(n); } });
+    });
+    바꾼.sort(function(a,b){return a-b;});
+    return {ok:true,개수:바꾼.length,바꾼행:바꾼};},
   숙제수정:function(pw,행,h){
     h=h||{};
     var 색맵={'예시 단어장':'#FF7A3D','불규칙 동사 50':'#3B82F6'};
@@ -9741,7 +9753,9 @@ function drawTab(){
         '<span class="row" style="gap:8px">'+
           '<label class="hwall"><input type="checkbox" class="hwAll" data-scope="now">전체 선택</label>'+
           '<button class="btn line hwTimeSel" data-scope="now" disabled>선택 시간 바꾸기</button>'+
-          '<button class="btn line hwDelSel" data-scope="now" disabled>선택 삭제</button></span>',
+          '<button class="btn line hwDelSel" data-scope="now" disabled>선택 삭제</button>'+
+          '<button class="btn line hwHideSel" data-scope="now" disabled>학부모에게 숨기기</button>'+
+          '<button class="btn line hwShowSel" data-scope="now" disabled>다시 보이기</button></span>',
         (T.묶어시간==='now' ? 묶어시간판('now') : '')+
         (진행숙.length ? 숙제표(진행숙, 시험탭) : 빈칸(시험탭 ? '앞으로 볼 시험이 없습니다.' : '진행 중인 숙제가 없습니다.')), true)+
 
@@ -9751,7 +9765,9 @@ function drawTab(){
             '<span class="sub">학생 화면에는 이미 안 보입니다</span>'+
             (T.지난숙제?'<label class="hwall"><input type="checkbox" class="hwAll" data-scope="old">전체 선택</label>'+
               '<button class="btn line hwTimeSel" data-scope="old" disabled>선택 시간 바꾸기</button>'+
-              '<button class="btn line hwDelSel" data-scope="old" disabled>선택 삭제</button>':'')+
+              '<button class="btn line hwDelSel" data-scope="old" disabled>선택 삭제</button>'+
+              '<button class="btn line hwHideSel" data-scope="old" disabled>학부모에게 숨기기</button>'+
+              '<button class="btn line hwShowSel" data-scope="old" disabled>다시 보이기</button>':'')+
             '<button class="btn line" id="btnOldHw">'+(T.지난숙제?'접기':'펼치기')+'</button></span>',
           T.지난숙제 ? (T.묶어시간==='old' ? 묶어시간판('old') : '')+숙제표(지난숙, 시험탭) : '', T.지난숙제) : '');
     /* 고른 줄의 시간을 한꺼번에 — 일부러 고른 줄만 같이 바뀐다. 비우면 그대로, 0 이면 제한 없음 */
@@ -11587,11 +11603,12 @@ function 숙제표(list, 시험표){
         (한?'<div class="sub mt" style="margin-top:5px">'+말.한사람+' '+한+'명 — '+
           (h.한사람||[]).map(esc).join(', ')+'</div>':'')+
         '</div></td></tr>' : '';
-    return '<tr class="hwrow">'+
+    return '<tr class="hwrow'+(h.학부모숨김?' prhide':'')+'">'+
       '<td class="w"><input type="checkbox" class="hwPick" data-row="'+h.행+'"'+(켬?' checked':'')+
         ' onclick="event.stopPropagation()"></td>'+
       '<td class="nw">'+종류칩(h.종류)+'</td>'+
-      '<td class="nw">'+책칩(h.단어장)+' <span class="muted">'+esc(선생님범위글_(h.단어장,h.시작,h.끝))+'</span></td>'+
+      '<td class="nw">'+책칩(h.단어장)+' <span class="muted">'+esc(선생님범위글_(h.단어장,h.시작,h.끝))+'</span>'+
+        (h.학부모숨김?' <span class="pill prhide">학부모 안 보임</span>':'')+'</td>'+
       '<td class="nw muted">'+(h.학생
         ? '<span class="pill hw">'+esc(h.학생)+'</span>'
         : '<span class="pill ok">교재 전원</span>')+
@@ -11612,12 +11629,16 @@ function 숙제표(list, 시험표){
     var 펼침 = T.펼친묶음 === 키;
     var 다켬 = g.행들.every(function(n){ return !!(T.선택숙제||{})[n]; });
     var 안 = 안낸줄(g.안한, g.모자람);
-    return '<tr class="hwrow grow2 many" data-mg="'+esc(키)+'">'+
+    /* 학부모에게 감춘 줄 — 다 감췄을 때만 흐리게 + 「학부모 안 보임」, 섞였으면 「일부 안 보임」 */
+    var 숨긴수 = g.줄들.filter(function(x){ return x.학부모숨김; }).length;
+    var 다숨김 = 숨긴수 && 숨긴수 === g.줄들.length;
+    return '<tr class="hwrow grow2 many'+(다숨김?' prhide':'')+'" data-mg="'+esc(키)+'">'+
       '<td class="w"><input type="checkbox" class="hwPick묶음" data-rows="'+g.행들.join(',')+'"'+
         (다켬?' checked':'')+'></td>'+
       '<td class="nw">'+종류칩(g.종류)+'</td>'+
       '<td class="nw">'+책칩(g.단어장)+' <span class="muted">'+(g.칸 ? esc(g.칸)+' ' : '')+esc(선생님범위글_(g.단어장,g.시작,g.끝))+'</span>'+
-        ' <span class="pill hw">'+g.줄들.length+'건 묶음</span></td>'+
+        ' <span class="pill hw">'+g.줄들.length+'건 묶음</span>'+
+        (다숨김?' <span class="pill prhide">학부모 안 보임</span>':숨긴수?' <span class="pill prhide">일부 안 보임</span>':'')+'</td>'+
       '<td class="nw muted">'+esc(g.대상글)+'</td>'+
       '<td class="nw muted">'+esc(g.유형)+'</td>'+
       '<td class="nw muted">'+(g.종류==='기한'||시험인가_(g)
@@ -12285,6 +12306,11 @@ function 숙제손잡이(d){
       btn.disabled = !행들.length;
       btn.textContent = 행들.length? '선택 시간 바꾸기 ('+행들.length+')' : '선택 시간 바꾸기';
     });
+    qsa('.hwHideSel,.hwShowSel').forEach(function(btn){
+      var 행들=고른행들(btn.dataset.scope), 말=btn.classList.contains('hwHideSel')?'학부모에게 숨기기':'다시 보이기';
+      btn.disabled = !행들.length;
+      btn.textContent = 행들.length? 말+' ('+행들.length+')' : 말;
+    });
     if($('tmBulkN')) $('tmBulkN').textContent = '고른 '+고른행들(T.묶어시간).length+'건';
   }
   function 고른행들(scope){
@@ -12433,6 +12459,33 @@ function 숙제손잡이(d){
         if(!같다) loadTeacher();          /* 그 사이 시트가 바뀌었다 — 서버 것으로 맞춘다 */
       }
       api('숙제여러개삭제',T.pw,보낼,true).then(받기).catch(function(){ 되돌리기(); });
+    };
+  });
+  /* 학부모 화면에서만 감추기 / 다시 보이기 — 실수로 두 번 나간 숙제를 지우면 이미 푼 아이 것까지 사라져서.
+     지우는 게 아니고 되돌릴 수 있으니 묻지 않는다. 줄번호가 안 밀리니 그 줄의 학부모숨김만 뒤집는다 */
+  qsa('.hwHideSel,.hwShowSel').forEach(function(btn){
+    btn.onclick=function(){
+      var 숨길까 = btn.classList.contains('hwHideSel');
+      var 행들 = 고른행들(btn.dataset.scope);
+      if(!행들.length) return;
+      var 전 = (T.data.숙제목록||[]).slice();
+      var 보낼 = 전.filter(function(h){ return 행들.indexOf(h.행) > -1; })
+                   .map(function(h){ return {행:h.행, 낸때:h.낸때||0}; });
+      T.data.숙제목록 = 전.map(function(h){ return 행들.indexOf(h.행) > -1 ? Object.assign({}, h, {학부모숨김:숨길까}) : h; });
+      var 판 = T.숙제판 = (T.숙제판||0) + 1;
+      T.선택숙제={}; T.묶어시간=null;
+      drawTab();
+      function 되돌리기(말){
+        toast(말||'바꾸지 못했습니다 — 목록을 되돌렸습니다');
+        if(T.숙제판===판){ T.data.숙제목록 = 전; drawTab(); } else loadTeacher();
+      }
+      api('숙제숨김바꾸기',T.pw,보낼,숨길까,true).then(function(r){
+        if(!r || !r.ok){ 되돌리기(r && r.메시지); return; }
+        toast(r.개수+'건을 학부모 화면에서 '+(숨길까?'숨겼습니다':'다시 보이게 했습니다'));
+        var 같다 = (r.바꾼행||[]).length===행들.length &&
+                   행들.slice().sort(function(a,b){return a-b;}).join(',')===(r.바꾼행||[]).join(',');
+        if(!같다) loadTeacher();          /* 그 사이 시트가 바뀌었다 — 서버 것으로 맞춘다 */
+      }).catch(function(){ 되돌리기(); });
     };
   });
   버튼갱신();
