@@ -5290,6 +5290,8 @@ function 학부모미리보기(비번, 이름) {
 function 학부모자료_(이름, x) {
   return 읽는동안_(function () {
     var 지금 = new Date(), 오늘 = ymd_(지금);
+    var 어제날 = new Date(지금.getTime()); 어제날.setDate(어제날.getDate() - 1);
+    var 어제 = ymd_(어제날);
     var 월 = new Date(지금.getTime()); 월.setHours(0, 0, 0, 0); 월.setDate(월.getDate() - ((월.getDay() + 6) % 7));
     var 월요일 = ymd_(월);
     var 짧은날 = function (ymd) { var p = String(ymd).split('-'); return Number(p[1]) + '/' + Number(p[2]); };
@@ -5298,14 +5300,17 @@ function 학부모자료_(이름, x) {
        숙제에는 점수를 담지 않는다 — 냈나 안 냈나만 (합격점을 못 넘겼으면 「다시 하고 있어요」). 진도는 지금까지 낸 숙제 전부로 */
     var 전부 = 숙제가져오기_(이름, '');
     function 제목(h) { return h.단어장 + (h.칸 ? ' ' + h.칸 : '') + ' ' + h.시작 + '~' + h.끝; }
-    var 이번주 = 전부.filter(function (h) { return 숙제인가_(h) && (h.마감일 || h.등록일 || '') >= 월요일; }).map(function (h) {
+    /* 「N/M 냈어요」 는 한 주 전체로 센다(주전체). 목록(이번주)에서는 낸 것만 마감 하루 뒤에 치운다 —
+       안 낸 것은 마감이 지나도 남긴다. 맨 위 「아직 안 낸 숙제」 와 배지가 그걸로 돈다 */
+    var 주전체 = 전부.filter(function (h) { return 숙제인가_(h) && (h.마감일 || h.등록일 || '') >= 월요일; });
+    var 이번주 = 주전체.filter(function (h) { return !h.완료 || (h.마감일 || h.등록일 || '') >= 어제; }).map(function (h) {
       var 다시 = !h.완료 && (h.단계 ? Number(h.응시수) > 0 : !!h.모자람);
       return { 제목: 제목(h), 유형: 유형알맹이_(h.유형), 종류: h.종류, 완료: !!h.완료, 다시: 다시,
                마감일: h.마감일 || '', 마감글: h.마감일 ? 짧은날(h.마감일) : '',
                오늘까지: h.마감일 === 오늘, 지남: !!(h.마감일 && h.마감일 < 오늘) };
     });
-    /* 아직 안 본 시험 (종류 「시험」 인 줄) — 이번 주부터 앞으로 */
-    var 볼시험 = 전부.filter(function (h) { return 시험인가_(h) && !h.완료 && (h.마감일 || '') >= 월요일; }).map(function (h) {
+    /* 아직 안 본 시험 (종류 「시험」 인 줄) — 어제부터 앞으로. 날짜가 이틀 넘게 지난 것은 「아직 안 봤어요」 로 남기지 않는다 */
+    var 볼시험 = 전부.filter(function (h) { return 시험인가_(h) && !h.완료 && (h.마감일 || '') >= 어제; }).map(function (h) {
       return { 날짜: h.마감일 ? 짧은날(h.마감일) : '', 단어장: h.단어장 + (h.칸 ? ' ' + h.칸 : ''), 범위: h.시작 + '~' + h.끝,
                유형: 유형알맹이_(h.유형), 점수: null, 봤나: false, 지남: !!(h.마감일 && h.마감일 < 오늘) };
     });
@@ -5365,8 +5370,8 @@ function 학부모자료_(이름, x) {
       오늘: 짧은날(오늘),
       한마디: x && x.length > 10 ? s_(x[10]) : '',
       이번주숙제: 이번주,
-      낸수: 이번주.filter(function (h) { return h.완료; }).length,       // 숙제만 센다 — 시험은 안 섞는다
-      안낸수: 이번주.filter(function (h) { return !h.완료; }).length,
+      낸수: 주전체.filter(function (h) { return h.완료; }).length,       // 숙제만 센다 — 시험은 안 섞는다. 목록에서 치운 것도 센다
+      안낸수: 주전체.filter(function (h) { return !h.완료; }).length,
       시험: 볼시험.concat(본시험),                                       // 앞으로 볼 것 → 본 것(최근부터)
       자주틀린: 자주틀린,
       진도: 진도,
