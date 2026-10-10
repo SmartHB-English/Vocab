@@ -1,7 +1,8 @@
-# 영단어학습프로그램 — 웹앱 (깃헙 페이지용)
+# 인왕보카 — 웹·Android 학습 앱
 
-이 폴더가 **깃헙 저장소**입니다. 여기 있는 파일을 깃헙에 올리면
-`https://<내아이디>.github.io/haebeop-vocab/` 주소로 앱이 열립니다.
+운영 웹: https://smarthb-english.github.io/Vocab/
+
+Android 앱은 같은 학습 화면을 Capacitor로 패키징합니다. 이름/PIN 로그인과 학습 결과는 웹과 같습니다.
 
 앱을 깃헙에 올리는 이유는 하나입니다 — **아이들 휴대폰에 진짜 알림을 띄우기 위해서**입니다.
 구글 앱스 스크립트 주소로는 알림(웹 푸시)을 켤 수 없습니다.
@@ -79,7 +80,7 @@
 
 ## 개발 및 Firebase 이관 작업
 
-운영 데이터는 Firestore에 있습니다. 웹은 Firebase SDK 공통 서비스를 사용하며 이전 웹과 Drive·Web Push 보조 기능은 Firestore에 연결된 Apps Script를 통해 동작합니다. 기존 이름/PIN을 그대로 사용합니다. 이관 결정·진행 조건은 `docs/decisions.md`, `docs/migration-design.md`, `docs/gate-reviews.md`를 참고하세요. Firebase 백업 적재와 운영 트래픽 전환은 별개 단계입니다.
+운영 데이터는 Firestore에 있습니다. 웹은 Firebase SDK 공통 서비스를 사용하며 푸시 발송·그림 저장·매월 시상 보조 기능은 Firebase Cloud Functions를 사용합니다. 기존 이름/PIN을 그대로 사용합니다. 이관 결정·진행 조건은 `docs/decisions.md`, `docs/migration-design.md`, `docs/gate-reviews.md`를 참고하세요. Firebase 백업 적재와 운영 트래픽 전환은 별개 단계입니다.
 
 Node.js 22 이상에서 다음 명령을 사용합니다.
 
@@ -104,3 +105,26 @@ python3 scripts/migration/firestore_snapshot.py work/source/snapshot.normalized.
 실제 학생 정보·PIN·학부모 토큰·원본 백업은 Git에 넣지 않습니다. 정규화 출력은 `work/`에만 저장되며 기존 파일을 덮어쓰지 않습니다. 적재기는 불변 스냅샷을 재조회 검증하고, 기존 웹의 연결 주소나 운영 데이터를 변경하지 않습니다.
 
 GitHub Pages는 main 브랜치 루트 정적 파일을 배포합니다. `services/firestore.bundle.js`는 이 배포에 필요한 공개 브라우저 실행 파일로 저장소에 포함합니다. 수정 후 `npm run build:firestore`로 재생성하세요. 학생 데이터와 비밀 자격증명은 번들에 포함되지 않습니다.
+
+
+## Android 앱과 FCM
+
+- 앱 이름: 인왕보카. 패키지: `com.smarthb.vocab`. 초등학생 대상 학원 학습 앱입니다.
+- 학생 홈의 「휴대폰으로 알림 받기」에서 Android 알림을 허용하면 FCM 토큰이 현재 학생에 연결됩니다. 알림 끄기·로그아웃 때 이전 연결을 해제합니다.
+- 교사의 기존 공지 발송은 Android FCM과 웹 VAPID 구독을 함께 처리합니다. FCM 알림에는 학생 이름·점수 없이 공지 확인 안내만 보냅니다.
+- 알림을 누르면 앱에서 최신 공지를 다시 가져옵니다. iOS 네이티브 APNs는 이번 Android 출시 범위에 포함하지 않습니다.
+- 개인정보: [처리방침](https://smarthb-english.github.io/Vocab/privacy.html), [계정 삭제 안내](https://smarthb-english.github.io/Vocab/delete-account.html). 문의: yuiop70372@gmail.com.
+
+```sh
+npm ci
+npm run app:build
+npx cap sync android
+cd android
+./gradlew assembleDebug
+```
+
+릴리스는 `bundleRelease`로 빌드합니다. 업로드 키 경로와 암호는 `VOCAB_UPLOAD_KEYSTORE`, `VOCAB_UPLOAD_STORE_PASSWORD`, `VOCAB_UPLOAD_KEY_PASSWORD`, `VOCAB_UPLOAD_KEY_ALIAS` 환경변수로 전달합니다. 키·암호·심사용 PIN은 Git에 저장하지 않습니다. `google-services.json`은 Android 프로젝트 식별용 공개 설정이며 서버 관리 자격증명이 아닙니다.
+
+FCM 서버 변경 후 `npm run build:functions`, `firebase deploy --only functions:aux --project smarthb-vocab-20261007`을 사용합니다. 단위 테스트와 Firebase Emulator 테스트에 발송 결과·만료 토큰 처리 검증이 포함되어 있습니다. 실제 Android 수신·클릭 검증과 Play 제출 상태는 `docs/android-release.md`에 기록합니다.
+
+웹 수정 뒤 `npm run app:build`로 OTA 번들을 만들며, main의 app-update 워크플로가 자동 갱신합니다. 새 FCM 앱은 네이티브 푸시를 지원하는 번들만 받습니다. 네이티브 플러그인 변경은 새 AAB 배포가 필요합니다.
