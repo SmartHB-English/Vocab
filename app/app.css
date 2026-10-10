@@ -1,9 +1,9 @@
 /* 앱(Capacitor)에서만 붙는 safe area 보정. build-app.mjs가 www/index.html에 끼우고 viewport-fit=cover를 켠다.
-   웹 CSS는 이미 env(safe-area-inset-bottom)으로 짜여 있어 하단(탭바·시트)은 cover만 켜면 산다.
+   Capacitor 8의 --safe-area-inset-* CSS 값을 우선 사용하고 iOS에서는 env()로 fallback한다.
    상단: 배경은 상태바 밑까지, 내용은 그 아래부터. */
-body{box-sizing:border-box;padding-top:env(safe-area-inset-top)}
-body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);
+body{box-sizing:border-box;padding-top:var(--safe-area-inset-top, env(safe-area-inset-top))}
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:var(--safe-area-inset-top, env(safe-area-inset-top));
   background:var(--bg);z-index:59;pointer-events:none}
-.wbtop,.sheettop{top:env(safe-area-inset-top)}
-body.hastab #app{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
-.toast{bottom:calc(24px + env(safe-area-inset-bottom))}
+.wbtop,.sheettop{top:var(--safe-area-inset-top, env(safe-area-inset-top))}
+body.hastab #app{padding-bottom:calc(96px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom)))}
+.toast{bottom:calc(24px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom)))}

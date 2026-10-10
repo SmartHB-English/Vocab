@@ -29,7 +29,7 @@ test('manifest 이름이 「영단어학습프로그램」 이다', () => {
   assert.equal(학생.short_name, '영단어학습프로그램');
   assert.equal(학부모.name, '홍제인왕영어 학부모');
   assert.equal(학부모.short_name, '영단어학습프로그램 학부모');
-  assert.equal(JSON.parse(읽기('capacitor.config.json')).appName, '영단어학습프로그램');
+  assert.equal(JSON.parse(읽기('capacitor.config.json')).appName, '인왕보카');
   assert.match(읽기('index.html'), /<title>영단어학습프로그램<\/title>/);
 });
 

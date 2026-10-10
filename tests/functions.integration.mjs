@@ -50,3 +50,24 @@ test('monthly award runs the legacy engine through the Admin SDK and is repeatab
   assert.equal(new Set(months).size, 1);                       // 같은 달만 — 두 번 돌아도 줄이 겹치지 않는다
   assert.equal(months.length, Object.keys(table.cells).filter(k => k.endsWith(':1') && k !== '1:1').length);
 });
+
+test('FCM sends generic notice and preserves legacy result order', async () => {
+  const sent=[];
+  const messaging={send:async message=>{sent.push(message);return 'message-id';}};
+  const token='valid_synthetic_token_123456789';
+  const result=await sendPush([{주소:'fcm:'+token},{주소:'https://evil.example/'}],messaging);
+  assert.equal(result.줄[0].상태,200);
+  assert.equal(result.줄[1].상태,0);
+  assert.equal(sent[0].token,token);
+  assert.equal(sent[0].data.route,'notices');
+  assert.equal(sent[0].android.notification.channelId,'academy');
+  assert.equal(sent[0].notification.title,'인왕보카');
+});
+test('expired FCM token uses legacy cleanup status; transient failure does not', async () => {
+  const token='fcm:valid_synthetic_token_123456789';
+  for(const [code,status] of [['messaging/registration-token-not-registered',410],['messaging/server-unavailable',0]]) {
+    const result=await sendPush([{주소:token}],{send:async()=>{throw Object.assign(new Error('test'),{code});}});
+    assert.equal(result.줄[0].상태,status);
+  }
+  assert.equal((await sendPush([{주소:'fcm:bad'}],{send:async()=>{throw Error('must not send');}})).줄[0].상태,400);
+});

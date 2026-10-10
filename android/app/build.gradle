@@ -16,8 +16,21 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (System.getenv('VOCAB_UPLOAD_KEYSTORE')) {
+                storeFile file(System.getenv('VOCAB_UPLOAD_KEYSTORE'))
+                storePassword System.getenv('VOCAB_UPLOAD_STORE_PASSWORD')
+                keyAlias System.getenv('VOCAB_UPLOAD_KEY_ALIAS') ?: 'upload'
+                keyPassword System.getenv('VOCAB_UPLOAD_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
+            if (System.getenv('VOCAB_UPLOAD_KEYSTORE')) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

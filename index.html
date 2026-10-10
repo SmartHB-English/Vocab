@@ -4122,6 +4122,7 @@ function enterHome(){
     유치들어가기_();
     return;
   }
+  if(window.VocabNativePush) { 알림.됨=false; 알림.지금='끔'; 그리기_알림줄(); }
   알림채비_().then(그리기_알림줄);
   집자료받기_();
   show('home');
@@ -6165,6 +6166,7 @@ function 홈화면_(){
 }
 /* 이 기기에서 알림을 켤 수 있나 */
 function 알림가능_(){
+  if(window.VocabNativePush) return true;
   if(!('serviceWorker' in navigator) || !('PushManager' in window) ||
      !('Notification' in window)) return false;
   if(아이폰_() && !홈화면_()) return false;      // 아이폰은 홈 화면 앱에서만
@@ -6185,6 +6187,7 @@ function b64로_(buf){
 
 /* 일꾼을 등록하고 지금 상태를 알아 둔다 */
 function 알림채비_(){
+  if(window.VocabNativePush) return VocabNativePush.prepare().then(function(on){ 알림.됨=on; 알림.지금=on?'켬':'끔'; }).catch(function(){ 알림.됨=false; 알림.지금='끔'; });
   if(!('serviceWorker' in navigator)) { 알림.지금='안됨'; return Promise.resolve(); }
   var 일꾼 = null;
   return navigator.serviceWorker.register('sw.js')
@@ -6248,6 +6251,7 @@ function 내정보보내기_(){
 }
 
 function 알림켜기(){
+  if(window.VocabNativePush) return VocabNativePush.enable().then(function(){ 알림.됨=true; 알림.지금='켬'; 내정보보내기_(); 그리기_알림줄(); toast('알림을 켰어요'); }).catch(function(e){ toast(e.message || '알림을 켜지 못했어요'); });
   if(!알림가능_()){ 알림안내(); return; }
   if(Notification.permission==='denied'){
     toast('휴대폰 설정에서 이 앱의 알림을 막아 두었어요'); return;
@@ -6281,6 +6285,7 @@ function 알림켜기(){
 }
 
 function 알림끄기(){
+  if(window.VocabNativePush) return VocabNativePush.disable().then(function(){ 알림.됨=false; 알림.지금='끔'; 그리기_알림줄(); toast('알림을 껐어요'); }).catch(function(){ toast('끄지 못했어요'); });
   if(!알림.일꾼) return;
   navigator.serviceWorker.ready.then(function(r){ return r.pushManager.getSubscription(); })
     .then(function(sub){
@@ -6328,7 +6333,7 @@ function 그리기_알림줄(){
                             : '숙제·공지를 앱을 안 켜도 받아요'))+'</i></span>'+
       '<span class="bg">'+(켬?'끄기':'켜기')+'</span>'+
     '</button>'+
-    (켬 ? '<button class="belltest" id="bellTest" type="button">'+
+    (켬 && !window.VocabNativePush ? '<button class="belltest" id="bellTest" type="button">'+
             '알림이 잘 오는지 시험해 보기</button>' : '');
   $('bellGo').onclick = 켬 ? 알림끄기 : 알림켜기;
   if($('bellTest')) $('bellTest').onclick = 알림시험;
@@ -6659,7 +6664,11 @@ qsa('[data-back]').forEach(function(b){
     show(t);
   };
 });
-$('btnLogout').onclick=function(){ S.학생=null; 자동기억_(null); show('login'); };
+$('btnLogout').onclick=function(){
+  var leave=function(){ S.학생=null; 자동기억_(null); show('login'); };
+  if(window.VocabNativePush) VocabNativePush.logout().then(leave).catch(function(){toast('알림 연결을 해제하지 못했어요. 다시 눌러 주세요');});
+  else leave();
+};
 if($('wbTest')) $('wbTest').onclick=function(){
   S.현재숙제=null; S.돌아갈곳='study';
   if(삼단변화()) startVerb();
@@ -8490,10 +8499,11 @@ function 알림쏘기(구독들, 열쇠){
   /* 표는 '알림 서버 주소(origin)' 마다 하나면 된다 — 한 번만 만들어 돌려 쓴다 */
   var 집들 = {};
   구독들.forEach(function(sub){
+    if(String(sub.주소).startsWith('fcm:')) return;
     try { 집들[new URL(sub.주소).origin] = 1; } catch(e){}
   });
   var 이름들 = Object.keys(집들);
-  if(!이름들.length) return Promise.resolve({보냄:0, 실패:0, 죽은주소:[], 줄:[]});
+  if(!구독들.length) return Promise.resolve({보냄:0, 실패:0, 죽은주소:[], 줄:[]});
 
   return Promise.all(이름들.map(function(집){
     return 알림표_(열쇠.비밀키, 집).then(function(표){ return {집:집, 표:표}; });
@@ -8503,6 +8513,7 @@ function 알림쏘기(구독들, 열쇠){
 
     var 보낼것 = [], 짝 = [];
     구독들.forEach(function(sub){
+      if(String(sub.주소).startsWith('fcm:')) { 보낼것.push({주소:sub.주소}); 짝.push(sub); return; }
       var 집 = '';
       try { 집 = new URL(sub.주소).origin; } catch(e){ return; }
       보낼것.push({ 주소:sub.주소, 표:표맵[집], 공개키:열쇠.공개키 });
@@ -8543,16 +8554,18 @@ function 공지알림보내기(이름들){
         })};
     });
   }
-  return api('푸시열쇠', T.pw).then(function(k){
-    if(!k || !k.ok || !k.공개키 || !k.비밀키) throw new Error('열쇠 없음');
-    return api('구독목록', T.pw, 이름들||[]).then(function(r){
-      var 구독 = (r && r.구독) || [];
-      if(!구독.length) return {보냄:0, 실패:0, 죽은주소:[], 대상:0};
-      return 알림쏘기(구독, k).then(function(결과){
-        결과.대상 = 구독.length;
-        if(결과.죽은주소.length) api('구독지우기', T.pw, 결과.죽은주소).catch(function(){});
-        return 결과;
-      });
+  return api('구독목록', T.pw, 이름들||[]).then(function(r){
+    var 구독 = (r && r.구독) || [];
+    if(!구독.length) return {보냄:0, 실패:0, 죽은주소:[], 대상:0};
+    var 웹구독 = 구독.some(function(sub){ return !String(sub.주소).startsWith('fcm:'); });
+    var 준비 = 웹구독 ? api('푸시열쇠', T.pw).then(function(k){
+      if(!k || !k.ok || !k.공개키 || !k.비밀키) throw new Error('열쇠 없음');
+      return k;
+    }) : Promise.resolve({});
+    return 준비.then(function(k){ return 알림쏘기(구독, k); }).then(function(결과){
+      결과.대상 = 구독.length;
+      if(결과.죽은주소.length) api('구독지우기', T.pw, 결과.죽은주소).catch(function(){});
+      return 결과;
     });
   });
 }

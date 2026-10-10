@@ -5,6 +5,17 @@
   var C = window.Capacitor;
   if (!C || !C.isNativePlatform || !C.isNativePlatform()) return;
 
+  var title = document.querySelector('#s-login .sbtitle');
+  if (title) title.textContent = '인왕보카';
+  var footer = document.querySelector('#s-login .foot');
+  if (footer) {
+    var privacy = document.createElement('a');
+    privacy.href = 'privacy.html';
+    privacy.textContent = '개인정보처리방침';
+    privacy.style.cssText = 'display:block;margin-top:10px;color:inherit';
+    footer.appendChild(privacy);
+  }
+
   var BUNDLE_VERSION = '__BUNDLE_VERSION__';   /* build-app.mjs가 파일 내용 해시로 채운다 */
   var VERSION_URL = 'https://smarthb-english.github.io/Vocab/app-update/version.json';
   var TIMEOUT_MS = 20000;
@@ -19,7 +30,7 @@
   box.setAttribute('role', 'status');
   box.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#F6F4F1;display:flex;' +
     'flex-direction:column;align-items:center;justify-content:center;gap:18px;font-family:inherit;color:#1C1917';
-  box.innerHTML = '<div style="font-size:30px;font-weight:800;letter-spacing:-.03em">영단어학습프로그램</div>' +
+  box.innerHTML = '<div style="font-size:30px;font-weight:800;letter-spacing:-.03em">인왕보카</div>' +
     '<div id="abMsg" style="font-size:15px;color:#78716C">업데이트 확인 중…</div>' +
     '<div style="width:180px;height:4px;border-radius:2px;background:#E7E5E4;overflow:hidden">' +
     '<div id="abBar" style="width:0;height:100%;background:#FF9500;transition:width .2s"></div></div>';
@@ -42,6 +53,8 @@
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (v) {
       if (!v || !v.version || !v.url || !v.checksum || v.version === BUNDLE_VERSION) return start();
+      // A newly installed FCM build must not immediately replace itself with the old web-only OTA.
+      if (C.isPluginAvailable('PushNotifications') && !v.nativePush) return start();
       msg.textContent = '업데이트 중… 0%';
       return updater('download', { url: v.url, version: v.version, checksum: v.checksum }).then(function (b) {
         if (done) return updater('next', { id: b.id });   /* 20초를 넘겼으면 다음 실행 때 적용 */

@@ -1,12 +1,15 @@
 {
   "appId": "com.smarthb.vocab",
-  "appName": "영단어학습프로그램",
+  "appName": "인왕보카",
   "webDir": "www",
   "server": {
     "hostname": "app.smarthb-vocab",
     "androidScheme": "https"
   },
   "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["alert", "badge", "sound"]
+    },
     "SplashScreen": {
       "launchAutoHide": false,
       "backgroundColor": "#F6F4F1"

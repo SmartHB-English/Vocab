@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { getAuth } from 'firebase-admin/auth';
+import { getMessaging } from 'firebase-admin/messaging';
 import { onRequest } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { randomUUID } from 'node:crypto';
@@ -32,9 +33,20 @@ export function pushAddressOk(address) {
 }
 
 /* 브라우저가 만든 VAPID 표를 실어 글 없이 쏜다. 돌려주는 꼴은 옛 Code.gs 푸시전송 그대로 */
-export async function sendPush(list) {
+export async function sendPush(list, messaging = getMessaging()) {
   const 줄 = await Promise.all((list || []).map(async x => {
     const 주소 = String(x?.주소 ?? '');
+    if (주소.startsWith('fcm:')) {
+      const token = 주소.slice(4);
+      if (!/^[A-Za-z0-9_:\-]{20,4096}$/.test(token)) return {주소, 상태:400, 글:'FCM 토큰이 올바르지 않습니다.'};
+      try {
+        await messaging.send({token, notification:{title:'인왕보카', body:'새 학원 알림이 있어요. 앱에서 확인해 주세요.'}, data:{route:'notices'}, android:{priority:'high', notification:{channelId:'academy', icon:'ic_stat_bell'}}});
+        return {주소, 상태:200, 글:''};
+      } catch (e) {
+        const dead = ['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'].includes(e.code);
+        return {주소, 상태:dead?410:0, 글:String(e.code || 'FCM 전송 실패')};
+      }
+    }
     if (!pushAddressOk(주소)) return { 주소, 상태: 0, 글: '알림 서버 주소가 아닙니다.' };
     try {
       const r = await fetch(주소, { method: 'POST', body: '', headers: { TTL: '86400', Authorization: `vapid t=${x.표}, k=${x.공개키}` } });

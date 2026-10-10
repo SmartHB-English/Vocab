@@ -3,6 +3,7 @@ import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import { getAuth } from "firebase-admin/auth";
+import { getMessaging } from "firebase-admin/messaging";
 import { onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { randomUUID } from "node:crypto";
@@ -468,7 +469,8 @@ function createLegacyEngine(dependencies) {
       "\uB2E8\uACC4",
       "\uD1B5\uACFC\uC810\uC218",
       "\uC7AC\uC751\uC2DC",
-      "\uC678\uC6B0\uAE30\uBD84"
+      "\uC678\uC6B0\uAE30\uBD84",
+      "\uD559\uBD80\uBAA8\uC228\uAE40"
     ],
     \uAE30\uB85D: [
       "\uC2DC\uAC01",
@@ -580,6 +582,7 @@ function createLegacyEngine(dependencies) {
     \uC219\uC81C\uC218\uC815,
     \uC219\uC81C\uC0AD\uC81C,
     \uC219\uC81C\uC5EC\uB7EC\uAC1C\uC0AD\uC81C,
+    \uC219\uC81C\uC228\uAE40\uBC14\uAFB8\uAE30,
     \uC9C0\uB09C\uC219\uC81C\uC815\uB9AC,
     \uBA85\uB2E8\uAC00\uC838\uC624\uAE30,
     \uD559\uC0DD\uC218\uC815,
@@ -2746,6 +2749,7 @@ function createLegacyEngine(dependencies) {
     \uC219\uC81C\uC218\uC815: 1,
     \uC219\uC81C\uC0AD\uC81C: 1,
     \uC219\uC81C\uC5EC\uB7EC\uAC1C\uC0AD\uC81C: 1,
+    \uC219\uC81C\uC228\uAE40\uBC14\uAFB8\uAE30: 1,
     \uC218\uC5C5\uB0B4\uC8FC\uAE30: 1,
     \uC218\uC5C5\uC0AD\uC81C: 1,
     \uC9C0\uB09C\uC219\uC81C\uC815\uB9AC: 1,
@@ -4002,6 +4006,7 @@ function createLegacyEngine(dependencies) {
       \uD1B5\uACFC\uC810\uC218: s_(x.length > 14 ? x[14] : ""),
       \uC7AC\uC751\uC2DC: s_(x.length > 15 ? x[15] : ""),
       \uB9C9\uD78C\uC0AC\uB78C,
+      \uD559\uBD80\uBAA8\uC228\uAE40: (x.length > 17 ? s_(x[17]) : "") === "1",
       \uB4F1\uB85D\uC77C: \uB4F1\uB85D
     };
     if (\uD55C\uBC88\uB9CC_(\uC885\uB958)) \uC904.\uD3C9\uADE0 = \uC810\uC218\uB4E4.length ? Math.round(\uC810\uC218\uB4E4.reduce(function(a, b) {
@@ -5056,6 +5061,39 @@ function createLegacyEngine(dependencies) {
     if (!\uBC14\uB010\uC904\uB9CC) \uB2F5.\uC219\uC81C\uBAA9\uB85D = \uC804\uCCB4\uC219\uC81C();
     return \uB2F5;
   }
+  function \uC219\uC81C\uC228\uAE40\uBC14\uAFB8\uAE30(\uBE44\uBC88, \uD589\uB4E4, \uC228\uAE38\uAE4C, \uBC14\uB010\uC904\uB9CC) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false };
+    var sh = sheet_(SHEET.\uC219\uC81C);
+    var lock = LockService.getScriptLock();
+    try {
+      lock.waitLock(1e4);
+    } catch (e) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: "\uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694" };
+    }
+    var \uBC14\uAFBC = [];
+    try {
+      \uC219\uC81C\uCE78\uD655\uBCF4_(sh);
+      var \uBCF8\uAC83 = {};
+      (\uD589\uB4E4 || []).forEach(function(r) {
+        var n = r && typeof r === "object" ? \uC219\uC81C\uC904\uCC3E\uAE30_(sh, r.\uD589, r.\uB0B8\uB54C) : \uC219\uC81C\uC904\uCC3E\uAE30_(sh, r, 0);
+        if (n && !\uBCF8\uAC83[n]) {
+          \uBCF8\uAC83[n] = 1;
+          \uBC14\uAFBC.push(n);
+        }
+      });
+      \uBC14\uAFBC.forEach(function(n) {
+        sh.getRange(n, 18).setValue(\uC228\uAE38\uAE4C ? "1" : "");
+      });
+    } finally {
+      lock.releaseLock();
+    }
+    \uBC14\uAFBC.sort(function(a, b) {
+      return a - b;
+    });
+    var \uB2F5 = { ok: true, \uAC1C\uC218: \uBC14\uAFBC.length, \uBC14\uAFBC\uD589: \uBC14\uAFBC };
+    if (!\uBC14\uB010\uC904\uB9CC) \uB2F5.\uC219\uC81C\uBAA9\uB85D = \uC804\uCCB4\uC219\uC81C();
+    return \uB2F5;
+  }
   function \uBB36\uC74C\uC904\uB4E4_(\uD070\uCC28\uB840) {
     var \uBB36\uC74C = [];
     \uD070\uCC28\uB840.forEach(function(n) {
@@ -5787,6 +5825,9 @@ function createLegacyEngine(dependencies) {
   function \uD559\uBD80\uBAA8\uC790\uB8CC_(\uC774\uB984, x) {
     return \uC77D\uB294\uB3D9\uC548_(function() {
       var \uC9C0\uAE08 = new Date2(), \uC624\uB298 = ymd_(\uC9C0\uAE08);
+      var \uC5B4\uC81C\uB0A0 = new Date2(\uC9C0\uAE08.getTime());
+      \uC5B4\uC81C\uB0A0.setDate(\uC5B4\uC81C\uB0A0.getDate() - 1);
+      var \uC5B4\uC81C = ymd_(\uC5B4\uC81C\uB0A0);
       var \uC6D4 = new Date2(\uC9C0\uAE08.getTime());
       \uC6D4.setHours(0, 0, 0, 0);
       \uC6D4.setDate(\uC6D4.getDate() - (\uC6D4.getDay() + 6) % 7);
@@ -5796,11 +5837,21 @@ function createLegacyEngine(dependencies) {
         return Number(p[1]) + "/" + Number(p[2]);
       };
       var \uC804\uBD80 = \uC219\uC81C\uAC00\uC838\uC624\uAE30_(\uC774\uB984, "");
+      var \uC228\uAE40 = {};
+      \uC77D\uAE30\uCE90\uC2DC_(SHEET.\uC219\uC81C).forEach(function(x2) {
+        if ((x2.length > 17 ? s_(x2[17]) : "") === "1" && x2[6] instanceof Date2) \uC228\uAE40[x2[6].getTime()] = 1;
+      });
+      var \uAC10\uCDA4 = function(h) {
+        return !!(h.\uB0B8\uB54C && \uC228\uAE40[h.\uB0B8\uB54C]);
+      };
       function \uC81C\uBAA9(h) {
         return h.\uB2E8\uC5B4\uC7A5 + (h.\uCE78 ? " " + h.\uCE78 : "") + " " + h.\uC2DC\uC791 + "~" + h.\uB05D;
       }
-      var \uC774\uBC88\uC8FC = \uC804\uBD80.filter(function(h) {
-        return \uC219\uC81C\uC778\uAC00_(h) && (h.\uB9C8\uAC10\uC77C || h.\uB4F1\uB85D\uC77C || "") >= \uC6D4\uC694\uC77C;
+      var \uC8FC\uC804\uCCB4 = \uC804\uBD80.filter(function(h) {
+        return \uC219\uC81C\uC778\uAC00_(h) && !\uAC10\uCDA4(h) && (h.\uB9C8\uAC10\uC77C || h.\uB4F1\uB85D\uC77C || "") >= \uC6D4\uC694\uC77C;
+      });
+      var \uC774\uBC88\uC8FC = \uC8FC\uC804\uCCB4.filter(function(h) {
+        return !h.\uC644\uB8CC || (h.\uB9C8\uAC10\uC77C || h.\uB4F1\uB85D\uC77C || "") >= \uC5B4\uC81C;
       }).map(function(h) {
         var \uB2E4\uC2DC = !h.\uC644\uB8CC && (h.\uB2E8\uACC4 ? Number(h.\uC751\uC2DC\uC218) > 0 : !!h.\uBAA8\uC790\uB78C);
         return {
@@ -5816,7 +5867,7 @@ function createLegacyEngine(dependencies) {
         };
       });
       var \uBCFC\uC2DC\uD5D8 = \uC804\uBD80.filter(function(h) {
-        return \uC2DC\uD5D8\uC778\uAC00_(h) && !h.\uC644\uB8CC && (h.\uB9C8\uAC10\uC77C || "") >= \uC6D4\uC694\uC77C;
+        return \uC2DC\uD5D8\uC778\uAC00_(h) && !h.\uC644\uB8CC && !\uAC10\uCDA4(h) && (h.\uB9C8\uAC10\uC77C || "") >= \uC5B4\uC81C;
       }).map(function(h) {
         return {
           \uB0A0\uC9DC: h.\uB9C8\uAC10\uC77C ? \uC9E7\uC740\uB0A0(h.\uB9C8\uAC10\uC77C) : "",
@@ -5887,11 +5938,11 @@ function createLegacyEngine(dependencies) {
         \uC624\uB298: \uC9E7\uC740\uB0A0(\uC624\uB298),
         \uD55C\uB9C8\uB514: x && x.length > 10 ? s_(x[10]) : "",
         \uC774\uBC88\uC8FC\uC219\uC81C: \uC774\uBC88\uC8FC,
-        \uB0B8\uC218: \uC774\uBC88\uC8FC.filter(function(h) {
+        \uB0B8\uC218: \uC8FC\uC804\uCCB4.filter(function(h) {
           return h.\uC644\uB8CC;
         }).length,
-        // 숙제만 센다 — 시험은 안 섞는다
-        \uC548\uB0B8\uC218: \uC774\uBC88\uC8FC.filter(function(h) {
+        // 숙제만 센다 — 시험은 안 섞는다. 목록에서 치운 것도 센다
+        \uC548\uB0B8\uC218: \uC8FC\uC804\uCCB4.filter(function(h) {
           return !h.\uC644\uB8CC;
         }).length,
         \uC2DC\uD5D8: \uBCFC\uC2DC\uD5D8.concat(\uBCF8\uC2DC\uD5D8),
@@ -6294,9 +6345,20 @@ function pushAddressOk(address) {
     return false;
   }
 }
-async function sendPush(list) {
+async function sendPush(list, messaging = getMessaging()) {
   const \uC904 = await Promise.all((list || []).map(async (x) => {
     const \uC8FC\uC18C = String(x?.\uC8FC\uC18C ?? "");
+    if (\uC8FC\uC18C.startsWith("fcm:")) {
+      const token = \uC8FC\uC18C.slice(4);
+      if (!/^[A-Za-z0-9_:\-]{20,4096}$/.test(token)) return { \uC8FC\uC18C, \uC0C1\uD0DC: 400, \uAE00: "FCM \uD1A0\uD070\uC774 \uC62C\uBC14\uB974\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." };
+      try {
+        await messaging.send({ token, notification: { title: "\uC778\uC655\uBCF4\uCE74", body: "\uC0C8 \uD559\uC6D0 \uC54C\uB9BC\uC774 \uC788\uC5B4\uC694. \uC571\uC5D0\uC11C \uD655\uC778\uD574 \uC8FC\uC138\uC694." }, data: { route: "notices" }, android: { priority: "high", notification: { channelId: "academy", icon: "ic_stat_bell" } } });
+        return { \uC8FC\uC18C, \uC0C1\uD0DC: 200, \uAE00: "" };
+      } catch (e) {
+        const dead = ["messaging/registration-token-not-registered", "messaging/invalid-registration-token"].includes(e.code);
+        return { \uC8FC\uC18C, \uC0C1\uD0DC: dead ? 410 : 0, \uAE00: String(e.code || "FCM \uC804\uC1A1 \uC2E4\uD328") };
+      }
+    }
     if (!pushAddressOk(\uC8FC\uC18C)) return { \uC8FC\uC18C, \uC0C1\uD0DC: 0, \uAE00: "\uC54C\uB9BC \uC11C\uBC84 \uC8FC\uC18C\uAC00 \uC544\uB2D9\uB2C8\uB2E4." };
     try {
       const r = await fetch(\uC8FC\uC18C, { method: "POST", body: "", headers: { TTL: "86400", Authorization: `vapid t=${x.\uD45C}, k=${x.\uACF5\uAC1C\uD0A4}` } });

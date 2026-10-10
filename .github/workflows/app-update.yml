@@ -15,8 +15,11 @@ on:
       - '*.png'
       - services/firestore.bundle.js
       - app/app-boot.js
+      - app/native-push.js
       - app/app.css
       - scripts/build-app.mjs
+      - privacy.html
+      - delete-account.html
   workflow_dispatch:
 
 permissions:
