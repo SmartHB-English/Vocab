@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
-const code = readFileSync(new URL('services/api-client.js', root), 'utf8').trimEnd();
+const code = readFileSync(new URL('services/api-client.js', root), 'utf8').replace(/\r\n/g, '\n').trimEnd();   // CRLF 로 받아도 \r\r\n 이 되지 않게
 const start = '/* BEGIN GENERATED services/api-client.js */';
 const end = '/* END GENERATED services/api-client.js */';
 const bundle = `${start}\n${code}\n${end}`;
