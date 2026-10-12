@@ -3000,8 +3000,26 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
   root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request };
 })(typeof self !== 'undefined' ? self : globalThis);
 /* END GENERATED services/api-client.js */
+
+/* ==================================================================
+   영단어학습프로그램 — 학생 웹앱
+   구글 Apps Script 안에서는 실제 시트와 통신하고,
+   그냥 파일로 열면 예시 자료로 미리보기 됩니다.
+================================================================== */
+/* 스프레드시트에 붙은 창구 주소.
+   창구 주소는 services/api-client.js에서 수정 후 npm run build:services로 반영합니다.
+   (앱스 스크립트 안에서 그대로 쓸 때는 비워 두어도 알아서 동작합니다.) */
+var 창구주소 = VocabApi.defaultEndpoint;
+
+/* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
+var 앱주소 = "<?= 앱주소 ?>";
+if (앱주소.indexOf('<') > -1) 앱주소 = '';
+
 /* BEGIN GENERATED services/shared-ui.js */
-/* 화면 여러 개가 함께 쓰는 작은 도움말들. 모듈이 아니다 — build-services.mjs 가 대상 파일의 인라인 스크립트에 그대로 박는다. */
+/* 학생 화면(index.html)과 선생님 화면(teacher.html)이 함께 쓰는 것. 모듈이 아니다 —
+   build-services.mjs 가 두 파일의 인라인 스크립트에 그대로 박는다. 여기를 고친 뒤 node scripts/build-services.mjs.
+   한쪽 파일에만 같은 이름을 따로 두지 않는다 (tests/teacher-split.test.mjs 가 막는다).
+   이 블록 앞에서 페이지마다 var 창구주소 를 정해 둔다 — 아래 GAS 가 그것을 읽는다. */
 
 /** 화면에 넣을 글자를 HTML 로 안전하게 */
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -3024,18 +3042,8 @@ function 숙제종류_(v) {
    종류가 빈 옛 숙제는 숙제 쪽이다 (숙제종류_ 가 당일·기한으로 읽는다) */
 function 시험인가_(h) { return !!h && 숙제종류_(h.종류) === '시험'; }
 function 숙제인가_(h) { return !시험인가_(h); }
-/* END GENERATED services/shared-ui.js */
 
-/* ==================================================================
-   영단어학습프로그램 — 학생 웹앱
-   구글 Apps Script 안에서는 실제 시트와 통신하고,
-   그냥 파일로 열면 예시 자료로 미리보기 됩니다.
-================================================================== */
-/* 스프레드시트에 붙은 창구 주소.
-   창구 주소는 services/api-client.js에서 수정 후 npm run build:services로 반영합니다.
-   (앱스 스크립트 안에서 그대로 쓸 때는 비워 두어도 알아서 동작합니다.) */
-var 창구주소 = VocabApi.defaultEndpoint;
-
+/* ------------------------------- 어디서 열렸나 (창구주소 는 이 블록 앞에서) */
 var 안쪽 = (typeof google !== 'undefined' && google.script && google.script.run);
 var 미리보기 = (location.protocol === 'file:') ||
                (location.hostname === 'localhost' && location.search.indexOf('real') < 0) ||
@@ -3043,10 +3051,6 @@ var 미리보기 = (location.protocol === 'file:') ||
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
 var 앱버전 = '2026-10-09b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
-
-/* 배포된 웹앱 주소 (Apps Script가 채워 넣습니다. 그냥 파일로 열면 비어 있습니다) */
-var 앱주소 = "<?= 앱주소 ?>";
-if (앱주소.indexOf('<') > -1) 앱주소 = '';
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -3801,6 +3805,596 @@ var DEMO = {
   단어장삭제:function(){return {ok:true,단어:DEMO_WORDS.length,숙제:0,단어장목록:[]};}
 };
 
+/* ------------------------------- 두 화면이 같이 쓰는 도움 함수 (index.html 에 있던 차례대로) */
+function $(id){return document.getElementById(id);}
+
+function qsa(s,root){return [].slice.call((root||document).querySelectorAll(s));}
+
+function toast(msg){
+  var t=$('toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('on');},1900);
+}
+
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+function setTheme(t){
+  t='kid';   /* 재디자인 — 테마는 하나로 통일 */
+  document.documentElement.setAttribute('data-theme',t);
+  try{localStorage.setItem('hb_theme',t);}catch(e){}
+}
+
+var 시작정보 = null;
+
+/* 자동 로그인 — 로그인 화면의 「자동 로그인」을 체크했을 때만(기본 꺼짐). 「나가기」 전까지 다음에 켜도 바로 들어간다.
+   마지막에 들어온 쪽(학생/선생님) 하나만 기억한다. PIN이 바뀌면 들어가기가 실패해 조용히 풀린다. */
+var 자동열쇠 = 'hb_auto';
+
+function 자동기억_(v){ try{ v ? localStorage.setItem(자동열쇠, JSON.stringify(v)) : localStorage.removeItem(자동열쇠); }catch(e){} }
+
+function 자동읽기_(){ try{ return JSON.parse(localStorage.getItem(자동열쇠)||'null'); }catch(e){ return null; } }
+
+function 학원이름_(){ return (시작정보 && 시작정보.학원이름) || '홍제인왕영어'; }
+
+/* 숙제로 인정받으려면 넘겨야 하는 점수 (기본 80점). 시험은 한 번만 보므로 컷이 없다. */
+function 합격점(){
+  var n = 시작정보 && 시작정보.합격점;
+  n = Number(n);
+  return (isFinite(n) && n>=0 && n<=100) ? n : 80;
+}
+
+/* 단어장을 과별로 — [{과, 책:[…]}], 과 없는 것은 맨 끝 「그 밖에」(과 '') 로. 과가 하나도 없으면 한 덩어리 */
+function 과로나눠_(목록){
+  var 칸 = [], 찾기 = {}, 밖 = [];
+  (목록||[]).forEach(function(b){
+    var 과 = 과이름_(b);
+    if(!과){ 밖.push(b); return; }
+    if(!찾기[과]){ 찾기[과] = {과:과, 책:[]}; 칸.push(찾기[과]); }
+    찾기[과].책.push(b);
+  });
+  if(밖.length) 칸.push({과:'', 책:밖});
+  return 칸;
+}
+
+function 책칸_(이름, 목록){
+  var 총 = 0, 묶음 = 10;
+  (목록 || []).forEach(function(x){
+    if(x.이름 === 이름){ 총 = Number(x.개수) || 0; 묶음 = Number(x.레슨) || 10; }
+  });
+  return { 총: 총, 묶음: 묶음 };
+}
+
+function 레슨글_(묶음, 총, a, b, 번호도){
+  a = Number(a) || 1; b = Number(b) || 0;
+  if(!묶음 || 묶음 < 1) 묶음 = 10;
+  if(!b) return a + '번부터';
+  var 번호글 = a + '~' + b + '번';
+  function 붙여(글){ return 번호도 ? 글 + ' · ' + 번호글 : 글; }
+  if(총 && a <= 1 && b >= 총) return 붙여('전체');
+  var 첫 = Math.floor((a - 1) / 묶음) + 1;
+  var 끝 = Math.ceil(b / 묶음);
+  if(끝 < 첫) 끝 = 첫;
+  var 딱 = ((a - 1) % 묶음 === 0) && (b % 묶음 === 0 || (총 && b >= 총));
+  var 레 = (첫 === 끝) ? ('레슨 ' + 첫) : ('레슨 ' + 첫 + '~' + 끝);
+  return 붙여(딱 ? 레 : (레 + ' 중 일부'));
+}
+
+/* [{n:1, a:1, b:10}, ...] */
+function 레슨나누기(총, 묶음){
+  총=Number(총)||0; 묶음=Number(묶음)||10; if(묶음<1) 묶음=10;
+  var out=[];
+  for(var a=1;a<=총;a+=묶음) out.push({n:out.length+1, a:a, b:Math.min(a+묶음-1,총)});
+  return out;
+}
+
+/* 레슨 고르개 (드롭다운) */
+function 레슨옵션들(총, 묶음, a, b){
+  var 들=레슨나누기(총,묶음), h='', 맞음=false;
+  들.forEach(function(L){
+    var on=(Number(a)===L.a && Number(b)===L.b);
+    if(on) 맞음=true;
+    h+='<option value="'+L.a+'|'+L.b+'"'+(on?' selected':'')+'>'+
+       '레슨 '+L.n+' · '+L.a+'~'+L.b+'번</option>';
+  });
+  if(총 && 들.length>1){
+    var 다=(Number(a)===1 && Number(b)===Number(총));
+    if(다) 맞음=true;
+    h+='<option value="1|'+총+'"'+(다?' selected':'')+'>전체 · 1~'+총+'번</option>';
+  }
+  if(!맞음) h='<option value="" selected>직접 정한 범위 · '+a+'~'+b+'번</option>'+h;
+  return h;
+}
+
+/* 그 범위의 첫 단어와 끝 단어 — 밑에 작게 보여 준다 */
+function 첫끝말(list, a, b){
+  if(!list || !list.length) return '';
+  a=Number(a)||1; b=Number(b)||0;
+  var 안=[];
+  list.forEach(function(w,i){ var no=Number(w.no)||(i+1); if(no>=a && no<=b) 안.push(w); });
+  if(!안.length) return '';
+  if(안.length===1) return 안[0].en;
+  return 안[0].en + '  …  ' + 안[안.length-1].en;
+}
+
+/* 숫자 칸을 직접 고쳤을 때 드롭다운을 맞춰 준다 */
+function 고름맞추기(sel, a, b){
+  if(!sel) return;
+  var v=Number(a)+'|'+Number(b), 있나=false;
+  for(var i=0;i<sel.options.length;i++) if(sel.options[i].value===v) 있나=true;
+  var 첫=sel.options[0];
+  if(있나){
+    if(첫 && 첫.value==='') sel.removeChild(첫);
+    sel.value=v;
+  }else{
+    var 글='직접 정한 범위 · '+a+'~'+b+'번';
+    if(첫 && 첫.value===''){ 첫.textContent=글; }
+    else {
+      var o=document.createElement('option');
+      o.value=''; o.textContent=글;
+      sel.insertBefore(o, sel.options[0]);
+    }
+    sel.value='';
+  }
+}
+
+/* 비고에 적힌 묶음(단원 01 · Lesson 03 · Unit 2)을 찾는다 — 범위를 숫자 대신 묶음으로 고르게.
+   번호는 지금 목록(과면 그 구분) 안의 차례다. 단어 구분의 비고는 그림 칸에 들어 있으니 그것도 본다 */
+function 묶음찾기_(단어들){
+  var 표 = [], 찾기 = {};
+  (단어들||[]).forEach(function(w, i){
+    var 그림 = String(w.그림||'');
+    var 글 = String(w.비고||'') + ' ' + (/^(https?:|data:)/i.test(그림) ? '' : 그림);
+    var m = 글.match(/(단원|lesson|unit)\s*0*(\d+)/i);
+    if(!m) return;
+    var 열쇠 = m[1].toLowerCase() + '|' + Number(m[2]);
+    if(!찾기[열쇠]){ 찾기[열쇠] = {이름:m[0].trim(), 첫:i+1, 끝:i+1}; 표.push(찾기[열쇠]); }
+    else 찾기[열쇠].끝 = i+1;
+  });
+  return 표;
+}
+
+/* 「단원 01 ~ 단원 03」 — 처음 묶음과 끝 묶음을 고르면 그 줄들의 첫 번호~끝 번호 */
+function 묶음고르개_(목록, 앞, 시작, 끝){
+  function 옵(id, 고른){
+    return '<select id="'+id+'"><option value="">—</option>'+목록.map(function(u, i){
+      return '<option value="'+i+'"'+(i===고른?' selected':'')+'>'+esc(u.이름)+'</option>';
+    }).join('')+'</select>';
+  }
+  var a = -1, b = -1;
+  목록.forEach(function(u, i){ if(u.첫===Number(시작)) a = i; if(u.끝===Number(끝)) b = i; });
+  if(a < 0 || b < a){ a = -1; b = -1; }
+  return '<div class="unitpick"><span class="unitl">묶음으로</span>'+옵(앞+'A', a)+'<span>~</span>'+옵(앞+'B', b)+'</div>';
+}
+
+function 묶음붙이기_(목록, 앞, 넣기){
+  var A = $(앞+'A'), B = $(앞+'B'); if(!A || !B) return;
+  function 바뀜(){
+    var a = A.value === '' ? -1 : Number(A.value), b = B.value === '' ? -1 : Number(B.value);
+    if(a < 0 && b < 0) return;
+    if(a < 0){ a = b; A.value = String(a); }
+    if(b < a){ b = a; B.value = String(b); }
+    넣기(목록[a].첫, 목록[b].끝);
+  }
+  /* 처음 묶음을 고르면 그 묶음 하나 — 「~」 뒤를 골라 늘린다 */
+  A.onchange = function(){ B.value = A.value; 바뀜(); };
+  B.onchange = 바뀜;
+}
+
+/* 교재는 여러 권일 수 있다 — 무엇이 오든 목록으로 */
+function 교재목록(값){
+  if(!값) return [];
+  if(Object.prototype.toString.call(값)==='[object Array]')
+    return 값.map(function(x){return String(x||'').trim();}).filter(Boolean);
+  return String(값).split(/\s*[,|]\s*/).map(function(x){return x.trim();}).filter(Boolean);
+}
+
+/* ==== 수업 짜기 공용 시작 — Code.gs 와 index.html 에 글자 하나 다르지 않게 들어 있다.
+   서버(Code.gs)는 진짜 기록으로, 미리보기(index.html)는 흉내 자료로 같은 규칙을 돌린다.
+   한쪽만 고치면 test71 이 빨갛게 된다 — 고칠 때는 둘 다 고친다. ==== */
+
+/* 처음 쓸 때 「수업틀」 시트에 옮겨 넣는 틀. 그 뒤로는 시트가 주인이다 (선생님이 고치고 지운다).
+   키는 예전 화면(꾸러미 고르기)이 보내는 값을 받아 주려고 남겨 둔다. */
+var 처음수업틀_ = [
+  { 키: '본문1', 이름: '본문 1회차', 설명: '단어 확인 → 본문 빈칸 → 해석 보고 영작',
+    단계: [ { 종류: '보통', 어디: '단어', 유형: '스펠링' },
+            { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' },
+            { 종류: '보통', 어디: '본문', 유형: '영작' } ] },
+  { 키: '본문정리', 이름: '본문 총정리', 설명: '빈칸 → 순서 맞추기 → 영작 → 듣고 쓰기',
+    단계: [ { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' },
+            { 종류: '보통', 어디: '본문', 유형: '순서 맞추기' },
+            { 종류: '보통', 어디: '본문', 유형: '영작' },
+            { 종류: '보통', 어디: '본문', 유형: '듣고 쓰기' } ] },
+  { 키: '문법', 이름: '문법 확인', 설명: '문법 빈칸 → 본문 빈칸 (오늘 배운 어법 굳히기)',
+    단계: [ { 종류: '보통', 어디: '문법', 유형: '빈칸 채우기' },
+            { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' } ] },
+  { 키: '본문문법', 이름: '본문 + 문법 (한 회차 전체)', 설명: '단어 → 본문 빈칸 → 영작 → 문법 빈칸',
+    단계: [ { 종류: '보통', 어디: '단어', 유형: '스펠링' },
+            { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' },
+            { 종류: '보통', 어디: '본문', 유형: '영작' },
+            { 종류: '보통', 어디: '문법', 유형: '빈칸 채우기' } ] },
+  { 키: '단어집중', 이름: '단어 집중', 설명: '4지선다 → 스펠링',
+    단계: [ { 종류: '보통', 어디: '단어', 유형: '4지선다' },
+            { 종류: '보통', 어디: '단어', 유형: '스펠링' } ] },
+  { 키: '시험대비', 이름: '시험 대비', 설명: '단어 스펠링 → 본문 영작',
+    단계: [ { 종류: '보통', 어디: '단어', 유형: '스펠링' },
+            { 종류: '보통', 어디: '본문', 유형: '영작' } ] }
+];
+
+/* 한 문제에 걸리는 시간(초) — 단계가 몇 분짜리인지 어림하는 기준. 본문·문법은 문장 하나 기준.
+   선생님은 단계마다 분을 직접 고칠 수 있다 — 이건 처음 값일 뿐이다. */
+var 수업초표_ = {
+  '스펠링': 20, '첫 글자': 15, '듣고 쓰기': 25, '4지선다': 10, '뜻 고르기': 10, '플래시카드': 8, '3단변화': 30,
+  '본문|빈칸 채우기': 40, '본문|영작': 70, '본문|순서 맞추기': 50, '본문|듣고 쓰기': 60, '문법|빈칸 채우기': 35
+};
+var 추천기록최소_ = 5;      // 기록이 이보다 적으면 진도만 보고 짠다 (학기 초)
+var 추천예산기본_ = 35;     // 분
+
+/* 누적 단계는 숙제 한 줄의 유형 칸에 「스펠링 (누적 20)」 처럼 적힌다.
+   숙제 시트 칸을 늘리지 않고, 유형모드_() 는 그대로 「스펠링」 으로 읽는다. */
+function 유형알맹이_(유형) { return String(유형 || '').replace(/\s*\(누적[^)]*\)\s*$/, '').trim(); }
+function 누적인가_(유형) { return /\(누적/.test(String(유형 || '')); }
+function 누적개수_(유형) {
+  var m = String(유형 || '').match(/\(누적\s*(\d+)/);
+  return m ? Number(m[1]) : 20;
+}
+/* 함께 = 반이 함께 틀린 단어부터 낸다 (「(누적 7 함께)」). 없으면 그 아이가 틀린 단어부터 */
+function 누적유형_(유형, 개수, 함께) {
+  return 유형알맹이_(유형) + ' (누적 ' + (Number(개수) || 20) + (함께 ? ' 함께' : '') + ')';
+}
+function 함께누적인가_(유형) { return /\(누적[^)]*함께/.test(String(유형 || '')); }
+
+/* 기록 한 줄의 틀린 단어 칸 — 시트 칸에는 다섯 개 뒤에 「…외 N개」 가 붙어 있다. 그 꼬리는 단어가 아니다 */
+function 틀린칸풀기_(글) {
+  return String(글 || '').replace(/\s*…외\s*\d+개\s*$/, '')
+    .split(/\s*,\s*|\s+\/\s+/).map(function (w) { return w.replace(/…$/, '').trim(); }).filter(String);
+}
+/* 반의 1/3 이상(적어도 2명)이 함께 틀린 단어 — 많이 틀린 것부터. 기록들 = [{이름, 틀린}] */
+function 함께틀린_(기록들, 학생수) {
+  var 누가 = {};
+  (기록들 || []).forEach(function (r) {
+    틀린칸풀기_(r.틀린).forEach(function (w) {
+      var k = w.toLowerCase();
+      (누가[k] = 누가[k] || { 글: w, 사람: {} }).사람[r.이름] = 1;
+    });
+  });
+  var 기준 = Math.max(2, Math.ceil((Number(학생수) || 0) / 3));
+  return Object.keys(누가).map(function (k) { return { 글: 누가[k].글, 수: Object.keys(누가[k].사람).length }; })
+    .filter(function (x) { return x.수 >= 기준; })
+    .sort(function (x, y) { return y.수 - x.수; });
+}
+
+function 단계초_(유형, 책종류) {
+  var 알 = 유형알맹이_(유형);
+  return 수업초표_[(책종류 || '') + '|' + 알] || 수업초표_[알] || 20;
+}
+/* 몇 분짜리 단계인가 — 올림해서 분으로 */
+function 단계분_(유형, 개수, 책종류) {
+  return Math.max(1, Math.ceil((Number(개수) || 0) * 단계초_(유형, 책종류) / 60));
+}
+
+/* 「몇 수업 전」 — 날짜가 아니라 수업 회차로 센다.
+   그 교재로 숙제가 나간 날을 모아, 같은 날 나간 것은 한 수업으로 본다.
+   (중3 은 주 4회, 중2 는 주 3회라 날짜로 세면 두 반이 어긋난다)
+   오늘 나간 것은 아직 「지난」 수업이 아니라 빼고, 가장 최근 날이 1 이다. */
+function 수업회차_(숙제들, 오늘) {
+  var 날들 = [];
+  (숙제들 || []).forEach(function (h) {
+    var d = String(h.등록 || '');
+    if (d && d < 오늘 && 날들.indexOf(d) < 0) 날들.push(d);
+  });
+  날들.sort();
+  날들.reverse();
+  var 표 = {};
+  날들.forEach(function (d, i) { 표[d] = i + 1; });
+  return 표;
+}
+
+/* 한 묶음이 몇 개인가 — 단어는 20개, 본문·문법은 12문장 */
+function 묶음크기_(칸) { return (칸 === '본문' || 칸 === '문법') ? 12 : 20; }
+/* 「이어서」 — 그 단어장·그 구분으로 나간 숙제의 가장 큰 끝번호 다음부터 (숙제들은 이미 걸러서 준다).
+   끝을 넘으면 끝까지만, 이미 끝까지 갔으면 1부터 다시, 처음이면 1부터 */
+function 이어서범위_(숙제들, 총, 몇) {
+  var 끝본 = 0;
+  (숙제들 || []).forEach(function (h) {
+    if (!누적인가_(h.유형)) 끝본 = Math.max(끝본, Number(h.끝) || 0);
+  });
+  총 = Number(총) || 0;
+  var a = 끝본 + 1;
+  if (총 && a > 총) a = 1;
+  var b = a + (Number(몇) || 20) - 1;
+  if (총) b = Math.min(b, 총);
+  return { 시작: a, 끝: b };
+}
+
+/* 지난 N수업에 나간 범위를 하나로 묶는다 — 누적 단계가 「앱이 고르는」 범위.
+   칸을 주면 그 구분의 숙제만 (과 단어장의 누적은 단어 구분에서만) */
+function 누적범위_(숙제들, 교재, 지난, 오늘, 칸) {
+  var 이것 = (숙제들 || []).filter(function (h) { return h.단어장 === 교재; });
+  var 범위것 = 칸 === undefined ? 이것 : 이것.filter(function (h) { return (h.칸 || '') === (칸 || ''); });
+  var 회차 = 수업회차_(이것, 오늘), a = 0, b = 0;      // 수업 회차는 그 단어장 전체로 센다
+  범위것.forEach(function (h) {
+    var n = 회차[String(h.등록 || '')];
+    if (!n || n > (Number(지난) || 0)) return;
+    var s = Number(h.시작) || 1, e = Number(h.끝) || s;
+    if (!a || s < a) a = s;
+    if (e > b) b = e;
+  });
+  return a ? { 시작: a, 끝: b } : null;
+}
+
+/* 초 → 「6분 20초」 */
+function 분초_(초) {
+  초 = Math.round(Number(초) || 0);
+  var m = Math.floor(초 / 60), s = 초 % 60;
+  return (m ? m + '분' : '') + (m && s ? ' ' : '') + (s || !m ? s + '초' : '');
+}
+/* 시간 기본값 — 한 값을 돌려쓰지 않고 그 숙제의 유형·문항 수로 따로 센다.
+   외우는 시간: 문항마다 15초를 올림해서 분 (20개 → 5분).
+   시험 시간: 그 유형의 예상 시간 × 1.2 를 올림 (시험이라 연습보다 빠듯하게).
+   1.2 를 그냥 곱하면 소수 끝이 남아(5 × 1.2 = 6.000…1) 올림이 한 칸 더 간다 — 12/10 으로 센다 */
+function 외우기기본_(개수) { return Math.ceil((Number(개수) || 0) * 15 / 60) || ''; }
+function 시험시간기본_(유형, 개수, 책종류) {
+  return Number(개수) > 0 ? Math.ceil(단계분_(유형, 개수, 책종류) * 12 / 10) : '';
+}
+
+/* 받침이 있으면 「을」, 없으면 「를」 — 숫자로 끝나면 읽는 소리로 (레슨 2 → 이 → 를, 레슨 3 → 삼 → 을) */
+function 을를_(글) {
+  var t = String(글 || ''), 끝 = t.charAt(t.length - 1);
+  if (/[0-9]/.test(끝)) return '0136781'.indexOf(끝) > -1 ? '을' : '를';
+  var c = t.charCodeAt(t.length - 1);
+  if (c >= 0xAC00 && c <= 0xD7A3) return (c - 0xAC00) % 28 ? '을' : '를';
+  return '을';
+}
+
+/* 오늘 추천 — 그 단어장의 숙제·기록을 보고 수업 초안을 짠다.
+   재료 = { 교재, 종류, 오늘, 예산, 레슨, 총, 칸수:{단어,본문,문법}, 학생수,
+            숙제들:[{단어장,칸,시작,끝,유형,등록,안낸수}], 기록들:[{이름,칸,유형,점수,틀린,날}],
+            단어들:[단어 구분의 영어…] }
+   과 단어장이면 구분(단어·본문·문법)마다 따로 본다. 옛 단어장은 구분이 하나뿐이다.
+   진단은 1순위부터 보고, 고른 단계마다 왜 골랐는지(이유)를 붙인다 — 이유가 안 보이면 선생님이 안 쓴다. */
+function 수업추천짜기_(재료) {
+  재료 = 재료 || {};
+  var 교재 = String(재료.교재 || ''), 오늘 = String(재료.오늘 || '');
+  var 예산 = Number(재료.예산) || 추천예산기본_, 레슨 = Number(재료.레슨) || 10;
+  var 과 = 재료.종류 === '과', 칸수 = 재료.칸수 || {};
+  var 칸들 = 과 ? 어디차례_.filter(function (k) { return Number(칸수[k]) > 0; }) : [어디로_(재료.종류)];
+  if (!칸들.length) 칸들 = ['단어'];
+  function 총(k) { return 과 ? (Number(칸수[k]) || 0) : (Number(재료.총) || 0); }
+  function 칸of(x) { return 과 ? (x.칸 || '단어') : 칸들[0]; }
+  function 기본유형(k) { return k === '3단변화' ? '3단변화' : (k === '본문' || k === '문법') ? '빈칸 채우기' : '스펠링'; }
+  var 숙제들 = (재료.숙제들 || []).filter(function (h) { return h.단어장 === 교재 && h.등록; });
+  var 기록들 = 재료.기록들 || [];
+  /* 철자·다 같이 틀린 단어는 단어 구분의 기록만 본다 (본문 문장이 섞이면 안 된다) */
+  var 단어기록 = 기록들.filter(function (r) { return 칸of(r) === '단어'; });
+  var 단어있나 = 칸들.indexOf('단어') > -1;
+  var 회차 = 수업회차_(숙제들, 오늘);
+  var 진단 = [], 앞 = [], 복습 = [], 묶음 = [], 쓴범위 = {};
+
+  /* 과는 「단어 21~40」, 옛 단어장은 「레슨 3」·「21~25번」 */
+  function 범위글(k, a, b) {
+    if (과) return k + ' ' + a + '~' + b;
+    if ((a - 1) % 레슨 === 0 && (b % 레슨 === 0 || b === 총(k))) {
+      var p = (a - 1) / 레슨 + 1, q = Math.ceil(b / 레슨);
+      return p === q ? '레슨 ' + p : '레슨 ' + p + '~' + q;
+    }
+    return a + '~' + b + '번';
+  }
+  function 단계(k, 종류, a, b, 유형, 이유, 개수) {
+    /* 누적(그 아이 오답부터 몇 개만)은 단어 구분에서만 — 3단변화·본문·문법은 그 범위를 통째로 */
+    if (종류 === '누적' && k !== '단어') 종류 = '보통';
+    var n = 종류 === '누적' ? (개수 || (b - a + 1)) : (b - a + 1);
+    var s = { 종류: 종류, 단어장: 교재, 칸: 과 ? k : '', 시작: a, 끝: b, 유형: 유형, 이유: 이유,
+              이름: (종류 === '누적' ? '누적 ' : '') + 범위글(k, a, b) + ' ' + 유형 };
+    if (종류 === '누적') s.개수 = n;
+    s.분 = 단계분_(유형, n, (k === '본문' || k === '문법') ? k : '');
+    return s;
+  }
+
+  var 기록적음 = 기록들.length < 추천기록최소_;
+  var 약철자 = false;
+  if (기록적음) {
+    진단.push('아직 기록이 적어 진도만 보고 짰습니다');
+  } else {
+    /* 1순위 — 지난 2수업에 나간 숙제를 못 낸(80점을 못 넘긴) 사람이 있으면 그 범위를 맨 앞에 */
+    숙제들.filter(function (h) {
+      var n = 회차[h.등록];
+      return n && n <= 2 && (Number(h.안낸수) || 0) > 0;
+    }).sort(function (x, y) {
+      return 회차[x.등록] - 회차[y.등록] || 칸들.indexOf(칸of(x)) - 칸들.indexOf(칸of(y)) || x.시작 - y.시작;
+    }).forEach(function (h) {
+      var k = 칸of(h), 유형 = 유형알맹이_(h.유형), 열쇠 = k + '|' + h.시작 + '~' + h.끝 + '|' + 유형;
+      if (쓴범위[열쇠]) return;
+      쓴범위[열쇠] = 1; 쓴범위[k + '|' + h.시작 + '~' + h.끝] = 1;
+      진단.push(h.안낸수 + '명이 ' + 범위글(k, h.시작, h.끝) + ' ' + 유형 + 을를_(유형) + ' 못 냈습니다');
+      /* 못 낸 것이 누적이었으면 누적 그대로 다시 (통째 범위로 바꾸면 40개짜리가 된다) */
+      var s = 누적인가_(h.유형)
+        ? 단계(k, '누적', h.시작, h.끝, 유형, h.안낸수 + '명이 못 냈습니다', 누적개수_(h.유형))
+        : 단계(k, '보통', h.시작, h.끝, 유형, h.안낸수 + '명이 못 냈습니다');
+      if (함께누적인가_(h.유형)) s.함께 = true;
+      앞.push(s);
+    });
+
+    /* 2순위 — 최근 30일 단어 기록에서 (4지선다 + 첫 글자 평균) − (스펠링 + 듣고 쓰기 평균) ≥ 12 */
+    var 평균 = function (맞나) {
+      var 합 = 0, n = 0;
+      단어기록.forEach(function (r) {
+        if (맞나(String(r.유형 || ''))) { 합 += Number(r.점수) || 0; n++; }
+      });
+      return n ? Math.round(합 / n) : null;
+    };
+    var 뜻점 = 평균(function (t) { return /4지|뜻|첫/.test(t); });
+    var 철점 = 평균(function (t) { return /스펠|듣고/.test(t); });
+    약철자 = 단어있나 && 뜻점 !== null && 철점 !== null && 뜻점 - 철점 >= 12;
+    if (약철자) 진단.push('뜻 고르기 ' + 뜻점 + '점 / 철자 쓰기 ' + 철점 + '점 — 철자가 약합니다');
+
+    /* 3순위 — 마지막으로 본 것이 2·4·8수업 전인 범위 (잊을 때쯤 다시 본다).
+       단어는 누적(그 아이 오답부터), 본문·문법은 그때 낸 유형으로 그 범위를 다시 */
+    var 마지막 = {};
+    숙제들.forEach(function (h) {
+      var n = 회차[h.등록];
+      if (!n || 누적인가_(h.유형)) return;
+      var k = 칸of(h), 열 = k + '|' + h.시작 + '~' + h.끝;
+      if (!마지막[열] || n < 마지막[열].n) 마지막[열] = { n: n, 칸: k, 시작: h.시작, 끝: h.끝, 유형: 유형알맹이_(h.유형) };
+    });
+    Object.keys(마지막).map(function (열) { return 마지막[열]; })
+      .filter(function (x) { return [2, 4, 8].indexOf(x.n) > -1 && !쓴범위[x.칸 + '|' + x.시작 + '~' + x.끝]; })
+      .sort(function (x, y) { return y.n - x.n || 칸들.indexOf(x.칸) - 칸들.indexOf(y.칸) || x.시작 - y.시작; })
+      .forEach(function (x) {
+        var 글 = 범위글(x.칸, x.시작, x.끝);
+        진단.push(글 + 을를_(글) + ' 본 지 ' + x.n + '수업 됐습니다');
+        var s = x.칸 === '단어'
+          ? 단계('단어', '누적', x.시작, x.끝, 기본유형('단어'), x.n + '수업 전에 봤습니다', Math.min(20, x.끝 - x.시작 + 1))
+          : 단계(x.칸, '보통', x.시작, x.끝, x.유형 || 기본유형(x.칸), x.n + '수업 전에 봤습니다');
+        s.지난 = x.n;
+        복습.push(s);
+      });
+
+    /* 4순위 — 아이들 1/3 이상이 다 같이 틀린 단어가 5개를 넘으면, 그 단어들이 있는 자리를 「함께」 누적으로.
+       아이 화면은 「함께」 누적을 열면 다 같이 틀린 단어부터 낸다 (내오답 … 함께) */
+    var 함께 = 단어있나 ? 함께틀린_(단어기록, 재료.학생수) : [];
+    if (함께.length > 5) {
+      var 단어들 = (재료.단어들 || []).map(function (w) { return String(w).toLowerCase().trim(); });
+      var 자리 = [];
+      함께.forEach(function (x) { var i = 단어들.indexOf(x.글.toLowerCase()); if (i > -1) 자리.push(i + 1); });
+      var 보기 = 함께.slice(0, 3).map(function (x) { return x.글; }).join(', ') + (함께.length > 3 ? ' …' : '');
+      진단.push('다 같이 틀린 단어 ' + 함께.length + '개 (' + 보기 + ')');
+      if (자리.length) {
+        var a = Math.min.apply(null, 자리), b = Math.max.apply(null, 자리);
+        var s = 단계('단어', '누적', a, b, 기본유형('단어'), '다 같이 틀린 단어 ' + 함께.length + '개', 자리.length);
+        s.이름 = '다 같이 틀린 단어 ' + 자리.length + '개';
+        if (s.종류 === '누적') s.함께 = true;
+        묶음.push(s);
+      }
+    }
+  }
+
+  /* 덤 — 제한 시간이 빠듯한가: 제한을 건 유형마다, 그 유형 기록의 평균 걸린 시간이 제한의 90% 를 넘으면.
+     단계를 바꾸지는 않는다 — 선생님이 제한을 늘릴지 정한다 */
+  if (!기록적음) {
+    var 제한들 = {};
+    숙제들.forEach(function (h) {
+      var m = Number(h.제한시간) || 0;
+      if (m > 0) (제한들[유형알맹이_(h.유형)] = 제한들[유형알맹이_(h.유형)] || []).push(m);
+    });
+    Object.keys(제한들).forEach(function (t) {
+      var 초들 = 기록들.filter(function (r) { return 유형알맹이_(r.유형) === t && Number(r.초) > 0; })
+        .map(function (r) { return Number(r.초); });
+      if (!초들.length) return;
+      var 평균초 = 초들.reduce(function (a, b) { return a + b; }, 0) / 초들.length;
+      var 제한분 = 제한들[t].reduce(function (a, b) { return a + b; }, 0) / 제한들[t].length;
+      if (평균초 > 제한분 * 60 * 0.9) {
+        진단.push(t + ' 평균 ' + 분초_(평균초) + ' / 제한 ' + Math.round(제한분) + '분 — 시간이 빠듯합니다');
+      }
+    });
+  }
+
+  /* 5순위 — 구분마다 나간 데까지의 다음 묶음 (수업 짜기의 「이어서」 와 같은 계산).
+     철자가 약하면 단어 진도는 스펠링 대신 듣고 쓰기 + 첫 글자 */
+  var 단어진도 = [], 딴진도 = [];
+  칸들.forEach(function (k) {
+    var 것 = 숙제들.filter(function (h) { return 칸of(h) === k; });
+    var r = 이어서범위_(것, 총(k), 묶음크기_(k));
+    var 끝본 = 0;
+    것.forEach(function (h) { if (!누적인가_(h.유형)) 끝본 = Math.max(끝본, Number(h.끝) || 0); });
+    if (총(k) && 끝본 >= 총(k)) 진단.push((과 ? k + 을를_(k) + ' ' : '') + '끝까지 나가서 처음부터 다시 돕니다');
+    if (k === '단어' && 약철자) {
+      단어진도 = [단계(k, '보통', r.시작, r.끝, '듣고 쓰기', '철자가 약합니다'),
+                  단계(k, '보통', r.시작, r.끝, '첫 글자', '철자가 약합니다')];
+    } else if (k === '단어') {
+      단어진도 = [단계(k, '보통', r.시작, r.끝, 기본유형(k), '진도')];
+    } else {
+      딴진도.push(단계(k, '보통', r.시작, r.끝, 기본유형(k), '진도'));
+    }
+  });
+
+  /* 같은 범위·같은 유형이 두 번 들어가지 않게 (못 낸 숙제와 새 진도가 겹칠 때) */
+  var 본단계 = {};
+  var 순서 = (기록적음 ? 단어진도.concat(딴진도)
+                       : 앞.concat(약철자 ? 단어진도 : [], 복습, 묶음, 약철자 ? [] : 단어진도, 딴진도))
+    .filter(function (s) {
+      var k = s.종류 + '|' + s.칸 + '|' + s.시작 + '~' + s.끝 + '|' + s.유형;
+      if (본단계[k]) return false;
+      본단계[k] = 1;
+      return true;
+    });
+  /* 시간 예산 — 위에서부터 채우다가 넘치면 거기서 뒤를 자른다 (한 단계는 꼭 넣는다) */
+  var 단계들 = [], 합 = 0;
+  for (var i = 0; i < 순서.length; i++) {
+    if (단계들.length && 합 + 순서[i].분 > 예산) break;
+    단계들.push(순서[i]);
+    합 += 순서[i].분;
+  }
+  if (순서.length > 단계들.length) {
+    진단.push('시간 예산 ' + 예산 + '분을 넘어서 뒤의 ' + (순서.length - 단계들.length) + '단계는 뺐습니다');
+  }
+  return { 교재: 교재, 오늘: 오늘, 예산: 예산, 진단: 진단, 단계: 단계들, 합계분: 합, 기록적음: 기록적음 };
+}
+
+/* ---------- 과 묶음 — 한 과를 가르치려면 단어장이 셋(단어·본문·문법)이다 ----------
+   과 이름은 단어장 이름 끝의 꼬리말( 단어 · 본문 · 문법 · 3단변화)을 떼고 남는 것.
+   「중2 5과 단어2」 처럼 꼬리말 뒤에 숫자가 붙어도 같은 과다 (한 과에 단어장이 둘일 때).
+   어디(단어·본문·문법·3단변화)는 이름이 아니라 「종류」 로 정한다 — 이름이 「… 단어」 여도 종류가 본문이면 본문이다. */
+var 과꼬리말_ = ['단어', '본문', '문법', '3단변화'];
+var 어디차례_ = ['단어', '본문', '문법', '3단변화'];
+function 어디로_(종류) {
+  var k = String(종류 || '').trim();
+  return (k === '본문' || k === '문법' || k === '3단변화') ? k : '단어';
+}
+function 과쪼개기_(이름, 종류) {
+  var t = String(이름 || '').trim(), 과 = '';
+  var m = t.match(new RegExp('^(.+?)\\s+(' + 과꼬리말_.join('|') + ')\\d*$'));
+  if (m) 과 = m[1].trim();
+  return { 과: 과, 어디: 어디로_(종류) };
+}
+/* 이 단어장의 과 — 단어장목록 시트의 「과」 칸이 적혀 있으면 그게 이긴다 (옛 단어장을 손으로 묶는 칸) */
+function 과이름_(b) {
+  var 손 = (b && b.과칸 !== undefined && b.과칸 !== null) ? String(b.과칸).trim() : '';
+  /* 종류가 「과」 인 단어장(한 과 = 한 장)은 제 이름이 곧 과 */
+  if (!손 && b && String(b.종류 || '').trim() === '과') return String(b.이름 || '').trim();
+  return 손 || 과쪼개기_(b && b.이름, b && b.종류).과;
+}
+/* 단어장목록 → [{과, 칸:{단어:[{이름,개수}], 본문:[…], …}}] — 과는 처음 나온 차례, 과 없는 것은 빠진다 */
+function 과묶음_(목록) {
+  var 과들 = [], 찾기 = {};
+  (목록 || []).forEach(function (b) {
+    if (!b || !b.이름) return;
+    var 과 = 과이름_(b);
+    if (!과) return;
+    var g = 찾기[과];
+    if (!g) { g = 찾기[과] = { 과: 과, 칸: {} }; 과들.push(g); }
+    var 어디 = 어디로_(b.종류);
+    (g.칸[어디] = g.칸[어디] || []).push({ 이름: b.이름, 개수: Number(b.개수) || 0 });
+  });
+  return 과들;
+}
+/* ==== 수업 짜기 공용 끝 ==== */
+
+/* 그림 주소가 안 뜰 때 다른 형태로 한 번 더 해 본다 */
+function 그림안뜨면_(el){
+  var m = /[?&]id=([^&]+)/.exec(el.getAttribute('src') || '');
+  if(m && el.getAttribute('data-두번째') !== '1'){
+    el.setAttribute('data-두번째', '1');
+    el.src = 'https://lh3.googleusercontent.com/d/' + m[1];
+    return;
+  }
+  el.style.visibility = 'hidden';
+}
+
+function 그림태그_(주소, 클래스){
+  return '<img class="' + 클래스 + '" src="' + esc(주소) +
+    '" alt="" loading="lazy" onerror="그림안뜨면_(this)">';
+}
+
+/* 파일 이름과 영어 단어를 맞춰 볼 때 쓰는 열쇠말 — Code.gs 의 열쇠말_ 과 같은 규칙 */
+function DEMO열쇠_(v){
+  return String(v || '').toLowerCase().replace(/\.[^.]+$/, '').replace(/[\s_\-().0-9]/g, '');
+}
+
+/* 낱말만 쓰는 곳(게임·시험지 뽑기) — 과 단어장이면 단어 구분만. 아직 안 왔으면(null) 그대로 */
+function 종이단어_(말){
+  return 말 ? 말.filter(function(w){ return !w.칸 || w.칸==='단어'; }) : 말;
+}
+
+/* ------------------------------- 서버 부르기 — 이 블록 맨 끝에 둔다 (tests/legacy-rpc · rpc-parity 가 여기서 「상태」 까지 떼어 돌린다) */
 var 부르는중_ = 0;
 function 부르는중그리기_(){
   qsa('.refbtn').forEach(function(r){ r.classList.toggle('doing', 부르는중_ > 0); });
@@ -3833,6 +4427,7 @@ function 부르기_(fn, args){
     VocabApi.request(창구주소, fn, args, '서버가 답하지 않았습니다').then(res, rej);
   });
 }
+/* END GENERATED services/shared-ui.js */
 
 /* ------------------------------- 상태 */
 var S = {
@@ -3844,8 +4439,6 @@ var S = {
 };
 
 /* ------------------------------- 헬퍼 */
-function $(id){return document.getElementById(id);}
-function qsa(s,root){return [].slice.call((root||document).querySelectorAll(s));}
 var 탭화면 = { home:'home', study:'study', exam:'exam', games:'games', streak:'streak' };
 
 /* ================================================================
@@ -3964,10 +4557,6 @@ qsa('[data-tab2]').forEach(function(b){
     show(t);
   };
 });
-function toast(msg){
-  var t=$('toast'); t.textContent=msg; t.classList.add('on');
-  clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('on');},1900);
-}
 /* 채점용 정규화 — 대소문자, 하이픈, 슬래시, 쉼표, 띄어쓰기 차이를 무시한다.
    불규칙 동사 3단변화("go - went - gone")를 어떻게 적든 맞다고 보기 위한 것. */
 function norm(s){
@@ -3994,15 +4583,9 @@ function 정답후보(정답){
   조합.forEach(function(c){ var n=norm(c); if(n && out.indexOf(n)<0) out.push(n); });
   return out;
 }
-function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function 오늘값(){
   var d=new Date(), p=function(n){return (n<10?'0':'')+n;};
   return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
-}
-function setTheme(t){
-  t='kid';   /* 재디자인 — 테마는 하나로 통일 */
-  document.documentElement.setAttribute('data-theme',t);
-  try{localStorage.setItem('hb_theme',t);}catch(e){}
 }
 function 콤보배수(){ if(S.콤보>=10)return 4; if(S.콤보>=6)return 3; if(S.콤보>=3)return 2; return 1; }
 
@@ -4040,12 +4623,6 @@ function 반짝(emoji){
 /* ================================================================
    로그인 화면
 ================================================================ */
-var 시작정보 = null;
-/* 자동 로그인 — 로그인 화면의 「자동 로그인」을 체크했을 때만(기본 꺼짐). 「나가기」 전까지 다음에 켜도 바로 들어간다.
-   마지막에 들어온 쪽(학생/선생님) 하나만 기억한다. PIN이 바뀌면 들어가기가 실패해 조용히 풀린다. */
-var 자동열쇠 = 'hb_auto';
-function 자동기억_(v){ try{ v ? localStorage.setItem(자동열쇠, JSON.stringify(v)) : localStorage.removeItem(자동열쇠); }catch(e){} }
-function 자동읽기_(){ try{ return JSON.parse(localStorage.getItem(자동열쇠)||'null'); }catch(e){ return null; } }
 function 자동로그인_(){
   var a = 자동읽기_(); if(!a || !GAS) return;
   /* 들어가는 동안 로그인 화면을 가린다 — 보이면 아이가 또 눌러 요청이 겹친다 */
@@ -4760,13 +5337,6 @@ function drawStreak(){
    따로 창을 띄우지 않고, 화면에 안 보이는 #printArea 에 종이를 그린 뒤
    브라우저 인쇄를 부른다. 인쇄 창에서 'PDF로 저장' 을 고르면 PDF 가 된다.
 ================================================================ */
-function 학원이름_(){ return (시작정보 && 시작정보.학원이름) || '홍제인왕영어'; }
-/* 숙제로 인정받으려면 넘겨야 하는 점수 (기본 80점). 시험은 한 번만 보므로 컷이 없다. */
-function 합격점(){
-  var n = 시작정보 && 시작정보.합격점;
-  n = Number(n);
-  return (isFinite(n) && n>=0 && n<=100) ? n : 80;
-}
 /* 숙제로 인정하는 점수 — 수업의 연습 단계는 0 (한 번 내면 끝), 시험 단계는 그 숙제의 통과점수 */
 function 숙제컷(h){
   if(h && h.단계==='연습') return 0;
@@ -5080,18 +5650,6 @@ function drawTrophy(){
   $('trophyCard').onclick=function(){ 순위열기('이달의 점수'); };
 }
 
-/* 단어장을 과별로 — [{과, 책:[…]}], 과 없는 것은 맨 끝 「그 밖에」(과 '') 로. 과가 하나도 없으면 한 덩어리 */
-function 과로나눠_(목록){
-  var 칸 = [], 찾기 = {}, 밖 = [];
-  (목록||[]).forEach(function(b){
-    var 과 = 과이름_(b);
-    if(!과){ 밖.push(b); return; }
-    if(!찾기[과]){ 찾기[과] = {과:과, 책:[]}; 칸.push(찾기[과]); }
-    찾기[과].책.push(b);
-  });
-  if(밖.length) 칸.push({과:'', 책:밖});
-  return 칸;
-}
 
 /* 단어장이 세 개 이하면 칩으로도 고를 수 있게 — 드롭다운을 두 번 안 거치게 */
 function 그리기_책칩(){
@@ -5822,28 +6380,7 @@ function 카드펼치기(list, 형태){
    · 단어장 전체면 「전체」
    · 선생님 화면과 시험지에는 「레슨 2 · 11~20번」 처럼 번호도 같이 적는다
 ================================================================ */
-function 책칸_(이름, 목록){
-  var 총 = 0, 묶음 = 10;
-  (목록 || []).forEach(function(x){
-    if(x.이름 === 이름){ 총 = Number(x.개수) || 0; 묶음 = Number(x.레슨) || 10; }
-  });
-  return { 총: 총, 묶음: 묶음 };
-}
 
-function 레슨글_(묶음, 총, a, b, 번호도){
-  a = Number(a) || 1; b = Number(b) || 0;
-  if(!묶음 || 묶음 < 1) 묶음 = 10;
-  if(!b) return a + '번부터';
-  var 번호글 = a + '~' + b + '번';
-  function 붙여(글){ return 번호도 ? 글 + ' · ' + 번호글 : 글; }
-  if(총 && a <= 1 && b >= 총) return 붙여('전체');
-  var 첫 = Math.floor((a - 1) / 묶음) + 1;
-  var 끝 = Math.ceil(b / 묶음);
-  if(끝 < 첫) 끝 = 첫;
-  var 딱 = ((a - 1) % 묶음 === 0) && (b % 묶음 === 0 || (총 && b >= 총));
-  var 레 = (첫 === 끝) ? ('레슨 ' + 첫) : ('레슨 ' + 첫 + '~' + 끝);
-  return 붙여(딱 ? 레 : (레 + ' 중 일부'));
-}
 
 /* 아이 화면 — 레슨 번호만 */
 function 학생범위글_(단어장, a, b){
@@ -5870,60 +6407,6 @@ function 레슨크기(이름, 목록){
   (목록||[]).forEach(function(b){ if(b.이름===이름) n=Number(b.레슨)||0; });
   return n>0 ? n : 10;
 }
-/* [{n:1, a:1, b:10}, ...] */
-function 레슨나누기(총, 묶음){
-  총=Number(총)||0; 묶음=Number(묶음)||10; if(묶음<1) 묶음=10;
-  var out=[];
-  for(var a=1;a<=총;a+=묶음) out.push({n:out.length+1, a:a, b:Math.min(a+묶음-1,총)});
-  return out;
-}
-/* 레슨 고르개 (드롭다운) */
-function 레슨옵션들(총, 묶음, a, b){
-  var 들=레슨나누기(총,묶음), h='', 맞음=false;
-  들.forEach(function(L){
-    var on=(Number(a)===L.a && Number(b)===L.b);
-    if(on) 맞음=true;
-    h+='<option value="'+L.a+'|'+L.b+'"'+(on?' selected':'')+'>'+
-       '레슨 '+L.n+' · '+L.a+'~'+L.b+'번</option>';
-  });
-  if(총 && 들.length>1){
-    var 다=(Number(a)===1 && Number(b)===Number(총));
-    if(다) 맞음=true;
-    h+='<option value="1|'+총+'"'+(다?' selected':'')+'>전체 · 1~'+총+'번</option>';
-  }
-  if(!맞음) h='<option value="" selected>직접 정한 범위 · '+a+'~'+b+'번</option>'+h;
-  return h;
-}
-/* 그 범위의 첫 단어와 끝 단어 — 밑에 작게 보여 준다 */
-function 첫끝말(list, a, b){
-  if(!list || !list.length) return '';
-  a=Number(a)||1; b=Number(b)||0;
-  var 안=[];
-  list.forEach(function(w,i){ var no=Number(w.no)||(i+1); if(no>=a && no<=b) 안.push(w); });
-  if(!안.length) return '';
-  if(안.length===1) return 안[0].en;
-  return 안[0].en + '  …  ' + 안[안.length-1].en;
-}
-/* 숫자 칸을 직접 고쳤을 때 드롭다운을 맞춰 준다 */
-function 고름맞추기(sel, a, b){
-  if(!sel) return;
-  var v=Number(a)+'|'+Number(b), 있나=false;
-  for(var i=0;i<sel.options.length;i++) if(sel.options[i].value===v) 있나=true;
-  var 첫=sel.options[0];
-  if(있나){
-    if(첫 && 첫.value==='') sel.removeChild(첫);
-    sel.value=v;
-  }else{
-    var 글='직접 정한 범위 · '+a+'~'+b+'번';
-    if(첫 && 첫.value===''){ 첫.textContent=글; }
-    else {
-      var o=document.createElement('option');
-      o.value=''; o.textContent=글;
-      sel.insertBefore(o, sel.options[0]);
-    }
-    sel.value='';
-  }
-}
 function 낱말보이기(){
   var e=$('lesWord');
   if(e) e.textContent = 첫끝말(S.단어, $('inFrom').value, $('inTo').value);
@@ -5931,46 +6414,6 @@ function 낱말보이기(){
 function 칩맞추기(){
   고름맞추기($('lesSel'), $('inFrom').value, $('inTo').value);
   낱말보이기();
-}
-/* 비고에 적힌 묶음(단원 01 · Lesson 03 · Unit 2)을 찾는다 — 범위를 숫자 대신 묶음으로 고르게.
-   번호는 지금 목록(과면 그 구분) 안의 차례다. 단어 구분의 비고는 그림 칸에 들어 있으니 그것도 본다 */
-function 묶음찾기_(단어들){
-  var 표 = [], 찾기 = {};
-  (단어들||[]).forEach(function(w, i){
-    var 그림 = String(w.그림||'');
-    var 글 = String(w.비고||'') + ' ' + (/^(https?:|data:)/i.test(그림) ? '' : 그림);
-    var m = 글.match(/(단원|lesson|unit)\s*0*(\d+)/i);
-    if(!m) return;
-    var 열쇠 = m[1].toLowerCase() + '|' + Number(m[2]);
-    if(!찾기[열쇠]){ 찾기[열쇠] = {이름:m[0].trim(), 첫:i+1, 끝:i+1}; 표.push(찾기[열쇠]); }
-    else 찾기[열쇠].끝 = i+1;
-  });
-  return 표;
-}
-/* 「단원 01 ~ 단원 03」 — 처음 묶음과 끝 묶음을 고르면 그 줄들의 첫 번호~끝 번호 */
-function 묶음고르개_(목록, 앞, 시작, 끝){
-  function 옵(id, 고른){
-    return '<select id="'+id+'"><option value="">—</option>'+목록.map(function(u, i){
-      return '<option value="'+i+'"'+(i===고른?' selected':'')+'>'+esc(u.이름)+'</option>';
-    }).join('')+'</select>';
-  }
-  var a = -1, b = -1;
-  목록.forEach(function(u, i){ if(u.첫===Number(시작)) a = i; if(u.끝===Number(끝)) b = i; });
-  if(a < 0 || b < a){ a = -1; b = -1; }
-  return '<div class="unitpick"><span class="unitl">묶음으로</span>'+옵(앞+'A', a)+'<span>~</span>'+옵(앞+'B', b)+'</div>';
-}
-function 묶음붙이기_(목록, 앞, 넣기){
-  var A = $(앞+'A'), B = $(앞+'B'); if(!A || !B) return;
-  function 바뀜(){
-    var a = A.value === '' ? -1 : Number(A.value), b = B.value === '' ? -1 : Number(B.value);
-    if(a < 0 && b < 0) return;
-    if(a < 0){ a = b; A.value = String(a); }
-    if(b < a){ b = a; B.value = String(b); }
-    넣기(목록[a].첫, 목록[b].끝);
-  }
-  /* 처음 묶음을 고르면 그 묶음 하나 — 「~」 뒤를 골라 늘린다 */
-  A.onchange = function(){ B.value = A.value; 바뀜(); };
-  B.onchange = 바뀜;
 }
 
 function drawQuick(){
@@ -8889,13 +9332,6 @@ function 교재옵션(sel){
     }).join('')+
     '<option value="(없음)"'+(sel==='(없음)'?' selected':'')+'>교재 없음</option>';
 }
-/* 교재는 여러 권일 수 있다 — 무엇이 오든 목록으로 */
-function 교재목록(값){
-  if(!값) return [];
-  if(Object.prototype.toString.call(값)==='[object Array]')
-    return 값.map(function(x){return String(x||'').trim();}).filter(Boolean);
-  return String(값).split(/\s*[,|]\s*/).map(function(x){return x.trim();}).filter(Boolean);
-}
 /* 교재 필터에 걸리나 — 여러 권 중 하나라도 맞으면 걸린다 */
 function 교재맞나(값, 필터){
   var f = (필터===undefined) ? T.교재필터 : 필터;
@@ -11104,386 +11540,6 @@ function 색칩그리기(){
 }
 
 /* 단어장 종류에 맞는 숙제 유형만 보여 준다 */
-/* ==== 수업 짜기 공용 시작 — Code.gs 와 index.html 에 글자 하나 다르지 않게 들어 있다.
-   서버(Code.gs)는 진짜 기록으로, 미리보기(index.html)는 흉내 자료로 같은 규칙을 돌린다.
-   한쪽만 고치면 test71 이 빨갛게 된다 — 고칠 때는 둘 다 고친다. ==== */
-
-/* 처음 쓸 때 「수업틀」 시트에 옮겨 넣는 틀. 그 뒤로는 시트가 주인이다 (선생님이 고치고 지운다).
-   키는 예전 화면(꾸러미 고르기)이 보내는 값을 받아 주려고 남겨 둔다. */
-var 처음수업틀_ = [
-  { 키: '본문1', 이름: '본문 1회차', 설명: '단어 확인 → 본문 빈칸 → 해석 보고 영작',
-    단계: [ { 종류: '보통', 어디: '단어', 유형: '스펠링' },
-            { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' },
-            { 종류: '보통', 어디: '본문', 유형: '영작' } ] },
-  { 키: '본문정리', 이름: '본문 총정리', 설명: '빈칸 → 순서 맞추기 → 영작 → 듣고 쓰기',
-    단계: [ { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' },
-            { 종류: '보통', 어디: '본문', 유형: '순서 맞추기' },
-            { 종류: '보통', 어디: '본문', 유형: '영작' },
-            { 종류: '보통', 어디: '본문', 유형: '듣고 쓰기' } ] },
-  { 키: '문법', 이름: '문법 확인', 설명: '문법 빈칸 → 본문 빈칸 (오늘 배운 어법 굳히기)',
-    단계: [ { 종류: '보통', 어디: '문법', 유형: '빈칸 채우기' },
-            { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' } ] },
-  { 키: '본문문법', 이름: '본문 + 문법 (한 회차 전체)', 설명: '단어 → 본문 빈칸 → 영작 → 문법 빈칸',
-    단계: [ { 종류: '보통', 어디: '단어', 유형: '스펠링' },
-            { 종류: '보통', 어디: '본문', 유형: '빈칸 채우기' },
-            { 종류: '보통', 어디: '본문', 유형: '영작' },
-            { 종류: '보통', 어디: '문법', 유형: '빈칸 채우기' } ] },
-  { 키: '단어집중', 이름: '단어 집중', 설명: '4지선다 → 스펠링',
-    단계: [ { 종류: '보통', 어디: '단어', 유형: '4지선다' },
-            { 종류: '보통', 어디: '단어', 유형: '스펠링' } ] },
-  { 키: '시험대비', 이름: '시험 대비', 설명: '단어 스펠링 → 본문 영작',
-    단계: [ { 종류: '보통', 어디: '단어', 유형: '스펠링' },
-            { 종류: '보통', 어디: '본문', 유형: '영작' } ] }
-];
-
-/* 한 문제에 걸리는 시간(초) — 단계가 몇 분짜리인지 어림하는 기준. 본문·문법은 문장 하나 기준.
-   선생님은 단계마다 분을 직접 고칠 수 있다 — 이건 처음 값일 뿐이다. */
-var 수업초표_ = {
-  '스펠링': 20, '첫 글자': 15, '듣고 쓰기': 25, '4지선다': 10, '뜻 고르기': 10, '플래시카드': 8, '3단변화': 30,
-  '본문|빈칸 채우기': 40, '본문|영작': 70, '본문|순서 맞추기': 50, '본문|듣고 쓰기': 60, '문법|빈칸 채우기': 35
-};
-var 추천기록최소_ = 5;      // 기록이 이보다 적으면 진도만 보고 짠다 (학기 초)
-var 추천예산기본_ = 35;     // 분
-
-/* 누적 단계는 숙제 한 줄의 유형 칸에 「스펠링 (누적 20)」 처럼 적힌다.
-   숙제 시트 칸을 늘리지 않고, 유형모드_() 는 그대로 「스펠링」 으로 읽는다. */
-function 유형알맹이_(유형) { return String(유형 || '').replace(/\s*\(누적[^)]*\)\s*$/, '').trim(); }
-function 누적인가_(유형) { return /\(누적/.test(String(유형 || '')); }
-function 누적개수_(유형) {
-  var m = String(유형 || '').match(/\(누적\s*(\d+)/);
-  return m ? Number(m[1]) : 20;
-}
-/* 함께 = 반이 함께 틀린 단어부터 낸다 (「(누적 7 함께)」). 없으면 그 아이가 틀린 단어부터 */
-function 누적유형_(유형, 개수, 함께) {
-  return 유형알맹이_(유형) + ' (누적 ' + (Number(개수) || 20) + (함께 ? ' 함께' : '') + ')';
-}
-function 함께누적인가_(유형) { return /\(누적[^)]*함께/.test(String(유형 || '')); }
-
-/* 기록 한 줄의 틀린 단어 칸 — 시트 칸에는 다섯 개 뒤에 「…외 N개」 가 붙어 있다. 그 꼬리는 단어가 아니다 */
-function 틀린칸풀기_(글) {
-  return String(글 || '').replace(/\s*…외\s*\d+개\s*$/, '')
-    .split(/\s*,\s*|\s+\/\s+/).map(function (w) { return w.replace(/…$/, '').trim(); }).filter(String);
-}
-/* 반의 1/3 이상(적어도 2명)이 함께 틀린 단어 — 많이 틀린 것부터. 기록들 = [{이름, 틀린}] */
-function 함께틀린_(기록들, 학생수) {
-  var 누가 = {};
-  (기록들 || []).forEach(function (r) {
-    틀린칸풀기_(r.틀린).forEach(function (w) {
-      var k = w.toLowerCase();
-      (누가[k] = 누가[k] || { 글: w, 사람: {} }).사람[r.이름] = 1;
-    });
-  });
-  var 기준 = Math.max(2, Math.ceil((Number(학생수) || 0) / 3));
-  return Object.keys(누가).map(function (k) { return { 글: 누가[k].글, 수: Object.keys(누가[k].사람).length }; })
-    .filter(function (x) { return x.수 >= 기준; })
-    .sort(function (x, y) { return y.수 - x.수; });
-}
-
-function 단계초_(유형, 책종류) {
-  var 알 = 유형알맹이_(유형);
-  return 수업초표_[(책종류 || '') + '|' + 알] || 수업초표_[알] || 20;
-}
-/* 몇 분짜리 단계인가 — 올림해서 분으로 */
-function 단계분_(유형, 개수, 책종류) {
-  return Math.max(1, Math.ceil((Number(개수) || 0) * 단계초_(유형, 책종류) / 60));
-}
-
-/* 「몇 수업 전」 — 날짜가 아니라 수업 회차로 센다.
-   그 교재로 숙제가 나간 날을 모아, 같은 날 나간 것은 한 수업으로 본다.
-   (중3 은 주 4회, 중2 는 주 3회라 날짜로 세면 두 반이 어긋난다)
-   오늘 나간 것은 아직 「지난」 수업이 아니라 빼고, 가장 최근 날이 1 이다. */
-function 수업회차_(숙제들, 오늘) {
-  var 날들 = [];
-  (숙제들 || []).forEach(function (h) {
-    var d = String(h.등록 || '');
-    if (d && d < 오늘 && 날들.indexOf(d) < 0) 날들.push(d);
-  });
-  날들.sort();
-  날들.reverse();
-  var 표 = {};
-  날들.forEach(function (d, i) { 표[d] = i + 1; });
-  return 표;
-}
-
-/* 한 묶음이 몇 개인가 — 단어는 20개, 본문·문법은 12문장 */
-function 묶음크기_(칸) { return (칸 === '본문' || 칸 === '문법') ? 12 : 20; }
-/* 「이어서」 — 그 단어장·그 구분으로 나간 숙제의 가장 큰 끝번호 다음부터 (숙제들은 이미 걸러서 준다).
-   끝을 넘으면 끝까지만, 이미 끝까지 갔으면 1부터 다시, 처음이면 1부터 */
-function 이어서범위_(숙제들, 총, 몇) {
-  var 끝본 = 0;
-  (숙제들 || []).forEach(function (h) {
-    if (!누적인가_(h.유형)) 끝본 = Math.max(끝본, Number(h.끝) || 0);
-  });
-  총 = Number(총) || 0;
-  var a = 끝본 + 1;
-  if (총 && a > 총) a = 1;
-  var b = a + (Number(몇) || 20) - 1;
-  if (총) b = Math.min(b, 총);
-  return { 시작: a, 끝: b };
-}
-
-/* 지난 N수업에 나간 범위를 하나로 묶는다 — 누적 단계가 「앱이 고르는」 범위.
-   칸을 주면 그 구분의 숙제만 (과 단어장의 누적은 단어 구분에서만) */
-function 누적범위_(숙제들, 교재, 지난, 오늘, 칸) {
-  var 이것 = (숙제들 || []).filter(function (h) { return h.단어장 === 교재; });
-  var 범위것 = 칸 === undefined ? 이것 : 이것.filter(function (h) { return (h.칸 || '') === (칸 || ''); });
-  var 회차 = 수업회차_(이것, 오늘), a = 0, b = 0;      // 수업 회차는 그 단어장 전체로 센다
-  범위것.forEach(function (h) {
-    var n = 회차[String(h.등록 || '')];
-    if (!n || n > (Number(지난) || 0)) return;
-    var s = Number(h.시작) || 1, e = Number(h.끝) || s;
-    if (!a || s < a) a = s;
-    if (e > b) b = e;
-  });
-  return a ? { 시작: a, 끝: b } : null;
-}
-
-/* 초 → 「6분 20초」 */
-function 분초_(초) {
-  초 = Math.round(Number(초) || 0);
-  var m = Math.floor(초 / 60), s = 초 % 60;
-  return (m ? m + '분' : '') + (m && s ? ' ' : '') + (s || !m ? s + '초' : '');
-}
-/* 시간 기본값 — 한 값을 돌려쓰지 않고 그 숙제의 유형·문항 수로 따로 센다.
-   외우는 시간: 문항마다 15초를 올림해서 분 (20개 → 5분).
-   시험 시간: 그 유형의 예상 시간 × 1.2 를 올림 (시험이라 연습보다 빠듯하게).
-   1.2 를 그냥 곱하면 소수 끝이 남아(5 × 1.2 = 6.000…1) 올림이 한 칸 더 간다 — 12/10 으로 센다 */
-function 외우기기본_(개수) { return Math.ceil((Number(개수) || 0) * 15 / 60) || ''; }
-function 시험시간기본_(유형, 개수, 책종류) {
-  return Number(개수) > 0 ? Math.ceil(단계분_(유형, 개수, 책종류) * 12 / 10) : '';
-}
-
-/* 받침이 있으면 「을」, 없으면 「를」 — 숫자로 끝나면 읽는 소리로 (레슨 2 → 이 → 를, 레슨 3 → 삼 → 을) */
-function 을를_(글) {
-  var t = String(글 || ''), 끝 = t.charAt(t.length - 1);
-  if (/[0-9]/.test(끝)) return '0136781'.indexOf(끝) > -1 ? '을' : '를';
-  var c = t.charCodeAt(t.length - 1);
-  if (c >= 0xAC00 && c <= 0xD7A3) return (c - 0xAC00) % 28 ? '을' : '를';
-  return '을';
-}
-
-/* 오늘 추천 — 그 단어장의 숙제·기록을 보고 수업 초안을 짠다.
-   재료 = { 교재, 종류, 오늘, 예산, 레슨, 총, 칸수:{단어,본문,문법}, 학생수,
-            숙제들:[{단어장,칸,시작,끝,유형,등록,안낸수}], 기록들:[{이름,칸,유형,점수,틀린,날}],
-            단어들:[단어 구분의 영어…] }
-   과 단어장이면 구분(단어·본문·문법)마다 따로 본다. 옛 단어장은 구분이 하나뿐이다.
-   진단은 1순위부터 보고, 고른 단계마다 왜 골랐는지(이유)를 붙인다 — 이유가 안 보이면 선생님이 안 쓴다. */
-function 수업추천짜기_(재료) {
-  재료 = 재료 || {};
-  var 교재 = String(재료.교재 || ''), 오늘 = String(재료.오늘 || '');
-  var 예산 = Number(재료.예산) || 추천예산기본_, 레슨 = Number(재료.레슨) || 10;
-  var 과 = 재료.종류 === '과', 칸수 = 재료.칸수 || {};
-  var 칸들 = 과 ? 어디차례_.filter(function (k) { return Number(칸수[k]) > 0; }) : [어디로_(재료.종류)];
-  if (!칸들.length) 칸들 = ['단어'];
-  function 총(k) { return 과 ? (Number(칸수[k]) || 0) : (Number(재료.총) || 0); }
-  function 칸of(x) { return 과 ? (x.칸 || '단어') : 칸들[0]; }
-  function 기본유형(k) { return k === '3단변화' ? '3단변화' : (k === '본문' || k === '문법') ? '빈칸 채우기' : '스펠링'; }
-  var 숙제들 = (재료.숙제들 || []).filter(function (h) { return h.단어장 === 교재 && h.등록; });
-  var 기록들 = 재료.기록들 || [];
-  /* 철자·다 같이 틀린 단어는 단어 구분의 기록만 본다 (본문 문장이 섞이면 안 된다) */
-  var 단어기록 = 기록들.filter(function (r) { return 칸of(r) === '단어'; });
-  var 단어있나 = 칸들.indexOf('단어') > -1;
-  var 회차 = 수업회차_(숙제들, 오늘);
-  var 진단 = [], 앞 = [], 복습 = [], 묶음 = [], 쓴범위 = {};
-
-  /* 과는 「단어 21~40」, 옛 단어장은 「레슨 3」·「21~25번」 */
-  function 범위글(k, a, b) {
-    if (과) return k + ' ' + a + '~' + b;
-    if ((a - 1) % 레슨 === 0 && (b % 레슨 === 0 || b === 총(k))) {
-      var p = (a - 1) / 레슨 + 1, q = Math.ceil(b / 레슨);
-      return p === q ? '레슨 ' + p : '레슨 ' + p + '~' + q;
-    }
-    return a + '~' + b + '번';
-  }
-  function 단계(k, 종류, a, b, 유형, 이유, 개수) {
-    /* 누적(그 아이 오답부터 몇 개만)은 단어 구분에서만 — 3단변화·본문·문법은 그 범위를 통째로 */
-    if (종류 === '누적' && k !== '단어') 종류 = '보통';
-    var n = 종류 === '누적' ? (개수 || (b - a + 1)) : (b - a + 1);
-    var s = { 종류: 종류, 단어장: 교재, 칸: 과 ? k : '', 시작: a, 끝: b, 유형: 유형, 이유: 이유,
-              이름: (종류 === '누적' ? '누적 ' : '') + 범위글(k, a, b) + ' ' + 유형 };
-    if (종류 === '누적') s.개수 = n;
-    s.분 = 단계분_(유형, n, (k === '본문' || k === '문법') ? k : '');
-    return s;
-  }
-
-  var 기록적음 = 기록들.length < 추천기록최소_;
-  var 약철자 = false;
-  if (기록적음) {
-    진단.push('아직 기록이 적어 진도만 보고 짰습니다');
-  } else {
-    /* 1순위 — 지난 2수업에 나간 숙제를 못 낸(80점을 못 넘긴) 사람이 있으면 그 범위를 맨 앞에 */
-    숙제들.filter(function (h) {
-      var n = 회차[h.등록];
-      return n && n <= 2 && (Number(h.안낸수) || 0) > 0;
-    }).sort(function (x, y) {
-      return 회차[x.등록] - 회차[y.등록] || 칸들.indexOf(칸of(x)) - 칸들.indexOf(칸of(y)) || x.시작 - y.시작;
-    }).forEach(function (h) {
-      var k = 칸of(h), 유형 = 유형알맹이_(h.유형), 열쇠 = k + '|' + h.시작 + '~' + h.끝 + '|' + 유형;
-      if (쓴범위[열쇠]) return;
-      쓴범위[열쇠] = 1; 쓴범위[k + '|' + h.시작 + '~' + h.끝] = 1;
-      진단.push(h.안낸수 + '명이 ' + 범위글(k, h.시작, h.끝) + ' ' + 유형 + 을를_(유형) + ' 못 냈습니다');
-      /* 못 낸 것이 누적이었으면 누적 그대로 다시 (통째 범위로 바꾸면 40개짜리가 된다) */
-      var s = 누적인가_(h.유형)
-        ? 단계(k, '누적', h.시작, h.끝, 유형, h.안낸수 + '명이 못 냈습니다', 누적개수_(h.유형))
-        : 단계(k, '보통', h.시작, h.끝, 유형, h.안낸수 + '명이 못 냈습니다');
-      if (함께누적인가_(h.유형)) s.함께 = true;
-      앞.push(s);
-    });
-
-    /* 2순위 — 최근 30일 단어 기록에서 (4지선다 + 첫 글자 평균) − (스펠링 + 듣고 쓰기 평균) ≥ 12 */
-    var 평균 = function (맞나) {
-      var 합 = 0, n = 0;
-      단어기록.forEach(function (r) {
-        if (맞나(String(r.유형 || ''))) { 합 += Number(r.점수) || 0; n++; }
-      });
-      return n ? Math.round(합 / n) : null;
-    };
-    var 뜻점 = 평균(function (t) { return /4지|뜻|첫/.test(t); });
-    var 철점 = 평균(function (t) { return /스펠|듣고/.test(t); });
-    약철자 = 단어있나 && 뜻점 !== null && 철점 !== null && 뜻점 - 철점 >= 12;
-    if (약철자) 진단.push('뜻 고르기 ' + 뜻점 + '점 / 철자 쓰기 ' + 철점 + '점 — 철자가 약합니다');
-
-    /* 3순위 — 마지막으로 본 것이 2·4·8수업 전인 범위 (잊을 때쯤 다시 본다).
-       단어는 누적(그 아이 오답부터), 본문·문법은 그때 낸 유형으로 그 범위를 다시 */
-    var 마지막 = {};
-    숙제들.forEach(function (h) {
-      var n = 회차[h.등록];
-      if (!n || 누적인가_(h.유형)) return;
-      var k = 칸of(h), 열 = k + '|' + h.시작 + '~' + h.끝;
-      if (!마지막[열] || n < 마지막[열].n) 마지막[열] = { n: n, 칸: k, 시작: h.시작, 끝: h.끝, 유형: 유형알맹이_(h.유형) };
-    });
-    Object.keys(마지막).map(function (열) { return 마지막[열]; })
-      .filter(function (x) { return [2, 4, 8].indexOf(x.n) > -1 && !쓴범위[x.칸 + '|' + x.시작 + '~' + x.끝]; })
-      .sort(function (x, y) { return y.n - x.n || 칸들.indexOf(x.칸) - 칸들.indexOf(y.칸) || x.시작 - y.시작; })
-      .forEach(function (x) {
-        var 글 = 범위글(x.칸, x.시작, x.끝);
-        진단.push(글 + 을를_(글) + ' 본 지 ' + x.n + '수업 됐습니다');
-        var s = x.칸 === '단어'
-          ? 단계('단어', '누적', x.시작, x.끝, 기본유형('단어'), x.n + '수업 전에 봤습니다', Math.min(20, x.끝 - x.시작 + 1))
-          : 단계(x.칸, '보통', x.시작, x.끝, x.유형 || 기본유형(x.칸), x.n + '수업 전에 봤습니다');
-        s.지난 = x.n;
-        복습.push(s);
-      });
-
-    /* 4순위 — 아이들 1/3 이상이 다 같이 틀린 단어가 5개를 넘으면, 그 단어들이 있는 자리를 「함께」 누적으로.
-       아이 화면은 「함께」 누적을 열면 다 같이 틀린 단어부터 낸다 (내오답 … 함께) */
-    var 함께 = 단어있나 ? 함께틀린_(단어기록, 재료.학생수) : [];
-    if (함께.length > 5) {
-      var 단어들 = (재료.단어들 || []).map(function (w) { return String(w).toLowerCase().trim(); });
-      var 자리 = [];
-      함께.forEach(function (x) { var i = 단어들.indexOf(x.글.toLowerCase()); if (i > -1) 자리.push(i + 1); });
-      var 보기 = 함께.slice(0, 3).map(function (x) { return x.글; }).join(', ') + (함께.length > 3 ? ' …' : '');
-      진단.push('다 같이 틀린 단어 ' + 함께.length + '개 (' + 보기 + ')');
-      if (자리.length) {
-        var a = Math.min.apply(null, 자리), b = Math.max.apply(null, 자리);
-        var s = 단계('단어', '누적', a, b, 기본유형('단어'), '다 같이 틀린 단어 ' + 함께.length + '개', 자리.length);
-        s.이름 = '다 같이 틀린 단어 ' + 자리.length + '개';
-        if (s.종류 === '누적') s.함께 = true;
-        묶음.push(s);
-      }
-    }
-  }
-
-  /* 덤 — 제한 시간이 빠듯한가: 제한을 건 유형마다, 그 유형 기록의 평균 걸린 시간이 제한의 90% 를 넘으면.
-     단계를 바꾸지는 않는다 — 선생님이 제한을 늘릴지 정한다 */
-  if (!기록적음) {
-    var 제한들 = {};
-    숙제들.forEach(function (h) {
-      var m = Number(h.제한시간) || 0;
-      if (m > 0) (제한들[유형알맹이_(h.유형)] = 제한들[유형알맹이_(h.유형)] || []).push(m);
-    });
-    Object.keys(제한들).forEach(function (t) {
-      var 초들 = 기록들.filter(function (r) { return 유형알맹이_(r.유형) === t && Number(r.초) > 0; })
-        .map(function (r) { return Number(r.초); });
-      if (!초들.length) return;
-      var 평균초 = 초들.reduce(function (a, b) { return a + b; }, 0) / 초들.length;
-      var 제한분 = 제한들[t].reduce(function (a, b) { return a + b; }, 0) / 제한들[t].length;
-      if (평균초 > 제한분 * 60 * 0.9) {
-        진단.push(t + ' 평균 ' + 분초_(평균초) + ' / 제한 ' + Math.round(제한분) + '분 — 시간이 빠듯합니다');
-      }
-    });
-  }
-
-  /* 5순위 — 구분마다 나간 데까지의 다음 묶음 (수업 짜기의 「이어서」 와 같은 계산).
-     철자가 약하면 단어 진도는 스펠링 대신 듣고 쓰기 + 첫 글자 */
-  var 단어진도 = [], 딴진도 = [];
-  칸들.forEach(function (k) {
-    var 것 = 숙제들.filter(function (h) { return 칸of(h) === k; });
-    var r = 이어서범위_(것, 총(k), 묶음크기_(k));
-    var 끝본 = 0;
-    것.forEach(function (h) { if (!누적인가_(h.유형)) 끝본 = Math.max(끝본, Number(h.끝) || 0); });
-    if (총(k) && 끝본 >= 총(k)) 진단.push((과 ? k + 을를_(k) + ' ' : '') + '끝까지 나가서 처음부터 다시 돕니다');
-    if (k === '단어' && 약철자) {
-      단어진도 = [단계(k, '보통', r.시작, r.끝, '듣고 쓰기', '철자가 약합니다'),
-                  단계(k, '보통', r.시작, r.끝, '첫 글자', '철자가 약합니다')];
-    } else if (k === '단어') {
-      단어진도 = [단계(k, '보통', r.시작, r.끝, 기본유형(k), '진도')];
-    } else {
-      딴진도.push(단계(k, '보통', r.시작, r.끝, 기본유형(k), '진도'));
-    }
-  });
-
-  /* 같은 범위·같은 유형이 두 번 들어가지 않게 (못 낸 숙제와 새 진도가 겹칠 때) */
-  var 본단계 = {};
-  var 순서 = (기록적음 ? 단어진도.concat(딴진도)
-                       : 앞.concat(약철자 ? 단어진도 : [], 복습, 묶음, 약철자 ? [] : 단어진도, 딴진도))
-    .filter(function (s) {
-      var k = s.종류 + '|' + s.칸 + '|' + s.시작 + '~' + s.끝 + '|' + s.유형;
-      if (본단계[k]) return false;
-      본단계[k] = 1;
-      return true;
-    });
-  /* 시간 예산 — 위에서부터 채우다가 넘치면 거기서 뒤를 자른다 (한 단계는 꼭 넣는다) */
-  var 단계들 = [], 합 = 0;
-  for (var i = 0; i < 순서.length; i++) {
-    if (단계들.length && 합 + 순서[i].분 > 예산) break;
-    단계들.push(순서[i]);
-    합 += 순서[i].분;
-  }
-  if (순서.length > 단계들.length) {
-    진단.push('시간 예산 ' + 예산 + '분을 넘어서 뒤의 ' + (순서.length - 단계들.length) + '단계는 뺐습니다');
-  }
-  return { 교재: 교재, 오늘: 오늘, 예산: 예산, 진단: 진단, 단계: 단계들, 합계분: 합, 기록적음: 기록적음 };
-}
-
-/* ---------- 과 묶음 — 한 과를 가르치려면 단어장이 셋(단어·본문·문법)이다 ----------
-   과 이름은 단어장 이름 끝의 꼬리말( 단어 · 본문 · 문법 · 3단변화)을 떼고 남는 것.
-   「중2 5과 단어2」 처럼 꼬리말 뒤에 숫자가 붙어도 같은 과다 (한 과에 단어장이 둘일 때).
-   어디(단어·본문·문법·3단변화)는 이름이 아니라 「종류」 로 정한다 — 이름이 「… 단어」 여도 종류가 본문이면 본문이다. */
-var 과꼬리말_ = ['단어', '본문', '문법', '3단변화'];
-var 어디차례_ = ['단어', '본문', '문법', '3단변화'];
-function 어디로_(종류) {
-  var k = String(종류 || '').trim();
-  return (k === '본문' || k === '문법' || k === '3단변화') ? k : '단어';
-}
-function 과쪼개기_(이름, 종류) {
-  var t = String(이름 || '').trim(), 과 = '';
-  var m = t.match(new RegExp('^(.+?)\\s+(' + 과꼬리말_.join('|') + ')\\d*$'));
-  if (m) 과 = m[1].trim();
-  return { 과: 과, 어디: 어디로_(종류) };
-}
-/* 이 단어장의 과 — 단어장목록 시트의 「과」 칸이 적혀 있으면 그게 이긴다 (옛 단어장을 손으로 묶는 칸) */
-function 과이름_(b) {
-  var 손 = (b && b.과칸 !== undefined && b.과칸 !== null) ? String(b.과칸).trim() : '';
-  /* 종류가 「과」 인 단어장(한 과 = 한 장)은 제 이름이 곧 과 */
-  if (!손 && b && String(b.종류 || '').trim() === '과') return String(b.이름 || '').trim();
-  return 손 || 과쪼개기_(b && b.이름, b && b.종류).과;
-}
-/* 단어장목록 → [{과, 칸:{단어:[{이름,개수}], 본문:[…], …}}] — 과는 처음 나온 차례, 과 없는 것은 빠진다 */
-function 과묶음_(목록) {
-  var 과들 = [], 찾기 = {};
-  (목록 || []).forEach(function (b) {
-    if (!b || !b.이름) return;
-    var 과 = 과이름_(b);
-    if (!과) return;
-    var g = 찾기[과];
-    if (!g) { g = 찾기[과] = { 과: 과, 칸: {} }; 과들.push(g); }
-    var 어디 = 어디로_(b.종류);
-    (g.칸[어디] = g.칸[어디] || []).push({ 이름: b.이름, 개수: Number(b.개수) || 0 });
-  });
-  return 과들;
-}
-/* ==== 수업 짜기 공용 끝 ==== */
 
 var 보통유형_ = ['스펠링','4지선다','첫 글자'];
 var 본문유형_ = ['빈칸 채우기','순서 맞추기','영작','듣고 쓰기'];
@@ -12637,25 +12693,7 @@ function 그림줄이기_(파일, 최대){
   });
 }
 
-/* 그림 주소가 안 뜰 때 다른 형태로 한 번 더 해 본다 */
-function 그림안뜨면_(el){
-  var m = /[?&]id=([^&]+)/.exec(el.getAttribute('src') || '');
-  if(m && el.getAttribute('data-두번째') !== '1'){
-    el.setAttribute('data-두번째', '1');
-    el.src = 'https://lh3.googleusercontent.com/d/' + m[1];
-    return;
-  }
-  el.style.visibility = 'hidden';
-}
-function 그림태그_(주소, 클래스){
-  return '<img class="' + 클래스 + '" src="' + esc(주소) +
-    '" alt="" loading="lazy" onerror="그림안뜨면_(this)">';
-}
 
-/* 파일 이름과 영어 단어를 맞춰 볼 때 쓰는 열쇠말 — Code.gs 의 열쇠말_ 과 같은 규칙 */
-function DEMO열쇠_(v){
-  return String(v || '').toLowerCase().replace(/\.[^.]+$/, '').replace(/[\s_\-().0-9]/g, '');
-}
 
 /* 그림 여러 장을 여섯 장씩 나눠 올린다 (한 번에 다 보내면 시간이 넘친다) */
 function 그림여러장보내기_(파일들){
@@ -12718,10 +12756,6 @@ function 그림고르기_(여러장, 하기){
 }
 
 /* ---------- 단어장 편집 ---------- */
-/* 낱말만 쓰는 곳(게임·시험지 뽑기) — 과 단어장이면 단어 구분만. 아직 안 왔으면(null) 그대로 */
-function 종이단어_(말){
-  return 말 ? 말.filter(function(w){ return !w.칸 || w.칸==='단어'; }) : 말;
-}
 
 /* ---------- 과 한 장 읽기 ----------
    1. 빈 줄은 넘긴다   2. // 로 시작하면 주석 — 넘긴다

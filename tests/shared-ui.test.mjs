@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
-const ui=vm.createContext({});
+/* shared-ui.js 는 페이지에 박히는 글이라 맨 위에서 location · 창구주소 를 읽는다 — 그만큼만 흉내 낸다 */
+const ui=vm.createContext({location:{protocol:'https:',hostname:'example.invalid',search:''},창구주소:'firestore:v1'});
 vm.runInContext(read('../services/shared-ui.js'),ui);
 /* 업무 엔진은 시험인가_ 를 밖으로 내놓지 않는다 — 생성된 엔진 글에서 그 함수들의 글을 그대로 떼어 따로 돌린다 */
 function 떼기(source,name){
