@@ -7004,16 +7004,53 @@ function 별표뒤집기_(no){
   return i < 0;
 }
 
+/* 낱말 소리 — 미리 만든 mp3 를 먼저 틀고, 없으면 기기 읽어주기(TTS).
+   기기에 영어 목소리가 없으면 TTS 는 소리 없이 조용히 실패한다 — 유치부는 소리가 곧 수업이라 파일이 먼저다.
+   · 파일은 그림(img/)과 같은 곳에서 받는다. 그림도 단어 자료에 깃헙 주소로 들어 있고 앱 번들에는 없다
+   · 없다고 확인된 낱말은 이 판이 끝날 때까지 다시 찾지 않는다 (중등 단어는 mp3 가 없어 매번 404 가 난다)
+   · Audio 는 하나만 만들어 src 만 바꾼다 — 아이폰에서 소리 객체가 쌓이면 어느 순간 안 난다 */
+var 소리주소_ = 'https://smarthb-english.github.io/Vocab/sound/';
+var 소리없음_ = new Set();
+var 소리판_ = null, 소리표_ = 0;
 function 읽어주기_(글){
+  function 기기로(){
+    try{
+      if(소리판_) 소리판_.pause();
+      if(!('speechSynthesis' in window)) return false;
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(String(글||'').replace(/\s*[\-–—]\s*/g, ', '));
+      u.lang = 'en-US'; u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+      return true;
+    }catch(e){ return false; }
+  }
+  /* 영문 글자만으로 된 한 낱말만 파일 이름이 된다 — 문장 · 「A - B」 · 숫자 · 기호는 바로 TTS */
+  var 낱말 = String(글||'').trim().toLowerCase();
+  if(!/^[a-z]+$/.test(낱말) || 소리없음_.has(낱말) || typeof Audio === 'undefined') return 기기로();
   try{
-    if(!('speechSynthesis' in window)) return false;
-    window.speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(String(글||'').replace(/\s*[\-–—]\s*/g, ', '));
-    u.lang = 'en-US'; u.rate = 0.9;
-    window.speechSynthesis.speak(u);
+    try{ if('speechSynthesis' in window) window.speechSynthesis.cancel(); }catch(e){}
+    if(!소리판_) 소리판_ = new Audio();
+    var 판 = 소리판_, 표 = ++소리표_, 넘어감 = false;
+    /* 파일이 안 되면 한 번만 TTS 로 — onerror 와 play() 의 거절이 둘 다 올 수 있다. 뒤에 누른 소리가 있으면 버린다 */
+    function 안됨(없다){
+      if(넘어감 || 표 !== 소리표_) return;
+      넘어감 = true;
+      if(없다) 소리없음_.add(낱말);
+      기기로();
+    }
+    판.pause();
+    판.onerror = function(){ 안됨(true); };
+    판.src = 소리주소_ + 낱말 + '.mp3';
+    var p = 판.play();
+    if(p && p.catch) p.catch(function(e){
+      var 이름 = e && e.name;
+      if(이름 === 'AbortError') return;                 /* 새 소리로 바꾸느라 끊긴 것 */
+      안됨(이름 === 'NotSupportedError');              /* 파일이 없거나 못 튼다. 막힌 것(NotAllowedError)은 없다고 적지 않는다 */
+    });
     return true;
-  }catch(e){ return false; }
+  }catch(e){ return 기기로(); }
 }
+
 
 function startBook(){
   var r = 범위단어();
