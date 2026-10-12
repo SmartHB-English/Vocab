@@ -5,7 +5,7 @@ import test from 'node:test';
 import vm from 'node:vm';
 
 const 읽기 = 파일 => readFileSync(new URL('../' + 파일, import.meta.url), 'utf8');
-const 볼파일 = ['index.html', 'parent.html', 'sw.js', 'parent-sw.js', 'manifest.json', 'parent-manifest.json',
+const 볼파일 = ['index.html', 'teacher.html', 'parent.html', 'sw.js', 'parent-sw.js', 'manifest.json', 'parent-manifest.json',
   'capacitor.config.json', 'app/app-boot.js', 'tests/fixtures/legacy/Code.gs'];
 // 이미 설치한 기기의 것을 옮겨 오려고 일부러 남긴 옛 이름 — 이 상수 줄만 「해법」 이 있어도 된다
 const 옛이름줄 = /^var 옛(칸이름|열쇠앞|그림폴더이름) = '[^']*';\r?$/;

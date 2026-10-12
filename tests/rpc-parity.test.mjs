@@ -54,7 +54,7 @@ for (const file of ['index.html','parent.html']) {
 }
 
 test('all inline scripts and worker sources parse',()=>{
-  for (const file of ['index.html','parent.html']) {
+  for (const file of ['index.html','parent.html','teacher.html']) {
     const source=readFileSync(new URL(file,root),'utf8');
     let count=0;
     for (const m of source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) {
@@ -62,7 +62,7 @@ test('all inline scripts and worker sources parse',()=>{
     }
     assert.ok(count>0);
   }
-  for (const file of ['sw.js','parent-sw.js','services/api-client.js']) {
+  for (const file of ['sw.js','parent-sw.js','services/api-client.js','services/shared-ui.js']) {
     new vm.Script(readFileSync(new URL(file,root),'utf8'),{filename:file});
   }
 });

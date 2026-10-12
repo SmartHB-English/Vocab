@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 // Static literal candidates only; dynamic calls and server implementation need review.
 const root = new URL('../', import.meta.url);
-const files = ['index.html', 'parent.html', 'sw.js', 'parent-sw.js'];
+const files = ['index.html', 'teacher.html', 'parent.html', 'sw.js', 'parent-sw.js'];
 const endpoints = new Map();
 for (const file of files) {
   const source = readFileSync(new URL(file, root), 'utf8');

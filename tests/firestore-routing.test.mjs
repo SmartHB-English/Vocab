@@ -21,6 +21,6 @@ test('Firestore failure does not retry submissions or switch to another writer',
  let calls=0;const c=client(async()=>{calls++;throw Error('permission-denied');});
  await assert.rejects(c.api.request('firestore:v1','기록저장',[]),/permission-denied/);assert.equal(calls,1);
 });
-test('both deployed HTML entry points use the shared Firestore default',()=>{
- for(const name of ['index.html','parent.html'])assert.match(readFileSync(new URL('../'+name,import.meta.url),'utf8'),/var 창구주소 = VocabApi.defaultEndpoint;/);
+test('every deployed HTML entry point uses the shared Firestore default',()=>{
+ for(const name of ['index.html','parent.html','teacher.html'])assert.match(readFileSync(new URL('../'+name,import.meta.url),'utf8'),/var 창구주소 = VocabApi.defaultEndpoint;/);
 });
