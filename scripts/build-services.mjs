@@ -3,8 +3,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const root = new URL('../', import.meta.url);
 /* 원본 하나를 여러 대상의 표시 사이에 박아 넣는다. 짝을 늘리려면 여기에 한 줄 더한다 */
 const pairs = [
-  { source: 'services/api-client.js', targets: ['index.html', 'parent.html', 'sw.js', 'parent-sw.js'] },
-  { source: 'services/shared-ui.js', targets: ['index.html'] },
+  { source: 'services/api-client.js', targets: ['index.html', 'parent.html', 'sw.js', 'parent-sw.js', 'teacher.html'] },
+  { source: 'services/shared-ui.js', targets: ['index.html', 'teacher.html'] },
 ];
 const check = process.argv.includes('--check');
 let stale = false;

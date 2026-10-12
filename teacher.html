@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="kid">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>영단어학습프로그램 선생님</title>
+<!-- 선생님 화면 — 컴퓨터·태블릿의 브라우저로 연다. 설치형이 아니다 (manifest · 서비스워커 · 푸시 없음).
+     폰 앱(Capacitor) 번들에는 넣지 않는다 — 앱의 선생님 입구는 이 파일의 깃헙 주소를 바깥 브라우저로 연다.
+     공용 CSS·JS 는 아래 GENERATED 블록에 박힌다 (원본은 services/shared-ui.css · services/shared-ui.js). -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<meta name="theme-color" content="#F6F4F1">
+<style>
+</style>
+</head>
+<body>
+<div id="app">
+</div>
+
+<script>
+/* BEGIN GENERATED services/api-client.js */
+/* Single owner of the legacy HTTP RPC protocol. No automatic write retries. */
+(function (root) {
+  'use strict';
+
+  var legacyEndpoint = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
+
+  var firestoreReady;
+  function firestore() {
+    if (!firestoreReady) firestoreReady = Promise.resolve().then(function () {
+      if (typeof importScripts === 'function') importScripts('./services/firestore.bundle.js');
+      else return import('./services/firestore.bundle.js');
+    }).then(function () { return root.VocabFirestore; });
+    return firestoreReady;
+  }
+
+  function post(endpoint, fn, args) {
+    if (endpoint === 'firestore:v1') return firestore().then(function (service) { return service.call(fn, args); }).then(function (value) { return {ok:true, 값:value}; });
+    return fetch(endpoint, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: fn, args: args })
+    }).then(function (response) { return response.json(); });
+  }
+
+  function request(endpoint, fn, args, failureMessage) {
+    return post(endpoint, fn, args).then(function (response) {
+      if (response && response.ok) return response.값;
+      throw new Error((response && response.메시지) || failureMessage || '서버가 답하지 않았습니다');
+    });
+  }
+
+  root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request };
+})(typeof self !== 'undefined' ? self : globalThis);
+/* END GENERATED services/api-client.js */
+/* ==================================================================
+   영단어학습프로그램 — 선생님 화면
+   학생 화면(index.html)과 같은 창구로 말을 건다. 그냥 파일로 열면 예시 자료로 미리보기 된다.
+================================================================== */
+var 창구주소 = VocabApi.defaultEndpoint;
+
+/* BEGIN GENERATED services/shared-ui.js */
+/* 화면 여러 개가 함께 쓰는 작은 도움말들. 모듈이 아니다 — build-services.mjs 가 대상 파일의 인라인 스크립트에 그대로 박는다. */
+
+/** 화면에 넣을 글자를 HTML 로 안전하게 */
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+/* ---- 아래는 Code.gs 에서 그대로 옮겨 온 것 (글자 하나 바꾸지 않는다 — tests/shared-ui.test.mjs 가 맞대어 본다) ---- */
+
+function s_(v) { return v === null || v === undefined ? '' : String(v).trim(); }
+
+/** 숙제 종류는 넷: 당일 · 기한 · 보충 · 시험 */
+function 숙제종류_(v) {
+  var t = s_(v);
+  if (t === '보충') return '보충';
+  if (t === '시험') return '시험';
+  if (t === '기한') return '기한';
+  return '당일';
+}
+
+/* 숙제 종류 「시험」 은 숙제가 아니라 학원에서 보는 시험이다 — 가르는 곳은 여기 한 군데 (Code.gs 에도 같은 꼴).
+   숙제 수·제출률·안 낸 숙제에 시험을 넣지 않는다. 수업 안의 연습/시험 「단계」 와는 다른 것이다.
+   종류가 빈 옛 숙제는 숙제 쪽이다 (숙제종류_ 가 당일·기한으로 읽는다) */
+function 시험인가_(h) { return !!h && 숙제종류_(h.종류) === '시험'; }
+function 숙제인가_(h) { return !시험인가_(h); }
+/* END GENERATED services/shared-ui.js */
+</script>
+</body>
+</html>
