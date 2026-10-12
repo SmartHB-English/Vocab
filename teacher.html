@@ -2330,7 +2330,66 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
 </head>
 <body>
 <div id="app">
+
+  <!-- ========================= 선생님 ========================= -->
+  <section id="s-teacher" class="screen on">
+    <div class="top">
+      <button class="iconbtn" data-back="login">← 뒤로</button>
+      <div class="who">선생님 화면</div>
+    </div>
+
+    <div id="tLogin" class="card">
+      <label>선생님 비밀번호</label>
+      <input id="tPw" type="password" placeholder="비밀번호">
+      <label class="autochk"><input type="checkbox" id="tAuto"> 자동 로그인</label>
+      <button class="btn" id="btnTLogin">들어가기</button>
+      <div class="center sub mt" id="tMsg"></div>
+    </div>
+
+    <div id="tMain" class="hide">
+      <div class="tshell">
+        <aside class="tside">
+          <div class="tbrand"><span id="tAcademy">홍제인왕영어</span>영단어학습프로그램<small id="tBrandSub">선생님 화면</small></div>
+          <nav class="tnav">
+            <div class="tgrps">
+              <button type="button" class="tgrp" data-grp="학생">학생</button>
+              <button type="button" class="tgrp" data-grp="오늘">오늘</button>
+              <button type="button" class="tgrp" data-grp="숙제">숙제</button>
+              <button type="button" class="tgrp" data-grp="자료">자료</button>
+            </div>
+            <div class="tsubs">
+              <button data-tab="people" data-g="학생" class="on">학생 한 명씩</button>
+              <button data-tab="sum" data-g="오늘">오늘 한눈에</button>
+              <button data-tab="today" data-g="오늘">시험 결과</button>
+              <button data-tab="notice" data-g="오늘">공지 보내기</button>
+              <button data-tab="hw" data-g="숙제">숙제 내주기 <span class="nbadge hide" id="navHw"></span></button>
+              <button data-tab="exam" data-g="숙제">시험 <span class="nbadge warn hide" id="navExam"></span></button>
+              <button data-tab="miss" data-g="숙제">안 한 학생 <span class="nbadge warn hide" id="navMiss"></span></button>
+              <button data-tab="paper" data-g="숙제">시험지 뽑기</button>
+              <button data-tab="students" data-g="학생">학생별 성적</button>
+              <button data-tab="award" data-g="학생">이달의 시상</button>
+              <button data-tab="wrong" data-g="학생">많이 틀린 단어</button>
+              <button data-tab="book" data-g="자료">단어장</button>
+              <button data-tab="roster" data-g="자료">학생 명단</button>
+              <button data-tab="setting" data-g="자료">설정</button>
+            </div>
+          </nav>
+          <div class="tside-f">
+            <button id="btnReload">↻ 새로고침</button>
+            <button data-back="login">← 학생 화면으로</button>
+          </div>
+        </aside>
+        <main class="tmain"><div id="tBody"></div></main>
+      </div>
+    </div>
+  </section>
+
 </div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 인쇄할 때만 보이는 종이. 화면에는 안 나온다. -->
+<div id="printArea"></div>
 
 <script>
 /* BEGIN GENERATED services/api-client.js */
