@@ -814,6 +814,17 @@ var 자동열쇠 = 'hb_auto';
 function 자동기억_(v){ try{ v ? localStorage.setItem(자동열쇠, JSON.stringify(v)) : localStorage.removeItem(자동열쇠); }catch(e){} }
 
 function 자동읽기_(){ try{ return JSON.parse(localStorage.getItem(자동열쇠)||'null'); }catch(e){ return null; } }
+/* 자동 로그인으로 들어가는 동안 화면을 가린다 — 보이면 또 눌러 요청이 겹친다. 치우는 함수를 돌려준다 */
+function 로그인가림_(){
+  var 가림 = document.createElement('div');
+  가림.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:var(--bg,#F6F4F1);display:flex;' +
+    'align-items:center;justify-content:center;font-size:16px;color:var(--sub,#78716C)';
+  가림.textContent = '로그인 중…';
+  document.body.appendChild(가림);
+  var 치우기 = function(){ if(가림.parentNode) 가림.remove(); };
+  setTimeout(치우기, 15000);   /* 그래도 안 끝나면 로그인 화면이라도 보여 준다 */
+  return 치우기;
+}
 
 function 학원이름_(){ return (시작정보 && 시작정보.학원이름) || '홍제인왕영어'; }
 

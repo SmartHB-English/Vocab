@@ -3251,6 +3251,17 @@ var 자동열쇠 = 'hb_auto';
 function 자동기억_(v){ try{ v ? localStorage.setItem(자동열쇠, JSON.stringify(v)) : localStorage.removeItem(자동열쇠); }catch(e){} }
 
 function 자동읽기_(){ try{ return JSON.parse(localStorage.getItem(자동열쇠)||'null'); }catch(e){ return null; } }
+/* 자동 로그인으로 들어가는 동안 화면을 가린다 — 보이면 또 눌러 요청이 겹친다. 치우는 함수를 돌려준다 */
+function 로그인가림_(){
+  var 가림 = document.createElement('div');
+  가림.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:var(--bg,#F6F4F1);display:flex;' +
+    'align-items:center;justify-content:center;font-size:16px;color:var(--sub,#78716C)';
+  가림.textContent = '로그인 중…';
+  document.body.appendChild(가림);
+  var 치우기 = function(){ if(가림.parentNode) 가림.remove(); };
+  setTimeout(치우기, 15000);   /* 그래도 안 끝나면 로그인 화면이라도 보여 준다 */
+  return 치우기;
+}
 
 function 학원이름_(){ return (시작정보 && 시작정보.학원이름) || '홍제인왕영어'; }
 
@@ -8254,6 +8265,35 @@ function 선생님범위글_(단어장, a, b){
   var i = 책칸_(단어장, (T && T.data && T.data.단어장목록) || []);
   return 레슨글_(i.묶음, i.총, a, b, true);
 }
+
+/* ================================================================
+   들어오고 나가기 — 학생 화면(index.html)과는 따로 있는 페이지다
+================================================================ */
+/* 나가면 학생 화면으로. 선생님 화면에서 나가면 다음 실행 때 자동으로 들어가지 않는다
+   (들어가지 못한 채 나가도 선생님 자동 로그인은 푼다 — 안 그러면 index.html 이 곧장 여기로 되돌려 보낸다) */
+qsa('[data-back]').forEach(function(b){
+  b.onclick=function(){
+    if(T.pw || (자동읽기_()||{}).역할 === '선생님') 자동기억_(null);
+    location.href = 'index.html';
+  };
+});
+/* 자동 로그인 — 열쇠(자동열쇠)는 index.html 과 같은 것을 쓴다. index.html 은 여기로 보내기만 하고, 들어가는 건 여기서 */
+function 선생님자동로그인_(){
+  var a = 자동읽기_(); if(!a || !GAS || a.역할 !== '선생님') return;
+  var 치우기 = 로그인가림_();
+  선생님들어가기_(a.비번, true).then(치우기, 치우기);
+}
+
+/* ------------------------------- 시작 */
+(function(){
+  /* 스크립트가 끝까지 실행됐다는 표시 — 안 뜨면 파일이 잘린 것 */
+  try{ var t=$('tBrandSub'); if(t) t.textContent='선생님 화면 · v'+앱버전; }catch(e){}
+  /* 학원 이름·합격점은 시작정보에 있다 — 받은 뒤에 자동 로그인 (학생 화면에서는 로그인 화면이 받아 두던 것) */
+  api('시작정보').then(function(d){
+    시작정보 = d;
+    var ta=$('tAcademy'); if(ta) ta.textContent=학원이름_();
+  }).catch(function(){}).then(선생님자동로그인_);
+})();
 </script>
 </body>
 </html>

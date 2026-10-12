@@ -3832,6 +3832,17 @@ var 자동열쇠 = 'hb_auto';
 function 자동기억_(v){ try{ v ? localStorage.setItem(자동열쇠, JSON.stringify(v)) : localStorage.removeItem(자동열쇠); }catch(e){} }
 
 function 자동읽기_(){ try{ return JSON.parse(localStorage.getItem(자동열쇠)||'null'); }catch(e){ return null; } }
+/* 자동 로그인으로 들어가는 동안 화면을 가린다 — 보이면 또 눌러 요청이 겹친다. 치우는 함수를 돌려준다 */
+function 로그인가림_(){
+  var 가림 = document.createElement('div');
+  가림.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:var(--bg,#F6F4F1);display:flex;' +
+    'align-items:center;justify-content:center;font-size:16px;color:var(--sub,#78716C)';
+  가림.textContent = '로그인 중…';
+  document.body.appendChild(가림);
+  var 치우기 = function(){ if(가림.parentNode) 가림.remove(); };
+  setTimeout(치우기, 15000);   /* 그래도 안 끝나면 로그인 화면이라도 보여 준다 */
+  return 치우기;
+}
 
 function 학원이름_(){ return (시작정보 && 시작정보.학원이름) || '홍제인왕영어'; }
 
@@ -4625,19 +4636,30 @@ function 반짝(emoji){
 ================================================================ */
 function 자동로그인_(){
   var a = 자동읽기_(); if(!a || !GAS) return;
-  /* 들어가는 동안 로그인 화면을 가린다 — 보이면 아이가 또 눌러 요청이 겹친다 */
-  var 가림 = document.createElement('div');
-  가림.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:var(--bg,#F6F4F1);display:flex;' +
-    'align-items:center;justify-content:center;font-size:16px;color:var(--sub,#78716C)';
-  가림.textContent = '로그인 중…';
-  document.body.appendChild(가림);
-  var 치우기 = function(){ if(가림.parentNode) 가림.remove(); };
-  setTimeout(치우기, 15000);   /* 그래도 안 끝나면 로그인 화면이라도 보여 준다 */
-  if(a.역할 === '선생님'){ show('teacher'); 선생님들어가기_(a.비번, true).then(치우기, 치우기); return; }
+  if(a.역할 === '선생님'){ 선생님화면열기_(true); return; }   /* 선생님은 teacher.html 에서 들어간다 — 여기서는 보내기만 */
+  var 치우기 = 로그인가림_();
   api('로그인',a.이름,a.비번).then(function(r){
     if(r.ok) 학생들어가기_(r, a.이름, a.비번, true);
     else 자동기억_(null);
   }).catch(function(){}).then(치우기);   /* 네트워크 탓이면 기억은 남긴다 */
+}
+/* 선생님 화면은 따로 있는 teacher.html 이다.
+   폰 앱(Capacitor) 안에는 그 파일이 없으므로(build-app.mjs 의 FILES 에 넣지 않는다) 바깥 브라우저로 깃헙 주소를 연다 —
+   앱 밖 주소로 가려 하면 Capacitor 가 바깥 브라우저로 넘긴다. */
+var 선생님주소_ = 'https://smarthb-english.github.io/Vocab/teacher.html';
+function 앱안인가_(){ var C = window.Capacitor; return !!(C && C.isNativePlatform && C.isNativePlatform()); }
+function 선생님화면열기_(자동){
+  if(앱안인가_()){
+    if(자동){ 자동기억_(null); return; }   /* 앱을 켤 때마다 브라우저가 뜨면 안 된다 — 앱 안의 선생님 자동 로그인은 푼다 */
+    location.href = 선생님주소_; return;
+  }
+  if(자동){
+    /* 뒤로가기로 돌아온 것이면 다시 보내지 않는다 — 안 그러면 선생님 화면에서 못 빠져나온다 */
+    var 길 = (window.performance && performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
+    if(길.type === 'back_forward') return;
+    location.replace('teacher.html'); return;
+  }
+  location.href = 'teacher.html';
 }
 function initLogin(){
   if(!GAS) $('demoBadge').classList.remove('hide');
@@ -4673,7 +4695,7 @@ function 학생들어가기_(r, n, p, 기억할까){
 }
 $('inName').addEventListener('keydown',function(e){ if(e.key==='Enter') $('inPw').focus(); });
 $('inPw').addEventListener('keydown',function(e){ if(e.key==='Enter') $('btnLogin').click(); });
-$('btnTeacherGo').onclick=function(){ show('teacher'); };
+$('btnTeacherGo').onclick=function(){ 선생님화면열기_(false); };
 qsa('#keypad [data-k]').forEach(function(b){
   b.onclick=function(){
     var p=$('inPw'), k=b.dataset.k;
