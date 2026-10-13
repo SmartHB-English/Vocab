@@ -111,6 +111,8 @@ test('학생 화면(index.html)에는 학원 이름이 보이지 않는다', () 
   }
   /* 판 번호(verTag)는 남는다 — 어느 판이 올라갔는지 눈으로 보는 자리다 */
   assert.match(html, /<div class="foot"><span id="verTag"/);
+  /* 태블릿 옆 메뉴 머리에도 상호명을 두지 않는다 */
+  assert.match(html, /<div class="hbtbrand"><b>영단어학습프로그램<\/b><\/div>/);
 });
 
 test('학원 이름은 선생님 화면과 학부모 화면에는 그대로 있다', () => {

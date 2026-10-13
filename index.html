@@ -9050,7 +9050,7 @@ function 파일검사(){
   function el(h){ var d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
   var bar=$('tabbar');
   if(bar){
-    bar.insertBefore(el('<div class="hbtbrand"><small>홍제인왕영어</small><b>영단어학습프로그램</b></div>'), bar.firstChild);
+    bar.insertBefore(el('<div class="hbtbrand"><b>영단어학습프로그램</b></div>'), bar.firstChild);
     var 꼬리=el('<div class="hbtfoot"><b id="hbTName"></b><button type="button" id="hbTOut"><span>나가기</span></button></div>');
     bar.appendChild(꼬리);
     $('hbTOut').onclick=function(){ var o=$('btnLogout'); if(o) o.click(); };
