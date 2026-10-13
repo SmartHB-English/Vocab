@@ -15,10 +15,12 @@
 
 | 파일 (`H:\haebeop-vocab` 안) | 하는 일 |
 |---|---|
-| `index.html` | 앱 전부 (학생 + 선생님, 한 덩어리 약 75만 자) — 깃허브 페이지로 나간다 |
+| `index.html` | 학생 화면 — 깃허브 페이지로 나가고 폰 앱 번들에도 들어간다. 선생님 입구는 없다 (`teacher.html` 이라는 글자도 없다) |
+| `teacher.html` · `teacher-manifest.json` | 선생님 화면 · 그 설명서 — 따로 설치하는 웹앱 (브라우저 메뉴로 홈 화면에 추가). 「자료 고치기」 탭 포함. 서비스워커(`teacher-sw.js`)와 푸시는 두지 않는다. 폰 앱 번들에 넣지 않는다 |
 | `parent.html` · `parent-manifest.json` · `parent-sw.js` | 학부모 사이트 · 그 설명서 · 그 알림 일꾼 (폴더를 안 쓴다) |
 | `tests/fixtures/legacy/Code.gs` | **업무 엔진 원본 한 곳** (운영 v80 기준). 웹과 GAS 가 둘 다 이것으로 계산한다 |
-| `services/api-client.js` | 웹 공통 창구 — 손으로 고치고 `npm run build:services` 로 네 파일에 박아 넣는다 |
+| `services/api-client.js` | 웹 공통 창구 — 손으로 고치고 `npm run build:services` 로 다섯 파일(`teacher.html` 포함)에 박아 넣는다 |
+| `services/shared-ui.js` · `shared-ui.css` · `teacher-data.js` | 학생 · 선생님 화면 공용 코드, 선생님 「자료」 탭 — 같은 방법(`build:services`)으로 박아 넣는다 |
 | `services/` 의 나머지 | Firestore 를 직접 읽는 저장소 · 엔진 실행 틀 (`legacy-runtime.mjs` 등) |
 | `services/legacy-engine.generated.mjs` | **생성물** — `node scripts/build-legacy.mjs` 가 `Code.gs` 로 만든다 (.gitignore 에 있다) |
 | `services/firestore.bundle.js` | **생성물** — `npm run build:firestore`. 엔진이 이 안에 묶여 들어간다 (커밋한다) |
@@ -36,7 +38,7 @@
 
 | 고친 것 | 다시 만들 것 | 나가는 곳 |
 |---|---|---|
-| `index.html` · `parent.html` | (없음) | main → 깃허브 페이지. 앱은 CI 가 OTA 번들을 만든다 |
+| `index.html` · `teacher.html` · `parent.html` | (없음) | main → 깃허브 페이지. 앱은 CI 가 OTA 번들을 만든다 |
 | `services/api-client.js` | `npm run build:services` | 같음 |
 | `tests/fixtures/legacy/Code.gs` | `node scripts/build-legacy.mjs` → `npm run build:firestore` **와** `npm run build:bridge` | 웹(번들) **와** GAS(다리) **둘 다** |
 
