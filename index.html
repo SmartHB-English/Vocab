@@ -2341,7 +2341,6 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
   <section id="s-login" class="screen on">
     <div id="demoBadge" class="demo hide">미리보기 모드입니다 — 예시 자료로 돌아갑니다. 구글에 올리면 실제 명단과 단어장이 뜹니다.</div>
     <div class="signboard">
-      <div class="sbname" id="academyName">홍제인왕영어</div>
       <div class="sbtitle">영단어학습프로그램</div>
       <div class="sbrule"><i></i><b>단어는 매일, 조금씩</b><i></i></div>
     </div>
@@ -2364,7 +2363,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
       <div id="loginMsg" class="center sub mt"></div>
     </div>
     <div class="mt"><button class="btn line sm" id="btnGuide">처음이신가요? 사용법 보기</button></div>
-    <div class="foot"><span id="footBrand">홍제인왕영어</span> <span id="verTag" style="opacity:.55"></span></div>
+    <div class="foot"><span id="verTag" style="opacity:.55"></span></div>
   </section>
 
   <!-- ========================= 홈 = 숙제 ========================= -->
@@ -2385,7 +2384,6 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
     <div id="hwBox"></div>
     <div id="leftBox"></div>
     <div id="bellBox"></div>
-    <div class="foot" id="homeFoot"></div>
   </section>
 
   <!-- ========================= 연습 ========================= -->
@@ -4599,8 +4597,6 @@ function initLogin(){
   }catch(e){}
   api('시작정보').then(function(d){
     시작정보 = d;
-    $('academyName').textContent = 학원이름_();
-    $('footBrand').textContent = 학원이름_();      // 꼬리말도 같은 값 — 이름을 바꾸면 둘이 같이 따라온다
   }).catch(function(e){ $('loginMsg').textContent='앱을 불러오지 못했습니다. '+e; });
   자동로그인_();
 }
@@ -4677,7 +4673,6 @@ function enterHome(){
     sel.onchange=loadBook;
     그리기_책칩();
   }
-  var f=$('homeFoot'); if(f) f.textContent = (시작정보 && 시작정보.학원이름) || '';
   받은것_ = {};
   if(유치인가_()){
     집자료받기_();

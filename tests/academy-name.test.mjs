@@ -102,8 +102,20 @@ test('흉내 서버도 학원 이름을 받고, 합격점만 보내면 이름을
   assert.deepEqual([D.설정저장('1234', { 합격점: 60 }).학원이름, D.설정가져오기().합격점], ['새학원', 60]);
 });
 
-test('학생 화면 꼬리말은 시작정보를 받을 때 로그인 머리와 같이 채운다', () => {
+/* 학생 화면에는 학원 이름을 보이지 않는다 (2026-10-13) — 아이들 화면은 「영단어학습프로그램」 하나로 간다.
+   학원 이름은 선생님 화면과 학부모 화면에만 쓴다. */
+test('학생 화면(index.html)에는 학원 이름이 보이지 않는다', () => {
   const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-  assert.match(html, /<div class="foot"><span id="footBrand">/);
-  assert.match(html, /\$\('academyName'\)\.textContent = 학원이름_\(\);\s*\$\('footBrand'\)\.textContent = 학원이름_\(\);/);
+  for (const 자취 of ['academyName', 'footBrand', 'homeFoot']) {
+    assert.ok(!html.includes(자취), `index.html 에 ${자취} 가 남아 있다`);
+  }
+  /* 판 번호(verTag)는 남는다 — 어느 판이 올라갔는지 눈으로 보는 자리다 */
+  assert.match(html, /<div class="foot"><span id="verTag"/);
+});
+
+test('학원 이름은 선생님 화면과 학부모 화면에는 그대로 있다', () => {
+  const teacher = fs.readFileSync(new URL('../teacher.html', import.meta.url), 'utf8');
+  const parent = fs.readFileSync(new URL('../parent.html', import.meta.url), 'utf8');
+  assert.ok(teacher.includes('학원이름_'), 'teacher.html 에서 학원 이름을 안 쓴다');
+  assert.ok(parent.includes('학원'), 'parent.html 에서 학원 이름을 안 쓴다');
 });
