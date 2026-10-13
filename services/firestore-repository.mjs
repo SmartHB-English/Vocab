@@ -4,6 +4,7 @@ import { TableStore } from './table-store.mjs';
 import { createRuntime } from './legacy-runtime.mjs';
 import { pack, unpack, publicTable, tableMetadata, sheetId } from './store-codec.mjs';
 import { createDatasetDocuments } from './dataset-model.mjs';
+import { 휴지통이름, 휴지통공개, 자료읽기, 칸고치기, 줄지우기, 되살리기, 휴지통비우기 } from './table-edit.mjs';
 
 export const digest = async text => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))), b => b.toString(16).padStart(2, '0')).join('');
 const jsonResult = result => result === undefined ? undefined : JSON.parse(JSON.stringify(result));
@@ -16,6 +17,10 @@ async function auxiliary(user, fn, args) {
   return reply.값;
 }
 const privileged = role => role === 'teacher' || role === 'bridge';
+// 선생님 「자료」 탭 — 엔진(Code.gs)을 거치지 않고 표를 바로 고친다. 답은 날짜를 지키려고 pack 한 글로 준다.
+// 하다가 걸리면(그 사이 줄이 바뀜 등) 표를 건드리기 전에 {ok:false} 로 돌아온다 — 그때는 저장하지 않는다.
+const 자료함수 = {__자료읽기:자료읽기, __자료고치기:칸고치기, __자료지우기:줄지우기, __자료되살리기:되살리기, __휴지통비우기:휴지통비우기};
+const 자료하기 = (일,store,args,how) => { try { return {ok:true,자료:pack(일(store,args[0]??{},how))}; } catch(e) { if(e instanceof Error&&!e.code?.startsWith?.('permission'))return {ok:false,충돌:e.code==='충돌',메시지:e.message}; throw e; } };
 
 export class FirestoreRepository {
   constructor(db, dataset, identity) { this.db = db; this.dataset = dataset; this.identity = identity; this.cache = new Map(); this.parentCache = null; this.auxiliary = (fn,args) => auxiliary(this.identity.user,fn,args); }
@@ -42,7 +47,7 @@ export class FirestoreRepository {
         return unpack(data.payload);
       };
       const table = await fetchPayload('tables',version);
-      if (privileged(role) && ['학생','설정'].includes(meta.name)) {
+      if (privileged(role) && (['학생','설정'].includes(meta.name) || (meta.name===휴지통이름 && meta.secretVersion))) {
         const secret = await fetchPayload('secrets',meta.secretVersion);
         Object.assign(table.cells, secret.cells);
       }
@@ -99,6 +104,9 @@ export class FirestoreRepository {
     if (fn === '학부모보기') {
       if (!await this.parentLogin(args[0])) return {ok:false,메시지:'링크가 맞지 않습니다. 선생님께 문의해 주세요.'};
     }
+    const 자료일 = 자료함수[fn];
+    if (자료일 && this.identity.role !== 'teacher') return {ok:false,메시지:'선생님만 할 수 있어요.'};
+    const 누가 = '선생님 · '+String(this.identity.user?.uid??'').slice(0,6);
     const publicOnly = ['시작정보','푸시공개키','공지가져오기'].includes(fn) && !this.identity.role;
     const catalog = await this.catalog();
     if(fn==='학부모보기' && this.parentCache?.token===this.identity.token && this.parentCache.revision===catalog.revision && this.parentCache.until>Date.now()) {
@@ -118,11 +126,14 @@ export class FirestoreRepository {
     };
     const execute = current => {
       let index = 0;
-      const engine = createRuntime(current,{effects:{saveImage:imageOperation?saveImage:undefined},now:()=>started,uuid:()=>{ const i=index++; return ids[i] ?? (ids[i]=randomId()); }});
+      const uuid = () => { const i=index++; return ids[i] ?? (ids[i]=randomId()); };
+      if (자료일) return 자료하기(자료일,current,args,{지금:started,누가,번호:uuid});
+      const engine = createRuntime(current,{effects:{saveImage:imageOperation?saveImage:undefined},now:()=>started,uuid});
       return fn==='__월시상' ? engine.monthly() : engine.call(fn,args);
     };
     const result = execute(store);
     if(imageOperation){planningImages=false;for(const cached of images.values()){try{cached.url=await this.auxiliary('__그림파일',[args[0],...cached.job]);}catch(error){cached.error=error;}}}
+    if (자료일 && !result.ok) return result;
     if (!store.deleted.size && !store.getSheets().some(s=>s.dirty)) return jsonResult(result);
     const requestId = this.identity.user.uid+'_'+randomId();
     return runTransaction(this.db,async transaction => {
@@ -132,6 +143,7 @@ export class FirestoreRepository {
       const current = await this.load(currentCatalog,ref=>transaction.get(ref),{fresh:true});
       const originalTables = current.export();
       const answer = jsonResult(execute(current));
+      if (자료일 && !answer.ok) return answer;   // 계획 뒤 거래 사이에 누가 그 줄을 고쳤다 — 아무것도 안 쓴다
       const compiled = current.getSheetByName('학생')?.dirty || current.getSheetByName('설정')?.dirty ? await createDatasetDocuments(current,{digest,previousIdentities:currentCatalog.identities}) : null;
       const before = new Map(currentCatalog.tables.map(t=>[t.name,t]));
       const changes = [];
@@ -140,11 +152,11 @@ export class FirestoreRepository {
       for (let position=0;position<tables.length;position++) {
         const table=tables[position];
         if (!table.dirty) { nextMetadata.push(before.get(table.name)); continue; }
-        const full=table.export(), visible=publicTable(full), payload=pack(visible);
+        const full=table.export(), visible=full.name===휴지통이름?휴지통공개(full):publicTable(full), payload=pack(visible);
         if (new TextEncoder().encode(payload).length > 850000) throw new Error('자료가 커서 나누어 저장해야 합니다.');
         const version=await digest(payload), meta={...tableMetadata(full,position),version};
         transaction.set(this.ref(`tables/${sheetId(full.name)}`),{payload,version,name:full.name,public:['학생','설정','단어장목록','공지'].includes(full.name)||full.name.startsWith('단어_')});
-        if (['학생','설정'].includes(full.name) && privileged(this.identity.role)) {
+        if ((['학생','설정'].includes(full.name) || full.name===휴지통이름) && privileged(this.identity.role)) {
           const secret={name:full.name,cells:Object.fromEntries(Object.entries(full.cells).filter(([key,c])=>pack(c)!==pack(visible.cells[key])))};
           const secretPayload=pack(secret), secretVersion=await digest(secretPayload);
           transaction.set(this.ref(`secrets/${sheetId(full.name)}`),{payload:secretPayload,version:secretVersion});
@@ -171,7 +183,8 @@ export class FirestoreRepository {
           if(/^[0-9a-f]{32,128}$/.test(token)&&!nextPaths.has('links/'+token)) transaction.delete(this.ref('links/'+token));
         }
       }
-      transaction.set(this.ref(`journal/${requestId}`),{actor:this.identity.user.uid,fn,result:pack(answer),changes,at:started});
+      // 「자료」 탭의 고치기·지우기·되살리기는 누가 · 어느 표 를 따로 적는다 — 바꾸기 전과 후는 result 안에 (전 · 후 · 지운 줄 · 되살린 줄)
+      transaction.set(this.ref(`journal/${requestId}`),{actor:this.identity.user.uid,fn,result:pack(answer),changes,at:started,...(자료일?{누가,표:String(args[0]?.표??휴지통이름)}:{})});
       this.cache.clear();
       if(fn==='학부모보기'&&!args[1]&&answer?.ok)this.parentCache={token:this.identity.token,revision:currentCatalog.revision,until:started+60000,value:answer};
       return answer;

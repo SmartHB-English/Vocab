@@ -6,6 +6,7 @@ const pairs = [
   { source: 'services/api-client.js', targets: ['index.html', 'parent.html', 'sw.js', 'parent-sw.js', 'teacher.html'] },
   { source: 'services/shared-ui.css', targets: ['index.html', 'teacher.html'] },
   { source: 'services/shared-ui.js', targets: ['index.html', 'teacher.html'] },
+  { source: 'services/teacher-data.js', targets: ['teacher.html'] },   // 「자료」 탭 — 선생님 화면에만
 ];
 const check = process.argv.includes('--check');
 let stale = false;

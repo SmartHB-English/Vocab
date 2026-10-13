@@ -2,7 +2,12 @@
 
 ## 화면 셋
 - `index.html` — 학생 화면 (폰 앱 번들에도 들어간다)
-- `teacher.html` — 선생님 화면. 컴퓨터·태블릿의 브라우저로 연다. 설치형이 아니다 (manifest · 서비스워커 · 푸시 없음)
+- `teacher.html` — 선생님 화면. 컴퓨터·태블릿은 브라우저로, 선생님 폰은 홈 화면에 설치해서 연다
+  (`teacher-manifest.json` · `teacher-sw.js`, 푸시 없음). 서비스워커 범위는 `./teacher.html` 하나 —
+  학생 `sw.js` · 학부모 `parent-sw.js` 와 겹치지 않게 `tests/teacher-split.test.mjs` 가 지킨다.
+  - 「자료 고치기」 탭(`services/teacher-data.js` → teacher.html 에 박힘)은 엔진을 거치지 않고 표를 바로 고친다 —
+    서버 쪽은 `services/table-edit.mjs` (`firestore-repository.mjs` 의 `__자료…` 이름들, 선생님만). 웹 번들만 바뀌고 GAS 다리는 그대로.
+    지운 줄은 「휴지통」 표에 30일(학생 비밀번호·학부모 링크는 secrets 쪽), 고치기·지우기·되살리기는 journal 에 `누가`·`표` 와 전후가 남는다.
 - `parent.html` — 학부모 화면
 
 ## 공용 코드는 원본 한 곳에서 고치고 박아 넣는다

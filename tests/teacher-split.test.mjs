@@ -29,8 +29,44 @@ test('teacher.html 에 학생 전용 코드(유치부 · 게임 · 학생 로그
   for (const 이름 of ['유치길그리기_', 'startPuzzle', 'id="s-login"', 'id="s-kid"']) assert.ok(!선생님.includes(이름), 이름);
 });
 
-test('teacher.html 은 설치형이 아니다 — manifest · 서비스워커 · 푸시 구독이 없다', () => {
-  assert.doesNotMatch(선생님, /rel="manifest"|serviceWorker\.register|pushManager\.subscribe/);
+test('teacher.html 은 홈 화면에 설치된다 — 제 manifest · 제 서비스워커 · 푸시 구독은 없다', () => {
+  assert.match(선생님, /<link rel="manifest" href="teacher-manifest\.json">/);
+  assert.match(선생님, /serviceWorker\.register\('teacher-sw\.js', \{scope:'\.\/teacher\.html'\}\)/);
+  assert.doesNotMatch(선생님, /pushManager\.subscribe/);
+  const 설명서 = JSON.parse(읽기('teacher-manifest.json'));
+  assert.equal(설명서.start_url, 'teacher.html');
+  assert.equal(설명서.scope, 'teacher.html');
+  assert.equal(설명서.display, 'standalone');
+  assert.ok(['192x192', '512x512'].every(크기 => 설명서.icons.some(i => i.sizes === 크기)));
+});
+
+/* 세 화면의 서비스워커 — 같은 주소(…/Vocab/) 아래에 산다. 범위가 겹치면 남의 화면을 가로챈다 */
+test('서비스워커 범위가 겹치지 않는다 — 학생 sw.js · 학부모 parent-sw.js · 선생님 teacher-sw.js', () => {
+  const 바탕 = 'https://smarthb-english.github.io/Vocab/';
+  const 띄움 = (글, 일꾼) => {
+    const m = new RegExp(`serviceWorker\\.register\\('${일꾼.replace('.', '\\.')}'(?:,\\s*\\{scope:'([^']+)'\\})?\\)`).exec(글);
+    assert.ok(m, 일꾼 + ' 를 띄우는 곳이 없다');
+    return new URL(m[1] || './', 바탕).href;                       // 범위를 안 주면 일꾼 파일이 있는 폴더
+  };
+  const 범위 = { 학생: 띄움(학생, 'sw.js'), 학부모: 띄움(읽기('parent.html'), 'parent-sw.js'), 선생님: 띄움(선생님, 'teacher-sw.js') };
+  const 화면 = { 학생: 바탕 + 'index.html', 학부모: 바탕 + 'parent.html', 선생님: 바탕 + 'teacher.html' };
+  // 그 화면을 맡는 일꾼 = 그 주소로 시작하는 범위 중 가장 긴 것 (브라우저 규칙)
+  const 맡는것 = 주소 => Object.entries(범위).filter(([, s]) => 주소.startsWith(s)).sort((a, b) => b[1].length - a[1].length)[0]?.[0];
+  for (const 누구 of Object.keys(화면)) assert.equal(맡는것(화면[누구]), 누구, 누구 + ' 화면은 제 일꾼이 맡아야 한다');
+  // 좁은 두 범위(학부모 · 선생님)는 서로도, 학생 화면도 안 덮는다
+  for (const 누구 of ['학부모', '선생님']) for (const 남 of Object.keys(화면)) if (남 !== 누구) assert.ok(!화면[남].startsWith(범위[누구]), `${누구} 범위가 ${남} 화면을 덮는다`);
+  // 학생 일꾼은 범위가 넓다(./) — 그래서 fetch 를 가로채지 않아야 남의 화면을 건드리지 않는다
+  assert.doesNotMatch(읽기('sw.js'), /addEventListener\(\s*['"]fetch['"]/);
+  // 선생님 일꾼은 teacher.html 만 받고, 캐시는 「teacher-」 것만 만들고 지운다 (캐시 칸은 세 일꾼이 같이 쓴다)
+  const 선생님일꾼 = 읽기('teacher-sw.js');
+  assert.ok(선생님일꾼.includes("!/\\/teacher\\.html$/.test("));
+  assert.match(선생님일꾼, /var 칸이름 = 'teacher-/);
+  assert.match(선생님일꾼, /n\.indexOf\('teacher-'\) === 0 && n !== 칸이름/);
+  assert.doesNotMatch(선생님일꾼, /addEventListener\(\s*['"]push['"]/);
+  // 설치 설명서의 범위도 겹치지 않는다
+  const 설명범위 = 파일 => new URL(JSON.parse(읽기(파일)).scope, 바탕).href;
+  assert.equal(설명범위('teacher-manifest.json'), 화면.선생님);
+  assert.equal(설명범위('parent-manifest.json'), 화면.학부모);
 });
 
 test('「수업 짜기 공용」 블록이 teacher.html · shared-ui.js 와 Code.gs 에 글자 하나 다르지 않게 들어 있다', () => {
