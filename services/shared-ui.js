@@ -32,7 +32,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-13b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-14a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -1400,14 +1400,20 @@ function 부르는중그리기_(){
   qsa('.refbtn').forEach(function(r){ r.classList.toggle('doing', 부르는중_ > 0); });
 }
 function api(fn){
-  var args = [].slice.call(arguments,1);
+  return api부르기_(fn, [].slice.call(arguments,1));
+}
+/* 같은 요청번호로 부른다 — 「다시 보내기」 를 눌러도 먼저 것이 실은 들어갔으면 두 번 저장되지 않는다 */
+function api같은번호(번호, fn){
+  return api부르기_(fn, [].slice.call(arguments,2), 번호);
+}
+function api부르기_(fn, args, 번호){
   부르는중_++; 부르는중그리기_();
   function 끝_(){ if(부르는중_ > 0) 부르는중_--; 부르는중그리기_(); }
-  return 부르기_(fn, args).then(
+  return 부르기_(fn, args, 번호).then(
     function(v){ 끝_(); return v; },
     function(e){ 끝_(); throw e; });
 }
-function 부르기_(fn, args){
+function 부르기_(fn, args, 번호){
   return new Promise(function(res,rej){
     if(!GAS){
       var d = DEMO[fn];
@@ -1424,6 +1430,6 @@ function 부르기_(fn, args){
     }
     /* 바깥(깃헙 등)에 올려 두고 창구로 말을 걸 때.
        글 종류를 text/plain 으로 보내야 브라우저가 미리 물어보지 않는다. */
-    VocabApi.request(창구주소, fn, args, '서버가 답하지 않았습니다').then(res, rej);
+    VocabApi.request(창구주소, fn, args, '서버가 답하지 않았습니다', 번호).then(res, rej);
   });
 }

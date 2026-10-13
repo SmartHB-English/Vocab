@@ -30,8 +30,8 @@ async function initialize() {
 }
 let queue=Promise.resolve();
 globalThis.VocabFirestore={
-  call(fn,args=[]) {
-    const execute=async()=>{await initialize(); return repository.call(fn,args);};
+  call(fn,args=[],options={}) {
+    const execute=async()=>{await initialize(); return repository.call(fn,args,options);};
     const promise=queue.then(execute,execute); queue=promise.catch(()=>{}); return promise;
   },
 };

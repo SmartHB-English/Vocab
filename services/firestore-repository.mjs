@@ -16,6 +16,10 @@ async function auxiliary(user, fn, args) {
   if (!reply?.ok) throw new Error(reply?.메시지 || '서버가 답하지 않았습니다');
   return reply.값;
 }
+// 쓰기 거래가 이 코드로 끝나면 다툼(여럿이 같은 표를 동시에) 이거나 잠깐 끊긴 것이다 — 같은 요청번호로 다시 보내도 된다.
+// 그 밖(권한 · 엔진이 던진 오류 · 「자료가 커서」 …)은 다시 보내도 같으니 표시하지 않는다.
+const 다시보낼코드 = new Set(['aborted','failed-precondition','unavailable','deadline-exceeded','resource-exhausted']);
+const 요청번호꼴 = /^[0-9A-Za-z-]{8,80}$/;
 const privileged = role => role === 'teacher' || role === 'bridge';
 // 선생님 「자료」 탭 — 엔진(Code.gs)을 거치지 않고 표를 바로 고친다. 답은 날짜를 지키려고 pack 한 글로 준다.
 // 하다가 걸리면(그 사이 줄이 바뀜 등) 표를 건드리기 전에 {ok:false} 로 돌아온다 — 그때는 저장하지 않는다.
@@ -98,7 +102,10 @@ export class FirestoreRepository {
     Object.assign(this.identity,{role:'parent',token:clean,row:data.row,name:data.name,credentialId:data.credentialId});
     return true;
   }
-  async call(fn,args) {
+  async call(fn,args,{요청번호,다시보냄=false}={}) {
+    // 요청번호는 부름이 시작될 때 한 번 정한다. 화면(api-client)이 밀려서 다시 보낼 때 같은 번호를 넘기므로
+    // 먼저 보낸 것이 실은 들어갔으면 journal 영수증이 그 답을 돌려준다 — 두 번 저장되지 않는다.
+    const requestId = String(this.identity.user?.uid ?? '')+'_'+(요청번호꼴.test(String(요청번호??''))?요청번호:randomId());
     if (fn === '로그인') return this.studentLogin(...args);
     if (fn === '선생님로그인') return this.teacherLogin(...args);
     if (fn === '학부모보기') {
@@ -108,6 +115,11 @@ export class FirestoreRepository {
     if (자료일 && this.identity.role !== 'teacher') return {ok:false,메시지:'선생님만 할 수 있어요.'};
     const 누가 = '선생님 · '+String(this.identity.user?.uid??'').slice(0,6);
     const publicOnly = ['시작정보','푸시공개키','공지가져오기'].includes(fn) && !this.identity.role;
+    // 다시 보낸 것이면 먼저 영수증부터 — 먼저 것이 들어갔는데 다시 계획하면 「이미 봤습니다」 처럼 다른 답이 나온다
+    if (다시보냄 && this.identity.user) {
+      const receipt = await getDoc(this.ref(`journal/${requestId}`));
+      if (receipt.exists()) return unpack(receipt.data().result);
+    }
     const catalog = await this.catalog();
     if(fn==='학부모보기' && this.parentCache?.token===this.identity.token && this.parentCache.revision===catalog.revision && this.parentCache.until>Date.now()) {
       const value=this.parentCache.value; return args[1]?{ok:true,이름:value.이름,안낸수:value.안낸수}:jsonResult(value);
@@ -135,7 +147,6 @@ export class FirestoreRepository {
     if(imageOperation){planningImages=false;for(const cached of images.values()){try{cached.url=await this.auxiliary('__그림파일',[args[0],...cached.job]);}catch(error){cached.error=error;}}}
     if (자료일 && !result.ok) return result;
     if (!store.deleted.size && !store.getSheets().some(s=>s.dirty)) return jsonResult(result);
-    const requestId = this.identity.user.uid+'_'+randomId();
     return runTransaction(this.db,async transaction => {
       const oldReceipt = await transaction.get(this.ref(`journal/${requestId}`));
       if (oldReceipt.exists()) return unpack(oldReceipt.data().result);
@@ -188,6 +199,6 @@ export class FirestoreRepository {
       this.cache.clear();
       if(fn==='학부모보기'&&!args[1]&&answer?.ok)this.parentCache={token:this.identity.token,revision:currentCatalog.revision,until:started+60000,value:answer};
       return answer;
-    });
+    }).catch(error => { if (다시보낼코드.has(error?.code)) error.다시보내도됨 = true; throw error; });
   }
 }

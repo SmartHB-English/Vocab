@@ -4,9 +4,12 @@
 // 그 밖의 권한은 firebase/firestore.rules 와 에뮬레이터 검사(test:emulators)가 본다.
 const 사진 = (path, data) => ({ exists: () => data !== undefined, data: () => structuredClone(data), id: path.split('/').pop() });
 
-export function fakeDb() { return { docs: new Map(), commits: 0 }; }
+// 밀림: 다음 거래 n 번을 다툼(aborted)으로 실패시킨다 · 답잃음: 다음 거래 n 번은 써 놓고 답만 잃는다(unavailable)
+// 읽기끊김: 거래 밖의 읽기(getDoc)가 끊긴다(unavailable)
+export function fakeDb() { return { docs: new Map(), commits: 0, 밀림: 0, 답잃음: 0, 거래: 0 }; }
+const 오류 = code => Object.assign(new Error(code), { code });
 export function doc(db, path) { return { db, path }; }
-export async function getDoc(ref) { return 사진(ref.path, ref.db.docs.get(ref.path)); }
+export async function getDoc(ref) { if (ref.db.읽기끊김) throw 오류('unavailable'); return 사진(ref.path, ref.db.docs.get(ref.path)); }
 export async function setDoc(ref, data) {
   if (ref.path.startsWith('sessions/')) {
     const 열쇠 = ref.db.docs.get(`vocabDatasets/${data.dataset}/credentials/${data.credentialId}`);
@@ -16,6 +19,8 @@ export async function setDoc(ref, data) {
 }
 /* 쓰기는 모아 두었다가 함수가 끝나면 한꺼번에 — 진짜 거래처럼 중간에 던지면 하나도 안 쓴다 */
 export async function runTransaction(db, fn) {
+  db.거래++;
+  if (db.밀림 > 0) { db.밀림--; throw 오류('aborted'); }
   const 쓸것 = [];
   const tx = {
     get: async ref => 사진(ref.path, db.docs.get(ref.path)),
@@ -25,5 +30,6 @@ export async function runTransaction(db, fn) {
   const 답 = await fn(tx);
   for (const [path, data] of 쓸것) data === undefined ? db.docs.delete(path) : db.docs.set(path, structuredClone(data));
   if (쓸것.length) db.commits++;
+  if (db.답잃음 > 0) { db.답잃음--; throw 오류('unavailable'); }
   return 답;
 }

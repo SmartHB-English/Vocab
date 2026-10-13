@@ -2908,7 +2908,10 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
 
 <script>
 /* BEGIN GENERATED services/api-client.js */
-/* Single owner of the legacy HTTP RPC protocol. No automatic write retries. */
+/* Single owner of the legacy HTTP RPC protocol.
+   쓰기 재시도는 Firestore 쪽에서만, 저장소가 「다시 보내도 됨」 표시를 붙인 실패(쓰기 거래가 밀림 · 잠깐 끊김)에만 한다.
+   한 번의 request 동안 요청번호가 같다 — journal 영수증이 있으니 먼저 것이 실은 들어갔어도 두 번 저장되지 않는다.
+   읽기 실패 · 거절({ok:false} 답) · 예전 HTTP 창구는 다시 보내지 않는다. */
 (function (root) {
   'use strict';
 
@@ -2923,8 +2926,8 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
     return firestoreReady;
   }
 
-  function post(endpoint, fn, args) {
-    if (endpoint === 'firestore:v1') return firestore().then(function (service) { return service.call(fn, args); }).then(function (value) { return {ok:true, 값:value}; });
+  function post(endpoint, fn, args, number, again) {
+    if (endpoint === 'firestore:v1') return firestore().then(function (service) { return service.call(fn, args, {요청번호: number, 다시보냄: !!again}); }).then(function (value) { return {ok:true, 값:value}; });
     return fetch(endpoint, {
       method: 'POST',
       redirect: 'follow',
@@ -2933,14 +2936,32 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
     }).then(function (response) { return response.json(); });
   }
 
-  function request(endpoint, fn, args, failureMessage) {
-    return post(endpoint, fn, args).then(function (response) {
-      if (response && response.ok) return response.값;
-      throw new Error((response && response.메시지) || failureMessage || '서버가 답하지 않았습니다');
-    });
+  function newRequestNumber() {
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12) + Math.random().toString(36).slice(2, 12);
   }
 
-  root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request };
+  // 0.5초 → 1.5초 → 3초, 세 번까지. 다 같이 다시 보내면 또 몰리므로 ±30% 를 섞는다.
+  var retryDelays = [500, 1500, 3000];
+  function retryable(error) { return !!(error && error.다시보내도됨 === true); }
+
+  function request(endpoint, fn, args, failureMessage, number) {
+    var firestore = endpoint === 'firestore:v1';
+    if (firestore && !number) number = newRequestNumber();
+    var tries = 0;
+    function attempt() {
+      return post(endpoint, fn, args, number, tries > 0).then(function (response) {
+        if (response && response.ok) return response.값;
+        throw new Error((response && response.메시지) || failureMessage || '서버가 답하지 않았습니다');
+      }, function (error) {
+        if (!firestore || !retryable(error) || tries >= retryDelays.length) throw error;
+        var wait = Math.round(retryDelays[tries++] * (0.7 + Math.random() * 0.6));
+        return new Promise(function (resolve) { root.setTimeout(resolve, wait); }).then(attempt);
+      });
+    }
+    return attempt();
+  }
+
+  root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request, newRequestNumber: newRequestNumber, retryDelays: retryDelays };
 })(typeof self !== 'undefined' ? self : globalThis);
 /* END GENERATED services/api-client.js */
 
@@ -2993,7 +3014,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-13b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-14a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -4361,14 +4382,20 @@ function 부르는중그리기_(){
   qsa('.refbtn').forEach(function(r){ r.classList.toggle('doing', 부르는중_ > 0); });
 }
 function api(fn){
-  var args = [].slice.call(arguments,1);
+  return api부르기_(fn, [].slice.call(arguments,1));
+}
+/* 같은 요청번호로 부른다 — 「다시 보내기」 를 눌러도 먼저 것이 실은 들어갔으면 두 번 저장되지 않는다 */
+function api같은번호(번호, fn){
+  return api부르기_(fn, [].slice.call(arguments,2), 번호);
+}
+function api부르기_(fn, args, 번호){
   부르는중_++; 부르는중그리기_();
   function 끝_(){ if(부르는중_ > 0) 부르는중_--; 부르는중그리기_(); }
-  return 부르기_(fn, args).then(
+  return 부르기_(fn, args, 번호).then(
     function(v){ 끝_(); return v; },
     function(e){ 끝_(); throw e; });
 }
-function 부르기_(fn, args){
+function 부르기_(fn, args, 번호){
   return new Promise(function(res,rej){
     if(!GAS){
       var d = DEMO[fn];
@@ -4385,7 +4412,7 @@ function 부르기_(fn, args){
     }
     /* 바깥(깃헙 등)에 올려 두고 창구로 말을 걸 때.
        글 종류를 text/plain 으로 보내야 브라우저가 미리 물어보지 않는다. */
-    VocabApi.request(창구주소, fn, args, '서버가 답하지 않았습니다').then(res, rej);
+    VocabApi.request(창구주소, fn, args, '서버가 답하지 않았습니다', 번호).then(res, rej);
   });
 }
 /* END GENERATED services/shared-ui.js */
@@ -5878,17 +5905,43 @@ function 유치끝_(){
 
   유치진행지우기_(P.숙제);
   $('kSaved').textContent = '기록 보내는 중…';
-  api('결과저장', {
+  결과보내기_('kSaved', {
     이름: S.학생.이름, 단어장: S.단어장, 범위: S.범위, 유형: '유치',
     문항수: 문항, 정답수: 맞은, 점수: 점수, 게임점수: 0,
     최고콤보: 0, 소요초: 초, 숙제여부: true,
     구분: 기록구분(),
     틀린단어: p.오답.filter(function(v, i, a){ return a.indexOf(v) === i; }).join(', ')
-  }).then(function(r){
-    $('kSaved').textContent = (r && r.demo) ? '미리보기라 저장되지 않았어요'
-      : ((r && r.ok) ? '선생님께 보냈어요' : '보내지 못했어요');
-    if(r && (r.ok || r.demo)) 숙제냈음(점수);
-  }).catch(function(){ $('kSaved').textContent = '보내지 못했어요'; });
+  }, function(r){
+    $('kSaved').textContent = r.demo ? '미리보기라 저장되지 않았어요'
+      : (r.ok ? '선생님께 보냈어요' : '이미 본 시험이라 저장되지 않았어요');
+    숙제냈음(점수);
+  });
+}
+
+/* 결과 보내기 (결과저장 세 자리가 같이 쓴다)
+   · 반 전체가 한꺼번에 끝내면 저장이 몰린다 — 채점 화면은 바로 보이고, 보내는 것만 0~1.5초 사이 임의로 늦춘다
+   · 끝내 못 보냈으면 조용히 넘기지 않는다 — 아이에게 알리고 「다시 보내기」 단추를 준다
+   · 다시 보내기도 같은 요청번호로 — 먼저 것이 실은 들어갔으면 두 번 저장되지 않는다
+   받음(r) 은 r.ok · r.demo · r.이미봄 일 때만 부른다 */
+function 결과보내기_(칸, 자료, 받음){
+  var 번호 = VocabApi.newRequestNumber();
+  function 못보냄(){
+    var 상자 = $(칸);
+    상자.innerHTML = '<span style="color:var(--ng);font-weight:800">저장되지 않았어요 — 선생님께 말씀드리세요.</span> ' +
+      '<button type="button" class="btn line sm" data-resend>다시 보내기</button>';
+    상자.querySelector('[data-resend]').onclick = function(){
+      상자.textContent = '다시 보내는 중…';
+      보내기(0);
+    };
+  }
+  function 보내기(늦춤){
+    setTimeout(function(){
+      api같은번호(번호, '결과저장', 자료).then(function(r){
+        if(r && (r.ok || r.demo || r.이미봄)) 받음(r); else 못보냄();
+      }, 못보냄);
+    }, 늦춤);
+  }
+  보내기(Math.round(Math.random() * 1500));
 }
 
 /* ---------- 스티커판 ---------- */
@@ -8129,7 +8182,7 @@ function finishQuiz(){
   }
 
   $('rSaved').textContent='기록 저장 중…';
-  api('결과저장',{
+  결과보내기_('rSaved',{
     이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:유형이름,
     문항수:총, 정답수:S.정답수, 점수:점수, 게임점수:S.게임점수,
     최고콤보:S.최고콤보, 소요초:초, 숙제여부:탭시험 ? true : !S.재시험,
@@ -8138,25 +8191,23 @@ function finishQuiz(){
       var t=String(w.en||'');
       return t.length>56 ? t.slice(0,55)+'…' : t;
     }).join(문장방법_(S.모드) ? ' / ' : ', ')
-  }).then(function(r){
-    if(r&&r.demo){
+  },function(r){
+    if(r.demo){
       $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">미리보기 모드 — 이 결과는 어디에도 저장되지 않았습니다.</span>';
       숙제냈음(점수);
     }else{
-      if(r && !r.ok && r.이미봄){
+      if(!r.ok && r.이미봄){
         $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">'+
           '이 시험은 이미 봤어요. 시험은 한 번만 볼 수 있어서 이번 결과는 저장되지 않았습니다.</span>';
         숙제냈음(점수);
         return;
       }
-      $('rSaved').textContent = (r&&r.ok)
-        ? (탭시험 ? '시험이 끝났습니다. 선생님께 전송되었어요.'
+      $('rSaved').textContent = 탭시험 ? '시험이 끝났습니다. 선생님께 전송되었어요.'
            : (S.재시험 ? '오답노트를 한 것도 선생님께 전송되었어요.'
-              : (시험숙제 ? '시험이 끝났습니다. 선생님께 전송되었어요.' : '선생님께 결과가 전송되었어요.')))
-        : '기록 저장에 실패했어요.';
-      if(r&&r.ok) 숙제냈음(점수);
+              : (시험숙제 ? '시험이 끝났습니다. 선생님께 전송되었어요.' : '선생님께 결과가 전송되었어요.'));
+      숙제냈음(점수);
     }
-  }).catch(function(){ $('rSaved').textContent='기록 저장에 실패했어요.'; });
+  });
 }
 
 /* 본문 한 줄 채점 — 빈칸은 메워 보여 주고, 문장은 낱말을 대보여 준다 */
@@ -8495,24 +8546,26 @@ function finishVerb(){
     return;
   }
   $('rSaved').textContent='기록 저장 중…';
-  api('결과저장',{
+  결과보내기_('rSaved',{
     이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:'3단변화',
     문항수:총, 정답수:S.칸정답, 점수:점수, 게임점수:0,
     최고콤보:0, 소요초:초, 숙제여부:탭시험 ? true : !S.재시험,
     구분: 기록구분(),
     틀린단어:S.오답.map(function(w){return 세형태(w.en).원형;}).join(', ')
-  }).then(function(r){
-    if(r&&r.demo){
+  },function(r){
+    if(r.demo){
       $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">미리보기 모드 — 이 결과는 어디에도 저장되지 않았습니다.</span>';
       숙제냈음(점수);
+    }else if(!r.ok && r.이미봄){
+      $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">'+
+        '이 시험은 이미 봤어요. 시험은 한 번만 볼 수 있어서 이번 결과는 저장되지 않았습니다.</span>';
+      숙제냈음(점수);
     }else{
-      $('rSaved').textContent = (r&&r.ok)
-        ? (탭시험 ? '시험이 끝났습니다. 선생님께 전송되었어요.'
-           : (S.재시험 ? '오답노트를 한 것도 선생님께 전송되었어요.' : '선생님께 결과가 전송되었어요.'))
-        : '기록 저장에 실패했어요.';
-      if(r&&r.ok) 숙제냈음(점수);
+      $('rSaved').textContent = 탭시험 ? '시험이 끝났습니다. 선생님께 전송되었어요.'
+           : (S.재시험 ? '오답노트를 한 것도 선생님께 전송되었어요.' : '선생님께 결과가 전송되었어요.');
+      숙제냈음(점수);
     }
-  }).catch(function(){ $('rSaved').textContent='기록 저장에 실패했어요.'; });
+  });
 }
 
 function drawVerbWrong(){
