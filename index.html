@@ -506,6 +506,7 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .setr input{width:88px;text-align:right;font-size:16px;font-weight:800;
   padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:var(--text)}
 .setr span{font-size:13px;font-weight:700;color:var(--sub)}
+.setr input.setword{width:190px;max-width:44vw;text-align:left}
 .clock{font-variant-numeric:tabular-nums;font-weight:900;font-size:14px;
   letter-spacing:.3px;color:var(--text);background:var(--line);
   padding:4px 10px;border-radius:99px;white-space:nowrap}
@@ -2363,7 +2364,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
       <div id="loginMsg" class="center sub mt"></div>
     </div>
     <div class="mt"><button class="btn line sm" id="btnGuide">처음이신가요? 사용법 보기</button></div>
-    <div class="foot">홍제인왕영어 <span id="verTag" style="opacity:.55"></span></div>
+    <div class="foot"><span id="footBrand">홍제인왕영어</span> <span id="verTag" style="opacity:.55"></span></div>
   </section>
 
   <!-- ========================= 홈 = 숙제 ========================= -->
@@ -3159,11 +3160,11 @@ var DEMO_구독 = [
 ];
 var DEMO_열쇠 = {공개키:'', 비밀키:''};
 
-var DEMO_설정 = { 합격점:80 };
+var DEMO_설정 = { 합격점:80, 학원이름:'홍제인왕영어' };
 
 var DEMO = {
   설정가져오기: function(){
-    return {ok:true, 합격점:DEMO_설정.합격점};
+    return {ok:true, 합격점:DEMO_설정.합격점, 학원이름:DEMO_설정.학원이름};
   },
   /* 시간은 숙제마다 — 외우기분·시험분을 보내도 안 받는다 */
   설정저장: function(pw, 값){
@@ -3171,6 +3172,12 @@ var DEMO = {
     var 끝 = {합격점:100};
     var 말 = {합격점:'합격점은 0에서 100 사이로 넣어 주세요.'};
     var 새것 = {}, 나쁨 = '';
+    if(값.학원이름!==undefined){
+      var 이름 = String(값.학원이름==null?'':값.학원이름).trim();
+      if(!이름) 나쁨 = '학원 이름을 넣어 주세요.';
+      else if(이름.length > 40) 나쁨 = '학원 이름은 40자까지 넣을 수 있습니다.';
+      else 새것.학원이름 = 이름;
+    }
     ['합격점'].forEach(function(k){
       if(나쁨 || 값[k]===undefined || 값[k]==='') return;
       var n = Math.round(Number(값[k]));
@@ -3179,11 +3186,11 @@ var DEMO = {
     });
     if(나쁨) return {ok:false, 메시지:나쁨};
     for(var k in 새것) DEMO_설정[k] = 새것[k];
-    return {ok:true, 합격점:DEMO_설정.합격점};
+    return {ok:true, 합격점:DEMO_설정.합격점, 학원이름:DEMO_설정.학원이름};
   },
   시작정보: function(){
     return {
-      학원이름:'홍제인왕영어',
+      학원이름:DEMO_설정.학원이름,
       합격점:80,
       단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']}].concat(DEMO_과목록_())
     };
@@ -4592,7 +4599,8 @@ function initLogin(){
   }catch(e){}
   api('시작정보').then(function(d){
     시작정보 = d;
-    $('academyName').textContent = d.학원이름 || '홍제인왕영어';
+    $('academyName').textContent = 학원이름_();
+    $('footBrand').textContent = 학원이름_();      // 꼬리말도 같은 값 — 이름을 바꾸면 둘이 같이 따라온다
   }).catch(function(e){ $('loginMsg').textContent='앱을 불러오지 못했습니다. '+e; });
   자동로그인_();
 }

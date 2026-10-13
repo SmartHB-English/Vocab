@@ -198,11 +198,11 @@ var DEMO_구독 = [
 ];
 var DEMO_열쇠 = {공개키:'', 비밀키:''};
 
-var DEMO_설정 = { 합격점:80 };
+var DEMO_설정 = { 합격점:80, 학원이름:'홍제인왕영어' };
 
 var DEMO = {
   설정가져오기: function(){
-    return {ok:true, 합격점:DEMO_설정.합격점};
+    return {ok:true, 합격점:DEMO_설정.합격점, 학원이름:DEMO_설정.학원이름};
   },
   /* 시간은 숙제마다 — 외우기분·시험분을 보내도 안 받는다 */
   설정저장: function(pw, 값){
@@ -210,6 +210,12 @@ var DEMO = {
     var 끝 = {합격점:100};
     var 말 = {합격점:'합격점은 0에서 100 사이로 넣어 주세요.'};
     var 새것 = {}, 나쁨 = '';
+    if(값.학원이름!==undefined){
+      var 이름 = String(값.학원이름==null?'':값.학원이름).trim();
+      if(!이름) 나쁨 = '학원 이름을 넣어 주세요.';
+      else if(이름.length > 40) 나쁨 = '학원 이름은 40자까지 넣을 수 있습니다.';
+      else 새것.학원이름 = 이름;
+    }
     ['합격점'].forEach(function(k){
       if(나쁨 || 값[k]===undefined || 값[k]==='') return;
       var n = Math.round(Number(값[k]));
@@ -218,11 +224,11 @@ var DEMO = {
     });
     if(나쁨) return {ok:false, 메시지:나쁨};
     for(var k in 새것) DEMO_설정[k] = 새것[k];
-    return {ok:true, 합격점:DEMO_설정.합격점};
+    return {ok:true, 합격점:DEMO_설정.합격점, 학원이름:DEMO_설정.학원이름};
   },
   시작정보: function(){
     return {
-      학원이름:'홍제인왕영어',
+      학원이름:DEMO_설정.학원이름,
       합격점:80,
       단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']}].concat(DEMO_과목록_())
     };

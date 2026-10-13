@@ -509,6 +509,7 @@ html[data-theme="high"] #hwBox .hwrow{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .setr input{width:88px;text-align:right;font-size:16px;font-weight:800;
   padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:var(--text)}
 .setr span{font-size:13px;font-weight:700;color:var(--sub)}
+.setr input.setword{width:190px;max-width:44vw;text-align:left}
 .clock{font-variant-numeric:tabular-nums;font-weight:900;font-size:14px;
   letter-spacing:.3px;color:var(--text);background:var(--line);
   padding:4px 10px;border-radius:99px;white-space:nowrap}
@@ -2684,11 +2685,11 @@ var DEMO_구독 = [
 ];
 var DEMO_열쇠 = {공개키:'', 비밀키:''};
 
-var DEMO_설정 = { 합격점:80 };
+var DEMO_설정 = { 합격점:80, 학원이름:'홍제인왕영어' };
 
 var DEMO = {
   설정가져오기: function(){
-    return {ok:true, 합격점:DEMO_설정.합격점};
+    return {ok:true, 합격점:DEMO_설정.합격점, 학원이름:DEMO_설정.학원이름};
   },
   /* 시간은 숙제마다 — 외우기분·시험분을 보내도 안 받는다 */
   설정저장: function(pw, 값){
@@ -2696,6 +2697,12 @@ var DEMO = {
     var 끝 = {합격점:100};
     var 말 = {합격점:'합격점은 0에서 100 사이로 넣어 주세요.'};
     var 새것 = {}, 나쁨 = '';
+    if(값.학원이름!==undefined){
+      var 이름 = String(값.학원이름==null?'':값.학원이름).trim();
+      if(!이름) 나쁨 = '학원 이름을 넣어 주세요.';
+      else if(이름.length > 40) 나쁨 = '학원 이름은 40자까지 넣을 수 있습니다.';
+      else 새것.학원이름 = 이름;
+    }
     ['합격점'].forEach(function(k){
       if(나쁨 || 값[k]===undefined || 값[k]==='') return;
       var n = Math.round(Number(값[k]));
@@ -2704,11 +2711,11 @@ var DEMO = {
     });
     if(나쁨) return {ok:false, 메시지:나쁨};
     for(var k in 새것) DEMO_설정[k] = 새것[k];
-    return {ok:true, 합격점:DEMO_설정.합격점};
+    return {ok:true, 합격점:DEMO_설정.합격점, 학원이름:DEMO_설정.학원이름};
   },
   시작정보: function(){
     return {
-      학원이름:'홍제인왕영어',
+      학원이름:DEMO_설정.학원이름,
       합격점:80,
       단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']}].concat(DEMO_과목록_())
     };
@@ -6711,9 +6718,20 @@ function drawTab(){
         '<div class="setr"><input id="'+id+'" type="number" inputmode="numeric" value="'+
           (값===''||값===null||값===undefined?'':값)+'"><span>'+뒤+'</span></div></div>';
     }
+    function 줄글_(이름, id, 값, 설명, 최대){
+      return '<div class="setrow">'+
+        '<div class="setl"><b>'+이름+'</b><i>'+설명+'</i></div>'+
+        '<div class="setr"><input id="'+id+'" class="setword" type="text" maxlength="'+최대+'" value="'+
+          esc(값==null?'':값)+'"></div></div>';
+    }
     b.innerHTML =
       머리('설정','바꾼 뒤 「저장」 을 누르세요. 학생 앱에는 다음에 들어올 때부터 적용됩니다.') +
       '<div class="sub setnote" id="setTimeNote">시간은 숙제마다 정합니다. 숙제 탭에서 내실 때 적으세요.</div>' +
+      판('학원','',
+        '<div class="setbox">'+
+          줄글_('학원 이름','setName',C.학원이름,
+              '학생 앱 · 학부모 화면 · 선생님 화면 머리에 나옵니다',40)+
+        '</div>') +
       판('숙제 합격점','',
         '<div class="setbox">'+
           줄_('숙제 합격점','setPass',C.합격점,
@@ -6722,13 +6740,14 @@ function drawTab(){
       '<div style="max-width:420px"><button class="btn" id="btnSetSave">저장</button></div>';
 
     $('btnSetSave').onclick=function(){
-      var 값 = { 합격점:$('setPass').value };
+      var 값 = { 학원이름:$('setName').value, 합격점:$('setPass').value };
       $('btnSetSave').disabled=true;
       api('설정저장', T.pw, 값).then(function(r){
         $('btnSetSave').disabled=false;
         if(!r || !r.ok){ toast(r&&r.메시지||'저장하지 못했습니다'); return; }
         T.설정 = r;
-        if(시작정보) 시작정보.합격점=r.합격점;
+        if(시작정보){ 시작정보.합격점=r.합격점; if(r.학원이름) 시작정보.학원이름=r.학원이름; }
+        var ta=$('tAcademy'); if(ta) ta.textContent=학원이름_();   // 머리의 이름이 그 자리에서 바뀐다
         toast('저장했습니다');
         drawTab();
       }).catch(function(){ $('btnSetSave').disabled=false; toast('저장하지 못했습니다'); });
