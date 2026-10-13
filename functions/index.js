@@ -431,8 +431,21 @@ function createLegacyEngine(dependencies) {
   var \uC7AC\uC2DC\uD5D8\uD45C\uC2DC = "\uC624\uB2F5 \uC7AC\uC2DC\uD5D8";
   var \uBCF4\uCDA9\uD45C\uC2DC = "\uBCF4\uCDA9";
   var \uC2DC\uD5D8\uD45C\uC2DC = "\uC2DC\uD5D8";
+  var \uBB34\uD6A8\uC2DC\uD5D8\uD45C\uC2DC = "\uC2DC\uD5D8(\uBB34\uD6A8)";
+  var \uBB34\uD6A8\uAF2C\uB9AC_ = "(\uBB34\uD6A8)";
+  function \uBB34\uD6A8\uC778\uAC00_(v) {
+    var t = s_(v);
+    return t.length >= \uBB34\uD6A8\uAF2C\uB9AC_.length && t.slice(-\uBB34\uD6A8\uAF2C\uB9AC_.length) === \uBB34\uD6A8\uAF2C\uB9AC_;
+  }
+  function \uBB34\uD6A8\uC50C\uC6B0\uAE30_(v) {
+    return \uBB34\uD6A8\uC778\uAC00_(v) ? s_(v) : s_(v) + \uBB34\uD6A8\uAF2C\uB9AC_;
+  }
+  function \uBB34\uD6A8\uBC97\uAE30\uAE30_(v) {
+    return \uBB34\uD6A8\uC778\uAC00_(v) ? s_(v).slice(0, -\uBB34\uD6A8\uAF2C\uB9AC_.length) : s_(v);
+  }
   var \uAE30\uBCF8\uB808\uC2A8 = 10;
   var \uAE30\uBCF8\uD569\uACA9\uC810 = 80;
+  var \uAE30\uBCF8\uD559\uC6D0\uC774\uB984 = "\uD64D\uC81C\uC778\uC655\uC601\uC5B4";
   var \uAE30\uBCF8\uC678\uC6B0\uAE30\uBD84 = 5;
   var \uAE30\uBCF8\uC2DC\uD5D8\uBD84 = 20;
   var \uC624\uB2F5\uC694\uC57D\uAC1C\uC218 = 5;
@@ -605,6 +618,8 @@ function createLegacyEngine(dependencies) {
     \uB808\uC2A8\uD06C\uAE30\uC800\uC7A5,
     \uAE30\uB85D\uC815\uB9AC,
     \uAE30\uB85D\uC81C\uC678\uC124\uC815,
+    \uC2DC\uD5D8\uBB34\uB974\uAE30,
+    \uAE30\uB85D\uBB34\uB974\uAE30,
     \uBBF8\uC81C\uCD9C\uC2DC\uD2B8,
     \uC624\uB798\uB41C\uAE30\uB85D\uC815\uB9ACAPI,
     \uC2DC\uC0C1\uC9D1\uACC4,
@@ -671,7 +686,7 @@ function createLegacyEngine(dependencies) {
     if (st.getLastRow() < 2) {
       st.getRange(2, 1, 9, 2).setValues([
         ["\uC120\uC0DD\uB2D8\uBE44\uBC00\uBC88\uD638", "1234"],
-        ["\uD559\uC6D0\uC774\uB984", "\uD64D\uC81C\uC778\uC655\uC601\uC5B4"],
+        ["\uD559\uC6D0\uC774\uB984", \uAE30\uBCF8\uD559\uC6D0\uC774\uB984],
         ["\uAE30\uBCF8\uD14C\uB9C8", "\uC790\uB3D9"],
         ["\uC2DC\uC0C1\uC2DC\uC791\uC77C", ""],
         ["\uC2DC\uC0C1\uD56D\uBAA9", "\uC219\uC81C"],
@@ -1140,7 +1155,7 @@ function createLegacyEngine(dependencies) {
   }
   function \uC124\uC815\uAC00\uC838\uC624\uAE30(\uBE44\uBC88) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
-    return { ok: true, \uD569\uACA9\uC810: \uD569\uACA9\uC810_() };
+    return { ok: true, \uD569\uACA9\uC810: \uD569\uACA9\uC810_(), \uD559\uC6D0\uC774\uB984: s_(setting_("\uD559\uC6D0\uC774\uB984", \uAE30\uBCF8\uD559\uC6D0\uC774\uB984)) };
   }
   function \uC124\uC815\uC800\uC7A5(\uBE44\uBC88, \uAC12) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
@@ -1149,11 +1164,18 @@ function createLegacyEngine(dependencies) {
       var n = Number(v);
       return isFinite(n) ? Math.round(n) : null;
     }
-    if (\uAC12.\uD569\uACA9\uC810 !== void 0 && \uAC12.\uD569\uACA9\uC810 !== "") {
-      var p = \uC22B\uC790(\uAC12.\uD569\uACA9\uC810);
-      if (p === null || p < 0 || p > 100) return { ok: false, \uBA54\uC2DC\uC9C0: "\uD569\uACA9\uC810\uC740 0\uC5D0\uC11C 100 \uC0AC\uC774\uB85C \uB123\uC5B4 \uC8FC\uC138\uC694." };
-      \uC124\uC815\uC4F0\uAE30_("\uC219\uC81C\uD569\uACA9\uC810", p);
+    var \uC774\uB984 = null, p = null;
+    if (\uAC12.\uD559\uC6D0\uC774\uB984 !== void 0) {
+      \uC774\uB984 = s_(\uAC12.\uD559\uC6D0\uC774\uB984);
+      if (!\uC774\uB984) return { ok: false, \uBA54\uC2DC\uC9C0: "\uD559\uC6D0 \uC774\uB984\uC744 \uB123\uC5B4 \uC8FC\uC138\uC694." };
+      if (\uC774\uB984.length > 40) return { ok: false, \uBA54\uC2DC\uC9C0: "\uD559\uC6D0 \uC774\uB984\uC740 40\uC790\uAE4C\uC9C0 \uB123\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
     }
+    if (\uAC12.\uD569\uACA9\uC810 !== void 0 && \uAC12.\uD569\uACA9\uC810 !== "") {
+      p = \uC22B\uC790(\uAC12.\uD569\uACA9\uC810);
+      if (p === null || p < 0 || p > 100) return { ok: false, \uBA54\uC2DC\uC9C0: "\uD569\uACA9\uC810\uC740 0\uC5D0\uC11C 100 \uC0AC\uC774\uB85C \uB123\uC5B4 \uC8FC\uC138\uC694." };
+    }
+    if (\uC774\uB984 !== null) \uC124\uC815\uC4F0\uAE30_("\uD559\uC6D0\uC774\uB984", \uC774\uB984);
+    if (p !== null) \uC124\uC815\uC4F0\uAE30_("\uC219\uC81C\uD569\uACA9\uC810", p);
     return \uC124\uC815\uAC00\uC838\uC624\uAE30(\uBE44\uBC88);
   }
   function \uD569\uACA9\uC810\uC800\uC7A5(\uBE44\uBC88, \uC810\uC218) {
@@ -1175,7 +1197,7 @@ function createLegacyEngine(dependencies) {
     var \uB2F4\uAE34 = \uCE90\uC2DC\uC77D\uAE30_("\uC2DC\uC791\uC815\uBCF4");
     if (\uB2F4\uAE34 && \uB2F4\uAE34.\uB2E8\uC5B4\uC7A5\uBAA9\uB85D) return \uB2F4\uAE34;
     var r = {
-      \uD559\uC6D0\uC774\uB984: setting_("\uD559\uC6D0\uC774\uB984", "\uC601\uB2E8\uC5B4\uD559\uC2B5\uD504\uB85C\uADF8\uB7A8"),
+      \uD559\uC6D0\uC774\uB984: setting_("\uD559\uC6D0\uC774\uB984", \uAE30\uBCF8\uD559\uC6D0\uC774\uB984),
       \uD569\uACA9\uC810: \uD569\uACA9\uC810_(),
       \uB2E8\uC5B4\uC7A5\uBAA9\uB85D: \uB2E8\uC5B4\uC7A5\uBAA9\uB85D()
     };
@@ -1884,6 +1906,7 @@ function createLegacyEngine(dependencies) {
     var g = s_(\uAD6C\uBD84);
     if (g === \uC7AC\uC2DC\uD5D8\uD45C\uC2DC) return "\uC624\uB2F5\uB178\uD2B8";
     if (g === \uC2DC\uD5D8\uD45C\uC2DC) return "\uC2DC\uD5D8";
+    if (\uBB34\uD6A8\uC778\uAC00_(g)) return "\uBB34\uD6A8";
     if (g === \uBCF4\uCDA9\uD45C\uC2DC) return "\uBCF4\uCDA9";
     return \uC219\uC81C\uC600\uB098_(\uC219\uC81C\uC5EC\uBD80) ? "\uC219\uC81C" : "\uC5F0\uC2B5";
   }
@@ -1927,6 +1950,38 @@ function createLegacyEngine(dependencies) {
     });
     return { ok: true, \uAC1C\uC218: \uBC14\uAFBC\uC218, \uBE90\uB098: !!\uBE84\uAE4C };
   }
+  function \uAE30\uB85D\uBB34\uB974\uAE30(\uBE44\uBC88, \uD0A4\uB4E4, \uBB34\uB97C\uAE4C) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var set = {};
+    (\uD0A4\uB4E4 || []).forEach(function(k) {
+      set[Number(k)] = 1;
+    });
+    if (!Object.keys(set).length) return { ok: false, \uBA54\uC2DC\uC9C0: "\uACE0\uB978 \uAE30\uB85D\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." };
+    var \uBC14\uAFBC\uC218 = 0;
+    [SHEET.\uAE30\uB85D, SHEET.\uAE30\uB85D\uBCF4\uAD00].forEach(function(name) {
+      var sh = sheet_(name);
+      var last = sh.getLastRow();
+      if (last < 2 || sh.getMaxColumns() < \uAD6C\uBD84\uC5F4) return;
+      var \uB0A0\uB4E4 = sh.getRange(2, 1, last - 1, 1).getValues();
+      var \uC9C0\uAE08 = sh.getRange(2, \uAD6C\uBD84\uC5F4, last - 1, 1).getValues();
+      var \uBC14\uB01C = false;
+      for (var i = 0; i < \uB0A0\uB4E4.length; i++) {
+        var d = \uB0A0\uB4E4[i][0];
+        if (!(d instanceof Date2) || !set[d.getTime()]) continue;
+        var \uC6D0 = s_(\uC9C0\uAE08[i][0]);
+        if (\uC6D0 === \uC7AC\uC2DC\uD5D8\uD45C\uC2DC) continue;
+        if (\uBB34\uB97C\uAE4C ? \uBB34\uD6A8\uC778\uAC00_(\uC6D0) : !\uBB34\uD6A8\uC778\uAC00_(\uC6D0)) continue;
+        \uC9C0\uAE08[i][0] = \uBB34\uB97C\uAE4C ? \uBB34\uD6A8\uC50C\uC6B0\uAE30_(\uC6D0) : \uBB34\uD6A8\uBC97\uAE30\uAE30_(\uC6D0);
+        \uBC14\uB01C = true;
+        \uBC14\uAFBC\uC218++;
+      }
+      if (\uBC14\uB01C) sh.getRange(2, \uAD6C\uBD84\uC5F4, last - 1, 1).setValues(\uC9C0\uAE08);
+    });
+    return { ok: true, \uAC1C\uC218: \uBC14\uAFBC\uC218, \uBB34\uB984: !!\uBB34\uB97C\uAE4C };
+  }
+  function \uC2DC\uD5D8\uBB34\uB974\uAE30(\uBE44\uBC88, \uD0A4\uB4E4, \uBB34\uB97C\uAE4C) {
+    return \uAE30\uB85D\uBB34\uB974\uAE30(\uBE44\uBC88, \uD0A4\uB4E4, \uBB34\uB97C\uAE4C);
+  }
   function \uC2DC\uC0C1\uC2DC\uC791\uC77C_() {
     var v = setting_("\uC2DC\uC0C1\uC2DC\uC791\uC77C", "");
     if (v instanceof Date2) return ymd_(v);
@@ -1949,7 +2004,7 @@ function createLegacyEngine(dependencies) {
         if (\uC6D4_(x[0]) !== ym) return;
         if (\uC2DC\uC791 && ymd_(x[0]) < \uC2DC\uC791) return;
         var \uD56D\uBAA9 = \uAE30\uB85D\uD56D\uBAA9_(x[14], x[12]);
-        if (\uD56D\uBAA9 === "\uC5F0\uC2B5") return;
+        if (\uD56D\uBAA9 === "\uC5F0\uC2B5" || \uD56D\uBAA9 === "\uBB34\uD6A8") return;
         out.push({
           \uB0A0: ymd_(x[0]),
           \uBC18: s_(x[1]),
@@ -2755,6 +2810,8 @@ function createLegacyEngine(dependencies) {
     \uC9C0\uB09C\uC219\uC81C\uC815\uB9AC: 1,
     \uAE30\uB85D\uC815\uB9AC: 1,
     \uAE30\uB85D\uC81C\uC678\uC124\uC815: 1,
+    \uC2DC\uD5D8\uBB34\uB974\uAE30: 1,
+    \uAE30\uB85D\uBB34\uB974\uAE30: 1,
     \uC624\uB798\uB41C\uAE30\uB85D\uC815\uB9ACAPI: 1,
     \uC7AC\uC751\uC2DC\uB354\uC8FC\uAE30: 1,
     \uD559\uC0DD\uC218\uC815: 1,
@@ -2963,6 +3020,7 @@ function createLegacyEngine(dependencies) {
         \uAD6C\uBD84: s_(x[\uAD6C\uBD84\uC5F4 - 1]),
         \uC81C\uC678: s_(x[\uC81C\uC678\uC5F4 - 1]) === "O",
         \uC7AC\uC2DC\uD5D8: s_(x[\uAD6C\uBD84\uC5F4 - 1]) === \uC7AC\uC2DC\uD5D8\uD45C\uC2DC,
+        \uBB34\uD6A8: \uBB34\uD6A8\uC778\uAC00_(x[\uAD6C\uBD84\uC5F4 - 1]),
         \uC2DC\uAC01: Utilities.formatDate(x[0], Session.getScriptTimeZone(), "MM/dd HH:mm"),
         \uB0A0\uC9DC: ymd_(x[0]),
         \uC774\uB984: s_(x[2]),
@@ -2992,7 +3050,7 @@ function createLegacyEngine(dependencies) {
     }
     \uC2DC\uD5D8\uBAA9\uB85D.reverse();
     var \uBCF8\uC2DC\uD5D8 = \uC2DC\uD5D8\uBAA9\uB85D.filter(function(t) {
-      return t.\uC219\uC81C && !t.\uC81C\uC678 && t.\uAD6C\uBD84 !== \uBCF4\uCDA9\uD45C\uC2DC && t.\uAD6C\uBD84 !== \uC2DC\uD5D8\uD45C\uC2DC;
+      return t.\uC219\uC81C && !t.\uC81C\uC678 && t.\uAD6C\uBD84 !== \uBCF4\uCDA9\uD45C\uC2DC && t.\uAD6C\uBD84 !== \uC2DC\uD5D8\uD45C\uC2DC && !\uBB34\uD6A8\uC778\uAC00_(t.\uAD6C\uBD84);
     });
     function \uBE48\uC904_(t) {
       return {
@@ -3156,6 +3214,7 @@ function createLegacyEngine(dependencies) {
       }
       \uC904\uB4E4.forEach(function(x) {
         if (s_(x[14]) === \uC7AC\uC2DC\uD5D8\uD45C\uC2DC) return;
+        if (\uBB34\uD6A8\uC778\uAC00_(x[14])) return;
         if (!(x[0] instanceof Date2)) return;
         if (\uD55C\uC0AC\uB78C && s_(x[2]) !== s_(\uC774\uB984)) return;
         var key = (\uD55C\uC0AC\uB78C ? "" : s_(x[2]) + "|") + s_(x[3]) + "|" + s_(x[4]);
@@ -3267,9 +3326,9 @@ function createLegacyEngine(dependencies) {
         }
         if (\uC2DC\uC791 && \uB0A0 < \uC2DC\uC791) return;
         var \uCE78 = \uD45C[key] = \uD45C[key] || {};
-        var \uD558\uB8E8 = \uCE78[\uB0A0] = \uCE78[\uB0A0] || { \uCD1D: 0, \uB0B8: 0 };
-        \uD558\uB8E8.\uCD1D++;
-        if (\uADF8\uB0A0\uB0C8\uB098_(\uB0A0\uB4E4, \uC885\uB958, \uB4F1\uB85D, \uB0A0)) \uD558\uB8E8.\uB0B8++;
+        var \uD558\uB8E83 = \uCE78[\uB0A0] = \uCE78[\uB0A0] || { \uCD1D: 0, \uB0B8: 0 };
+        \uD558\uB8E83.\uCD1D++;
+        if (\uADF8\uB0A0\uB0C8\uB098_(\uB0A0\uB4E4, \uC885\uB958, \uB4F1\uB85D, \uB0A0)) \uD558\uB8E83.\uB0B8++;
       });
     });
     return \uD45C;
@@ -3781,6 +3840,7 @@ function createLegacyEngine(dependencies) {
       r.forEach(function(x, i) {
         if (!(x[0] instanceof Date2)) return;
         if (s_(x[14]) === \uC7AC\uC2DC\uD5D8\uD45C\uC2DC) return;
+        if (\uBB34\uD6A8\uC778\uAC00_(x[14])) return;
         if (\uC774\uB984 !== void 0 && \uC774\uB984 !== null && s_(x[2]) !== s_(\uC774\uB984)) return;
         var k = s_(x[2]) + "|" + s_(x[3]) + "|" + s_(x[4]);
         (\uD45C[k] = \uD45C[k] || []).push({
@@ -5388,12 +5448,12 @@ function createLegacyEngine(dependencies) {
     \uD56D\uBAA9.forEach(function(p) {
       if (p[2]) \uADF8\uB9BC\uC218++;
     });
-    var \uD3ED = \uADF8\uB9BC\uC218 ? 4 : 3;
+    var \uD3ED2 = \uADF8\uB9BC\uC218 ? 4 : 3;
     if (\uADF8\uB9BC\uC218) \uB137\uC9F8\uCE78\uD655\uBCF4_(sh, \uC885\uB958);
     var \uAC12 = \uD56D\uBAA9.map(function(p, i) {
       return \uADF8\uB9BC\uC218 ? [\uC2DC\uC791\uBC88\uD638 + i + 1, p[0], p[1], s_(p[2])] : [\uC2DC\uC791\uBC88\uD638 + i + 1, p[0], p[1]];
     });
-    sh.getRange(sh.getLastRow() + 1, 1, \uAC12.length, \uD3ED).setValues(\uAC12);
+    sh.getRange(sh.getLastRow() + 1, 1, \uAC12.length, \uD3ED2).setValues(\uAC12);
     return { ok: true, \uAC1C\uC218: \uD56D\uBAA9.length, \uADF8\uB9BC\uC218, \uB2E8\uC5B4\uC7A5\uBAA9\uB85D: \uB2E8\uC5B4\uC7A5\uBAA9\uB85D() };
   }
   function \uB2E8\uC5B4\uBAA9\uB85D(\uBE44\uBC88, \uB2E8\uC5B4\uC7A5) {
@@ -5949,7 +6009,7 @@ function createLegacyEngine(dependencies) {
         // 앞으로 볼 것 → 본 것(최근부터)
         \uC790\uC8FC\uD2C0\uB9B0,
         \uC9C4\uB3C4,
-        \uD559\uC6D0: { \uC774\uB984: s_(setting_("\uD559\uC6D0\uC774\uB984", "\uD64D\uC81C\uC778\uC655\uC601\uC5B4")), \uC804\uD654: s_(setting_("\uD559\uC6D0\uC804\uD654", "")) }
+        \uD559\uC6D0: { \uC774\uB984: s_(setting_("\uD559\uC6D0\uC774\uB984", \uAE30\uBCF8\uD559\uC6D0\uC774\uB984)), \uC804\uD654: s_(setting_("\uD559\uC6D0\uC804\uD654", "")) }
       };
     });
   }
@@ -6111,6 +6171,199 @@ async function createDatasetDocuments(store, { digest: digest2, previousIdentiti
   return { documents, tables, identities };
 }
 
+// services/table-edit.mjs
+var \uD734\uC9C0\uD1B5\uC774\uB984 = "\uD734\uC9C0\uD1B5";
+var \uD734\uC9C0\uD1B5\uBA38\uB9AC = ["\uC9C0\uC6B4\uB54C", "\uD45C", "\uC6D0\uB798\uD589", "\uB0B4\uC6A9", "\uBA54\uBAA8", "\uBE44\uBC00", "\uBC88\uD638", "\uC9C0\uC6B4\uC0AC\uB78C"];
+var \uBE44\uBC00\uC5F4 = 6;
+var \uBCF4\uAD00\uC77C\uC218 = 30;
+var \uD558\uB8E8 = 864e5;
+var \uBE44\uBC00\uCE78\uB4E4 = { \uD559\uC0DD: [3, 9] };
+var \uB0A0\uC9DC\uBA38\uB9AC = /* @__PURE__ */ new Set(["\uC2DC\uAC01", "\uB0A0\uC9DC", "\uB4F1\uB85D\uC2DC\uAC01", "\uB9C8\uAC10\uC77C", "\uCF20\uB54C", "\uB9CC\uB4E0\uB54C", "\uB05D\uB098\uB294\uB0A0", "\uD559\uBD80\uBAA8\uB9C8\uC9C0\uB9C9", "\uC9C0\uC6B4\uB54C"]);
+var \uCDA9\uB3CC = class extends Error {
+  constructor(\uBA54\uC2DC\uC9C0) {
+    super(\uBA54\uC2DC\uC9C0);
+    this.code = "\uCDA9\uB3CC";
+  }
+};
+function \uC790\uB8CC\uD45C\uBAA9\uB85D(store) {
+  const \uBAA9\uB85D = [];
+  const \uB123\uAE30 = (\uC774\uB984, \uBCF4\uC77C\uC774\uB984, \uBB36\uC74C) => {
+    if (store.getSheetByName(\uC774\uB984)) \uBAA9\uB85D.push({ \uC774\uB984, \uBCF4\uC77C\uC774\uB984, \uBB36\uC74C });
+  };
+  \uB123\uAE30("\uD559\uC0DD", "\uD559\uC0DD \uBA85\uB2E8", "\uD559\uC0DD");
+  \uB123\uAE30("\uC219\uC81C", "\uC219\uC81C", "\uC219\uC81C");
+  \uB123\uAE30("\uAE30\uB85D", "\uC219\uC81C \uACB0\uACFC", "\uC219\uC81C");
+  \uB123\uAE30("\uAE30\uB85D\uBCF4\uAD00", "\uC9C0\uB09C \uC219\uC81C \uACB0\uACFC", "\uC219\uC81C");
+  \uB123\uAE30("\uC810\uC218", "\uC2DC\uD5D8 \uC810\uC218", "\uC219\uC81C");
+  \uB123\uAE30("\uB2E8\uC5B4\uC7A5\uBAA9\uB85D", "\uB2E8\uC5B4\uC7A5 \uBAA9\uB85D", "\uB2E8\uC5B4\uC7A5");
+  const \uCC45 = store.getSheetByName("\uB2E8\uC5B4\uC7A5\uBAA9\uB85D");
+  const \uBCF8\uAC83 = /* @__PURE__ */ new Set();
+  if (\uCC45) for (let r = 2; r <= \uCC45.getLastRow(); r++) {
+    const [\uC774\uB984, , \uC2DC\uD2B8] = \uCC45.getRange(r, 1, 1, 3).getValues()[0].map((v) => String(v ?? "").trim());
+    if (\uC2DC\uD2B8 && !\uBCF8\uAC83.has(\uC2DC\uD2B8) && store.getSheetByName(\uC2DC\uD2B8)) {
+      \uBCF8\uAC83.add(\uC2DC\uD2B8);
+      \uBAA9\uB85D.push({ \uC774\uB984: \uC2DC\uD2B8, \uBCF4\uC77C\uC774\uB984: "\uB2E8\uC5B4\uC7A5 \xB7 " + (\uC774\uB984 || \uC2DC\uD2B8), \uBB36\uC74C: "\uB2E8\uC5B4\uC7A5" });
+    }
+  }
+  for (const s of store.getSheets()) if (s.getName().startsWith("\uB2E8\uC5B4_") && !\uBCF8\uAC83.has(s.getName())) \uBAA9\uB85D.push({ \uC774\uB984: s.getName(), \uBCF4\uC77C\uC774\uB984: "\uB2E8\uC5B4\uC7A5 \xB7 " + s.getName().slice(3), \uBB36\uC74C: "\uB2E8\uC5B4\uC7A5" });
+  return \uBAA9\uB85D;
+}
+var \uACE0\uCE60\uC218\uC788\uB098 = (store, \uC774\uB984) => \uC790\uB8CC\uD45C\uBAA9\uB85D(store).some((t) => t.\uC774\uB984 === \uC774\uB984);
+var \uC904\uC790\uB974\uAE30 = (\uC904) => {
+  const a = \uC904.map((v) => v ?? "");
+  while (a.length && a[a.length - 1] === "") a.pop();
+  return a;
+};
+var \uC904\uAE00 = (\uC904) => pack(\uC904\uC790\uB974\uAE30(\uC904));
+var \uD3ED = (sheet, \uB354 = 0) => Math.max(1, sheet.getLastColumn(), \uB354);
+var \uC904\uC77D\uAE30 = (sheet, \uD589, \uB108\uBE44 = \uD3ED(sheet)) => sheet.getRange(\uD589, 1, 1, \uB108\uBE44).getValues()[0];
+var \uBA54\uBAA8\uC77D\uAE30 = (sheet, \uD589, \uB108\uBE44 = \uD3ED(sheet)) => sheet.getRange(\uD589, 1, 1, \uB108\uBE44).getNotes()[0];
+function \uADF8\uB300\uB85C\uC778\uAC00(sheet, \uD589, \uC804\uC904) {
+  if (!Array.isArray(\uC804\uC904)) throw new Error("\uBC14\uAFB8\uAE30 \uC804 \uC904\uC774 \uC5C6\uC5B4\uC694.");
+  if (\uD589 > sheet.getMaxRows()) return \uC904\uC790\uB974\uAE30(\uC804\uC904).length === 0;
+  return \uC904\uAE00(\uC904\uC77D\uAE30(sheet, \uD589, \uD3ED(sheet, \uC804\uC904.length))) === \uC904\uAE00(\uC804\uC904);
+}
+function \uC11C\uC6B8\uB0A0\uC9DC(\uAE00) {
+  const m = /^(\d{4})[-./](\d{1,2})[-./](\d{1,2})(?:[ T]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/.exec(String(\uAE00).trim());
+  if (!m) return null;
+  const d = new Date(Date.UTC(+m[1], m[2] - 1, +m[3], (+m[4] || 0) - 9, +m[5] || 0, +m[6] || 0));
+  return isNaN(d) ? null : d;
+}
+function \uAC12\uB9DE\uCD94\uAE30(\uC61B\uAC12, \uC0C8\uAC12, \uBA38\uB9AC = "") {
+  if (\uC0C8\uAC12 && typeof \uC0C8\uAC12 === "object" && "$date" in \uC0C8\uAC12) return new Date(\uC0C8\uAC12.$date);
+  if (typeof \uC0C8\uAC12 === "number" || typeof \uC0C8\uAC12 === "boolean") return \uC0C8\uAC12;
+  const \uAE00 = String(\uC0C8\uAC12 ?? "").trim();
+  if (\uAE00 === "") return "";
+  if (\uC61B\uAC12 instanceof Date || \uC61B\uAC12 === "" && \uB0A0\uC9DC\uBA38\uB9AC.has(\uBA38\uB9AC)) return \uC11C\uC6B8\uB0A0\uC9DC(\uAE00) ?? \uAE00;
+  const \uC22B\uC790\uAC19\uB2E4 = /^-?\d+(\.\d+)?$/.test(\uAE00) && String(Number(\uAE00)) === \uAE00;
+  if ((typeof \uC61B\uAC12 === "number" || \uC61B\uAC12 === "") && \uC22B\uC790\uAC19\uB2E4) return Number(\uAE00);
+  if (typeof \uC61B\uAC12 === "boolean" && /^(true|false)$/i.test(\uAE00)) return /^true$/i.test(\uAE00);
+  return \uAE00;
+}
+function \uD45C\uCC3E\uAE30(store, \uC774\uB984) {
+  if (!\uACE0\uCE60\uC218\uC788\uB098(store, \uC774\uB984)) throw new Error("\uACE0\uCE60 \uC218 \uC5C6\uB294 \uD45C\uC608\uC694: " + \uC774\uB984);
+  return store.getSheetByName(\uC774\uB984);
+}
+var \uD589\uB9DE\uB098 = (\uD589) => Number.isInteger(\uD589) && \uD589 >= 2;
+function \uCE78\uACE0\uCE58\uAE30(store, { \uD45C, \uD589, \uC5F4, \uC804\uC904, \uAC12 } = {}) {
+  const sheet = \uD45C\uCC3E\uAE30(store, \uD45C);
+  if (!\uD589\uB9DE\uB098(\uD589) || !Number.isInteger(\uC5F4) || \uC5F4 < 1) throw new Error("\uACE0\uCE60 \uCE78\uC774 \uB9DE\uC9C0 \uC54A\uC544\uC694.");
+  if (!\uADF8\uB300\uB85C\uC778\uAC00(sheet, \uD589, \uC804\uC904)) throw new \uCDA9\uB3CC("\uADF8 \uC0AC\uC774 \uB2E4\uB978 \uACF3\uC5D0\uC11C \uC774 \uC904\uC774 \uBC14\uB00C\uC5C8\uC5B4\uC694. \uC0C8\uB85C \uBD88\uB7EC\uC628 \uB4A4 \uB2E4\uC2DC \uACE0\uCCD0 \uC8FC\uC138\uC694.");
+  if (\uD589 > sheet.getMaxRows()) sheet.maxRows = \uD589;
+  if (\uC5F4 > sheet.getMaxColumns()) sheet.maxColumns = \uC5F4;
+  const \uBA38\uB9AC = String(sheet.getRange(1, \uC5F4).getValue() ?? "").trim();
+  const \uC804 = sheet.getRange(\uD589, \uC5F4).getValue();
+  const \uD6C4 = \uAC12\uB9DE\uCD94\uAE30(\uC804, \uAC12, \uBA38\uB9AC);
+  sheet.getRange(\uD589, \uC5F4).setValue(\uD6C4);
+  return { \uD45C, \uD589, \uC5F4, \uBA38\uB9AC, \uC804, \uD6C4, \uD6C4\uC904: \uC904\uC77D\uAE30(sheet, \uD589) };
+}
+function \uD734\uC9C0\uD1B5(store) {
+  let sheet = store.getSheetByName(\uD734\uC9C0\uD1B5\uC774\uB984);
+  if (!sheet) {
+    sheet = store.insertSheet(\uD734\uC9C0\uD1B5\uC774\uB984);
+    sheet.getRange(1, 1, 1, \uD734\uC9C0\uD1B5\uBA38\uB9AC.length).setValues([\uD734\uC9C0\uD1B5\uBA38\uB9AC]);
+  }
+  return sheet;
+}
+function \uC904\uC9C0\uC6B0\uAE30(store, { \uD45C, \uC904\uB4E4 } = {}, { \uC9C0\uAE08 = Date.now(), \uB204\uAC00 = "\uC120\uC0DD\uB2D8", \uBC88\uD638 } = {}) {
+  const sheet = \uD45C\uCC3E\uAE30(store, \uD45C);
+  if (!Array.isArray(\uC904\uB4E4) || !\uC904\uB4E4.length) throw new Error("\uC9C0\uC6B8 \uC904\uC744 \uACE8\uB77C \uC8FC\uC138\uC694.");
+  const \uD589\uB4E4 = \uC904\uB4E4.map((j) => j.\uD589);
+  if (!\uD589\uB4E4.every(\uD589\uB9DE\uB098) || new Set(\uD589\uB4E4).size !== \uD589\uB4E4.length) throw new Error("\uC9C0\uC6B8 \uC904\uC774 \uB9DE\uC9C0 \uC54A\uC544\uC694.");
+  const \uBC14\uB010 = \uC904\uB4E4.filter((j) => !\uADF8\uB300\uB85C\uC778\uAC00(sheet, j.\uD589, j.\uC804\uC904));
+  if (\uBC14\uB010.length) throw new \uCDA9\uB3CC("\uADF8 \uC0AC\uC774 \uB2E4\uB978 \uACF3\uC5D0\uC11C " + \uBC14\uB010.length + "\uC904\uC774 \uBC14\uB00C\uC5C8\uC5B4\uC694. \uC0C8\uB85C \uBD88\uB7EC\uC628 \uB4A4 \uB2E4\uC2DC \uACE8\uB77C \uC8FC\uC138\uC694.");
+  const \uD1B5 = \uD734\uC9C0\uD1B5(store), \uB108\uBE44 = \uD3ED(sheet), \uBE44\uBC00 = \uBE44\uBC00\uCE78\uB4E4[\uD45C] || [];
+  const \uC9C0\uC6B4 = [];
+  for (const \uD589 of [...\uD589\uB4E4].sort((a, b) => a - b)) {
+    const \uAC12\uB4E4 = \uC904\uC77D\uAE30(sheet, \uD589, \uB108\uBE44), \uBA54\uBAA8\uB4E4 = \uBA54\uBAA8\uC77D\uAE30(sheet, \uD589, \uB108\uBE44);
+    const \uACF5\uAC1C = \uAC12\uB4E4.map((v, i) => \uBE44\uBC00.includes(i + 1) ? "" : v);
+    const \uC228\uAE40 = \uBE44\uBC00.some((c) => \uAC12\uB4E4[c - 1] !== "" && \uAC12\uB4E4[c - 1] != null) ? pack(Object.fromEntries(\uBE44\uBC00.map((c) => [c, \uAC12\uB4E4[c - 1] ?? ""]))) : "";
+    const n = \uBC88\uD638 ? \uBC88\uD638() : Math.random().toString(36).slice(2, 12);
+    \uD1B5.appendRow([new Date(\uC9C0\uAE08), \uD45C, \uD589, pack(\uACF5\uAC1C), \uBA54\uBAA8\uB4E4.some(Boolean) ? pack(\uBA54\uBAA8\uB4E4) : "", \uC228\uAE40, n, \uB204\uAC00]);
+    \uC9C0\uC6B4.push({ \uD589, \uBC88\uD638: n, \uC904: \uACF5\uAC1C });
+  }
+  for (const \uD589 of [...\uD589\uB4E4].sort((a, b) => b - a)) sheet.deleteRow(\uD589);
+  return { \uD45C, \uC9C0\uC6B4 };
+}
+function \uC904\uB07C\uC6B0\uAE30(sheet, \uD589, \uAC12\uB4E4, \uBA54\uBAA8\uB4E4) {
+  const cells = {};
+  for (const [key, cell] of Object.entries(sheet.cells)) {
+    const [r, c] = key.split(":").map(Number);
+    cells[r >= \uD589 ? `${r + 1}:${c}` : key] = cell;
+  }
+  sheet.cells = cells;
+  sheet.maxRows = Math.max(sheet.maxRows, sheet.getLastRow(), \uD589) + 1;
+  sheet.maxColumns = Math.max(sheet.maxColumns, \uAC12\uB4E4.length);
+  sheet.getRange(\uD589, 1, 1, \uAC12\uB4E4.length).setValues([\uAC12\uB4E4]);
+  if (\uBA54\uBAA8\uB4E4 && \uBA54\uBAA8\uB4E4.length) sheet.getRange(\uD589, 1, 1, \uBA54\uBAA8\uB4E4.length).setNotes([\uBA54\uBAA8\uB4E4.slice(0, \uAC12\uB4E4.length).concat(Array(Math.max(0, \uAC12\uB4E4.length - \uBA54\uBAA8\uB4E4.length)).fill(""))]);
+  sheet.dirty = true;
+}
+var \uD480\uAE30 = (\uAE00) => \uAE00 ? JSON.parse(\uAE00, (_, v) => v && typeof v === "object" && Object.keys(v).length === 1 && "$date" in v ? new Date(v.$date) : v) : null;
+function \uB418\uC0B4\uB9AC\uAE30(store, { \uBC88\uD638\uB4E4 } = {}) {
+  const \uD1B5 = store.getSheetByName(\uD734\uC9C0\uD1B5\uC774\uB984);
+  if (!Array.isArray(\uBC88\uD638\uB4E4) || !\uBC88\uD638\uB4E4.length) throw new Error("\uB418\uC0B4\uB9B4 \uC904\uC744 \uACE8\uB77C \uC8FC\uC138\uC694.");
+  const \uCC3E\uC74C = [];
+  for (const n of \uBC88\uD638\uB4E4) {
+    let \uD589 = 0;
+    if (\uD1B5) {
+      for (let r = 2; r <= \uD1B5.getLastRow(); r++) if (String(\uD1B5.getRange(r, 7).getValue()) === String(n)) {
+        \uD589 = r;
+        break;
+      }
+    }
+    if (!\uD589) throw new \uCDA9\uB3CC("\uC774\uBBF8 \uB418\uC0B4\uB838\uAC70\uB098 \uD734\uC9C0\uD1B5\uC5D0\uC11C \uBE44\uC6B4 \uC904\uC774\uC5D0\uC694. \uC0C8\uB85C \uBD88\uB7EC\uC640 \uC8FC\uC138\uC694.");
+    const [\uC9C0\uC6B4\uB54C, \uD45C, \uC6D0\uB798\uD589, \uB0B4\uC6A9, \uBA54\uBAA8, \uC228\uAE40] = \uD1B5.getRange(\uD589, 1, 1, 6).getValues()[0];
+    if (!store.getSheetByName(\uD45C)) throw new Error("\u300C" + \uD45C + "\u300D \uD45C\uAC00 \uC5C6\uC5B4\uC11C \uB418\uC0B4\uB9B4 \uC218 \uC5C6\uC5B4\uC694.");
+    const \uAC12\uB4E4 = \uD480\uAE30(\uB0B4\uC6A9) || [];
+    const \uBE44\uBC00 = \uD480\uAE30(\uC228\uAE40) || {};
+    for (const [c, v] of Object.entries(\uBE44\uBC00)) \uAC12\uB4E4[Number(c) - 1] = v;
+    \uCC3E\uC74C.push({ \uD1B5\uD589: \uD589, \uBC88\uD638: n, \uC9C0\uC6B4\uB54C, \uD45C, \uC6D0\uB798\uD589: Number(\uC6D0\uB798\uD589) || 2, \uAC12\uB4E4: \uAC12\uB4E4.map((v) => v ?? ""), \uBA54\uBAA8\uB4E4: \uD480\uAE30(\uBA54\uBAA8) });
+  }
+  const \uB418\uC0B4\uB9B0 = [];
+  for (const j of [...\uCC3E\uC74C].sort((a, b) => a.\uD45C < b.\uD45C ? -1 : a.\uD45C > b.\uD45C ? 1 : a.\uC6D0\uB798\uD589 - b.\uC6D0\uB798\uD589)) {
+    const sheet = store.getSheetByName(j.\uD45C);
+    const \uD589 = Math.max(2, Math.min(j.\uC6D0\uB798\uD589, sheet.getLastRow() + 1));
+    \uC904\uB07C\uC6B0\uAE30(sheet, \uD589, j.\uAC12\uB4E4, j.\uBA54\uBAA8\uB4E4);
+    \uB418\uC0B4\uB9B0.push({ \uD45C: j.\uD45C, \uD589, \uBC88\uD638: j.\uBC88\uD638, \uC904: j.\uAC12\uB4E4.map((v, i) => (\uBE44\uBC00\uCE78\uB4E4[j.\uD45C] || []).includes(i + 1) ? "" : v) });
+  }
+  for (const \uD589 of \uCC3E\uC74C.map((j) => j.\uD1B5\uD589).sort((a, b) => b - a)) \uD1B5.deleteRow(\uD589);
+  return { \uB418\uC0B4\uB9B0 };
+}
+function \uD734\uC9C0\uD1B5\uBE44\uC6B0\uAE30(store, _ = {}, { \uC9C0\uAE08 = Date.now() } = {}) {
+  const \uD1B5 = store.getSheetByName(\uD734\uC9C0\uD1B5\uC774\uB984);
+  if (!\uD1B5) return { \uBE44\uC6B4: 0 };
+  const \uAE30\uD55C = \uC9C0\uAE08 - \uBCF4\uAD00\uC77C\uC218 * \uD558\uB8E8, \uC9C0\uC6B8 = [];
+  for (let r = 2; r <= \uD1B5.getLastRow(); r++) {
+    const t = \uD1B5.getRange(r, 1).getValue();
+    const ms = t instanceof Date ? t.getTime() : NaN;
+    if (!isNaN(ms) && ms < \uAE30\uD55C) \uC9C0\uC6B8.push(r);
+  }
+  for (const r of \uC9C0\uC6B8.sort((a, b) => b - a)) \uD1B5.deleteRow(r);
+  return { \uBE44\uC6B4: \uC9C0\uC6B8.length };
+}
+function \uD45C\uAEBC\uB0B4\uAE30(store, \uC774\uB984) {
+  const sheet = store.getSheetByName(\uC774\uB984);
+  if (!sheet) return null;
+  const \uB108\uBE44 = \uD3ED(sheet), \uB05D = sheet.getLastRow();
+  const \uC904\uB4E4 = \uB05D ? sheet.getRange(1, 1, \uB05D, \uB108\uBE44).getValues() : [];
+  if (\uC774\uB984 === "\uC124\uC815") {
+    for (const \uC904 of \uC904\uB4E4.slice(1)) if (["\uC120\uC0DD\uB2D8\uBE44\uBC00\uBC88\uD638", "\uD478\uC2DC\uBE44\uBC00\uD0A4"].includes(String(\uC904[0]).trim())) \uC904[1] = "";
+  }
+  return { \uC774\uB984, \uBA38\uB9AC: \uC904\uB4E4[0] || [], \uC904\uB4E4: \uC904\uB4E4.slice(1) };
+}
+function \uC790\uB8CC\uC77D\uAE30(store, { \uC774\uB984\uB4E4, \uBAA8\uB450 } = {}) {
+  const \uBAA9\uB85D = \uC790\uB8CC\uD45C\uBAA9\uB85D(store);
+  const \uACE0\uB97C\uAC83 = \uBAA8\uB450 ? store.getSheets().map((s) => s.getName()) : \uC774\uB984\uB4E4 || [];
+  return { \uBAA9\uB85D, \uD45C\uB4E4: \uACE0\uB97C\uAC83.map((n) => \uD45C\uAEBC\uB0B4\uAE30(store, n)).filter(Boolean) };
+}
+function \uD734\uC9C0\uD1B5\uACF5\uAC1C(table) {
+  const cells = Object.fromEntries(Object.entries(table.cells).map(([key, cell]) => {
+    const [r, c] = key.split(":").map(Number);
+    return [key, r > 1 && c === \uBE44\uBC00\uC5F4 ? { ...cell, value: "", note: "" } : cell];
+  }));
+  return { ...table, cells };
+}
+
 // services/firestore-repository.mjs
 var digest = async (text) => Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))), (b) => b.toString(16).padStart(2, "0")).join("");
 var jsonResult = (result) => result === void 0 ? void 0 : JSON.parse(JSON.stringify(result));
@@ -6122,6 +6375,15 @@ async function auxiliary(user, fn, args) {
   return reply.\uAC12;
 }
 var privileged = (role) => role === "teacher" || role === "bridge";
+var \uC790\uB8CC\uD568\uC218 = { __\uC790\uB8CC\uC77D\uAE30: \uC790\uB8CC\uC77D\uAE30, __\uC790\uB8CC\uACE0\uCE58\uAE30: \uCE78\uACE0\uCE58\uAE30, __\uC790\uB8CC\uC9C0\uC6B0\uAE30: \uC904\uC9C0\uC6B0\uAE30, __\uC790\uB8CC\uB418\uC0B4\uB9AC\uAE30: \uB418\uC0B4\uB9AC\uAE30, __\uD734\uC9C0\uD1B5\uBE44\uC6B0\uAE30: \uD734\uC9C0\uD1B5\uBE44\uC6B0\uAE30 };
+var \uC790\uB8CC\uD558\uAE30 = (\uC77C, store, args, how) => {
+  try {
+    return { ok: true, \uC790\uB8CC: pack(\uC77C(store, args[0] ?? {}, how)) };
+  } catch (e) {
+    if (e instanceof Error && !e.code?.startsWith?.("permission")) return { ok: false, \uCDA9\uB3CC: e.code === "\uCDA9\uB3CC", \uBA54\uC2DC\uC9C0: e.message };
+    throw e;
+  }
+};
 var FirestoreRepository = class {
   constructor(db2, dataset, identity) {
     this.db = db2;
@@ -6156,7 +6418,7 @@ var FirestoreRepository = class {
         return unpack(data.payload);
       };
       const table = await fetchPayload("tables", version);
-      if (privileged(role) && ["\uD559\uC0DD", "\uC124\uC815"].includes(meta.name)) {
+      if (privileged(role) && (["\uD559\uC0DD", "\uC124\uC815"].includes(meta.name) || meta.name === \uD734\uC9C0\uD1B5\uC774\uB984 && meta.secretVersion)) {
         const secret = await fetchPayload("secrets", meta.secretVersion);
         Object.assign(table.cells, secret.cells);
       }
@@ -6220,6 +6482,9 @@ var FirestoreRepository = class {
     if (fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30") {
       if (!await this.parentLogin(args[0])) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB9C1\uD06C\uAC00 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC120\uC0DD\uB2D8\uAED8 \uBB38\uC758\uD574 \uC8FC\uC138\uC694." };
     }
+    const \uC790\uB8CC\uC77C = \uC790\uB8CC\uD568\uC218[fn];
+    if (\uC790\uB8CC\uC77C && this.identity.role !== "teacher") return { ok: false, \uBA54\uC2DC\uC9C0: "\uC120\uC0DD\uB2D8\uB9CC \uD560 \uC218 \uC788\uC5B4\uC694." };
+    const \uB204\uAC00 = "\uC120\uC0DD\uB2D8 \xB7 " + String(this.identity.user?.uid ?? "").slice(0, 6);
     const publicOnly = ["\uC2DC\uC791\uC815\uBCF4", "\uD478\uC2DC\uACF5\uAC1C\uD0A4", "\uACF5\uC9C0\uAC00\uC838\uC624\uAE30"].includes(fn) && !this.identity.role;
     const catalog = await this.catalog();
     if (fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30" && this.parentCache?.token === this.identity.token && this.parentCache.revision === catalog.revision && this.parentCache.until > Date.now()) {
@@ -6246,10 +6511,12 @@ var FirestoreRepository = class {
     };
     const execute = (current) => {
       let index = 0;
-      const engine = createRuntime(current, { effects: { saveImage: imageOperation ? saveImage2 : void 0 }, now: () => started, uuid: () => {
+      const uuid = () => {
         const i = index++;
         return ids[i] ?? (ids[i] = randomId());
-      } });
+      };
+      if (\uC790\uB8CC\uC77C) return \uC790\uB8CC\uD558\uAE30(\uC790\uB8CC\uC77C, current, args, { \uC9C0\uAE08: started, \uB204\uAC00, \uBC88\uD638: uuid });
+      const engine = createRuntime(current, { effects: { saveImage: imageOperation ? saveImage2 : void 0 }, now: () => started, uuid });
       return fn === "__\uC6D4\uC2DC\uC0C1" ? engine.monthly() : engine.call(fn, args);
     };
     const result = execute(store);
@@ -6263,6 +6530,7 @@ var FirestoreRepository = class {
         }
       }
     }
+    if (\uC790\uB8CC\uC77C && !result.ok) return result;
     if (!store.deleted.size && !store.getSheets().some((s) => s.dirty)) return jsonResult(result);
     const requestId = this.identity.user.uid + "_" + randomId();
     return runTransaction(this.db, async (transaction) => {
@@ -6272,6 +6540,7 @@ var FirestoreRepository = class {
       const current = await this.load(currentCatalog, (ref) => transaction.get(ref), { fresh: true });
       const originalTables = current.export();
       const answer = jsonResult(execute(current));
+      if (\uC790\uB8CC\uC77C && !answer.ok) return answer;
       const compiled = current.getSheetByName("\uD559\uC0DD")?.dirty || current.getSheetByName("\uC124\uC815")?.dirty ? await createDatasetDocuments(current, { digest, previousIdentities: currentCatalog.identities }) : null;
       const before = new Map(currentCatalog.tables.map((t) => [t.name, t]));
       const changes = [];
@@ -6283,11 +6552,11 @@ var FirestoreRepository = class {
           nextMetadata.push(before.get(table.name));
           continue;
         }
-        const full = table.export(), visible = publicTable(full), payload = pack(visible);
+        const full = table.export(), visible = full.name === \uD734\uC9C0\uD1B5\uC774\uB984 ? \uD734\uC9C0\uD1B5\uACF5\uAC1C(full) : publicTable(full), payload = pack(visible);
         if (new TextEncoder().encode(payload).length > 85e4) throw new Error("\uC790\uB8CC\uAC00 \uCEE4\uC11C \uB098\uB204\uC5B4 \uC800\uC7A5\uD574\uC57C \uD569\uB2C8\uB2E4.");
         const version = await digest(payload), meta = { ...tableMetadata(full, position), version };
         transaction.set(this.ref(`tables/${sheetId(full.name)}`), { payload, version, name: full.name, public: ["\uD559\uC0DD", "\uC124\uC815", "\uB2E8\uC5B4\uC7A5\uBAA9\uB85D", "\uACF5\uC9C0"].includes(full.name) || full.name.startsWith("\uB2E8\uC5B4_") });
-        if (["\uD559\uC0DD", "\uC124\uC815"].includes(full.name) && privileged(this.identity.role)) {
+        if ((["\uD559\uC0DD", "\uC124\uC815"].includes(full.name) || full.name === \uD734\uC9C0\uD1B5\uC774\uB984) && privileged(this.identity.role)) {
           const secret = { name: full.name, cells: Object.fromEntries(Object.entries(full.cells).filter(([key, c]) => pack(c) !== pack(visible.cells[key]))) };
           const secretPayload = pack(secret), secretVersion = await digest(secretPayload);
           transaction.set(this.ref(`secrets/${sheetId(full.name)}`), { payload: secretPayload, version: secretVersion });
@@ -6316,7 +6585,7 @@ var FirestoreRepository = class {
           if (/^[0-9a-f]{32,128}$/.test(token) && !nextPaths.has("links/" + token)) transaction.delete(this.ref("links/" + token));
         }
       }
-      transaction.set(this.ref(`journal/${requestId}`), { actor: this.identity.user.uid, fn, result: pack(answer), changes, at: started });
+      transaction.set(this.ref(`journal/${requestId}`), { actor: this.identity.user.uid, fn, result: pack(answer), changes, at: started, ...\uC790\uB8CC\uC77C ? { \uB204\uAC00, \uD45C: String(args[0]?.\uD45C ?? \uD734\uC9C0\uD1B5\uC774\uB984) } : {} });
       this.cache.clear();
       if (fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30" && !args[1] && answer?.ok) this.parentCache = { token: this.identity.token, revision: currentCatalog.revision, until: started + 6e4, value: answer };
       return answer;
@@ -6352,7 +6621,7 @@ async function sendPush(list, messaging = getMessaging()) {
       const token = \uC8FC\uC18C.slice(4);
       if (!/^[A-Za-z0-9_:\-]{20,4096}$/.test(token)) return { \uC8FC\uC18C, \uC0C1\uD0DC: 400, \uAE00: "FCM \uD1A0\uD070\uC774 \uC62C\uBC14\uB974\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." };
       try {
-        await messaging.send({ token, notification: { title: "\uC778\uC655\uBCF4\uCE74", body: "\uC0C8 \uD559\uC6D0 \uC54C\uB9BC\uC774 \uC788\uC5B4\uC694. \uC571\uC5D0\uC11C \uD655\uC778\uD574 \uC8FC\uC138\uC694." }, data: { route: "notices" }, android: { priority: "high", notification: { channelId: "academy", icon: "ic_stat_bell" } } });
+        await messaging.send({ token, notification: { title: "\uC778\uC655\uBCF4\uCE74", body: "\uC0C8 \uD559\uC6D0 \uC54C\uB9BC\uC774 \uC788\uC5B4\uC694. \uC571\uC5D0\uC11C \uD655\uC778\uD574 \uC8FC\uC138\uC694." }, data: { route: "notices" }, android: { priority: "high", notification: { channelId: "academy", icon: "ic_stat_bell" } }, apns: { payload: { aps: { sound: "default" } } } });
         return { \uC8FC\uC18C, \uC0C1\uD0DC: 200, \uAE00: "" };
       } catch (e) {
         const dead = ["messaging/registration-token-not-registered", "messaging/invalid-registration-token"].includes(e.code);
