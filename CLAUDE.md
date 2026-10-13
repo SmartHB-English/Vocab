@@ -1,7 +1,7 @@
 # 영단어학습프로그램 — 고칠 때 지킬 것
 
 ## 화면 셋
-- `index.html` — 학생 화면 (폰 앱 번들에도 들어간다)
+- `index.html` — 학생 화면 (폰 앱 번들에도 들어간다). 선생님 입구는 없다 — `teacher.html` 이라는 글자도 두지 않는다
 - `teacher.html` — 선생님 화면. 컴퓨터·태블릿은 브라우저로, 선생님 폰은 홈 화면에 설치해서 연다
   (`teacher-manifest.json` · `teacher-sw.js`, 푸시 없음). 서비스워커 범위는 `./teacher.html` 하나 —
   학생 `sw.js` · 학부모 `parent-sw.js` 와 겹치지 않게 `tests/teacher-split.test.mjs` 가 지킨다.
@@ -30,5 +30,5 @@
 - `tests/teacher-split.test.mjs` 가 세 곳을 맞대어 본다. Code.gs 를 고치면 `firestore.bundle.js` 를 다시 만들고 GAS 도 다시 배포해야 한다.
 
 ## 폰 앱(Capacitor)
-- `scripts/build-app.mjs` 의 `FILES` 에 `teacher.html` 을 **넣지 않는다.**
-  앱의 선생님 입구는 `https://smarthb-english.github.io/Vocab/teacher.html` 을 바깥 브라우저로 연다 (`index.html` 의 `선생님화면열기_`).
+- `scripts/build-app.mjs` 의 `FILES` 에 `teacher.html` · `teacher-manifest.json` 을 **넣지 않는다.** 선생님 화면은 아이들 앱과 상관이 없다.
+- 예전에 「선생님」 으로 자동 로그인을 기억해 둔 기기는 `index.html` 의 `자동로그인_` 이 그 기억을 지우고 학생 로그인 화면을 보인다.

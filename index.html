@@ -2363,7 +2363,6 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
       <div id="loginMsg" class="center sub mt"></div>
     </div>
     <div class="mt"><button class="btn line sm" id="btnGuide">처음이신가요? 사용법 보기</button></div>
-    <div class="mt"><button class="btn line sm" id="btnTeacherGo">선생님이신가요?</button></div>
     <div class="foot">홍제인왕영어 <span id="verTag" style="opacity:.55"></span></div>
   </section>
 
@@ -2960,7 +2959,7 @@ var 앱주소 = "<?= 앱주소 ?>";
 if (앱주소.indexOf('<') > -1) 앱주소 = '';
 
 /* BEGIN GENERATED services/shared-ui.js */
-/* 학생 화면(index.html)과 선생님 화면(teacher.html)이 함께 쓰는 것. 모듈이 아니다 —
+/* 학생 화면과 선생님 화면이 함께 쓰는 것. 모듈이 아니다 —
    build-services.mjs 가 두 파일의 인라인 스크립트에 그대로 박는다. 여기를 고친 뒤 node scripts/build-services.mjs.
    한쪽 파일에만 같은 이름을 따로 두지 않는다 (tests/teacher-split.test.mjs 가 막는다).
    이 블록 앞에서 페이지마다 var 창구주소 를 정해 둔다 — 아래 GAS 가 그것을 읽는다. */
@@ -2994,7 +2993,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-13a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-13b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -4575,30 +4574,13 @@ function 반짝(emoji){
 ================================================================ */
 function 자동로그인_(){
   var a = 자동읽기_(); if(!a || !GAS) return;
-  if(a.역할 === '선생님'){ 선생님화면열기_(true); return; }   /* 선생님은 teacher.html 에서 들어간다 — 여기서는 보내기만 */
+  /* 학생 사이트에는 선생님 입구가 없다 — 예전에 「선생님」 으로 기억해 둔 기기는 그 기억을 지우고 학생 로그인 화면을 그대로 보인다 */
+  if(a.역할 !== '학생'){ 자동기억_(null); return; }
   var 치우기 = 로그인가림_();
   api('로그인',a.이름,a.비번).then(function(r){
     if(r.ok) 학생들어가기_(r, a.이름, a.비번, true);
     else 자동기억_(null);
   }).catch(function(){}).then(치우기);   /* 네트워크 탓이면 기억은 남긴다 */
-}
-/* 선생님 화면은 따로 있는 teacher.html 이다.
-   폰 앱(Capacitor) 안에는 그 파일이 없으므로(build-app.mjs 의 FILES 에 넣지 않는다) 바깥 브라우저로 깃헙 주소를 연다 —
-   앱 밖 주소로 가려 하면 Capacitor 가 바깥 브라우저로 넘긴다. */
-var 선생님주소_ = 'https://smarthb-english.github.io/Vocab/teacher.html';
-function 앱안인가_(){ var C = window.Capacitor; return !!(C && C.isNativePlatform && C.isNativePlatform()); }
-function 선생님화면열기_(자동){
-  if(앱안인가_()){
-    if(자동){ 자동기억_(null); return; }   /* 앱을 켤 때마다 브라우저가 뜨면 안 된다 — 앱 안의 선생님 자동 로그인은 푼다 */
-    location.href = 선생님주소_; return;
-  }
-  if(자동){
-    /* 뒤로가기로 돌아온 것이면 다시 보내지 않는다 — 안 그러면 선생님 화면에서 못 빠져나온다 */
-    var 길 = (window.performance && performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
-    if(길.type === 'back_forward') return;
-    location.replace('teacher.html'); return;
-  }
-  location.href = 'teacher.html';
 }
 function initLogin(){
   if(!GAS) $('demoBadge').classList.remove('hide');
@@ -4634,7 +4616,6 @@ function 학생들어가기_(r, n, p, 기억할까){
 }
 $('inName').addEventListener('keydown',function(e){ if(e.key==='Enter') $('inPw').focus(); });
 $('inPw').addEventListener('keydown',function(e){ if(e.key==='Enter') $('btnLogin').click(); });
-$('btnTeacherGo').onclick=function(){ 선생님화면열기_(false); };
 qsa('#keypad [data-k]').forEach(function(b){
   b.onclick=function(){
     var p=$('inPw'), k=b.dataset.k;
@@ -8842,14 +8823,14 @@ function 파일검사(){
     $('hbGBook').onclick=function(){ gs.classList.add('on'); };
   }
 
-  /* 5. 로그인 — 아래 두 줄을 한 줄 링크로 */
-  var g1=$('btnGuide'), g2=$('btnTeacherGo');
-  if(g1 && g2){
+  /* 5. 로그인 — 아래 「사용법 보기」 를 한 줄 링크로 */
+  var g1=$('btnGuide');
+  if(g1){
     var row=el('<div class="hblinks"></div>');
-    var p1=g1.parentNode, p2=g2.parentNode;
+    var p1=g1.parentNode;
     p1.insertAdjacentElement('beforebegin', row);
-    row.appendChild(g1); row.appendChild(g2);
-    if(p1 && !p1.children.length) p1.remove(); if(p2 && p2!==p1 && !p2.children.length) p2.remove();
+    row.appendChild(g1);
+    if(p1 && !p1.children.length) p1.remove();
   }
 })();
 

@@ -1,4 +1,4 @@
-/* 학생 화면(index.html)과 선생님 화면(teacher.html)이 함께 쓰는 것. 모듈이 아니다 —
+/* 학생 화면과 선생님 화면이 함께 쓰는 것. 모듈이 아니다 —
    build-services.mjs 가 두 파일의 인라인 스크립트에 그대로 박는다. 여기를 고친 뒤 node scripts/build-services.mjs.
    한쪽 파일에만 같은 이름을 따로 두지 않는다 (tests/teacher-split.test.mjs 가 막는다).
    이 블록 앞에서 페이지마다 var 창구주소 를 정해 둔다 — 아래 GAS 가 그것을 읽는다. */
@@ -32,7 +32,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-13a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-10-13b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
