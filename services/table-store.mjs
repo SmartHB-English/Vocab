@@ -41,7 +41,7 @@ export class TableStore {
   insertSheet(name) {
     if (this.getSheetByName(name)) throw new Error('Duplicate sheet name');
     const sheet = new Table(this, { name, cells: {}, maxRows: 1000, maxColumns: 26 });
-    sheet.dirty = true;
+    sheet.dirty = true; sheet.appendOnly = false;
     this.sheets.push(sheet);
     return sheet;
   }
@@ -65,12 +65,35 @@ class Table {
     this.hidden = !!data.hidden;
     this.dirty = false;
     this.filter = null;
+    // Append-only tracking: rows past the last populated row at the first write are "appended".
+    // Any write to an older row, or any structural change, makes the table a full rewrite.
+    this.appendOnly = true;
+    this.baseRow = null;
+  }
+  noteWrite(row) {
+    if (this.baseRow === null) this.baseRow = this.getLastRow();
+    if (row <= this.baseRow) this.appendOnly = false;
+  }
+  // Rows added after load as [{column: cell}], or null when the change is not a pure append
+  // (an older row was touched, a gap was left, or a structural change happened).
+  appendedRows() {
+    if (!this.appendOnly || !this.dirty || this.baseRow === null) return null;
+    const last = this.getLastRow(), rows = [];
+    for (let r = this.baseRow + 1; r <= last; r++) rows.push({});
+    for (const [key, cell] of Object.entries(this.cells)) {
+      const [r, c] = key.split(':').map(Number);
+      if (r <= this.baseRow) continue;
+      if (r > last) return null;
+      rows[r - this.baseRow - 1][c] = copy(cell);
+    }
+    if (!rows.length || rows.some(row => !Object.values(row).some(cell => populated(cell.value)))) return null;
+    return rows;
   }
   export() { return copy({ name: this.name, cells: this.cells, maxRows: this.maxRows, maxColumns: this.maxColumns, hidden: this.hidden }); }
   getName() { return this.name; }
   setName(name) {
     if (this.store.getSheetByName(name) && name !== this.name) throw new Error('Duplicate sheet name');
-    this.store.deleted.add(this.name); this.name = name; this.dirty = true; return this;
+    this.store.deleted.add(this.name); this.name = name; this.dirty = true; this.appendOnly = false; return this;
   }
   getLastRow() { return Math.max(0, ...Object.entries(this.cells).filter(([, c]) => populated(c.value)).map(([k]) => Number(k.split(':')[0]))); }
   getLastColumn() { return Math.max(0, ...Object.entries(this.cells).filter(([, c]) => populated(c.value)).map(([k]) => Number(k.split(':')[1]))); }
@@ -105,18 +128,18 @@ class Table {
       if (r < row) cells[key] = cell;
       else if (r >= row + count) cells[`${r - count}:${c}`] = cell;
     }
-    this.cells = cells; this.maxRows -= count; this.dirty = true; return this;
+    this.cells = cells; this.maxRows -= count; this.dirty = true; this.appendOnly = false; return this;
   }
   insertColumnsAfter(column, count) {
     if (![column, count].every(integer) || column > this.maxColumns) throw new Error('Invalid column insertion');
     this.cells = Object.fromEntries(Object.entries(this.cells).map(([key, cell]) => {
       const [r, c] = key.split(':').map(Number); return [`${r}:${c > column ? c + count : c}`, cell];
     }));
-    this.maxColumns += count; this.dirty = true; return this;
+    this.maxColumns += count; this.dirty = true; this.appendOnly = false; return this;
   }
-  clear() { this.cells = {}; this.dirty = true; return this; }
+  clear() { this.cells = {}; this.dirty = true; this.appendOnly = false; return this; }
   getFilter() { return this.filter; }
-  hideSheet() { this.hidden = true; this.dirty = true; return this; }
+  hideSheet() { this.hidden = true; this.dirty = true; this.appendOnly = false; return this; }
   setFrozenRows() { return this; }
   setColumnWidth() { return this; }
   autoResizeColumns() { return this; }
@@ -138,6 +161,7 @@ class Range {
   }
   write(field, matrix) {
     if (!Array.isArray(matrix) || matrix.length !== this.height || matrix.some(row => !Array.isArray(row) || row.length !== this.width)) throw new Error('Range shape mismatch');
+    this.sheet.noteWrite(this.row);
     for (let r = 0; r < this.height; r++) for (let c = 0; c < this.width; c++) {
       const key = `${this.row + r}:${this.column + c}`;
       const cell = this.sheet.cells[key] ?? { value: '', note: '', format: 'General' };
@@ -154,6 +178,7 @@ class Range {
   setFormula() { throw new Error('Formula writes require explicit migration support'); }
   clearContent() { return this.fill('value', ''); }
   clear() {
+    this.sheet.noteWrite(this.row);
     for (let r = 0; r < this.height; r++) for (let c = 0; c < this.width; c++) delete this.sheet.cells[`${this.row + r}:${this.column + c}`];
     this.sheet.dirty = true; return this;
   }

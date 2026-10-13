@@ -22,6 +22,8 @@ function randomId() {
 var wrap = (s) => ({ exists: () => s.exists, data: () => s.data() });
 var doc = (db2, path) => db2.doc(path);
 var getDoc = (ref) => ref.get().then(wrap);
+var collection = (db2, path) => db2.collection(path);
+var getDocs = (ref) => ref.get().then((s) => ({ docs: s.docs.map((d) => ({ id: d.id, exists: () => true, data: () => d.data() })) }));
 var setDoc = (ref, data) => ref.set(data);
 var runTransaction = (db2, body) => db2.runTransaction((t) => body({
   get: (ref) => t.get(ref).then(wrap),
@@ -199,6 +201,7 @@ var TableStore = class _TableStore {
     if (this.getSheetByName(name)) throw new Error("Duplicate sheet name");
     const sheet = new Table(this, { name, cells: {}, maxRows: 1e3, maxColumns: 26 });
     sheet.dirty = true;
+    sheet.appendOnly = false;
     this.sheets.push(sheet);
     return sheet;
   }
@@ -227,6 +230,27 @@ var Table = class {
     this.hidden = !!data.hidden;
     this.dirty = false;
     this.filter = null;
+    this.appendOnly = true;
+    this.baseRow = null;
+  }
+  noteWrite(row) {
+    if (this.baseRow === null) this.baseRow = this.getLastRow();
+    if (row <= this.baseRow) this.appendOnly = false;
+  }
+  // Rows added after load as [{column: cell}], or null when the change is not a pure append
+  // (an older row was touched, a gap was left, or a structural change happened).
+  appendedRows() {
+    if (!this.appendOnly || !this.dirty || this.baseRow === null) return null;
+    const last = this.getLastRow(), rows = [];
+    for (let r = this.baseRow + 1; r <= last; r++) rows.push({});
+    for (const [key, cell] of Object.entries(this.cells)) {
+      const [r, c] = key.split(":").map(Number);
+      if (r <= this.baseRow) continue;
+      if (r > last) return null;
+      rows[r - this.baseRow - 1][c] = copy(cell);
+    }
+    if (!rows.length || rows.some((row) => !Object.values(row).some((cell) => populated(cell.value)))) return null;
+    return rows;
   }
   export() {
     return copy({ name: this.name, cells: this.cells, maxRows: this.maxRows, maxColumns: this.maxColumns, hidden: this.hidden });
@@ -239,6 +263,7 @@ var Table = class {
     this.store.deleted.add(this.name);
     this.name = name;
     this.dirty = true;
+    this.appendOnly = false;
     return this;
   }
   getLastRow() {
@@ -288,6 +313,7 @@ var Table = class {
     this.cells = cells;
     this.maxRows -= count;
     this.dirty = true;
+    this.appendOnly = false;
     return this;
   }
   insertColumnsAfter(column, count) {
@@ -298,11 +324,13 @@ var Table = class {
     }));
     this.maxColumns += count;
     this.dirty = true;
+    this.appendOnly = false;
     return this;
   }
   clear() {
     this.cells = {};
     this.dirty = true;
+    this.appendOnly = false;
     return this;
   }
   getFilter() {
@@ -311,6 +339,7 @@ var Table = class {
   hideSheet() {
     this.hidden = true;
     this.dirty = true;
+    this.appendOnly = false;
     return this;
   }
   setFrozenRows() {
@@ -356,6 +385,7 @@ var Range = class {
   }
   write(field, matrix) {
     if (!Array.isArray(matrix) || matrix.length !== this.height || matrix.some((row) => !Array.isArray(row) || row.length !== this.width)) throw new Error("Range shape mismatch");
+    this.sheet.noteWrite(this.row);
     for (let r = 0; r < this.height; r++) for (let c = 0; c < this.width; c++) {
       const key = `${this.row + r}:${this.column + c}`;
       const cell = this.sheet.cells[key] ?? { value: "", note: "", format: "General" };
@@ -390,6 +420,7 @@ var Range = class {
     return this.fill("value", "");
   }
   clear() {
+    this.sheet.noteWrite(this.row);
     for (let r = 0; r < this.height; r++) for (let c = 0; c < this.width; c++) delete this.sheet.cells[`${this.row + r}:${this.column + c}`];
     this.sheet.dirty = true;
     return this;
@@ -6374,6 +6405,22 @@ async function auxiliary(user, fn, args) {
   if (!reply?.ok) throw new Error(reply?.\uBA54\uC2DC\uC9C0 || "\uC11C\uBC84\uAC00 \uB2F5\uD558\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4");
   return reply.\uAC12;
 }
+var \uB2E4\uC2DC\uBCF4\uB0BC\uCF54\uB4DC = /* @__PURE__ */ new Set(["aborted", "failed-precondition", "unavailable", "deadline-exceeded", "resource-exhausted"]);
+var \uC694\uCCAD\uBC88\uD638\uAF34 = /^[0-9A-Za-z-]{8,80}$/;
+var \uC870\uAC01\uD45C\uB4E4 = ["\uAE30\uB85D"];
+var \uC870\uAC01\uBAA8\uC744\uC218 = 50;
+var \uC870\uAC01\uACBD\uB85C = (id) => `tables/${id}/appends`;
+var \uC870\uAC01\uBD99\uC774\uAE30 = (table, pieces) => {
+  let last = Math.max(0, ...Object.entries(table.cells).filter(([, c]) => c.value !== "" && c.value != null).map(([k]) => Number(k.split(":")[0])));
+  for (const piece of pieces) for (const row of unpack(piece.data.rows)) {
+    const r = ++last;
+    for (const [column, cell] of Object.entries(row)) {
+      table.cells[`${r}:${column}`] = cell;
+      table.maxColumns = Math.max(table.maxColumns ?? 26, Number(column));
+    }
+    table.maxRows = Math.max(table.maxRows ?? 1e3, r);
+  }
+};
 var privileged = (role) => role === "teacher" || role === "bridge";
 var \uC790\uB8CC\uD568\uC218 = { __\uC790\uB8CC\uC77D\uAE30: \uC790\uB8CC\uC77D\uAE30, __\uC790\uB8CC\uACE0\uCE58\uAE30: \uCE78\uACE0\uCE58\uAE30, __\uC790\uB8CC\uC9C0\uC6B0\uAE30: \uC904\uC9C0\uC6B0\uAE30, __\uC790\uB8CC\uB418\uC0B4\uB9AC\uAE30: \uB418\uC0B4\uB9AC\uAE30, __\uD734\uC9C0\uD1B5\uBE44\uC6B0\uAE30: \uD734\uC9C0\uD1B5\uBE44\uC6B0\uAE30 };
 var \uC790\uB8CC\uD558\uAE30 = (\uC77C, store, args, how) => {
@@ -6403,21 +6450,30 @@ var FirestoreRepository = class {
   }
   async load(catalog, reader, { publicOnly = false, fresh = false } = {}) {
     const role = this.identity.role;
+    const appends = /* @__PURE__ */ new Map();
     const tables = await Promise.all(catalog.tables.map(async (meta) => {
       const isPublic = ["\uD559\uC0DD", "\uC124\uC815", "\uB2E8\uC5B4\uC7A5\uBAA9\uB85D", "\uACF5\uC9C0"].includes(meta.name) || meta.name.startsWith("\uB2E8\uC5B4_");
       if (publicOnly && !isPublic) return null;
       const id = sheetId(meta.name), version = meta.version;
-      const fetchPayload = async (section, expected) => {
+      const fetchData = async (section, expected) => {
         const key = section + "/" + id;
         const cached = this.cache.get(key);
-        if (!fresh && cached?.version === expected) return unpack(cached.payload);
+        if (!fresh && cached?.version === expected) return cached;
         const d = await reader(this.ref(key));
         if (!d.exists()) throw new Error("\uC790\uB8CC \uC77C\uBD80\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C\uACE0\uCE68 \uD6C4 \uB2E4\uC2DC \uD574 \uC8FC\uC138\uC694.");
         const data = d.data();
         if (!fresh) this.cache.set(key, data);
-        return unpack(data.payload);
+        return data;
       };
-      const table = await fetchPayload("tables", version);
+      const fetchPayload = async (section, expected) => unpack((await fetchData(section, expected)).payload);
+      const main = await fetchData("tables", version);
+      const table = unpack(main.payload);
+      if (\uC870\uAC01\uD45C\uB4E4.includes(meta.name)) {
+        const pieces = await this.\uC870\uAC01\uB4E4(id, fresh ? reader : null);
+        const merged = new Set(main.\uD569\uCE5C\uC870\uAC01 ?? []);
+        \uC870\uAC01\uBD99\uC774\uAE30(table, pieces.filter((p) => !merged.has(p.id)));
+        appends.set(meta.name, pieces.map((p) => p.id));
+      }
       if (privileged(role) && (["\uD559\uC0DD", "\uC124\uC815"].includes(meta.name) || meta.name === \uD734\uC9C0\uD1B5\uC774\uB984 && meta.secretVersion)) {
         const secret = await fetchPayload("secrets", meta.secretVersion);
         Object.assign(table.cells, secret.cells);
@@ -6425,6 +6481,7 @@ var FirestoreRepository = class {
       return table;
     }));
     const store = new TableStore(tables.filter(Boolean));
+    store.appends = appends;
     if (this.identity.role === "student" && this.identity.pin !== void 0) {
       const s = store.getSheetByName("\uD559\uC0DD");
       if (s) s.cells[`${this.identity.row}:3`] = { value: this.identity.pin, note: "", format: "General" };
@@ -6434,6 +6491,22 @@ var FirestoreRepository = class {
       if (s) s.cells[`${this.identity.row}:9`] = { value: this.identity.token, note: "", format: "General" };
     }
     return store;
+  }
+  async \uC870\uAC01\uB4E4(id, reader = null) {
+    const listed = (await getDocs(collection(this.db, `vocabDatasets/${this.dataset}/${\uC870\uAC01\uACBD\uB85C(id)}`))).docs.map((d) => ({ id: d.id, data: d.data() }));
+    const pieces = reader ? (await Promise.all(listed.map(async (p) => {
+      const d = await reader(this.ref(`${\uC870\uAC01\uACBD\uB85C(id)}/${p.id}`));
+      return d.exists() ? { id: p.id, data: d.data() } : null;
+    }))).filter(Boolean) : listed;
+    return pieces.sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  }
+  // 선생님이 들어올 때 — 조각이 쌓였으면 본체로 합친다. 못 해도 로그인은 막지 않는다 (다음에 또 한다)
+  async \uC870\uAC01\uC815\uB9AC() {
+    const catalog = await this.catalog();
+    let \uC218 = 0;
+    for (const meta of catalog.tables) if (\uC870\uAC01\uD45C\uB4E4.includes(meta.name)) \uC218 = Math.max(\uC218, (await this.\uC870\uAC01\uB4E4(sheetId(meta.name))).length);
+    if (\uC218 < \uC870\uAC01\uBAA8\uC744\uC218) return null;
+    return this.call("__\uC870\uAC01\uD569\uCE58\uAE30", []);
   }
   async grant(credentialId, proof) {
     const user = this.identity.user;
@@ -6464,6 +6537,11 @@ var FirestoreRepository = class {
       throw e;
     }
     Object.assign(this.identity, { role: "teacher", pin: String(pin ?? "").trim() });
+    try {
+      await this.\uC870\uAC01\uC815\uB9AC();
+    } catch (e) {
+      console.warn("\uAE30\uB85D \uC870\uAC01 \uD569\uCE58\uAE30\uB97C \uB2E4\uC74C\uC73C\uB85C \uBBF8\uB8F9\uB2C8\uB2E4", e);
+    }
     return { ok: true };
   }
   async parentLogin(token) {
@@ -6476,7 +6554,8 @@ var FirestoreRepository = class {
     Object.assign(this.identity, { role: "parent", token: clean, row: data.row, name: data.name, credentialId: data.credentialId });
     return true;
   }
-  async call(fn, args) {
+  async call(fn, args, { \uC694\uCCAD\uBC88\uD638, \uB2E4\uC2DC\uBCF4\uB0C4 = false } = {}) {
+    const requestId = String(this.identity.user?.uid ?? "") + "_" + (\uC694\uCCAD\uBC88\uD638\uAF34.test(String(\uC694\uCCAD\uBC88\uD638 ?? "")) ? \uC694\uCCAD\uBC88\uD638 : randomId());
     if (fn === "\uB85C\uADF8\uC778") return this.studentLogin(...args);
     if (fn === "\uC120\uC0DD\uB2D8\uB85C\uADF8\uC778") return this.teacherLogin(...args);
     if (fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30") {
@@ -6484,8 +6563,13 @@ var FirestoreRepository = class {
     }
     const \uC790\uB8CC\uC77C = \uC790\uB8CC\uD568\uC218[fn];
     if (\uC790\uB8CC\uC77C && this.identity.role !== "teacher") return { ok: false, \uBA54\uC2DC\uC9C0: "\uC120\uC0DD\uB2D8\uB9CC \uD560 \uC218 \uC788\uC5B4\uC694." };
+    if (fn === "__\uC870\uAC01\uD569\uCE58\uAE30" && !privileged(this.identity.role)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC120\uC0DD\uB2D8\uB9CC \uD560 \uC218 \uC788\uC5B4\uC694." };
     const \uB204\uAC00 = "\uC120\uC0DD\uB2D8 \xB7 " + String(this.identity.user?.uid ?? "").slice(0, 6);
     const publicOnly = ["\uC2DC\uC791\uC815\uBCF4", "\uD478\uC2DC\uACF5\uAC1C\uD0A4", "\uACF5\uC9C0\uAC00\uC838\uC624\uAE30"].includes(fn) && !this.identity.role;
+    if (\uB2E4\uC2DC\uBCF4\uB0C4 && this.identity.user) {
+      const receipt = await getDoc(this.ref(`journal/${requestId}`));
+      if (receipt.exists()) return unpack(receipt.data().result);
+    }
     const catalog = await this.catalog();
     if (fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30" && this.parentCache?.token === this.identity.token && this.parentCache.revision === catalog.revision && this.parentCache.until > Date.now()) {
       const value = this.parentCache.value;
@@ -6516,6 +6600,17 @@ var FirestoreRepository = class {
         return ids[i] ?? (ids[i] = randomId());
       };
       if (\uC790\uB8CC\uC77C) return \uC790\uB8CC\uD558\uAE30(\uC790\uB8CC\uC77C, current, args, { \uC9C0\uAE08: started, \uB204\uAC00, \uBC88\uD638: uuid });
+      if (fn === "__\uC870\uAC01\uD569\uCE58\uAE30") {
+        let \uD569\uCE5C = 0;
+        for (const name of \uC870\uAC01\uD45C\uB4E4) {
+          const n = current.appends?.get(name)?.length ?? 0;
+          if (n) {
+            current.getSheetByName(name).dirty = true;
+            \uD569\uCE5C += n;
+          }
+        }
+        return { ok: true, \uD569\uCE5C };
+      }
       const engine = createRuntime(current, { effects: { saveImage: imageOperation ? saveImage2 : void 0 }, now: () => started, uuid });
       return fn === "__\uC6D4\uC2DC\uC0C1" ? engine.monthly() : engine.call(fn, args);
     };
@@ -6532,7 +6627,22 @@ var FirestoreRepository = class {
     }
     if (\uC790\uB8CC\uC77C && !result.ok) return result;
     if (!store.deleted.size && !store.getSheets().some((s) => s.dirty)) return jsonResult(result);
-    const requestId = this.identity.user.uid + "_" + randomId();
+    const dirty = store.getSheets().filter((s) => s.dirty);
+    const appendRows = !\uC790\uB8CC\uC77C && !store.deleted.size && dirty.length === 1 && \uC870\uAC01\uD45C\uB4E4.includes(dirty[0].name) ? dirty[0].appendedRows() : null;
+    if (appendRows) {
+      const name = dirty[0].name, pieceId = String(started).padStart(15, "0") + "_" + requestId;
+      return runTransaction(this.db, async (transaction) => {
+        const oldReceipt = await transaction.get(this.ref(`journal/${requestId}`));
+        if (oldReceipt.exists()) return unpack(oldReceipt.data().result);
+        const answer = jsonResult(result);
+        transaction.set(this.ref(`${\uC870\uAC01\uACBD\uB85C(sheetId(name))}/${pieceId}`), { name, rows: pack(appendRows), actor: this.identity.user.uid, at: started });
+        transaction.set(this.ref(`journal/${requestId}`), { actor: this.identity.user.uid, fn, result: pack(answer), changes: [name], at: started, \uC870\uAC01: pieceId });
+        return answer;
+      }).catch((error) => {
+        if (\uB2E4\uC2DC\uBCF4\uB0BC\uCF54\uB4DC.has(error?.code)) error.\uB2E4\uC2DC\uBCF4\uB0B4\uB3C4\uB428 = true;
+        throw error;
+      });
+    }
     return runTransaction(this.db, async (transaction) => {
       const oldReceipt = await transaction.get(this.ref(`journal/${requestId}`));
       if (oldReceipt.exists()) return unpack(oldReceipt.data().result);
@@ -6555,7 +6665,9 @@ var FirestoreRepository = class {
         const full = table.export(), visible = full.name === \uD734\uC9C0\uD1B5\uC774\uB984 ? \uD734\uC9C0\uD1B5\uACF5\uAC1C(full) : publicTable(full), payload = pack(visible);
         if (new TextEncoder().encode(payload).length > 85e4) throw new Error("\uC790\uB8CC\uAC00 \uCEE4\uC11C \uB098\uB204\uC5B4 \uC800\uC7A5\uD574\uC57C \uD569\uB2C8\uB2E4.");
         const version = await digest(payload), meta = { ...tableMetadata(full, position), version };
-        transaction.set(this.ref(`tables/${sheetId(full.name)}`), { payload, version, name: full.name, public: ["\uD559\uC0DD", "\uC124\uC815", "\uB2E8\uC5B4\uC7A5\uBAA9\uB85D", "\uACF5\uC9C0"].includes(full.name) || full.name.startsWith("\uB2E8\uC5B4_") });
+        const pieces = \uC870\uAC01\uD45C\uB4E4.includes(full.name) ? current.appends?.get(full.name) ?? [] : null, \uC9C0\uC6B8\uC218 = privileged(this.identity.role);
+        transaction.set(this.ref(`tables/${sheetId(full.name)}`), { payload, version, name: full.name, public: ["\uD559\uC0DD", "\uC124\uC815", "\uB2E8\uC5B4\uC7A5\uBAA9\uB85D", "\uACF5\uC9C0"].includes(full.name) || full.name.startsWith("\uB2E8\uC5B4_"), ...pieces ? { \uD569\uCE5C\uC870\uAC01: \uC9C0\uC6B8\uC218 ? [] : pieces } : {} });
+        if (pieces && \uC9C0\uC6B8\uC218) for (const pieceId of pieces) transaction.delete(this.ref(`${\uC870\uAC01\uACBD\uB85C(sheetId(full.name))}/${pieceId}`));
         if ((["\uD559\uC0DD", "\uC124\uC815"].includes(full.name) || full.name === \uD734\uC9C0\uD1B5\uC774\uB984) && privileged(this.identity.role)) {
           const secret = { name: full.name, cells: Object.fromEntries(Object.entries(full.cells).filter(([key, c]) => pack(c) !== pack(visible.cells[key]))) };
           const secretPayload = pack(secret), secretVersion = await digest(secretPayload);
@@ -6589,6 +6701,9 @@ var FirestoreRepository = class {
       this.cache.clear();
       if (fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30" && !args[1] && answer?.ok) this.parentCache = { token: this.identity.token, revision: currentCatalog.revision, until: started + 6e4, value: answer };
       return answer;
+    }).catch((error) => {
+      if (\uB2E4\uC2DC\uBCF4\uB0BC\uCF54\uB4DC.has(error?.code)) error.\uB2E4\uC2DC\uBCF4\uB0B4\uB3C4\uB428 = true;
+      throw error;
     });
   }
 };

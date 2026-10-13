@@ -29,6 +29,20 @@ service cloud.firestore {
         allow create, update, delete: if (teacher(dataset) && writable(dataset))
           || (writable(dataset) && credential().role == 'student' && request.resource.data.name in ['기록','게임','푸시'] && request.resource.data.name == resource.data.name && request.resource.data.public == resource.data.public)
           || (writable(dataset) && credential().role == 'parent' && request.resource.data.name in ['학생','푸시'] && request.resource.data.name == resource.data.name && request.resource.data.public == resource.data.public);
+        // 덧붙임 조각 — 줄을 뒤에 붙이기만 한 제출은 본체를 다시 쓰지 않고 조각 문서 하나를 새로 만든다 (services/firestore-repository.mjs).
+        // 학생은 자기 이름(actor)으로 만들 수만 있다. 덧붙임이니 고칠 일이 없고, 합친 뒤 지우는 것은 선생님만.
+        match /appends/{piece} {
+          allow get, list: if member(dataset);
+          allow create: if writable(dataset)
+            && (teacher(dataset) || credential().role == 'student')
+            && request.resource.data.keys().hasOnly(['name','rows','actor','at'])
+            && request.resource.data.actor == request.auth.uid
+            && request.resource.data.name == '기록'
+            && get(/databases/$(database)/documents/vocabDatasets/$(dataset)/tables/$(id)).data.name == '기록'
+            && piece.matches('[0-9]{15}_' + request.auth.uid + '_.+');
+          allow update: if false;
+          allow delete: if teacher(dataset) && writable(dataset);
+        }
       }
       match /secrets/{id} { allow read: if teacher(dataset); allow write: if teacher(dataset) && writable(dataset); }
       match /credentials/{id} { allow read: if teacher(dataset); allow write: if teacher(dataset) && writable(dataset); }

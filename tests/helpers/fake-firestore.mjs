@@ -9,6 +9,13 @@ const 사진 = (path, data) => ({ exists: () => data !== undefined, data: () => 
 export function fakeDb() { return { docs: new Map(), commits: 0, 밀림: 0, 답잃음: 0, 거래: 0 }; }
 const 오류 = code => Object.assign(new Error(code), { code });
 export function doc(db, path) { return { db, path }; }
+export function collection(db, path) { return { db, path }; }
+/* 바로 아래 문서들만 (더 깊은 것은 빼고) */
+export async function getDocs(ref) {
+  if (ref.db.읽기끊김) throw 오류('unavailable');
+  const 앞 = ref.path + '/';
+  return { docs: [...ref.db.docs.entries()].filter(([k]) => k.startsWith(앞) && !k.slice(앞.length).includes('/')).map(([k, v]) => 사진(k, v)) };
+}
 export async function getDoc(ref) { if (ref.db.읽기끊김) throw 오류('unavailable'); return 사진(ref.path, ref.db.docs.get(ref.path)); }
 export async function setDoc(ref, data) {
   if (ref.path.startsWith('sessions/')) {

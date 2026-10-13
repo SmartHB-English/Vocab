@@ -51,8 +51,10 @@ function 화면(저장소) {
   return { api: context.VocabApi, 기다림, 부름, 보내기: (fn, ...args) => context.VocabApi.request('firestore:v1', fn, args) };
 }
 const 제출 = (구분 = '숙제') => ({ 이름: '홍길동', 단어장: '교재A', 범위: '1~10', 유형: '스펠링', 문항수: 10, 정답수: 9, 점수: 90, 숙제여부: true, 구분, 틀린단어: '' });
+// 본체 줄 + 덧붙임 조각 줄 (2단계부터 제출은 조각으로 들어간다)
 const 기록줄수 = db => Object.keys(unpack(db.docs.get(`vocabDatasets/${판}/tables/${sheetId('기록')}`).payload).cells)
-  .filter(k => k.endsWith(':3') && k !== '1:3').length;
+  .filter(k => k.endsWith(':3') && k !== '1:3').length
+  + [...db.docs.entries()].filter(([k]) => k.includes(`/tables/${sheetId('기록')}/appends/`)).reduce((n, [, v]) => n + unpack(v.rows).length, 0);
 const 영수증들 = db => [...db.docs.keys()].filter(k => /\/journal\/[^/]+$/.test(k));
 
 test('1) 쓰기가 밀려 실패하면 같은 requestId 로 다시 보낸다', async () => {

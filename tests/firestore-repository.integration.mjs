@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator, signInAnonymously } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator, doc, getDoc, terminate } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, doc, getDoc, setDoc, deleteDoc, collection, getDocs, terminate } from 'firebase/firestore';
 import { createHash } from 'node:crypto';
 import { TableStore } from '../services/table-store.mjs';
 import { createDatasetDocuments } from '../services/dataset-model.mjs';
@@ -64,7 +64,8 @@ test('concurrent submission retains both rows and the full wrong-answer note',as
  const payload={이름:'가상 학생',단어장:'교재A',범위:'1~10',유형:'스펠링',틀린단어:'a,b,c,d,e,f',점수:80};
  const results=await Promise.all([student.repo.call('결과저장',[payload]),other.repo.call('결과저장',[{...payload,점수:90}])]);
  assert.deepEqual(results,[{ok:true},{ok:true}]);
- const record=await getDoc(doc(student.db,`vocabDatasets/${dataset}/tables/${sheetId('기록')}`));const table=unpack(record.data().payload);
+ // 제출은 덧붙임 조각으로 들어간다 — 본체 + 조각을 합친 표로 읽는다
+ const table=(await student.repo.load(await student.repo.catalog(),ref=>getDoc(ref))).getSheetByName('기록').export();
  assert.equal(table.cells['2:9'].value+table.cells['3:9'].value,170);assert.match(table.cells['2:14'].note,/\nf$/);assert.match(table.cells['3:14'].value,/외 1개/);
 });
 test('repeated exam is rejected against committed records',async()=>{
@@ -77,6 +78,29 @@ test('teacher credential is validated without changing the existing PIN UI',asyn
  assert.deepEqual(await teacher.repo.call('선생님로그인',['9876']),{ok:true});
  assert.equal((await teacher.repo.call('명단가져오기',['9876'])).ok,true);
  const secret=await getDoc(doc(teacher.db,`vocabDatasets/${dataset}/secrets/${sheetId('학생')}`));assert.equal(unpack(secret.data().payload).cells['2:3'].value,'0011');
+});
+test('기록 조각 — 학생은 만들기만 하고 고치거나 지우지 못한다 · 남의 이름 · 다른 표로는 못 만든다 · 선생님이 합친다',async()=>{
+ const uid=student.identity.user.uid, col=`vocabDatasets/${dataset}/tables/${sheetId('기록')}/appends`;
+ const pieces=(await getDocs(collection(student.db,col))).docs;
+ assert.ok(pieces.length>=2);
+ const mine=pieces.find(d=>d.data().actor===uid);assert.ok(mine);
+ const ref=doc(student.db,`${col}/${mine.id}`);
+ await assert.rejects(setDoc(ref,{...mine.data(),rows:'[]'}),{code:'permission-denied'});
+ await assert.rejects(deleteDoc(ref),{code:'permission-denied'});
+ const piece={name:'기록',rows:'[]',actor:uid,at:1};
+ await assert.rejects(setDoc(doc(student.db,`${col}/${'0'.repeat(15)}_${uid}_someone`),{...piece,actor:'someone-else'}),{code:'permission-denied'});
+ await assert.rejects(setDoc(doc(student.db,`${col}/${'0'.repeat(15)}_someone-else_x`),piece),{code:'permission-denied'});
+ await assert.rejects(setDoc(doc(student.db,`vocabDatasets/${dataset}/tables/${sheetId('숙제')}/appends/${'0'.repeat(15)}_${uid}_x`),piece),{code:'permission-denied'});
+ await assert.rejects(setDoc(doc(student.db,`${col}/${'0'.repeat(15)}_${uid}_extra`),{...piece,payload:'x'}),{code:'permission-denied'});
+ const stranger=await client('stranger-fixture');await assert.rejects(getDocs(collection(stranger.db,col)),{code:'permission-denied'});
+ const rows=sh=>sh.getRange(2,1,sh.getLastRow()-1,16).getValues().map(r=>JSON.stringify(r));
+ const before=rows((await teacher.repo.load(await teacher.repo.catalog(),ref=>getDoc(ref),{fresh:true})).getSheetByName('기록'));
+ const merged=await teacher.repo.call('__조각합치기',[]);
+ assert.equal(merged.ok,true);assert.equal(merged.합친,pieces.length);
+ assert.equal((await getDocs(collection(teacher.db,col))).size,0);
+ const main=await getDoc(doc(teacher.db,`vocabDatasets/${dataset}/tables/${sheetId('기록')}`));
+ assert.deepEqual(main.data().합친조각,[]);
+ assert.deepEqual(rows((await teacher.repo.load(await teacher.repo.catalog(),ref=>getDoc(ref),{fresh:true})).getSheetByName('기록')),before);
 });
 test('teacher screen opened before a student exam shows the exam after reload',async()=>{
  const 오늘=new Date(Date.now()+9*3600e3).toISOString().slice(0,10);

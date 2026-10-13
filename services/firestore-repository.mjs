@@ -1,5 +1,5 @@
 import { randomId } from './random-id.mjs';
-import { doc, getDoc, runTransaction, setDoc } from 'firebase/firestore';
+import { doc, getDoc, runTransaction, setDoc, collection, getDocs } from 'firebase/firestore';
 import { TableStore } from './table-store.mjs';
 import { createRuntime } from './legacy-runtime.mjs';
 import { pack, unpack, publicTable, tableMetadata, sheetId } from './store-codec.mjs';
@@ -20,6 +20,24 @@ async function auxiliary(user, fn, args) {
 // 그 밖(권한 · 엔진이 던진 오류 · 「자료가 커서」 …)은 다시 보내도 같으니 표시하지 않는다.
 const 다시보낼코드 = new Set(['aborted','failed-precondition','unavailable','deadline-exceeded','resource-exhausted']);
 const 요청번호꼴 = /^[0-9A-Za-z-]{8,80}$/;
+// 덧붙임 조각 — 반 전체가 동시에 내도 기록 표 한 장을 두고 다투지 않게, 줄을 뒤에 붙이기만 한 제출은
+// 본체(tables/{표})를 다시 쓰지 않고 tables/{표}/appends/{조각} 문서 하나만 새로 만든다 (meta/catalog 도 안 건드린다).
+// · 읽을 때 본체 뒤에 조각을 이름(=시각_요청번호) 차례로 붙여 한 표로 올린다
+// · 본체를 통째로 다시 쓸 때는 읽은 조각이 본체에 들어간다 — 선생님이면 그 조각을 지우고,
+//   학생은 조각을 못 지우므로(규칙) 본체의 「합친조각」 에 이름을 적어 두 번 붙지 않게 한다
+// · 선생님이 들어올 때 조각이 조각모을수 이상이면 본체로 합치고 비운다
+// 엔진(Code.gs)은 모른다 — appendRow 를 그대로 쓰고, 덧붙이기만 했는지는 table-store 가 가린다.
+const 조각표들 = ['기록'];
+const 조각모을수 = 50;
+const 조각경로 = id => `tables/${id}/appends`;
+const 조각붙이기 = (table, pieces) => {
+  let last = Math.max(0, ...Object.entries(table.cells).filter(([,c]) => c.value !== '' && c.value != null).map(([k]) => Number(k.split(':')[0])));
+  for (const piece of pieces) for (const row of unpack(piece.data.rows)) {
+    const r = ++last;
+    for (const [column, cell] of Object.entries(row)) { table.cells[`${r}:${column}`] = cell; table.maxColumns = Math.max(table.maxColumns ?? 26, Number(column)); }
+    table.maxRows = Math.max(table.maxRows ?? 1000, r);
+  }
+};
 const privileged = role => role === 'teacher' || role === 'bridge';
 // 선생님 「자료」 탭 — 엔진(Code.gs)을 거치지 않고 표를 바로 고친다. 답은 날짜를 지키려고 pack 한 글로 준다.
 // 하다가 걸리면(그 사이 줄이 바뀜 등) 표를 건드리기 전에 {ok:false} 로 돌아온다 — 그때는 저장하지 않는다.
@@ -36,21 +54,31 @@ export class FirestoreRepository {
   }
   async load(catalog, reader, { publicOnly = false, fresh = false } = {}) {
     const role = this.identity.role;
+    const appends = new Map();
     const tables = await Promise.all(catalog.tables.map(async meta => {
       const isPublic = ['학생','설정','단어장목록','공지'].includes(meta.name) || meta.name.startsWith('단어_');
       if (publicOnly && !isPublic) return null;
       const id = sheetId(meta.name), version = meta.version;
-      const fetchPayload = async (section, expected) => {
+      const fetchData = async (section, expected) => {
         const key = section + '/' + id;
         const cached = this.cache.get(key);
-        if (!fresh && cached?.version === expected) return unpack(cached.payload);
+        if (!fresh && cached?.version === expected) return cached;
         const d = await reader(this.ref(key));
         if (!d.exists()) throw new Error('자료 일부를 불러오지 못했습니다. 새로고침 후 다시 해 주세요.');
         const data = d.data();
         if (!fresh) this.cache.set(key, data);
-        return unpack(data.payload);
+        return data;
       };
-      const table = await fetchPayload('tables',version);
+      const fetchPayload = async (section, expected) => unpack((await fetchData(section, expected)).payload);
+      const main = await fetchData('tables',version);
+      const table = unpack(main.payload);
+      if (조각표들.includes(meta.name)) {
+        // 거래 안(fresh)에서는 목록만 밖에서 얻고 조각마다 거래로 다시 읽는다 — 합치는 사이 지워진 조각이 있으면 거래가 다시 돈다
+        const pieces = await this.조각들(id, fresh ? reader : null);
+        const merged = new Set(main.합친조각 ?? []);
+        조각붙이기(table, pieces.filter(p => !merged.has(p.id)));
+        appends.set(meta.name, pieces.map(p => p.id));
+      }
       if (privileged(role) && (['학생','설정'].includes(meta.name) || (meta.name===휴지통이름 && meta.secretVersion))) {
         const secret = await fetchPayload('secrets',meta.secretVersion);
         Object.assign(table.cells, secret.cells);
@@ -58,6 +86,7 @@ export class FirestoreRepository {
       return table;
     }));
     const store = new TableStore(tables.filter(Boolean));
+    store.appends = appends;
     // Reconstruct only the currently authenticated user's legacy credential columns.
     if (this.identity.role === 'student' && this.identity.pin !== undefined) {
       const s = store.getSheetByName('학생');
@@ -68,6 +97,21 @@ export class FirestoreRepository {
       if (s) s.cells[`${this.identity.row}:9`] = {value:this.identity.token,note:'',format:'General'};
     }
     return store;
+  }
+  async 조각들(id, reader = null) {
+    const listed = (await getDocs(collection(this.db, `vocabDatasets/${this.dataset}/${조각경로(id)}`))).docs.map(d => ({id:d.id, data:d.data()}));
+    const pieces = reader
+      ? (await Promise.all(listed.map(async p => { const d = await reader(this.ref(`${조각경로(id)}/${p.id}`)); return d.exists() ? {id:p.id, data:d.data()} : null; }))).filter(Boolean)
+      : listed;
+    return pieces.sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  }
+  // 선생님이 들어올 때 — 조각이 쌓였으면 본체로 합친다. 못 해도 로그인은 막지 않는다 (다음에 또 한다)
+  async 조각정리() {
+    const catalog = await this.catalog();
+    let 수 = 0;
+    for (const meta of catalog.tables) if (조각표들.includes(meta.name)) 수 = Math.max(수, (await this.조각들(sheetId(meta.name))).length);
+    if (수 < 조각모을수) return null;
+    return this.call('__조각합치기', []);
   }
   async grant(credentialId, proof) {
     const user = this.identity.user;
@@ -90,6 +134,7 @@ export class FirestoreRepository {
     try { await this.grant('teacher',await digest(String(pin ?? '').trim())); }
     catch (e) { if (e.code === 'permission-denied') return {ok:false}; throw e; }
     Object.assign(this.identity,{role:'teacher',pin:String(pin ?? '').trim()});
+    try { await this.조각정리(); } catch (e) { console.warn('기록 조각 합치기를 다음으로 미룹니다', e); }
     return {ok:true};
   }
   async parentLogin(token) {
@@ -113,6 +158,7 @@ export class FirestoreRepository {
     }
     const 자료일 = 자료함수[fn];
     if (자료일 && this.identity.role !== 'teacher') return {ok:false,메시지:'선생님만 할 수 있어요.'};
+    if (fn === '__조각합치기' && !privileged(this.identity.role)) return {ok:false,메시지:'선생님만 할 수 있어요.'};
     const 누가 = '선생님 · '+String(this.identity.user?.uid??'').slice(0,6);
     const publicOnly = ['시작정보','푸시공개키','공지가져오기'].includes(fn) && !this.identity.role;
     // 다시 보낸 것이면 먼저 영수증부터 — 먼저 것이 들어갔는데 다시 계획하면 「이미 봤습니다」 처럼 다른 답이 나온다
@@ -140,6 +186,11 @@ export class FirestoreRepository {
       let index = 0;
       const uuid = () => { const i=index++; return ids[i] ?? (ids[i]=randomId()); };
       if (자료일) return 자료하기(자료일,current,args,{지금:started,누가,번호:uuid});
+      if (fn === '__조각합치기') {
+        let 합친 = 0;
+        for (const name of 조각표들) { const n = current.appends?.get(name)?.length ?? 0; if (n) { current.getSheetByName(name).dirty = true; 합친 += n; } }
+        return {ok:true,합친};
+      }
       const engine = createRuntime(current,{effects:{saveImage:imageOperation?saveImage:undefined},now:()=>started,uuid});
       return fn==='__월시상' ? engine.monthly() : engine.call(fn,args);
     };
@@ -147,6 +198,20 @@ export class FirestoreRepository {
     if(imageOperation){planningImages=false;for(const cached of images.values()){try{cached.url=await this.auxiliary('__그림파일',[args[0],...cached.job]);}catch(error){cached.error=error;}}}
     if (자료일 && !result.ok) return result;
     if (!store.deleted.size && !store.getSheets().some(s=>s.dirty)) return jsonResult(result);
+    const dirty = store.getSheets().filter(s=>s.dirty);
+    const appendRows = !자료일 && !store.deleted.size && dirty.length === 1 && 조각표들.includes(dirty[0].name) ? dirty[0].appendedRows() : null;
+    if (appendRows) {
+      // 줄을 뒤에 붙이기만 했다 — 본체 · 목록(catalog)은 그대로 두고 조각 문서 하나만 새로 만든다. 남과 다툴 문서가 없다
+      const name = dirty[0].name, pieceId = String(started).padStart(15,'0')+'_'+requestId;
+      return runTransaction(this.db,async transaction => {
+        const oldReceipt = await transaction.get(this.ref(`journal/${requestId}`));
+        if (oldReceipt.exists()) return unpack(oldReceipt.data().result);
+        const answer = jsonResult(result);
+        transaction.set(this.ref(`${조각경로(sheetId(name))}/${pieceId}`),{name,rows:pack(appendRows),actor:this.identity.user.uid,at:started});
+        transaction.set(this.ref(`journal/${requestId}`),{actor:this.identity.user.uid,fn,result:pack(answer),changes:[name],at:started,조각:pieceId});
+        return answer;
+      }).catch(error => { if (다시보낼코드.has(error?.code)) error.다시보내도됨 = true; throw error; });
+    }
     return runTransaction(this.db,async transaction => {
       const oldReceipt = await transaction.get(this.ref(`journal/${requestId}`));
       if (oldReceipt.exists()) return unpack(oldReceipt.data().result);
@@ -166,7 +231,10 @@ export class FirestoreRepository {
         const full=table.export(), visible=full.name===휴지통이름?휴지통공개(full):publicTable(full), payload=pack(visible);
         if (new TextEncoder().encode(payload).length > 850000) throw new Error('자료가 커서 나누어 저장해야 합니다.');
         const version=await digest(payload), meta={...tableMetadata(full,position),version};
-        transaction.set(this.ref(`tables/${sheetId(full.name)}`),{payload,version,name:full.name,public:['학생','설정','단어장목록','공지'].includes(full.name)||full.name.startsWith('단어_')});
+        // 읽은 조각은 이제 본체 안에 있다 — 선생님은 지우고, 학생은 「합친조각」 에 적는다
+        const pieces = 조각표들.includes(full.name) ? (current.appends?.get(full.name) ?? []) : null, 지울수 = privileged(this.identity.role);
+        transaction.set(this.ref(`tables/${sheetId(full.name)}`),{payload,version,name:full.name,public:['학생','설정','단어장목록','공지'].includes(full.name)||full.name.startsWith('단어_'),...(pieces?{합친조각:지울수?[]:pieces}:{})});
+        if (pieces && 지울수) for (const pieceId of pieces) transaction.delete(this.ref(`${조각경로(sheetId(full.name))}/${pieceId}`));
         if ((['학생','설정'].includes(full.name) || full.name===휴지통이름) && privileged(this.identity.role)) {
           const secret={name:full.name,cells:Object.fromEntries(Object.entries(full.cells).filter(([key,c])=>pack(c)!==pack(visible.cells[key])))};
           const secretPayload=pack(secret), secretVersion=await digest(secretPayload);
