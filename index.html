@@ -4649,6 +4649,21 @@ qsa('#keypad [data-k]').forEach(function(b){
 /* 컴퓨터 자판으로 치는 경우 (화면 키패드를 안 쓸 때) */
 $('inPw').addEventListener('input', 네자리면들어가기_);
 
+/* 나가기를 누르면 로그인 칸을 비운다 — 학원 태블릿은 아이들이 돌려 쓴다.
+   앞 아이 이름·비밀번호가 남아 있으면 다음 아이가 그대로 들어가 버린다. */
+function 로그인칸비우기_(){
+  var 이름 = $('inName'); if(이름) 이름.value = '';
+  var 비번 = $('inPw');
+  if(비번){
+    비번.value = '';
+    /* 값만 바꾸면 비밀번호 점(pinDots)이 안 지워진다 — 알려 줘야 다시 그린다 */
+    try{ 비번.dispatchEvent(new Event('input')); }catch(e){}
+  }
+  var 자동 = $('inAuto'); if(자동) 자동.checked = false;
+  var 글 = $('loginMsg'); if(글) 글.textContent = '';
+  try{ localStorage.removeItem('hb_last'); }catch(e){}   /* 다음에 열 때 앞 아이 이름이 다시 뜨지 않게 */
+}
+
 function 사용법열기(){
   if(!앱주소){ toast('구글에 올린 뒤에 열 수 있어요'); return; }
   window.open(앱주소+'?p=guide','_blank');
@@ -5896,7 +5911,7 @@ if($('kLCard')) $('kLCard').onclick = function(){
 if($('kLQuit')) $('kLQuit').onclick = function(){ 유치판 = null; 유치길그리기_(); show('kid'); };
 if($('kQuit')) $('kQuit').onclick = function(){ 유치판 = null; 유치길그리기_(); show('kid'); };
 if($('kEndGo')) $('kEndGo').onclick = function(){ 유치판 = null; 유치길그리기_(); show('kid'); };
-if($('kOut')) $('kOut').onclick = function(){ S.학생 = null; 유치판 = null; 자동기억_(null); show('login'); };
+if($('kOut')) $('kOut').onclick = function(){ S.학생 = null; 유치판 = null; 자동기억_(null); 로그인칸비우기_(); show('login'); };
 if($('kStickGo')) $('kStickGo').onclick = function(){ 유치스티커그리기_(); show('kidst'); };
 if($('kStBack')) $('kStBack').onclick = function(){ show('kid'); };
 if($('kStReset')) $('kStReset').onclick = function(){
@@ -6932,7 +6947,7 @@ qsa('[data-back]').forEach(function(b){
   };
 });
 $('btnLogout').onclick=function(){
-  var leave=function(){ S.학생=null; 자동기억_(null); show('login'); };
+  var leave=function(){ S.학생=null; 자동기억_(null); 로그인칸비우기_(); show('login'); };
   if(window.VocabNativePush) VocabNativePush.logout().then(leave).catch(function(){toast('알림 연결을 해제하지 못했어요. 다시 눌러 주세요');});
   else leave();
 };
