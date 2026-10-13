@@ -1248,6 +1248,7 @@ html[data-theme="high"] .hwhero{box-shadow:0 8px 20px rgba(0,0,0,.3)}
   background:var(--card);border:1.5px solid var(--line);border-radius:16px;
   padding:13px 14px;margin-top:12px;font-family:inherit;cursor:pointer;color:var(--text)}
 .bellbar:active{transform:scale(.99)}
+.bellbar:disabled{opacity:.6}
 .bellbar .bi{width:34px;height:34px;flex:none;border-radius:11px;background:var(--primary-soft);
   display:flex;align-items:center;justify-content:center}
 .bellbar .bi svg{width:18px;height:18px;stroke:var(--primary)}
@@ -6450,7 +6451,7 @@ function 그리기_공지줄(){
    휴대폰 알림 — 앱을 안 열어도 뜨는 것
    아이폰은 홈 화면에 추가한 뒤에만 켤 수 있다.
 ================================================================ */
-var 알림 = { 됨:false, 일꾼:null, 공개키:'', 지금:'물어보는중' };
+var 알림 = { 됨:false, 일꾼:null, 공개키:'', 지금:'물어보는중', 바쁨:'' };
 
 function 아이폰_(){ return /iPad|iPhone|iPod/.test(navigator.userAgent); }
 function 홈화면_(){
@@ -6549,7 +6550,7 @@ function 알림켜기(){
   if(Notification.permission==='denied'){
     toast('휴대폰 설정에서 이 앱의 알림을 막아 두었어요'); return;
   }
-  api('푸시공개키').then(function(k){
+  return api('푸시공개키').then(function(k){
     알림.공개키 = String(k||'');
     if(!알림.공개키){ toast('선생님이 아직 알림을 켜 두지 않았어요'); return; }
     return Notification.requestPermission().then(function(p){
@@ -6580,7 +6581,7 @@ function 알림켜기(){
 function 알림끄기(){
   if(window.VocabNativePush) return VocabNativePush.disable().then(function(){ 알림.됨=false; 알림.지금='끔'; 그리기_알림줄(); toast('알림을 껐어요'); }).catch(function(){ toast('끄지 못했어요'); });
   if(!알림.일꾼) return;
-  navigator.serviceWorker.ready.then(function(r){ return r.pushManager.getSubscription(); })
+  return navigator.serviceWorker.ready.then(function(r){ return r.pushManager.getSubscription(); })
     .then(function(sub){
       if(!sub) return;
       var 주소=sub.endpoint;
@@ -6611,6 +6612,13 @@ function 알림안내(){
   $('notiClose').onclick=function(){ 박스.classList.add('hide'); };
 }
 
+/* 켜고 끄는 동안 단추를 잠그고 「켜는 중…」 을 보인다 — 두 번 눌러 등록이 겹치지 않게 */
+function 알림하는중_(글, 할일){
+  if(알림.바쁨) return;
+  알림.바쁨=글; 그리기_알림줄();
+  return Promise.resolve(할일()).catch(function(){}).then(function(){ 알림.바쁨=''; 그리기_알림줄(); });
+}
+
 /* 홈 맨 아래 알림 줄 */
 function 그리기_알림줄(){
   var box=$('bellBox'); if(!box) return;
@@ -6618,17 +6626,17 @@ function 그리기_알림줄(){
   var 켬 = 알림.됨;
   var 아이폰안내 = 아이폰_() && !홈화면_();
   box.innerHTML =
-    '<button class="bellbar'+(켬?' on':'')+'" id="bellGo" type="button">'+
+    '<button class="bellbar'+(켬?' on':'')+'" id="bellGo" type="button"'+(알림.바쁨?' disabled':'')+'>'+
       '<span class="bi">'+알림아이콘_('공지')+'</span>'+
       '<span class="bt"><b>'+(켬?'알림을 받고 있어요':'휴대폰으로 알림 받기')+'</b>'+
         '<i>'+(켬 ? '숙제가 나오면 휴대폰에 떠요'
               : (아이폰안내 ? '홈 화면에 추가하면 켤 수 있어요'
                             : '숙제·공지를 앱을 안 켜도 받아요'))+'</i></span>'+
-      '<span class="bg">'+(켬?'끄기':'켜기')+'</span>'+
+      '<span class="bg">'+(알림.바쁨||(켬?'끄기':'켜기'))+'</span>'+
     '</button>'+
     (켬 && !window.VocabNativePush ? '<button class="belltest" id="bellTest" type="button">'+
             '알림이 잘 오는지 시험해 보기</button>' : '');
-  $('bellGo').onclick = 켬 ? 알림끄기 : 알림켜기;
+  $('bellGo').onclick = function(){ 켬 ? 알림하는중_('끄는 중…', 알림끄기) : 알림하는중_('켜는 중…', 알림켜기); };
   if($('bellTest')) $('bellTest').onclick = 알림시험;
 }
 

@@ -112,7 +112,8 @@ GitHub Pages는 main 브랜치 루트 정적 파일을 배포합니다. `service
 - 앱 이름: 인왕보카. 패키지: `com.smarthb.vocab`. 초등학생 대상 학원 학습 앱입니다.
 - 학생 홈의 「휴대폰으로 알림 받기」에서 Android 알림을 허용하면 FCM 토큰이 현재 학생에 연결됩니다. 알림 끄기·로그아웃 때 이전 연결을 해제합니다.
 - 교사의 기존 공지 발송은 Android FCM과 웹 VAPID 구독을 함께 처리합니다. FCM 알림에는 학생 이름·점수 없이 공지 확인 안내만 보냅니다.
-- 알림을 누르면 앱에서 최신 공지를 다시 가져옵니다. iOS 네이티브 APNs는 이번 Android 출시 범위에 포함하지 않습니다.
+- 알림을 누르면 앱에서 최신 공지를 다시 가져옵니다.
+- iOS 앱 번들 ID는 `com.smarthb.vocab.ios`입니다 (`com.smarthb.vocab`은 Apple 쪽에서 쓸 수 없음). `AppDelegate`가 APNs 토큰을 FCM 토큰으로 바꿔 같은 `fcm:` 경로로 등록합니다. APNs 키(.p8)는 Firebase의 iOS 앱(`com.smarthb.vocab.ios`)에 올라가 있습니다.
 - 개인정보: [처리방침](https://smarthb-english.github.io/Vocab/privacy.html), [계정 삭제 안내](https://smarthb-english.github.io/Vocab/delete-account.html). 문의: yuiop70372@gmail.com.
 
 ```sh

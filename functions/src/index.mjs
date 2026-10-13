@@ -40,7 +40,7 @@ export async function sendPush(list, messaging = getMessaging()) {
       const token = 주소.slice(4);
       if (!/^[A-Za-z0-9_:\-]{20,4096}$/.test(token)) return {주소, 상태:400, 글:'FCM 토큰이 올바르지 않습니다.'};
       try {
-        await messaging.send({token, notification:{title:'인왕보카', body:'새 학원 알림이 있어요. 앱에서 확인해 주세요.'}, data:{route:'notices'}, android:{priority:'high', notification:{channelId:'academy', icon:'ic_stat_bell'}}});
+        await messaging.send({token, notification:{title:'인왕보카', body:'새 학원 알림이 있어요. 앱에서 확인해 주세요.'}, data:{route:'notices'}, android:{priority:'high', notification:{channelId:'academy', icon:'ic_stat_bell'}}, apns:{payload:{aps:{sound:'default'}}}});
         return {주소, 상태:200, 글:''};
       } catch (e) {
         const dead = ['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'].includes(e.code);

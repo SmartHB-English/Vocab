@@ -1,9 +1,9 @@
-/* Android FCM only. Web/iOS keep their existing notification implementation. */
+/* Android·iOS FCM. iOS 는 AppDelegate 가 APNs 토큰을 FCM 토큰으로 바꿔 'registration' 으로 넘긴다. */
 (function () {
   'use strict';
   var C = window.Capacitor;
-  if (!C || !C.isNativePlatform() || C.getPlatform() !== 'android' || !C.isPluginAvailable('PushNotifications')) return;
-  var key = 'inwang-fcm-v1', saved = {};
+  if (!C || !C.isNativePlatform() || !C.isPluginAvailable('PushNotifications')) return;
+  var android = C.getPlatform() === 'android', key = 'inwang-fcm-v1', saved = {};
   try { saved = JSON.parse(localStorage.getItem(key) || '{}'); } catch (_) {}
   var pending, timer, listening, registering, queue = Promise.resolve();
   function persist() { localStorage.setItem(key, JSON.stringify(saved)); }
@@ -14,7 +14,7 @@
     return serialize(async function () {
       if (!saved.enabled || !S.학생) return;
       var old = saved.token;
-      var result = await api('구독등록', S.학생.이름, {주소:'fcm:' + token, p256dh:'', auth:''}, 'Android FCM');
+      var result = await api('구독등록', S.학생.이름, {주소:'fcm:' + token, p256dh:'', auth:''}, android ? 'Android FCM' : 'iOS FCM');
       if (!result.ok) throw new Error(result.메시지 || '알림 등록 실패');
       if (old && old !== token) await remove(old);
       saved.token = token; persist();
@@ -64,7 +64,7 @@
     if (registering) return registering;
     registering = (async function () {
       await listeners();
-      await plugin('createChannel', {id:'academy', name:'학원 공지', description:'숙제와 학원 공지 안내', importance:4, visibility:0});
+      if (android) await plugin('createChannel', {id:'academy', name:'학원 공지', description:'숙제와 학원 공지 안내', importance:4, visibility:0});
       return new Promise(function (resolve, reject) {
         pending = {resolve:resolve, reject:reject};
         timer = setTimeout(function () { pending = null; reject(new Error('알림 등록 시간이 초과됐어요')); }, 30000);
