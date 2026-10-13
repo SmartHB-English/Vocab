@@ -2780,12 +2780,13 @@ var DEMO = {
     var n=0;
     (keys||[]).forEach(function(k){ DEMO_제외[Number(k)] = !!뺄까; n++; });
     return {ok:true,개수:n,뺐나:!!뺄까};},
-  시험무르기:function(pw,keys,무를까){
+  기록무르기:function(pw,keys,무를까){
     if(pw!=='1234') return {ok:false,메시지:'비밀번호가 다릅니다.'};
-    var 시험키={}; (DEMO.선생님요약().시험목록||[]).forEach(function(t){ if(t.구분==='시험'||t.구분==='시험(무효)') 시험키[t.키]=1; });
+    var 무를키={}; (DEMO.선생님요약().시험목록||[]).forEach(function(t){ if(!t.재시험) 무를키[t.키]=1; });   // 오답 재시험만 빼고 무엇이든
     var n=0;
-    (keys||[]).forEach(function(k){ k=Number(k); if(시험키[k] && !!DEMO_무효[k]!==!!무를까){ DEMO_무효[k]=!!무를까; n++; } });
+    (keys||[]).forEach(function(k){ k=Number(k); if(무를키[k] && !!DEMO_무효[k]!==!!무를까){ DEMO_무효[k]=!!무를까; n++; } });
     return {ok:true,개수:n,무름:!!무를까};},
+  시험무르기:function(pw,keys,무를까){ return DEMO.기록무르기(pw,keys,무를까); },
   시상달목록:function(){return {ok:true,달:['2026-09','2026-08','2026-07']};},
   시상집계:function(pw,ym){
     ym = ym || '2026-09';
@@ -2989,7 +2990,7 @@ var DEMO = {
       {키:4,시각:'09/07 16:00',이름:'김영희',단어장:'예시 단어장',범위:'1~25',유형:'스펠링',문항수:25,정답수:22,점수:88,게임점수:2200,소요초:300,숙제:true,재시험:false,구분:'시험',틀린단어:'alter, assess, restrict'}
     ].map(function(t){
       t.제외=!!DEMO_제외[t.키];
-      if(t.구분==='시험'||t.구분==='시험(무효)'){ t.무효=!!DEMO_무효[t.키]; t.구분=t.무효?'시험(무효)':'시험'; }
+      if(!t.재시험){ t.무효=!!DEMO_무효[t.키]; if(t.무효) t.구분=(t.구분||'')+'(무효)'; }
       DEMO_배정.forEach(function(x){ if(x.이름===t.이름) t.교재=(x.교재||[]).slice(); });
       return t;
     }),
@@ -4520,7 +4521,7 @@ function 지난숙제손잡이(전체){
 }
 
 function 구분칩(t){
-  if(t.무효) return '<span class="pill off">시험 무름</span>';
+  if(t.무효) return '<span class="pill off">무름</span>';
   if(t.재시험) return '<span class="pill note">오답노트</span>';
   if(t.구분==='시험') return '<span class="pill siheom">시험</span>';
   if(t.구분==='보충') return '<span class="pill bochung">보충</span>';
@@ -4884,7 +4885,7 @@ function drawTab(){
         '<div class="grow"></div>'+
         '<button class="btn line sm" id="btnOut">시상에서 빼기</button>'+
         '<button class="btn line sm" id="btnIn">다시 넣기</button>'+
-        '<button class="btn line sm" id="btnUndo">시험 무르기</button>'+
+        '<button class="btn line sm" id="btnUndo">기록 무르기</button>'+
         '<button class="btn line sm" id="btnRedo">무른 것 되돌리기</button>'+
         '<button class="btn sm" id="btnClean">확인한 것 정리</button>'+
         '<span class="sub" id="cleanCnt"></span>'+
@@ -5000,8 +5001,8 @@ function drawTab(){
     function 무르기바꾸기(무를까){
       var keys=선택키();
       if(!keys.length){ toast('기록을 골라 주세요'); return; }
-      if(무를까 && !confirm('고른 '+keys.length+'건을 무릅니다. 아이들이 그 시험을 다시 볼 수 있게 됩니다.')) return;
-      api('시험무르기',T.pw,keys,무를까).then(function(r){
+      if(무를까 && !confirm('고른 '+keys.length+'건을 무릅니다. 아이들이 그 숙제·시험을 다시 할 수 있게 됩니다.')) return;
+      api('기록무르기',T.pw,keys,무를까).then(function(r){
         if(r && r.ok){
           toast(무를까 ? r.개수+'건을 무렀습니다' : r.개수+'건을 되돌렸습니다');
           loadTeacher();
