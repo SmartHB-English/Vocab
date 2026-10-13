@@ -1232,6 +1232,7 @@ html[data-theme="high"] .hwhero{box-shadow:0 8px 20px rgba(0,0,0,.3)}
   background:var(--card);border:1.5px solid var(--line);border-radius:16px;
   padding:13px 14px;margin-top:12px;font-family:inherit;cursor:pointer;color:var(--text)}
 .bellbar:active{transform:scale(.99)}
+.bellbar:disabled{opacity:.6}
 .bellbar .bi{width:34px;height:34px;flex:none;border-radius:11px;background:var(--primary-soft);
   display:flex;align-items:center;justify-content:center}
 .bellbar .bi svg{width:18px;height:18px;stroke:var(--primary)}

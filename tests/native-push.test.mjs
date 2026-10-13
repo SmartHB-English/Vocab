@@ -3,16 +3,16 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../app/native-push.js',import.meta.url),'utf8');
-function harness({granted=true, enabled=false, fail=false}={}) {
-  const listeners={}, calls=[], storage=new Map(), notifications=[];
+function harness({granted=true, enabled=false, fail=false, platform='android'}={}) {
+  const native=[], listeners={}, calls=[], storage=new Map(), notifications=[];
   if(enabled)storage.set('inwang-fcm-v1',JSON.stringify({enabled:true,token:'old-token'}));
   const state={학생:{이름:'학생A'}}, c={S:state, setTimeout,clearTimeout,toast:m=>notifications.push(m),알림보이기:()=>notifications.push('opened'),localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)}, api:async(...a)=>{calls.push(a);if(fail)throw Error('offline');return a[0]==='공지가져오기'?[{제목:'새 공지'}]:{ok:true};}};
   c.window=c;
-  c.Capacitor={isNativePlatform:()=>true,getPlatform:()=> 'android',isPluginAvailable:()=>true,addListener:async(_,event,callback)=>{listeners[event]=callback;},nativePromise:async(_,method)=>{
+  c.Capacitor={isNativePlatform:()=>true,getPlatform:()=>platform,isPluginAvailable:()=>true,addListener:async(_,event,callback)=>{listeners[event]=callback;},nativePromise:async(_,method)=>{native.push(method);
     if(method==='checkPermissions'||method==='requestPermissions')return {receive:granted?'granted':'denied'};
     if(method==='register')queueMicrotask(()=>listeners.registration({value:'new-token'}));
   }};
-  vm.runInNewContext(source,c);return {c,calls,listeners,notifications,state,storage};
+  vm.runInNewContext(source,c);return {c,calls,listeners,native,notifications,state,storage};
 }
 test('native opt-in binds student and replaces old token',async()=>{const h=harness({enabled:true});assert.equal(await h.c.VocabNativePush.prepare(),true);assert.deepEqual(h.calls.map(x=>x[0]),['구독등록','구독해제']);assert.equal(h.calls[0][2].주소,'fcm:new-token');assert.equal(h.calls[1][1],'fcm:old-token');});
 test('permission denial never registers',async()=>{const h=harness({granted:false});await assert.rejects(h.c.VocabNativePush.enable());assert.equal(h.calls.length,0);});
@@ -25,3 +25,4 @@ test('repeated enable shares one registration request',async()=>{const h=harness
 test('disable unlinks server token and clears local opt-in',async()=>{const h=harness();await h.c.VocabNativePush.enable();await h.c.VocabNativePush.disable();assert.equal(h.calls.at(-1)[0],'구독해제');assert.equal(JSON.parse(h.storage.get('inwang-fcm-v1')).enabled,false);});
 test('OS permission revocation removes previous student link',async()=>{const h=harness({granted:false,enabled:true});assert.equal(await h.c.VocabNativePush.prepare(),false);assert.equal(h.calls[0][0],'구독해제');assert.equal(JSON.parse(h.storage.get('inwang-fcm-v1')).token,'');});
 test('cold-start notification waits for login then refreshes notices',async()=>{const h=harness();h.state.학생=null;await h.c.VocabNativePush.prepare();h.listeners.pushNotificationActionPerformed({});assert.equal(JSON.parse(h.storage.get('inwang-fcm-v1')).openNotice,true);h.state.학생={이름:'학생A'};await h.c.VocabNativePush.prepare();await new Promise(resolve=>setImmediate(resolve));assert.equal(h.calls.at(-1)[0],'공지가져오기');assert.deepEqual(h.notifications,['opened']);});
+test('iOS registers FCM token without Android channel',async()=>{const h=harness({platform:'ios'});await h.c.VocabNativePush.enable();assert.equal(h.native.includes('createChannel'),false);assert.equal(h.calls[0][2].주소,'fcm:new-token');assert.equal(h.calls[0][3],'iOS FCM');});
