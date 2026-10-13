@@ -1,12 +1,11 @@
 {
-  "name": "홍제인왕영어 선생님",
+  "name": "영단어학습프로그램 선생님",
   "short_name": "선생님",
   "description": "숙제를 내고 기록을 보는 선생님 화면",
   "id": "teacher.html",
   "start_url": "teacher.html",
   "scope": "teacher.html",
   "display": "standalone",
-  "orientation": "any",
   "background_color": "#F6F4F1",
   "theme_color": "#F6F4F1",
   "lang": "ko",

@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>영단어학습프로그램 선생님</title>
-<!-- 선생님 화면 — 컴퓨터·태블릿은 브라우저로, 선생님 폰은 홈 화면에 설치해서 연다 (teacher-manifest.json · teacher-sw.js).
-     서비스워커 범위는 ./teacher.html 하나 — 학생(sw.js) · 학부모(parent-sw.js) 화면은 건드리지 않는다. 푸시는 없다.
-     폰 앱(Capacitor) 번들에는 넣지 않는다 — 앱의 선생님 입구는 이 파일의 깃헙 주소를 바깥 브라우저로 연다.
+<!-- 선생님 화면 — 컴퓨터·태블릿은 브라우저로, 선생님 폰은 브라우저 메뉴로 홈 화면에 설치해서 연다 (teacher-manifest.json).
+     서비스워커는 두지 않는다 — 크롬은 메뉴로 설치할 때 서비스워커를 묻지 않고, 캐시하는 일꾼은 옛 코드를 기기에 남긴다. 푸시도 없다.
+     학생 사이트(index.html)에는 이리로 오는 입구가 없다. 폰 앱(Capacitor) 번들에도 넣지 않는다.
      공용 CSS·JS 는 아래 GENERATED 블록에 박힌다 (원본은 services/shared-ui.css · services/shared-ui.js). -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <meta name="theme-color" content="#F6F4F1">
@@ -2336,6 +2336,9 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
 <style>
 /* 「자료」 탭 (services/teacher-data.js) — 넓은 화면은 표 그대로, 폰은 줄마다 카드 */
 body.desk .tmain > div > .jrroot,.tmain > div > .jrroot{animation:none}
+/* 설치 안내 — 이미 설치해서 열었으면 안 보인다 */
+#tInstall{font-size:13px;line-height:1.5;opacity:.75}
+@media (display-mode: standalone){ #tInstall{display:none} }
 .jrbar input[type=date]{min-width:140px}
 .jrban{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-4px 0 12px}
 .jrban .sub{margin-right:4px;font-size:13px;font-weight:700}
@@ -2379,7 +2382,6 @@ body.desk .tmain > div > .jrroot,.tmain > div > .jrroot{animation:none}
   <!-- ========================= 선생님 ========================= -->
   <section id="s-teacher" class="screen on">
     <div class="top">
-      <button class="iconbtn" data-back="login">← 뒤로</button>
       <div class="who">선생님 화면</div>
     </div>
 
@@ -2389,6 +2391,7 @@ body.desk .tmain > div > .jrroot,.tmain > div > .jrroot{animation:none}
       <label class="autochk"><input type="checkbox" id="tAuto"> 자동 로그인</label>
       <button class="btn" id="btnTLogin">들어가기</button>
       <div class="center sub mt" id="tMsg"></div>
+      <div class="center sub mt" id="tInstall">브라우저 메뉴 → 홈 화면에 추가 / 앱으로 설치 를 하면 아이콘으로 바로 들어옵니다</div>
     </div>
 
     <div id="tMain" class="hide">
@@ -2422,7 +2425,7 @@ body.desk .tmain > div > .jrroot,.tmain > div > .jrroot{animation:none}
           </nav>
           <div class="tside-f">
             <button id="btnReload">↻ 새로고침</button>
-            <button data-back="login">← 학생 화면으로</button>
+            <button data-back="login">나가기</button>
           </div>
         </aside>
         <main class="tmain"><div id="tBody"></div></main>
@@ -8688,14 +8691,13 @@ if(typeof DEMO !== 'undefined' && typeof GAS !== 'undefined' && !GAS) (function(
 /* END GENERATED services/teacher-data.js */
 
 /* ================================================================
-   들어오고 나가기 — 학생 화면(index.html)과는 따로 있는 페이지다
+   들어오고 나가기 — 학생 화면(index.html)과는 따로 있는 웹앱이다 (서로 오가는 입구가 없다)
 ================================================================ */
-/* 나가면 학생 화면으로. 선생님 화면에서 나가면 다음 실행 때 자동으로 들어가지 않는다
-   (들어가지 못한 채 나가도 선생님 자동 로그인은 푼다 — 안 그러면 index.html 이 곧장 여기로 되돌려 보낸다) */
+/* 나가면 이 화면의 비밀번호 칸으로. 다음 실행 때 자동으로 들어가지 않는다 */
 qsa('[data-back]').forEach(function(b){
   b.onclick=function(){
     if(T.pw || (자동읽기_()||{}).역할 === '선생님') 자동기억_(null);
-    location.href = 'index.html';
+    location.replace('teacher.html');
   };
 });
 /* 자동 로그인 — 열쇠(자동열쇠)는 index.html 과 같은 것을 쓴다. index.html 은 여기로 보내기만 하고, 들어가는 건 여기서 */
@@ -8705,17 +8707,23 @@ function 선생님자동로그인_(){
   선생님들어가기_(a.비번, true).then(치우기, 치우기);
 }
 
-/* 홈 화면에 설치 — 서비스워커는 이 페이지(./teacher.html)만 맡는다. 학생 sw.js 의 범위(./)보다 좁아서
-   이 페이지에서는 이것이 이긴다. 파일로 연 미리보기와 폰 앱 안에서는 안 띄운다 */
-function 선생님일꾼띄우기_(){
-  if(미리보기 || !('serviceWorker' in navigator)) return;
-  if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) return;
-  navigator.serviceWorker.register('teacher-sw.js', {scope:'./teacher.html'}).catch(function(){});
+/* 설치 안내 한 줄 — 홈 화면 아이콘(standalone)으로 열었으면 숨긴다 (아이폰은 navigator.standalone) */
+function 설치됐나_(){
+  try{ if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true; }catch(e){}
+  return navigator.standalone === true;
+}
+/* 서비스워커는 두지 않는다. 2026-10-13 잠깐 올라갔던 선생님 일꾼(teacher-sw.js)이 이 기기에 남아 있으면 내린다 */
+function 옛일꾼내리기_(){
+  if(!('serviceWorker' in navigator) || !navigator.serviceWorker.getRegistrations) return;
+  navigator.serviceWorker.getRegistrations().then(function(rs){
+    rs.forEach(function(r){ if(/\/teacher\.html$/.test(r.scope)) r.unregister(); });
+  }).catch(function(){});
 }
 
 /* ------------------------------- 시작 */
 (function(){
-  선생님일꾼띄우기_();
+  if(설치됐나_()){ var 안내=$('tInstall'); if(안내) 안내.classList.add('hide'); }
+  if(!미리보기) 옛일꾼내리기_();
   /* 스크립트가 끝까지 실행됐다는 표시 — 안 뜨면 파일이 잘린 것 */
   try{ var t=$('tBrandSub'); if(t) t.textContent='선생님 화면 · v'+앱버전; }catch(e){}
   /* 학원 이름·합격점은 시작정보에 있다 — 받은 뒤에 자동 로그인 (학생 화면에서는 로그인 화면이 받아 두던 것) */
