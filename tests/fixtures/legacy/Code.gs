@@ -1557,8 +1557,9 @@ function 기록무르기(비번, 키들, 무를까) {
 
   var 바꾼수 = 0;
   [SHEET.기록, SHEET.기록보관].forEach(function (name) {
-    var sh = sheet_(name);                       // 칸을 늘리지 않는다 — 이미 있는 구분 칸의 값만 바꾼다
-    var last = sh.getLastRow();
+    var sh;
+    try { sh = sheet_(name); } catch (e) { return; }   // 보관함이 아직 없어도 괜찮다
+    var last = sh.getLastRow();                        // 칸을 늘리지 않는다 — 이미 있는 구분 칸의 값만 바꾼다
     if (last < 2 || sh.getMaxColumns() < 구분열) return;
     var 날들 = sh.getRange(2, 1, last - 1, 1).getValues();
     var 지금 = sh.getRange(2, 구분열, last - 1, 1).getValues();
@@ -1608,7 +1609,9 @@ function 그달기록_(ym) {
   var out = [];
   var 시작 = 시상시작일_();
   [SHEET.기록, SHEET.기록보관].forEach(function (name) {
-    rows_(name).forEach(function (x) {
+    var 줄 = [];
+    try { 줄 = rows_(name); } catch (e) { return; }      // 보관함이 아직 없어도 괜찮다
+    줄.forEach(function (x) {
       if (!(x[0] instanceof Date)) return;
       if (월_(x[0]) !== ym) return;
       if (시작 && ymd_(x[0]) < 시작) return;
@@ -1973,7 +1976,9 @@ function 시상달목록(비번) {
   if (!선생님확인_(비번)) return { ok: false };
   var 본것 = {}, 목록 = [];
   [SHEET.기록, SHEET.기록보관].forEach(function (name) {
-    rows_(name).forEach(function (x) {
+    var 줄 = [];
+    try { 줄 = rows_(name); } catch (e) { return; }      // 보관함이 아직 없어도 괜찮다
+    줄.forEach(function (x) {
       if (!(x[0] instanceof Date)) return;
       var m = 월_(x[0]);
       if (!본것[m]) { 본것[m] = 1; 목록.push(m); }
@@ -2205,7 +2210,9 @@ function 이미본시험_(이름, 단어장, 범위) {
   var 봤다 = false;
   [SHEET.기록, SHEET.기록보관].forEach(function (name) {
     if (봤다) return;
-    rows_(name).forEach(function (x) {
+    var 줄 = [];
+    try { 줄 = rows_(name); } catch (e) { return; }      // 보관함이 아직 없어도 괜찮다 — 없으면 본 적도 없다
+    줄.forEach(function (x) {
       if (봤다) return;
       if (s_(x[14]) !== 시험표시) return;
       if (s_(x[2]) !== 이름) return;
@@ -2259,7 +2266,8 @@ function 점수시트_() {
  * 앱에서 푼 것은 순위에 들어가지 않는다.
  */
 function 월간순위(반) {
-  var r = rows_(SHEET.점수);
+  var r = [];
+  try { r = rows_(SHEET.점수); } catch (e) { r = []; }      // 점수표를 아직 안 만들었어도 괜찮다
   var 오늘 = new Date();
   var 지난날 = new Date(오늘.getFullYear(), 오늘.getMonth() - 1, 1);
   var 이번키 = 월키_(오늘), 지난키 = 월키_(지난날);
