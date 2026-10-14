@@ -4499,7 +4499,14 @@ function show(name){
   if(name === 'exam') try{ 시험탭열기(); }catch(e){}
   if(name === 'streak') try{ 순위자료받기_(); }catch(e){}
   if(name === 'games') try{ 게임자료받기_(); }catch(e){}
+  try{ 나가기단추맞추기_(); }catch(e){}
   window.scrollTo(0,0);
+}
+/* 시험 중에는 나가기 단추를 눌리지 않게 가린다 (자리는 남겨 둔다 — 시계가 밀리지 않게).
+   시험지 화면의 「← 그만」(shBack)은 data-back 이 아니라 따로 챙긴다 */
+function 나가기단추맞추기_(){
+  var 막 = 시험중나가기막나_();
+  qsa('.screen.on [data-back], .screen.on #shBack').forEach(function(b){ b.style.visibility = 막 ? 'hidden' : ''; });
 }
 /* 학생 화면 네 곳에서만 아래 탭바가 보인다 */
 function 칠하기_탭(name){
@@ -4528,6 +4535,9 @@ window.addEventListener('popstate', function(){
   }
 
   if(!뒤로표_.length) return;              /* 더 갈 데가 없다 — 브라우저에 맡긴다 */
+
+  /* 시험 중이면 뒤로가기로 못 나간다 */
+  if(시험중나가기막나_()){ 발자국_(); toast('시험을 내고 나가야 해요'); return; }
 
   var 지금 = 지금화면_();
 
@@ -6012,6 +6022,12 @@ if($('kStReset')) $('kStReset').onclick = function(){
 
 var 시험판 = null;     /* {방법, 단계:'외우기'|'시험'} */
 function 시험중_(){ return !!(시험판 && 시험판.단계 === '시험'); }
+/* 한 번 들어간 시험은 내고 나와야 한다 — 외우기도 시험도 중간에 못 빠져나간다.
+   채점이 끝난 뒤(결과 화면)는 막지 않는다. 결과 화면에서 고른 오답 다시 풀기(재시험)도 시험이 아니라 막지 않는다.
+   시간이 다 돼 저절로 나가는 길(시험못보고나가기_)도 막지 않는다 — 그건 도망이 아니다. */
+function 시험중나가기막나_(){
+  return !!(시험판 && !S.채점됨 && !S.재시험 && 지금화면_() !== 'result');
+}
 
 function 내시험들_(){
   return (S.숙제 || []).filter(function(h){ return 시험인가_(h); });
@@ -6098,6 +6114,7 @@ function 시험열기_(h){
   if(!h) return;
   var 표 = ++숙제열기표_;
   S.현재숙제 = h; S.재시험 = false; S.돌아갈곳 = 'exam';
+  S.채점됨 = false;                 /* 앞서 푼 연습의 「채점됨」 이 남아 있으면 외우기 중에 나가기가 안 잠긴다 */
   if($('selBook')) $('selBook').value = h.단어장;
   S.종류 = '';
   var 후보 = ((시작정보 && 시작정보.단어장목록) || []).concat(내책들());
@@ -6112,7 +6129,8 @@ function 시험열기_(h){
     drawQuick();
     var 방법 = 유형모드_(h.유형);
     시험판 = { 방법: 방법, 단계: '외우기' };
-    if(!외우기분_(h)){ 시험단계로_(); return; }
+    /* 외우기를 이미 한 판 지났으면 바로 시험으로 — 닫고 다시 들어와도 외우기를 또 주지 않는다 */
+    if(!외우기분_(h) || 저장읽기_(외우기끝열쇠_(h), 0)){ 시험단계로_(); return; }
     var r = 범위단어();
     if(!r.list.length){ toast('단어가 없습니다'); 시험판치우기_(); return; }
     S.책 = { 목록:r.list, 가리기:'all', 별표만:false, 범위:r.a + '~' + r.b };
@@ -6130,10 +6148,13 @@ function 시험단계로_(){
      이미 적혀 있으면(시험을 보다 나갔다 온 것) 그대로 둔다 — 다시 들어와서 시간을 새로 받으면 안 된다 */
   var h = S.현재숙제;
   if(h && !S.재시험 && !h.완료 && 제한분_(h) && !제한시작때_(h, '시험')) 제한시작적기_(h, '시험');
+  /* 외우기는 한 판뿐 — 앱을 닫고 다시 들어와도 바로 시험으로 보낸다 */
+  if(h && !S.재시험 && !h.완료) 저장쓰기_(외우기끝열쇠_(h), 1);
 
   var bar = $('wbMem'); if(bar) bar.classList.add('hide');
   var go = $('wbTest'); if(go) go.classList.remove('hide');
   if(시험판.방법 === 'verb') startVerb(); else startQuiz(시험판.방법);
+  try{ 나가기단추맞추기_(); }catch(e){}
 }
 
 /* 시험 흐름에서 빠져나올 때 */
@@ -6142,6 +6163,7 @@ function 시험판치우기_(){
   var bar = $('wbMem'); if(bar) bar.classList.add('hide');
   var go = $('wbTest'); if(go) go.classList.remove('hide');
   제한멈춤_();
+  try{ 나가기단추맞추기_(); }catch(e){}
 }
 
 if($('wbGo')) $('wbGo').onclick = 시험단계로_;
@@ -6338,6 +6360,8 @@ function drawQuick(){
 function 숙제냈음(점수){
   if(!S.현재숙제 || S.재시험) return;
   var h = S.현재숙제;
+  /* 한 판 냈다 — 시계와 외우기 표시를 지운다. 다음에 들어오면(무르기·재응시) 새로 센다 */
+  시도표시지우기_(h);
   h.점수 = 점수;
   /* 단계 숙제는 응시를 하나 센다 — 서버도 기록 개수로 세니 다시 불러와도 같다 */
   if(h.단계){
@@ -6395,6 +6419,9 @@ function 저장읽기_(키, 기본){
 }
 function 저장쓰기_(키, 값){
   try{ localStorage.setItem(키, JSON.stringify(값)); }catch(e){}
+}
+function 저장지우기_(키){
+  try{ localStorage.removeItem(키); }catch(e){}
 }
 function 오늘글_(){
   var t=new Date(), z=function(n){return n<10?'0'+n:''+n;};
@@ -7019,6 +7046,7 @@ if($('btnStartMode')) $('btnStartMode').onclick=function(){
 };
 qsa('[data-back]').forEach(function(b){
   b.onclick=function(){
+    if(시험중나가기막나_()){ toast('시험을 내고 나가야 해요'); return; }
     stopTimer(); 시험판치우기_(); var t=b.dataset.back;
     if(t==='home') t = S.돌아갈곳 || 'home';        // 연습으로 들어왔으면 연습으로
     if((t==='home'||t==='study') && !S.학생) t='login';
@@ -7568,13 +7596,27 @@ function 제한그리기_(){
    숙제 줄의 제한시간(분)이 비면 지금과 똑같다 — 타이머를 아예 안 보인다.
    시작한 때는 이 기기에 적어 둔다 (저장쓰기_) — 앱을 껐다 켜도 그때부터 다시 세니 시간이 늘지 않는다. */
 function 제한분_(h){ return (h && Number(h.제한시간) > 0) ? Number(h.제한시간) : 0; }
+/* 이 숙제를 가리키는 뿌리 — 아이 기기에 적는 표시들이 같이 쓴다 */
+function 숙제표시뿌리_(h){
+  return ((S.학생 && S.학생.이름) || '') + '|' +
+         (h.낸때 || [h.단어장, h.칸||'', h.시작, h.끝, h.유형].join('/'));
+}
 /* 단계 — '시험' 이면 시험 단계의 시계. 외우기(「시작」 을 누른 때)와 시험(시험이 뜬 때)은 다른 시간이라 열쇠를 가른다.
-   외우기에 쓴 시간이 시험 시간을 깎으면 안 된다. 숙제는 단계 없이 지금 열쇠 그대로 */
+   외우기에 쓴 시간이 시험 시간을 깎으면 안 된다. 숙제는 단계 없이 지금 열쇠 그대로.
+   응시 횟수는 열쇠에 넣지 않는다 — 선생님이 기록을 무르면 횟수가 되돌아가서
+   첫 응시 때 적힌(이미 지난) 시작 시각을 다시 읽고 아이를 쫓아냈다.
+   그 대신 한 판을 내는 순간 시도표시지우기_ 로 지운다 — 다음 판은 늘 새로 센다. */
 function 제한열쇠_(h, 단계){
-  return '제한시작_' + ((S.학생 && S.학생.이름) || '') + '|' +
-         (h.낸때 || [h.단어장, h.칸||'', h.시작, h.끝, h.유형].join('/')) +
-         (h.단계==='시험' ? '|' + (Number(h.응시수)||0) : '') +     /* 다시 보기는 새 응시 — 시간을 새로 센다 */
-         (단계==='시험' ? '|시험' : '');
+  return '제한시작_' + 숙제표시뿌리_(h) + (단계==='시험' ? '|시험' : '');
+}
+/* 외우기를 이미 한 판 — 앱을 닫고 다시 들어와도 외우기를 또 주지 않는다 */
+function 외우기끝열쇠_(h){ return '외우기끝_' + 숙제표시뿌리_(h); }
+/* 한 판이 끝났다 — 이 숙제에 대해 기기에 적어 둔 표시를 전부 지운다 */
+function 시도표시지우기_(h){
+  if(!h) return;
+  저장지우기_(제한열쇠_(h, ''));
+  저장지우기_(제한열쇠_(h, '시험'));
+  저장지우기_(외우기끝열쇠_(h));
 }
 function 제한시작때_(h, 단계){ return Number(저장읽기_(제한열쇠_(h, 단계), 0)) || 0; }
 function 제한시작적기_(h, 단계){ 저장쓰기_(제한열쇠_(h, 단계), Date.now()); }
@@ -8094,6 +8136,7 @@ function 시험지수(){
 }
 
 $('shBack').onclick=function(){
+  if(시험중나가기막나_()){ toast('시험을 내고 나가야 해요'); return; }
   if(!S.채점됨 && S.답.some(function(v){return String(v||'').trim();})){
     if(!confirm('지금 그만두면 쓴 답이 사라집니다. 그만둘까요?')) return;
   }
