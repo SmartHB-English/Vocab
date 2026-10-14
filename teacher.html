@@ -3158,6 +3158,7 @@ var DEMO = {
       단계:(h.단계==='연습'||h.단계==='시험')?h.단계:'',
       통과점수:h.단계==='시험'&&h.통과점수!==''&&h.통과점수!==undefined?Number(h.통과점수)||0:'',
       재응시:h.단계==='시험'&&h.재응시!==''&&h.재응시!==undefined?Number(h.재응시)||0:'',
+      문항수:(Number(h.문항수)>0&&Number(h.문항수)<=200)?Math.round(Number(h.문항수)):'',
       막힌사람:[],등록일:오늘,
       대상수:대상들.length,한사람:[],안한사람:대상들.slice()});
     return {ok:true,개수:1,대상:대상들.length,숙제:JSON.parse(JSON.stringify(DEMO_HW[DEMO_HW.length-1]))};},
@@ -3212,10 +3213,11 @@ var DEMO = {
         대상.종류=종류; 대상.마감일=(종류==='당일')?오늘:h.마감일;
         대상.색=색맵[h.단어장]||'';
       }
-      ['외우기분','제한시간','통과점수','재응시'].forEach(function(k){
+      ['외우기분','제한시간','통과점수','재응시','문항수'].forEach(function(k){
         if(h[k]===undefined) return;
         var v=(h[k]===''||h[k]===null)?'':Math.round(Number(h[k]));
         if(k==='외우기분'||k==='제한시간') v=Number(v)||0;
+        if(k==='문항수') v=(v>0&&v<=200)?v:'';
         대상[k]=v;
       });
       return true;
@@ -3314,6 +3316,14 @@ function toast(msg){
 }
 
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+/* 문항 수 — 범위 안에서 몇 개만 낸다. 섞은 뒤 앞에서 그만큼 자른다.
+   비었거나 0 이하이거나 범위보다 크면 자르지 않는다 (= 범위 전부) */
+function 문항자르기_(목록, 수){
+  var n = Math.floor(Number(수));
+  목록 = (목록||[]).slice();
+  return (n > 0 && n < 목록.length) ? 목록.slice(0, n) : 목록;
+}
+function 문항뽑기_(목록, 수){ return 문항자르기_(shuffle(목록||[]), 수); }
 
 function setTheme(t){
   t='kid';   /* 재디자인 — 테마는 하나로 통일 */
@@ -5469,6 +5479,9 @@ function drawTab(){
               '<div class="row" style="gap:4px;align-items:center"><input id="hwMemMin" type="tel" placeholder="없음"><span class="sub">분</span></div></div>'+
             '<div class="ff'+(시험탭?'':' hide')+'" id="hwTestWrap" style="width:104px"><label>시험 시간 <span class="tsrc" id="hwTestSrc">자동</span></label>'+
               '<div class="row" style="gap:4px;align-items:center"><input id="hwTestMin" type="tel" placeholder="없음"><span class="sub">분</span></div></div>'+
+            /* 문항 수 — 범위 안에서 그만큼만 뽑아 낸다 (아이마다 다른 문제). 비우면 범위 전부 */
+            '<div class="ff'+(시험탭?'':' hide')+'" id="hwCntWrap" style="width:120px"><label>문항 수 <span class="sub" style="font-weight:600">비우면 범위 전부</span></label>'+
+              '<div class="row" style="gap:4px;align-items:center"><input id="hwCnt" type="tel" placeholder="전부"><span class="sub">문제</span></div></div>'+
 
             /* 종류 — 숙제 탭은 당일·기한·보충만, 시험 탭은 「시험」 으로 못 박는다 (두 군데서 낼 수 있으면 헷갈린다) */
             (시험탭
@@ -6189,6 +6202,8 @@ function drawTab(){
                   '<input type="radio" name="ppOrder" value="섞기"'+(T.종이.순서==='섞기'?' checked':'')+'>섞어서</label>'+
               '</div>'+
               '<div class="sub" id="ppKind" style="margin-top:5px;line-height:1.75"></div></div>'+
+            '<div class="mt"><label>문항 수 <span class="sub" style="font-weight:600">비우면 범위 전부</span></label>'+
+              '<div class="row" style="gap:6px;align-items:center"><input id="ppCount" type="tel" style="width:90px" placeholder="전부" value="'+esc(T.종이.문항수||'')+'"><span class="sub">문제 — 범위에서 그만큼 뽑아 모두 같은 종이를 받습니다</span></div></div>'+
             '<div class="mt2"></div>'+
             '<button class="btn" id="btnPpPrint">🖨 시험지 인쇄</button>'+
             '<div class="mt"></div>'+
@@ -6256,7 +6271,18 @@ function drawTab(){
         if(!말) return null;
         var a=Number(T.종이.시작)||1, c=Number(T.종이.끝)||0;
         var 안=말.filter(function(w,i){ var no=Number(w.no)||(i+1); return no>=a && no<=c; });
-        return T.종이.순서==='섞기' ? shuffle(안.slice()) : 안;
+        /* 한 번 뽑은 것을 들고 있는다 — 미리보기·시험지·정답지가 같은 문제·같은 순서여야 한다.
+           범위·순서·문항 수를 바꾸면 새로 뽑는다 (제목만 바꾸면 그대로) */
+        var 키 = [T.종이.책, a, c, T.종이.순서, T.종이.문항수||'', 안.length].join('|');
+        if(T.종이.뽑은 && T.종이.뽑은.키===키) return T.종이.뽑은.낱;
+        var 낱 = T.종이.순서==='섞기' ? shuffle(안.slice()) : 안;
+        /* 순서를 정한 뒤 앞에서 문항 수만큼. 번호 순서면 무작위로 고른 것을 번호 순서로 다시 놓는다 */
+        if(T.종이.순서!=='섞기' && 문항자르기_(안, T.종이.문항수).length < 안.length){
+          var 고른 = 문항뽑기_(안, T.종이.문항수);
+          낱 = 안.filter(function(w){ return 고른.indexOf(w) > -1; });
+        } else 낱 = 문항자르기_(낱, T.종이.문항수);
+        T.종이.뽑은 = { 키:키, 낱:낱 };
+        return 낱;
       }
       function 미리보기p(){
         고름맞추기($('ppLes'), T.종이.시작, T.종이.끝);
@@ -6322,6 +6348,11 @@ function drawTab(){
         r.onchange=function(){ T.종이.순서=this.value; 미리보기p(); };
       });
       $('ppDuplex').onchange=function(){ T.종이.양면=this.checked; 미리보기p(); };
+      $('ppCount').oninput=function(){
+        var v=this.value.trim(), n=Math.floor(Number(v));
+        T.종이.문항수 = (v!=='' && n>0) ? Math.min(n, 200) : '';
+        미리보기p();
+      };
       $('btnPpPrint').onclick=function(){
         var 낱=낱말p();
         if(!낱 || !낱.length){ toast('뽑을 단어가 없습니다'); return; }
@@ -6919,6 +6950,8 @@ function 숙제표(list, 시험표){
     var m = Number(h.외우기분)||0, t = Number(h.제한시간)||0;
     return (m || t) ? '⏱ '+(m ? m+'분' : '–')+' / '+(t ? t+'분' : '–') : '⏱ 없음';
   }
+  /* 문항 수 — 범위에서 몇 개만 내는 시험이면 「10문제」. 비었으면(범위 전부) 아무것도 안 쓴다 */
+  function 문항칩(h){ return (h && Number(h.문항수)>0) ? ' <span class="pill cnt">'+Number(h.문항수)+'문제</span>' : ''; }
   function 시간칸(h){
     return '<button class="tmbtn" type="button" data-tm="'+h.행+'" onclick="event.stopPropagation()">'+시간글(h)+' ✎</button>';
   }
@@ -6934,6 +6967,7 @@ function 숙제표(list, 시험표){
       칸('시험 시간','tmTest',Number(h.제한시간)||'','분')+
       (시험 ? 칸('통과점수','tmPass',h.통과점수===''||h.통과점수===undefined?80:h.통과점수,'점')+
               칸('재응시','tmRetry',h.재응시===''||h.재응시===undefined?2:h.재응시,'번') : '')+
+      (시험인가_(h) ? 칸('문항 수','tmCnt',Number(h.문항수)||'','문제') : '')+
       '<button class="btn sm" type="button" data-tmsave="'+h.행+'">저장</button>'+
       '<button class="btn line sm" type="button" data-tmcancel="1">취소</button>'+
       '<span class="sub">비우면 제한 없음 · 이미 낸 기록은 그대로 둡니다</span>'+
@@ -6995,7 +7029,7 @@ function 숙제표(list, 시험표){
       '<td class="w"><input type="checkbox" class="hwPick" data-row="'+h.행+'"'+(켬?' checked':'')+
         ' onclick="event.stopPropagation()"></td>'+
       '<td class="nw">'+종류칩(h.종류)+'</td>'+
-      '<td class="nw">'+책칩(h.단어장)+' <span class="muted">'+esc(선생님범위글_(h.단어장,h.시작,h.끝))+'</span>'+
+      '<td class="nw">'+책칩(h.단어장)+' <span class="muted">'+esc(선생님범위글_(h.단어장,h.시작,h.끝))+'</span>'+문항칩(h)+
         (h.학부모숨김?' <span class="pill prhide">학부모 안 보임</span>':'')+'</td>'+
       '<td class="nw muted">'+(h.학생
         ? '<span class="pill hw">'+esc(h.학생)+'</span>'
@@ -7025,6 +7059,7 @@ function 숙제표(list, 시험표){
         (다켬?' checked':'')+'></td>'+
       '<td class="nw">'+종류칩(g.종류)+'</td>'+
       '<td class="nw">'+책칩(g.단어장)+' <span class="muted">'+(g.칸 ? esc(g.칸)+' ' : '')+esc(선생님범위글_(g.단어장,g.시작,g.끝))+'</span>'+
+        (g.줄들.every(function(x){ return Number(x.문항수||0)===Number(g.줄들[0].문항수||0); }) ? 문항칩(g.줄들[0]) : '')+
         ' <span class="pill hw">'+g.줄들.length+'건 묶음</span>'+
         (다숨김?' <span class="pill prhide">학부모 안 보임</span>':숨긴수?' <span class="pill prhide">일부 안 보임</span>':'')+'</td>'+
       '<td class="nw muted">'+esc(g.대상글)+'</td>'+
@@ -7155,8 +7190,10 @@ function 숙제손잡이(d){
     var i=책정보(), n=Math.max(1,(Number($('hwTo').value)||0)-(Number($('hwFrom').value)||0)+1);
     var k=i.칸 || 어디로_(책종류_(i.책, d.단어장목록||[]));
     var 쓰나 = (종류값()==='시험');
+    /* 시험 시간은 실제로 푸는 문제 수로 — 외우기는 범위 전부를 보니 범위 수 그대로 */
+    var q = Math.floor(Number(($('hwCnt')||{}).value)||0), 푼다 = (q > 0 && q < n) ? q : n;
     var 값 = { hwMemMin: 외우기기본_(n),
-               hwTestMin: 시험시간기본_(($('hwType')||{}).value, n, (k==='본문'||k==='문법') ? k : '') };
+               hwTestMin: 시험시간기본_(($('hwType')||{}).value, 푼다, (k==='본문'||k==='문법') ? k : '') };
     [['hwMemMin','hwMemSrc','hwMemWrap'],['hwTestMin','hwTestSrc','hwTestWrap']].forEach(function(c){
       var e=$(c[0]); if(!e) return;
       if(새로) delete e.dataset.hand;
@@ -7227,6 +7264,7 @@ function 숙제손잡이(d){
   ['hwMemMin','hwTestMin'].forEach(function(id){
     if($(id)) $(id).oninput = function(){ this.dataset.hand = '1'; 시간채우기(false); };
   });
+  if($('hwCnt')) $('hwCnt').oninput = function(){ 시간채우기(false); };
   /* ---------------- 수업 짜기 — 단계를 조립하고, 「오늘 추천」 이 먼저 초안을 짠다 ----------------
      · 단어장을 맨 위에서 한 번만 고른다. 단계에는 단어장 고르개가 없다
      · 과 단어장이면 단계의 첫 고르개가 「구분」(단어·본문·문법) — 자료 있는 구분만.
@@ -7663,12 +7701,18 @@ function 숙제손잡이(d){
       if(!학생들.length){ toast('학생을 골라 주세요'); return; }
     }
 
+    var 문항 = '';
+    if(종==='시험' && $('hwCnt') && $('hwCnt').value.trim()){
+      문항 = Number($('hwCnt').value.trim());
+      if(!(문항>=1 && 문항<=200 && Math.round(문항)===문항)){ toast('문항 수는 1에서 200 사이로 넣어 주세요 (비우면 범위 전부)'); return; }
+    }
+
     api('숙제등록',T.pw,{
       단어장:책,
       시작:$('hwFrom').value, 끝:$('hwTo').value,
       유형:$('hwType').value, 마감일:$('hwDue').value,
       종류:종류값(), 학생들:학생들, 칸:지금구분(),
-      외우기분: 시간값('hwMemMin'), 제한시간: 시간값('hwTestMin'), 바뀐줄만:true
+      외우기분: 시간값('hwMemMin'), 제한시간: 시간값('hwTestMin'), 문항수: 문항, 바뀐줄만:true
     }).then(function(r){
       if(!r.ok){ toast(r.메시지||'내지 못했습니다'); return; }
       시간채우기(true);                      /* 손으로 적은 시간은 이 숙제 한 번뿐 */
@@ -7767,6 +7811,12 @@ function 숙제손잡이(d){
         if(rv!=='' && !(Number(rv)>=0 && Number(rv)<=20)){ toast('재응시는 0에서 20번 사이로 넣어 주세요'); return; }
         값.통과점수 = pv==='' ? '' : Math.round(Number(pv));
         값.재응시 = rv==='' ? '' : Math.round(Number(rv));
+      }
+      var q=box.querySelector('.tmCnt');
+      if(q){
+        var qv=q.value.trim();
+        if(qv!=='' && !(Number(qv)>=1 && Number(qv)<=200 && Math.round(Number(qv))===Number(qv))){ toast('문항 수는 1에서 200 사이로 넣어 주세요 (비우면 범위 전부)'); return; }
+        값.문항수 = qv==='' ? '' : Number(qv);
       }
       시간보내기(행, 값, [행]);
     };

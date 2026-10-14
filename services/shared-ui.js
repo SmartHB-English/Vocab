@@ -649,6 +649,7 @@ var DEMO = {
       단계:(h.단계==='연습'||h.단계==='시험')?h.단계:'',
       통과점수:h.단계==='시험'&&h.통과점수!==''&&h.통과점수!==undefined?Number(h.통과점수)||0:'',
       재응시:h.단계==='시험'&&h.재응시!==''&&h.재응시!==undefined?Number(h.재응시)||0:'',
+      문항수:(Number(h.문항수)>0&&Number(h.문항수)<=200)?Math.round(Number(h.문항수)):'',
       막힌사람:[],등록일:오늘,
       대상수:대상들.length,한사람:[],안한사람:대상들.slice()});
     return {ok:true,개수:1,대상:대상들.length,숙제:JSON.parse(JSON.stringify(DEMO_HW[DEMO_HW.length-1]))};},
@@ -703,10 +704,11 @@ var DEMO = {
         대상.종류=종류; 대상.마감일=(종류==='당일')?오늘:h.마감일;
         대상.색=색맵[h.단어장]||'';
       }
-      ['외우기분','제한시간','통과점수','재응시'].forEach(function(k){
+      ['외우기분','제한시간','통과점수','재응시','문항수'].forEach(function(k){
         if(h[k]===undefined) return;
         var v=(h[k]===''||h[k]===null)?'':Math.round(Number(h[k]));
         if(k==='외우기분'||k==='제한시간') v=Number(v)||0;
+        if(k==='문항수') v=(v>0&&v<=200)?v:'';
         대상[k]=v;
       });
       return true;
@@ -805,6 +807,14 @@ function toast(msg){
 }
 
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+/* 문항 수 — 범위 안에서 몇 개만 낸다. 섞은 뒤 앞에서 그만큼 자른다.
+   비었거나 0 이하이거나 범위보다 크면 자르지 않는다 (= 범위 전부) */
+function 문항자르기_(목록, 수){
+  var n = Math.floor(Number(수));
+  목록 = (목록||[]).slice();
+  return (n > 0 && n < 목록.length) ? 목록.slice(0, n) : 목록;
+}
+function 문항뽑기_(목록, 수){ return 문항자르기_(shuffle(목록||[]), 수); }
 
 function setTheme(t){
   t='kid';   /* 재디자인 — 테마는 하나로 통일 */

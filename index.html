@@ -3631,6 +3631,7 @@ var DEMO = {
       단계:(h.단계==='연습'||h.단계==='시험')?h.단계:'',
       통과점수:h.단계==='시험'&&h.통과점수!==''&&h.통과점수!==undefined?Number(h.통과점수)||0:'',
       재응시:h.단계==='시험'&&h.재응시!==''&&h.재응시!==undefined?Number(h.재응시)||0:'',
+      문항수:(Number(h.문항수)>0&&Number(h.문항수)<=200)?Math.round(Number(h.문항수)):'',
       막힌사람:[],등록일:오늘,
       대상수:대상들.length,한사람:[],안한사람:대상들.slice()});
     return {ok:true,개수:1,대상:대상들.length,숙제:JSON.parse(JSON.stringify(DEMO_HW[DEMO_HW.length-1]))};},
@@ -3685,10 +3686,11 @@ var DEMO = {
         대상.종류=종류; 대상.마감일=(종류==='당일')?오늘:h.마감일;
         대상.색=색맵[h.단어장]||'';
       }
-      ['외우기분','제한시간','통과점수','재응시'].forEach(function(k){
+      ['외우기분','제한시간','통과점수','재응시','문항수'].forEach(function(k){
         if(h[k]===undefined) return;
         var v=(h[k]===''||h[k]===null)?'':Math.round(Number(h[k]));
         if(k==='외우기분'||k==='제한시간') v=Number(v)||0;
+        if(k==='문항수') v=(v>0&&v<=200)?v:'';
         대상[k]=v;
       });
       return true;
@@ -3787,6 +3789,14 @@ function toast(msg){
 }
 
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+/* 문항 수 — 범위 안에서 몇 개만 낸다. 섞은 뒤 앞에서 그만큼 자른다.
+   비었거나 0 이하이거나 범위보다 크면 자르지 않는다 (= 범위 전부) */
+function 문항자르기_(목록, 수){
+  var n = Math.floor(Number(수));
+  목록 = (목록||[]).slice();
+  return (n > 0 && n < 목록.length) ? 목록.slice(0, n) : 목록;
+}
+function 문항뽑기_(목록, 수){ return 문항자르기_(shuffle(목록||[]), 수); }
 
 function setTheme(t){
   t='kid';   /* 재디자인 — 테마는 하나로 통일 */
@@ -7044,6 +7054,13 @@ function 기록범위(r){
   return 앞+r.a+'~'+r.b;
 }
 
+/* 숙제에 적힌 문항 수 — 범위 안에서 그만큼만 낸다 (아이마다 다른 문제). 빈칸이면 범위 전부.
+   기록의 「범위」(기록범위)는 그대로 숙제 범위다 — 바뀌는 것은 문제 개수뿐.
+   외우기 단계(범위단어 그대로)와 오답 다시 풀기에는 쓰지 않는다 */
+function 숙제문항수_(){
+  return (S.현재숙제 && !S.재시험) ? (S.현재숙제.문항수 || '') : '';
+}
+
 /* 범위 뽑기 */
 /* 누적 단계 — 숙제는 반 공통이지만, 그 아이가 전에 틀린 단어를 먼저 뽑는다.
    범위 안에서 틀렸던 것을 먼저 고르고, 모자라면 나머지를 무작위로 채운 뒤 한 번 섞는다
@@ -7481,7 +7498,7 @@ function startQuiz(mode, 고른){
 
   /* 타임어택만 한 문제씩 넘어가는 게임이고, 나머지는 시험지 한 장으로 푼다 */
   S.재시험=false;
-  if(mode!=='time'){ startSheet(mode, 고른 || shuffle(r.list), 기록범위(r)); return; }
+  if(mode!=='time'){ startSheet(mode, 고른 || 문항뽑기_(r.list, 숙제문항수_()), 기록범위(r)); return; }
 
   S.모드=mode;
   S.문제 = mode==='time' ? shuffle(r.list.concat(r.list)) : shuffle(r.list);
@@ -8376,7 +8393,7 @@ function startVerb(){
   var r=범위단어();
   if(!r.list.length){ toast('단어가 없습니다'); return; }
   S.모드='verb'; S.재시험=false;
-  S.문제=shuffle(r.list); S.범위=기록범위(r);
+  S.문제=문항뽑기_(r.list, 숙제문항수_()); S.범위=기록범위(r);
   S.idx=0; S.칸수=0; S.칸정답=0; S.오답=[];
   S.게임점수=0; S.최고콤보=0; S.콤보=0;
   S.시작시각=Date.now();
