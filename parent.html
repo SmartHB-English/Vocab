@@ -110,6 +110,9 @@ body{background:var(--bg);color:var(--text);
 .msg .big{font-size:40px;line-height:1}
 .msg p{margin:12px 0 0;font-weight:800;font-size:16px}
 .msg small{display:block;color:var(--sub);margin-top:6px;font-size:14px}
+/* 「학생 화면으로」 — 아이가 잘못 들어왔을 때 나가는 길. 학부모가 보러 온 건 기록이니 작은 글씨 한 줄로 수수하게 */
+.tokid{display:block;margin:10px auto 0;padding:8px 12px;border:0;background:none;color:var(--sub);
+  font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
 
 .skl{height:14px;border-radius:7px;background:linear-gradient(90deg,#EEE9E3,#F7F3EE,#EEE9E3);background-size:200% 100%;
   animation:skl 1.2s infinite;margin:10px 0}
@@ -288,6 +291,16 @@ var 흉내 = (function(){
 })();
 
 /* ---------- 그리기 ---------- */
+/* 학생 화면으로 — 아이폰 앱에는 뒤로가기가 없어서, 잘못 들어온 아이가 갇히지 않게 길을 둔다.
+   같은 자리(같은 origin)의 파일이라 「바깥으로 나가는 링크는 두지 않는다」 는 이 파일의 규칙에 걸리지 않는다.
+   href 대신 location 으로 보내서 해시(토큰)가 주소에 남지 않게 한다 */
+function 학생화면단추_(){
+  return '<button type="button" class="tokid" id="pToKid">학생 화면으로</button>';
+}
+function 학생화면단추붙이기_(){
+  var b = document.getElementById('pToKid');
+  if(b) b.onclick = function(){ location.href = 'index.html'; };
+}
 function 메시지(큰, 글, 작은, 단추){
   $('app').innerHTML = '<div class="card msg"><div class="big">'+큰+'</div><p>'+esc(글)+'</p>'+
     (작은 ? '<small>'+esc(작은)+'</small>' : '')+(단추 || '')+'</div>';
@@ -375,7 +388,9 @@ function 그리기(r){
   h.push('<footer class="foot"><b>'+esc(학원.이름 || '홍제인왕영어')+'</b>'+
     (학원.전화 ? '<br><a href="tel:'+esc(String(학원.전화).replace(/[^0-9+]/g, ''))+'">'+esc(학원.전화)+'</a>' : '')+
     '<br>궁금한 점은 문자 주세요.</footer>');
+  h.push(학생화면단추_());
   $('app').innerHTML = h.join('');
+  학생화면단추붙이기_();
 }
 /* 숙제 줄 오른쪽 — 낸 것은 점수(없으면 「냈어요」), 풀었는데 못 넘긴 것은 「68점 · 다시 하고 있어요」, 안 푼 것은 마감 글 */
 function 숙제점수_(x){
@@ -409,14 +424,16 @@ function 마감말_(x){
 /* ---------- 들어오기 ---------- */
 function 열기(){
   if(!토큰){
-    메시지('🔗', '선생님께 받은 링크를 눌러 들어와 주세요.', '문자로 받은 주소를 그대로 누르시면 됩니다.');
+    메시지('🔗', '선생님께 받은 링크를 눌러 들어와 주세요.', '문자로 받은 주소를 그대로 누르시면 됩니다.', 학생화면단추_());
+    학생화면단추붙이기_();
     return;
   }
   api('학부모보기', 토큰).then(function(r){
     if(!r || !r.ok){
       /* 왜 안 되는지는 말하지 않는다 — 없는 링크인지 막힌 링크인지 가려지면 안 된다 */
       if(!해시에서) 저장쓰기(토큰열쇠, null);
-      메시지('🔒', '링크가 맞지 않습니다. 선생님께 문의해 주세요.');
+      메시지('🔒', '링크가 맞지 않습니다. 선생님께 문의해 주세요.', '', 학생화면단추_());
+      학생화면단추붙이기_();
       배지_(0, true);
       return;
     }
@@ -429,8 +446,9 @@ function 열기(){
     일꾼에알리기_();
   }).catch(function(){
     메시지('📶', '잠시 연결이 안 돼요.', '잠시 뒤에 다시 열어 주세요.',
-      '<button class="btn line" type="button" id="pRetry" style="margin-top:16px">다시 불러오기</button>');
+      '<button class="btn line" type="button" id="pRetry" style="margin-top:16px">다시 불러오기</button>'+학생화면단추_());
     $('pRetry').onclick = function(){ location.reload(); };
+    학생화면단추붙이기_();
   });
 }
 
