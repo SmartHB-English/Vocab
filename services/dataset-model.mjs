@@ -20,8 +20,10 @@ export async function createDatasetDocuments(store, { digest, previousIdentities
     const name=String(r[1]??'').trim(); if(!name) continue;
     const id=previousIdentities.find(i=>i.row===row)?.id ?? 'student-'+newId();
     identities.push({id,name,row});
-    documents.set(`credentials/${id}`,{role:'student',name,row,pinHash:await digest(String(r[2]??'').trim())});
     const token=String(r[8]??'').trim().toLowerCase();
+    // 학부모가 아이 이름 + 아이 비번으로 들어올 때 받는 토큰 — 이 문서는 그 아이 자격(비번으로 선 세션)만 읽는다 (firestore.rules)
+    documents.set(`credentials/${id}`,{role:'student',name,row,pinHash:await digest(String(r[2]??'').trim()),
+      ...(/^[0-9a-f]{32,128}$/.test(token)?{parentToken:token}:{})});
     if (/^[0-9a-f]{32,128}$/.test(token)) {
       const credentialId='parent-'+id;
       documents.set(`credentials/${credentialId}`,{role:'parent',name,row,pinHash:await digest(token)});

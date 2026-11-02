@@ -113,6 +113,12 @@ body{background:var(--bg);color:var(--text);
 /* 「학생 화면으로」 — 아이가 잘못 들어왔을 때 나가는 길. 학부모가 보러 온 건 기록이니 작은 글씨 한 줄로 수수하게 */
 .tokid{display:block;margin:10px auto 0;padding:8px 12px;border:0;background:none;color:var(--sub);
   font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+/* 아이 이름 + 비밀번호로 들어오기 */
+.plogin input{display:block;width:100%;box-sizing:border-box;margin:10px 0 0;padding:13px 14px;border-radius:14px;
+  border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:17px;text-align:center}
+.plogin input:focus{outline:0;border-color:var(--accent)}
+.plogin .btn{margin-top:14px}
+.plogin .pmsg{min-height:20px;margin-top:10px;color:#D33;font-size:14px;font-weight:800}
 
 .skl{height:14px;border-radius:7px;background:linear-gradient(90deg,#EEE9E3,#F7F3EE,#EEE9E3);background-size:200% 100%;
   animation:skl 1.2s infinite;margin:10px 0}
@@ -279,6 +285,10 @@ var 흉내 = (function(){
     이번주숙제:[{제목:'예시 단어장 1~10', 유형:'스펠링', 종류:'당일', 완료:true, 다시:false, 점수:100, 마감일:'2026-10-07', 마감글:'10/7', 날짜글:'10/7', 낸때글:'10/7 · 저녁 7:02', 오늘까지:true, 지남:false}],
     낸수:2, 안낸수:0, 시험:[], 자주틀린:[], 진도:[], 학원:{이름:'홍제인왕영어', 전화:''} };
   return {
+    학부모로그인: function(이름, 비번){
+      if(String(이름 || '').replace(/\s/g, '') === '홍길동' && String(비번) === '1234') return {ok:true, 토큰:토('a')};
+      return {ok:false, 메시지:'이름이나 비밀번호가 맞지 않습니다.'};
+    },
     학부모보기: function(t, 알림만){
       var r = 아이들[String(t || '').toLowerCase()];
       if(!r) return {ok:false, 메시지:'링크가 맞지 않습니다. 선생님께 문의해 주세요.'};
@@ -300,6 +310,51 @@ function 학생화면단추_(){
 function 학생화면단추붙이기_(){
   var b = document.getElementById('pToKid');
   if(b) b.onclick = function(){ location.href = 'index.html'; };
+}
+/* 아이 이름 + 아이 비밀번호(4자리)로 들어오기 — 받은 토큰을 기기에 적고 지금 흐름(열기 → 학부모보기)을 탄다.
+   토큰은 주소(해시)에 붙이지 않는다. 틀렸을 때는 서버가 준 한 마디 그대로 (명단에 없는지 · 비번이 다른지는 가리지 않는다) */
+function 로그인칸(위글){
+  $('app').innerHTML = '<div class="card msg plogin"><div class="big">👪</div>'+
+    '<p>'+esc(위글 || '아이 이름과 비밀번호로 들어오세요')+'</p>'+
+    '<small>아이가 앱에 들어갈 때 쓰는 이름과 비밀번호 4자리예요.</small>'+
+    '<input id="pName" type="text" placeholder="아이 이름" autocomplete="off" autocapitalize="off" spellcheck="false">'+
+    '<input id="pPw" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="비밀번호 4자리" autocomplete="off">'+
+    '<div class="pmsg" id="pMsg"></div>'+
+    '<button class="btn" type="button" id="pGo">들어가기</button>'+
+    '<small>선생님께 문자로 받은 링크로도 들어오실 수 있어요.</small>'+
+    학생화면단추_()+'</div>';
+  학생화면단추붙이기_();
+  var 이름칸 = $('pName'), 비번칸 = $('pPw'), 단추 = $('pGo'), 가는중 = false;
+  function 들어가기(){
+    var 이름 = 이름칸.value.trim(), 비번 = 비번칸.value.trim();
+    if(가는중) return;
+    if(!이름){ $('pMsg').textContent = '아이 이름을 적어 주세요.'; 이름칸.focus(); return; }
+    if(!비번){ $('pMsg').textContent = '비밀번호를 적어 주세요.'; 비번칸.focus(); return; }
+    가는중 = true; 단추.disabled = true; 단추.textContent = '확인하는 중…'; $('pMsg').textContent = '';
+    api('학부모로그인', 이름, 비번).then(function(r){
+      if(r && r.ok && r.토큰){
+        저장쓰기(토큰열쇠, r.토큰);
+        토큰 = r.토큰; 해시에서 = '';
+        열기();
+        return;
+      }
+      가는중 = false; 단추.disabled = false; 단추.textContent = '들어가기';
+      $('pMsg').textContent = (r && r.메시지) || '이름이나 비밀번호가 맞지 않습니다.';
+      비번칸.value = ''; 비번칸.focus();
+    }).catch(function(){
+      가는중 = false; 단추.disabled = false; 단추.textContent = '들어가기';
+      $('pMsg').textContent = '잠시 연결이 안 돼요. 잠시 뒤에 다시 해 주세요.';
+    });
+  }
+  단추.onclick = 들어가기;
+  이름칸.onkeydown = function(e){ if(e.key === 'Enter') 비번칸.focus(); };
+  비번칸.onkeydown = function(e){ if(e.key === 'Enter') 들어가기(); };
+  /* 네 자리를 다 치면 저절로 — 아이 앱의 네자리면들어가기_ 와 같은 느낌 */
+  비번칸.oninput = function(){
+    비번칸.value = 비번칸.value.replace(/[^0-9]/g, '').slice(0, 4);
+    if(비번칸.value.length === 4 && 이름칸.value.trim()) 들어가기();
+  };
+  setTimeout(function(){ try{ 이름칸.focus(); }catch(e){} }, 50);
 }
 function 메시지(큰, 글, 작은, 단추){
   $('app').innerHTML = '<div class="card msg"><div class="big">'+큰+'</div><p>'+esc(글)+'</p>'+
@@ -424,15 +479,16 @@ function 마감말_(x){
 /* ---------- 들어오기 ---------- */
 function 열기(){
   if(!토큰){
-    메시지('🔗', '선생님께 받은 링크를 눌러 들어와 주세요.', '문자로 받은 주소를 그대로 누르시면 됩니다.', 학생화면단추_());
-    학생화면단추붙이기_();
+    로그인칸();
     return;
   }
   api('학부모보기', 토큰).then(function(r){
     if(!r || !r.ok){
       /* 왜 안 되는지는 말하지 않는다 — 없는 링크인지 막힌 링크인지 가려지면 안 된다 */
       if(!해시에서) 저장쓰기(토큰열쇠, null);
-      메시지('🔒', '링크가 맞지 않습니다. 선생님께 문의해 주세요.', '', 학생화면단추_());
+      메시지('🔒', '링크가 맞지 않습니다. 선생님께 문의해 주세요.', '',
+        '<button class="btn line" type="button" id="pToLogin" style="margin-top:16px">아이 이름과 비밀번호로 들어가기</button>'+학생화면단추_());
+      $('pToLogin').onclick = function(){ 토큰 = ''; 로그인칸(); };
       학생화면단추붙이기_();
       배지_(0, true);
       return;

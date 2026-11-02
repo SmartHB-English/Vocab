@@ -135,7 +135,32 @@ export class FirestoreRepository {
     catch (e) { if (e.code === 'permission-denied') return {ok:false}; throw e; }
     Object.assign(this.identity,{role:'teacher',pin:String(pin ?? '').trim()});
     try { await this.조각정리(); } catch (e) { console.warn('기록 조각 합치기를 다음으로 미룹니다', e); }
+    try { await this.call('학부모토큰채우기',[String(pin ?? '').trim()]); } catch (e) { console.warn('학부모 토큰 채우기를 다음으로 미룹니다', e); }
     return {ok:true};
+  }
+  // 학부모 — 아이 이름 + 아이 비번. 비번으로 그 아이 자격을 세우고, 그 자격 문서(credentials/{id})의 parentToken 만 읽어 돌려준다.
+  // 자료는 주지 않는다 — 화면이 받은 토큰으로 학부모보기 를 부른다 (나가는 문은 하나).
+  // 학생 자격으로는 학생 표의 토큰 칸(secrets)을 못 읽고 새로 적지도 못한다. 그래서 토큰은 선생님이 들어올 때
+  // 엔진의 학부모토큰채우기 가 빈 아이마다 만들어 두고, 자격 문서에 같이 적힌다 (dataset-model).
+  // 틀렸을 때 까닭(명단에 없음 · 비번 다름)은 가리지 않는다.
+  async parentPinLogin(name, pin) {
+    const 틀림 = {ok:false,메시지:'이름이나 비밀번호가 맞지 않습니다.'};
+    const cleanPin = String(pin ?? '').trim();
+    if (!cleanPin) return 틀림;
+    const identities = (await this.catalog()).identities;
+    const exact = String(name ?? '').trim();
+    const match = identities.find(i => i.name === exact) ?? identities.find(i => i.name.replace(/\s/g,'') === exact.replace(/\s/g,''));
+    if (!exact || !match) return 틀림;
+    try { await this.grant(match.id,await digest(cleanPin)); }
+    catch (e) { if (e.code === 'permission-denied') return 틀림; throw e; }
+    const 준비중 = {ok:false,메시지:'학부모 화면을 준비하고 있어요. 내일 다시 해 보시거나 선생님께 말씀해 주세요.'};
+    let own;
+    // 규칙(자기 자격 문서 읽기)이 아직 안 올라갔으면 여기서 거절된다 — 연결 문제처럼 보이지 않게 준비 중으로
+    try { own = await getDoc(this.ref(`credentials/${match.id}`)); }
+    catch (e) { if (e.code === 'permission-denied') return 준비중; throw e; }
+    const token = String((own.exists() && own.data().parentToken) || '').toLowerCase();
+    if (!/^[0-9a-f]{32,128}$/.test(token)) return 준비중;
+    return {ok:true,토큰:token};
   }
   async parentLogin(token) {
     const clean = String(token ?? '').trim().toLowerCase();
@@ -153,6 +178,7 @@ export class FirestoreRepository {
     const requestId = String(this.identity.user?.uid ?? '')+'_'+(요청번호꼴.test(String(요청번호??''))?요청번호:randomId());
     if (fn === '로그인') return this.studentLogin(...args);
     if (fn === '선생님로그인') return this.teacherLogin(...args);
+    if (fn === '학부모로그인') return this.parentPinLogin(...args);
     if (fn === '학부모보기') {
       if (!await this.parentLogin(args[0])) return {ok:false,메시지:'링크가 맞지 않습니다. 선생님께 문의해 주세요.'};
     }
@@ -192,7 +218,10 @@ export class FirestoreRepository {
         return {ok:true,합친};
       }
       const engine = createRuntime(current,{effects:{saveImage:imageOperation?saveImage:undefined},now:()=>started,uuid});
-      return fn==='__월시상' ? engine.monthly() : engine.call(fn,args);
+      const answer = fn==='__월시상' ? engine.monthly() : engine.call(fn,args);
+      // 자격 문서에 학부모 토큰을 적기 시작한 뒤(부모열쇠) 처음 한 번은, 채울 아이가 없어도 학생 표를 다시 묶는다
+      if (fn==='학부모토큰채우기' && answer?.ok && !catalog.부모열쇠 && current.getSheetByName('학생')) current.getSheetByName('학생').dirty = true;
+      return answer;
     };
     const result = execute(store);
     if(imageOperation){planningImages=false;for(const cached of images.values()){try{cached.url=await this.auxiliary('__그림파일',[args[0],...cached.job]);}catch(error){cached.error=error;}}}
@@ -247,7 +276,8 @@ export class FirestoreRepository {
       for (const name of current.deleted) if (!tables.some(t=>t.name===name)) {
         transaction.delete(this.ref(`tables/${sheetId(name)}`)); changes.push(name);
       }
-      transaction.set(this.ref('meta/catalog'),{...currentCatalog,tables:nextMetadata,revision:fn==='학부모보기'?currentCatalog.revision:requestId,identities:compiled?.identities??currentCatalog.identities});
+      transaction.set(this.ref('meta/catalog'),{...currentCatalog,tables:nextMetadata,revision:fn==='학부모보기'?currentCatalog.revision:requestId,identities:compiled?.identities??currentCatalog.identities,
+        ...(compiled && privileged(this.identity.role) ? {부모열쇠:true} : {})});
       if(compiled && privileged(this.identity.role)) {
         for(const [path,data] of compiled.documents) if(path.startsWith('credentials/')||path.startsWith('links/')) transaction.set(this.ref(path),data);
         const nextPaths=new Set(compiled.documents.keys());

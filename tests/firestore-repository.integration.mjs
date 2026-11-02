@@ -59,6 +59,22 @@ test('PIN login preserves leading zero and whitespace; anonymous user cannot rea
  const settings=await getDoc(doc(student.db,`vocabDatasets/${dataset}/tables/${sheetId('설정')}`));
  assert.equal(unpack(settings.data().payload).cells['2:2'].value,'');assert.equal(unpack(settings.data().payload).cells['5:2'].value,'');
 });
+test('학부모 — 아이 이름 + 비번이면 그 아이 자격 문서의 토큰만 받는다 · 남의 자격 문서는 못 읽는다 · 틀린 까닭은 안 가린다',async()=>{
+ const parent=await client('parent-pin-fixture');
+ assert.deepEqual(await parent.repo.call('학부모로그인',['가상학생','0011']),{ok:true,토큰:'a'.repeat(64)});
+ const ids=(await parent.repo.catalog()).identities, mine=ids.find(i=>i.name==='가상 학생'), others=ids.find(i=>i.name==='다른학생');
+ assert.equal((await getDoc(doc(parent.db,`vocabDatasets/${dataset}/credentials/${mine.id}`))).data().parentToken,'a'.repeat(64));
+ await assert.rejects(getDoc(doc(parent.db,`vocabDatasets/${dataset}/credentials/${others.id}`)),{code:'permission-denied'});
+ await assert.rejects(getDoc(doc(parent.db,`vocabDatasets/${dataset}/credentials/parent-${mine.id}`)),{code:'permission-denied'});
+ await assert.rejects(getDoc(doc(parent.db,`vocabDatasets/${dataset}/secrets/${sheetId('학생')}`)),{code:'permission-denied'});
+ const 틀림={ok:false,메시지:'이름이나 비밀번호가 맞지 않습니다.'};
+ assert.deepEqual(await (await client('parent-pin-bad')).repo.call('학부모로그인',['가상 학생','9999']),틀림);
+ assert.deepEqual(await (await client('parent-pin-none')).repo.call('학부모로그인',['없는 아이','0011']),틀림);
+ const 아직=await (await client('parent-pin-early')).repo.call('학부모로그인',['다른학생','2222']);
+ assert.equal(아직.ok,false);assert.notDeepEqual(아직,틀림);
+ const 보기=await (await client('parent-pin-view')).repo.call('학부모보기',['a'.repeat(64)]);
+ assert.equal(보기.ok,true);assert.equal(보기.이름,'가상 학생');
+});
 test('concurrent submission retains both rows and the full wrong-answer note',async()=>{
  await other.repo.call('로그인',['가상 학생','0011']);
  const payload={이름:'가상 학생',단어장:'교재A',범위:'1~10',유형:'스펠링',틀린단어:'a,b,c,d,e,f',점수:80};
@@ -113,6 +129,13 @@ test('문장기록 — 선생님이 문장 묶음을 넣으면 표가 생기고,
  const 기록칸=`vocabDatasets/${dataset}/tables/${sheetId('기록')}/appends`;
  await assert.rejects(setDoc(doc(student.db,`${기록칸}/${'0'.repeat(15)}_${uid}_x`),{name:'문장기록',rows:'[]',actor:uid,at:1}),{code:'permission-denied'});
  await assert.rejects(setDoc(doc(student.db,`${col}/${'0'.repeat(15)}_${uid}_y`),{name:'기록',rows:'[]',actor:uid,at:1}),{code:'permission-denied'});
+});
+test('학부모 — 선생님이 들어오면 토큰이 없던 아이도 채워져 이름 + 비번으로 들어온다',async()=>{
+ const 받음=await (await client('parent-pin-late')).repo.call('학부모로그인',['다른학생','2222']);
+ assert.equal(받음.ok,true,JSON.stringify(받음));assert.match(받음.토큰,/^[0-9a-f]{64}$/);
+ const 보기=await (await client('parent-pin-late-view')).repo.call('학부모보기',[받음.토큰]);
+ assert.equal(보기.ok,true);assert.equal(보기.이름,'다른학생');
+ assert.equal((await teacher.repo.catalog()).부모열쇠,true);
 });
 test('teacher screen opened before a student exam shows the exam after reload',async()=>{
  const 오늘=new Date(Date.now()+9*3600e3).toISOString().slice(0,10);

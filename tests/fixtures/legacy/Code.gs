@@ -123,6 +123,8 @@ var 열린기능_ = {
   기록메모: 기록메모,
   학부모보기: 학부모보기,
   학부모링크발급: 학부모링크발급,
+  학부모로그인: 학부모로그인,
+  학부모토큰채우기: 학부모토큰채우기,
   학부모한마디: 학부모한마디,
   학부모미리보기: 학부모미리보기,
   틀린전문: 틀린전문,
@@ -5483,12 +5485,57 @@ function 학부모링크발급(비번, 이름) {
     var 줄들 = rows_(SHEET.학생), n = 0, 옛 = '';
     for (var i = 0; i < 줄들.length; i++) if (s_(줄들[i][1]) === 이름) { n = i + 2; 옛 = 줄들[i].length > 8 ? s_(줄들[i][8]) : ''; break; }
     if (!n) return { ok: false, 메시지: '학생을 찾지 못했습니다.' };
-    var 새 = 학부모토큰새로_();
-    sh.getRange(n, 9).setValue(새);
-    sh.getRange(n, 10).setValue('');          // 새 링크로는 아직 아무도 안 봤다
-    학부모캐시버리기_(옛);                     // 담아 둔 옛 토큰 답도 바로 버린다 — 60초도 열어 두지 않는다
+    var 새 = 학부모토큰적기_(sh, n, 옛);
     return { ok: true, 이름: 이름, 주소: 학부모주소_(새) };
   } finally { lock.releaseLock(); }
+}
+
+/** 학생 줄 n 에 학부모 토큰을 새로 적는다 — 링크 발급 · 이름으로 들어오기 · 빈 칸 채우기가 같이 쓴다 */
+function 학부모토큰적기_(sh, n, 옛) {
+  var 새 = 학부모토큰새로_();
+  sh.getRange(n, 9).setValue(새);
+  sh.getRange(n, 10).setValue('');          // 새 링크로는 아직 아무도 안 봤다
+  학부모캐시버리기_(옛);                     // 담아 둔 옛 토큰 답도 바로 버린다 — 60초도 열어 두지 않는다
+  return 새;
+}
+
+/* 학부모가 아이 이름 + 아이 비밀번호로 들어올 때 — 틀린 까닭은 가리지 않는다 (명단에 없는지 · 비번이 다른지) */
+var 학부모로그인틀림_ = '이름이나 비밀번호가 맞지 않습니다.';
+/**
+ * 학부모 — 아이 이름과 아이 비밀번호로 그 아이의 학부모 토큰을 받는다. 자료는 주지 않는다 (자료는 학부모보기 한 곳으로만).
+ * 토큰이 아직 없는 아이면 그 자리에서 발급한다. 화면은 받은 토큰으로 지금 흐름(학부모보기)을 탄다.
+ * (Firestore 에서는 저장소가 이 길을 따로 간다 — 학생 자격으로는 학생 표의 토큰 칸을 못 읽는다. firestore-repository 의 parentPinLogin)
+ */
+function 학부모로그인(이름, 비번) {
+  var 틀림 = { ok: false, 메시지: 학부모로그인틀림_ };
+  var 찾는이름 = 이름맞추기_(이름);
+  if (!찾는이름 || !s_(비번)) return 틀림;
+  var sh = 학부모칸확보_();
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(10000); } catch (e) { return { ok: false, 메시지: '잠시 후 다시 해 주세요.' }; }
+  try {
+    var 줄들 = rows_(SHEET.학생);
+    for (var i = 0; i < 줄들.length; i++) {
+      if (s_(줄들[i][1]) !== 찾는이름) continue;
+      if (s_(줄들[i][2]) !== s_(비번)) return 틀림;
+      var 토큰 = 줄들[i].length > 8 ? s_(줄들[i][8]).toLowerCase() : '';
+      if (!토큰모양_(토큰)) 토큰 = 학부모토큰적기_(sh, i + 2, '');
+      return { ok: true, 토큰: 토큰 };
+    }
+    return 틀림;
+  } finally { lock.releaseLock(); }
+}
+
+/** 선생님 — 학부모 토큰이 없는 아이마다 하나씩 만들어 둔다 (이름으로 들어오는 학부모가 받을 토큰). 있는 것은 그대로 */
+function 학부모토큰채우기(비번) {
+  if (!선생님확인_(비번)) return { ok: false };
+  var sh = 학부모칸확보_(), 줄들 = rows_(SHEET.학생), n = 0;
+  for (var i = 0; i < 줄들.length; i++) {
+    if (!s_(줄들[i][1])) continue;
+    if (토큰모양_(줄들[i].length > 8 ? 줄들[i][8] : '')) continue;
+    학부모토큰적기_(sh, i + 2, ''); n++;
+  }
+  return { ok: true, 개수: n };
 }
 
 /** 선생님 — 「선생님 한마디」. 200자까지, 빈 글이면 지운다 */

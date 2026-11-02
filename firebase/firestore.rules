@@ -45,7 +45,8 @@ service cloud.firestore {
         }
       }
       match /secrets/{id} { allow read: if teacher(dataset); allow write: if teacher(dataset) && writable(dataset); }
-      match /credentials/{id} { allow read: if teacher(dataset); allow write: if teacher(dataset) && writable(dataset); }
+      // 자기 자격 문서는 그 자격(비번으로 선 세션)이 읽는다 — 학부모가 아이 이름 + 비번으로 들어올 때 parentToken 을 받는 길
+      match /credentials/{id} { allow read: if teacher(dataset) || (member(dataset) && session().credentialId == id); allow write: if teacher(dataset) && writable(dataset); }
       match /links/{token} { allow get: if signedIn(); allow write: if teacher(dataset) && writable(dataset); }
       match /journal/{id} {
         allow get: if teacher(dataset) || (member(dataset) && id.matches(request.auth.uid + '_.+'));
