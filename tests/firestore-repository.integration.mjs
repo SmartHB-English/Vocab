@@ -102,6 +102,18 @@ test('기록 조각 — 학생은 만들기만 하고 고치거나 지우지 못
  assert.deepEqual(main.data().합친조각,[]);
  assert.deepEqual(rows((await teacher.repo.load(await teacher.repo.catalog(),ref=>getDoc(ref),{fresh:true})).getSheetByName('기록')),before);
 });
+test('문장기록 — 선생님이 문장 묶음을 넣으면 표가 생기고, 학생의 한 판은 조각으로 들어간다 · 다른 표 이름으로는 못 만든다',async()=>{
+ const 판={이름:'가상 학생',단어장:'문장 묶음',범위:'',유형:'성분 찾기',난이도:1,문항수:5,정답수:5,소요초:40,숙제여부:false,틀린문장:[]};
+ assert.equal((await student.repo.call('문장기록저장',[판])).ok,false,'표가 없으면 학생은 만들지 않는다');
+ assert.equal((await teacher.repo.call('단어붙여넣기',['9876','문장 묶음','I=주 / know=동 | 나는 안다',false,'문장'])).ok,true);
+ assert.deepEqual(await student.repo.call('문장기록저장',[판]),{ok:true});
+ const uid=student.identity.user.uid, col=`vocabDatasets/${dataset}/tables/${sheetId('문장기록')}/appends`;
+ const mine=(await getDocs(collection(student.db,col))).docs.filter(d=>d.data().actor===uid);
+ assert.equal(mine.length,1);assert.equal(mine[0].data().name,'문장기록');
+ const 기록칸=`vocabDatasets/${dataset}/tables/${sheetId('기록')}/appends`;
+ await assert.rejects(setDoc(doc(student.db,`${기록칸}/${'0'.repeat(15)}_${uid}_x`),{name:'문장기록',rows:'[]',actor:uid,at:1}),{code:'permission-denied'});
+ await assert.rejects(setDoc(doc(student.db,`${col}/${'0'.repeat(15)}_${uid}_y`),{name:'기록',rows:'[]',actor:uid,at:1}),{code:'permission-denied'});
+});
 test('teacher screen opened before a student exam shows the exam after reload',async()=>{
  const 오늘=new Date(Date.now()+9*3600e3).toISOString().slice(0,10);
  assert.equal((await teacher.repo.call('숙제등록',['9876',{단어장:'교재A',시작:21,끝:30,유형:'스펠링',종류:'시험',마감일:오늘,학생:'가상 학생'}])).ok,true);

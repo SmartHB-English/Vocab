@@ -32,7 +32,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-11-02a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-11-02b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -100,11 +100,13 @@ var DEMO_SENT = [
   ['Birds=주 / sing=동 / in the morning', '새들은 아침에 노래한다', '']
 ];
 
+var DEMO_문장기록 = [];
+
 var DEMO_시작일 = '';
 
 var DEMO_배정 = [
   {행:2,이름:'홍길동',학년구분:'초중등',학년:'중2',학교:'인왕중',단어장:[],
-   교재:['예시 단어장','불규칙 동사 50']},
+   교재:['예시 단어장','불규칙 동사 50','중2 문장 연습']},
   {행:3,이름:'김영희',학년구분:'초중등',학년:'중2',학교:'인왕중',단어장:['예시 단어장'],
    교재:['예시 단어장']},
   {행:4,이름:'이철수',학년구분:'고등',학년:'고3',학교:'한성고',단어장:[],
@@ -246,7 +248,8 @@ var DEMO = {
     var 전체=[{이름:'예시 단어장',개수:25,레슨:DEMO_레슨['예시 단어장']},
                {이름:'불규칙 동사 50',개수:5,종류:'3단변화',레슨:DEMO_레슨['불규칙 동사 50']},
                {이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',레슨:DEMO_레슨['중2 5과 본문']},
-               {이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',레슨:DEMO_레슨['중2 6과 문법']}].concat(DEMO_과목록_());
+               {이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',레슨:DEMO_레슨['중2 6과 문법']},
+               {이름:DEMO_문장책,개수:DEMO_SENT.length,종류:'문장',레슨:10}].concat(DEMO_과목록_());
     var 찾을것=String(n||'').replace(/\s+/g,'');
     var me=null;
     DEMO_배정.forEach(function(x){ if(x.이름.replace(/\s+/g,'')===찾을것) me=x; });
@@ -258,6 +261,7 @@ var DEMO = {
       : 전체;
     return {ok:true, 학생:{이름:me.이름, 학년구분:me.학년구분}, 단어장목록:책};},
   단어가져오기:function(name){
+    if(name===DEMO_문장책) return DEMO_SENT.map(function(p,i){ return {no:i+1, en:p[0], ko:p[1], 종류:'문장', 비고:p[2]||''}; });
     if(DEMO_과책[name]){
       var 과 = DEMO_과책[name], 줄 = [];
       ['단어','본문','문법','3단변화'].forEach(function(k){
@@ -406,6 +410,7 @@ var DEMO = {
     return {ok:true, 옮긴기록:0, 학생:DEMO_배정.map(function(x){
       return {행:x.행,이름:x.이름,비밀번호:'1234',학년구분:x.학년구분,
               학년:x.학년||'',학교:x.학교||'',교재:(x.교재||[]).slice()};})};},
+  문장기록저장:function(p){ DEMO_문장기록.push(p); return {ok:true}; },
   게임저장:function(p){
     DEMO_게임.push({게임:p.게임, 이름:p.이름, 점수:Number(p.점수)||0, 기록:p.기록||''});
     return {ok:true}; },
