@@ -2374,8 +2374,15 @@ html[data-theme] body:not(.hb0) .tabbar.five button::before{width:50px;margin-le
 #s-sent .snchip.still.big{font-size:19px;padding:9px 13px}
 #s-sent .seeko{margin:16px 2px 0;font-size:17px}
 #s-sent .snsay{margin-top:14px;height:42px;padding:0 18px;border-radius:21px;border:2px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:15px;font-weight:800;cursor:pointer}
-#s-sent .snwrite{width:100%;box-sizing:border-box;min-height:96px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:18px;font-weight:600;line-height:1.4;resize:vertical}
-#s-sent .snwrite:focus{outline:0;border-color:var(--primary)}
+/* 듣고 고르기 — 뜻 넷 */
+#s-sent .snopts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+#s-sent .snopt{display:block;width:100%;text-align:left;min-height:52px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--text);
+  font:inherit;font-size:16px;font-weight:700;line-height:1.4;word-break:keep-all;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#s-sent .snopt.on{border-color:var(--primary);background:var(--primary-soft)}
+#s-sent .snopt.right{border-color:var(--ok);background:rgba(34,197,94,.12)}
+#s-sent .snopt.wrong{border-color:var(--ng);background:rgba(239,68,68,.10)}
+#s-sent .snlisten{font-size:19px;padding:4px 2px}
+#s-sent .snnovoice{font-size:12px;font-weight:700;color:var(--sub);margin:0 2px 8px}
 #s-sent .sntop{display:flex;align-items:center;gap:10px;margin:4px 0 14px}
 #s-sent .snquit{flex:none;width:36px;height:36px;border-radius:18px;border:0;background:var(--card);color:var(--sub);font-size:16px;font-weight:800;cursor:pointer}
 #s-sent .snbar{flex:1;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
@@ -2653,7 +2660,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-11-02e';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-11-02f';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -2869,7 +2876,7 @@ var DEMO = {
     return {
       학원이름:DEMO_설정.학원이름,
       합격점:80,
-      단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']},{이름:DEMO_문장책,개수:DEMO_SENT.length,종류:'문장',색:'#E11D48',레슨:10,하루몫:5,영작:true}].concat(DEMO_과목록_())
+      단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']},{이름:DEMO_문장책,개수:DEMO_SENT.length,종류:'문장',색:'#E11D48',레슨:10,하루몫:5,듣기:true}].concat(DEMO_과목록_())
     };
   },
   로그인:function(n){
@@ -2877,7 +2884,7 @@ var DEMO = {
                {이름:'불규칙 동사 50',개수:5,종류:'3단변화',레슨:DEMO_레슨['불규칙 동사 50']},
                {이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',레슨:DEMO_레슨['중2 5과 본문']},
                {이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',레슨:DEMO_레슨['중2 6과 문법']},
-               {이름:DEMO_문장책,개수:DEMO_SENT.length,종류:'문장',레슨:10,하루몫:5,영작:true}].concat(DEMO_과목록_());
+               {이름:DEMO_문장책,개수:DEMO_SENT.length,종류:'문장',레슨:10,하루몫:5,듣기:true}].concat(DEMO_과목록_());
     var 찾을것=String(n||'').replace(/\s+/g,'');
     var me=null;
     DEMO_배정.forEach(function(x){ if(x.이름.replace(/\s+/g,'')===찾을것) me=x; });
@@ -3046,7 +3053,7 @@ var DEMO = {
       var m=String(x.범위||'').match(/^(\d+)~(\d+)$/); if(!m || x.단어장!==책) return;
       진도=Math.max(진도, Number(m[2])); if(x.날===날) 오늘+=Number(m[2])-Number(m[1])+1;
     });
-    return {ok:true, 진도:진도, 오늘:오늘, 하루몫:5, 영작:true};
+    return {ok:true, 진도:진도, 오늘:오늘, 하루몫:5, 듣기:true};
   },
   게임저장:function(p){
     DEMO_게임.push({게임:p.게임, 이름:p.이름, 점수:Number(p.점수)||0, 기록:p.기록||''});
@@ -3171,7 +3178,7 @@ var DEMO = {
     미응시:[{이름:'김영희',학년구분:'초중등',교재:['예시 단어장']}],
     오답:[{단어:'analyze',횟수:1},{단어:'assume',횟수:1}],
     학생목록:DEMO_배정.map(function(x){return x.이름;}),
-    단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']},{이름:DEMO_문장책,개수:DEMO_SENT.length,종류:'문장',색:'#E11D48',레슨:10,하루몫:5,영작:true}].concat(DEMO_과목록_()),
+    단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']},{이름:DEMO_문장책,개수:DEMO_SENT.length,종류:'문장',색:'#E11D48',레슨:10,하루몫:5,듣기:true}].concat(DEMO_과목록_()),
     시상항목:DEMO_항목.slice(),
     합격점:80,
     숙제목록:DEMO_HW.slice()};},
@@ -3669,10 +3676,11 @@ function 교재목록(값){
    단은 자료에 적힌 만큼만 열린다 (성분 1단 주·동 → 2단 목·보 → 3단 절 → 4단 꾸밈 번호). */
 var 문장역할_ = {주:'주어', 동:'동사', 목:'목적어', 보:'보어', 수:'수식어'};
 /* 하루 6단계 — 오늘 몫 문장들을 이 차례로 한 번씩 지나간다 (한 단계 안에서는 문장 차례대로).
-   보고 → 끊고 → 뼈대를 찾고 → 조립하고 → 더 잘게 조립하고 → 스스로 쓴다. 영작은 묶음마다 끌 수 있다 */
+   보고 → 끊고 → 뼈대를 찾고 → 조립하고 → 더 잘게 조립하고 → 글자 없이 소리만 듣고 뜻을 고른다.
+   듣고 고르기는 묶음마다 끌 수 있다 (교실에서 하면 소리가 울린다). 끄면 다섯 단계 */
 var 문장단계_ = [
   {키:'보기', 이름:'보기'}, {키:'끊기', 이름:'끊어 읽기'}, {키:'뼈대', 이름:'뼈대 찾기'},
-  {키:'조립', 이름:'조립하기'}, {키:'낱말', 이름:'낱말로 조립'}, {키:'영작', 이름:'영작'}
+  {키:'조립', 이름:'조립하기'}, {키:'낱말', 이름:'낱말로 조립'}, {키:'듣기', 이름:'듣고 고르기'}
 ];
 /* 이 문장에서 무엇을 물을 수 있나 — 단계는 고정이고, 뼈대 찾기가 그 문장에 적힌 만큼만 묻는다.
    뼈대 = null 이면 주어·동사 표가 없어 뼈대 찾기를 건너뛴다 */
@@ -8339,7 +8347,7 @@ function 문장그림_(r){
         '<span class="snno">'+(i+1)+'</span>'+esc(dd.글)+'<small>'+esc(밑)+'</small></span>';
   }).join('')+'</div>';
 }
-/* 이 문장(또는 묶음)에서 묻는 것 — 하루 6단계 중 보기·영작은 늘 있으니 빼고,
+/* 이 문장(또는 묶음)에서 묻는 것 — 하루 6단계 중 보기·듣고 고르기는 늘 있으니 빼고,
    「끊어 읽기 · 뼈대 찾기 주·동·목·보·절·꾸밈 · 조립하기 · 낱말로 조립」. 못 묻는 단계는 점선 */
 function 문장단줄_(것){
   var 뼈 = 것.뼈대;
@@ -8403,7 +8411,9 @@ function 문장탭_(b, d){
           '<b>/</b> 가 끊어 읽는 자리, <b>=</b> 뒤가 역할입니다 — '+
           '<b>=주</b> 주어 · <b>=동</b> 동사 · <b>=목</b> 목적어 · <b>=보</b> 보어 · <b>=수</b> 수식어.<br>'+
           '<b>=수2</b> 는 둘째 덩어리를 꾸민다는 뜻(번호는 빗금 차례), 절이면 역할 뒤에 <b>절</b> — <b>=목절</b>. 표가 없는 덩어리는 수식어로 봅니다.<br>'+
-          '아이는 하루 몫 문장마다 보기 → 끊어 읽기 → 뼈대 찾기 → 조립하기 → 낱말로 조립 → 영작을 지나갑니다. '+
+          '아이는 하루 몫 문장마다 보기 → 끊어 읽기 → 뼈대 찾기 → 조립하기 → 낱말로 조립 → 듣고 고르기를 지나갑니다. '+
+          '듣고 고르기는 글자 없이 소리만 듣고 뜻을 고릅니다 — 교실에서 소리가 나면 곤란할 때 끄세요 '+
+          '(「자료 고치기」 → 단어장 목록에서 그 묶음의 <b>듣기</b> 칸에 <b>끔</b>. 끄면 다섯 단계).<br>'+
           '뼈대 찾기는 적힌 만큼만 묻습니다 — 주어·동사만 적으면 그것만, 절·꾸밈 번호를 채우면 그것까지.<br>'+
           '<b>문장 차례가 곧 진도</b>입니다 — 쉬운 것부터 넣어 주세요.</div>'+
         '<label>묶음 이름</label><input id="snBook" placeholder="예) 중2 1과 문장" value="'+esc(T.문장책||'')+'">'+

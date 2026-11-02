@@ -2355,8 +2355,15 @@ html[data-theme] body:not(.hb0) .tabbar.five button::before{width:50px;margin-le
 #s-sent .snchip.still.big{font-size:19px;padding:9px 13px}
 #s-sent .seeko{margin:16px 2px 0;font-size:17px}
 #s-sent .snsay{margin-top:14px;height:42px;padding:0 18px;border-radius:21px;border:2px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:15px;font-weight:800;cursor:pointer}
-#s-sent .snwrite{width:100%;box-sizing:border-box;min-height:96px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:18px;font-weight:600;line-height:1.4;resize:vertical}
-#s-sent .snwrite:focus{outline:0;border-color:var(--primary)}
+/* 듣고 고르기 — 뜻 넷 */
+#s-sent .snopts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+#s-sent .snopt{display:block;width:100%;text-align:left;min-height:52px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--text);
+  font:inherit;font-size:16px;font-weight:700;line-height:1.4;word-break:keep-all;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#s-sent .snopt.on{border-color:var(--primary);background:var(--primary-soft)}
+#s-sent .snopt.right{border-color:var(--ok);background:rgba(34,197,94,.12)}
+#s-sent .snopt.wrong{border-color:var(--ng);background:rgba(239,68,68,.10)}
+#s-sent .snlisten{font-size:19px;padding:4px 2px}
+#s-sent .snnovoice{font-size:12px;font-weight:700;color:var(--sub);margin:0 2px 8px}
 #s-sent .sntop{display:flex;align-items:center;gap:10px;margin:4px 0 14px}
 #s-sent .snquit{flex:none;width:36px;height:36px;border-radius:18px;border:0;background:var(--card);color:var(--sub);font-size:16px;font-weight:800;cursor:pointer}
 #s-sent .snbar{flex:1;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
