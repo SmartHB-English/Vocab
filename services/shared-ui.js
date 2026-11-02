@@ -32,7 +32,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-10-14b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-11-02a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -89,6 +89,15 @@ var DEMO_TEXT = [
   ['He was thirsty and hungry.',
    '그는 목이 마르고 배가 고팠다.',
    '교과서 71쪽 · Camp Green Lake']
+];
+
+/* 문장 연습 단어장 (종류: 문장) — 한 줄에 끊은 문장 | 해석 | 비고 */
+var DEMO_문장책 = '중2 문장 연습';
+var DEMO_SENT = [
+  ['The boy=주 / kicked=동 / the ball=목 / at the park=수2', '소년이 공원에서 공을 찼다', '교과서 88쪽'],
+  ['I=주 / know=동 / that she likes me=목절 / very much=수2', '나는 그녀가 날 좋아한다는 걸 잘 안다', ''],
+  ['My sister=주 / is=동 / a nurse=보', '우리 언니는 간호사다', ''],
+  ['Birds=주 / sing=동 / in the morning', '새들은 아침에 노래한다', '']
 ];
 
 var DEMO_시작일 = '';
@@ -230,7 +239,7 @@ var DEMO = {
     return {
       학원이름:DEMO_설정.학원이름,
       합격점:80,
-      단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']}].concat(DEMO_과목록_())
+      단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']},{이름:DEMO_문장책,개수:DEMO_SENT.length,종류:'문장',색:'#E11D48',레슨:10}].concat(DEMO_과목록_())
     };
   },
   로그인:function(n){
@@ -520,7 +529,7 @@ var DEMO = {
     미응시:[{이름:'김영희',학년구분:'초중등',교재:['예시 단어장']}],
     오답:[{단어:'analyze',횟수:1},{단어:'assume',횟수:1}],
     학생목록:DEMO_배정.map(function(x){return x.이름;}),
-    단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']}].concat(DEMO_과목록_()),
+    단어장목록:[{이름:'예시 단어장',개수:25,종류:'',색:'#FF7A3D',레슨:DEMO_레슨['예시 단어장']},{이름:'불규칙 동사 50',개수:5,종류:'3단변화',색:'#3B82F6',레슨:DEMO_레슨['불규칙 동사 50']},{이름:'중2 5과 단어',개수:DEMO_WORDS.length,종류:'',색:'#0EA5E9',레슨:DEMO_레슨['중2 5과 단어']},{이름:'중2 5과 본문',개수:DEMO_TEXT.length,종류:'본문',색:'#16A34A',레슨:DEMO_레슨['중2 5과 본문']},{이름:'중2 6과 문법',개수:DEMO_GRAM.length,종류:'문법',색:'#8B5CF6',레슨:DEMO_레슨['중2 6과 문법']},{이름:DEMO_문장책,개수:DEMO_SENT.length,종류:'문장',색:'#E11D48',레슨:10}].concat(DEMO_과목록_()),
     시상항목:DEMO_항목.slice(),
     합격점:80,
     숙제목록:DEMO_HW.slice()};},
@@ -720,7 +729,15 @@ var DEMO = {
     }
     if(!하나(행)) return {ok:false,메시지:'이미 지워진 숙제입니다'};
     return {ok:true,숙제:줄(Number(행))};},
-  단어붙여넣기:function(){return {ok:true,개수:0,메시지:'미리보기에서는 저장되지 않습니다.'};},
+  단어붙여넣기:function(pw,책,본문,덮어쓰기,종류){
+    /* 문장 단어장만 흉내 낸다 — 선생님 「문장」 탭을 미리보기에서도 써 보게 */
+    if(종류!=='문장' || 책!==DEMO_문장책) return {ok:true,개수:0,메시지:'미리보기에서는 저장되지 않습니다.'};
+    var 줄 = String(본문||'').split(/\r?\n/).map(function(t){ return t.split('|').map(function(x){ return x.trim(); }); })
+      .filter(function(p){ return p[0] && p[1]; }).map(function(p){ return [p[0], p[1], p.slice(2).join(' | ')]; });
+    if(!줄.length) return {ok:false,메시지:'인식된 문장이 없습니다.'};
+    if(덮어쓰기) DEMO_SENT.length = 0;
+    줄.forEach(function(p){ DEMO_SENT.push(p); });
+    return {ok:true,개수:줄.length,그림수:0,단어장목록:DEMO.선생님요약().단어장목록};},
   학생붙여넣기:function(pw,본문,기본비번,학년구분,학년,학교,교재){
     var 있는것={}; DEMO_배정.forEach(function(x){ 있는것[x.이름]=1; });
     var 겹침=[], 넣음=0;
@@ -763,6 +780,8 @@ var DEMO = {
             단어장목록: DEMO.시작정보().단어장목록};
   },
   단어목록:function(pw,책){
+    if(책===DEMO_문장책) return {ok:true, 종류:'문장', 단어들:DEMO_SENT.map(function(p,i){
+      return {행:i+2, 번호:i+1, en:p[0], ko:p[1], 그림:'', 비고:p[2]||''}; })};
     if(DEMO_과책[책]) return {ok:true, 종류:'과', 단어들:DEMO.단어가져오기(책).map(function(w){
       return {번호:w.no, 칸:w.칸, en:w.en, ko:w.ko, 그림:w.그림||'', 비고:w.비고||''}; })};
     return {ok:true,단어들:DEMO_WORDS.map(function(w,i){
@@ -782,8 +801,11 @@ var DEMO = {
       else 못.push(String((g&&g.이름)||''));
     });
     return {ok:true,붙인수:붙인,못찾은:못};},
-  단어수정:function(pw,책,행,en,ko){var i=Number(행)-2; if(DEMO_WORDS[i]){DEMO_WORDS[i].en=en;DEMO_WORDS[i].ko=ko;} return {ok:true};},
-  단어삭제:function(pw,책,행들){(행들||[]).sort(function(a,b){return b-a;}).forEach(function(r){DEMO_WORDS.splice(Number(r)-2,1);});
+  단어수정:function(pw,책,행,en,ko,비고){var i=Number(행)-2;
+    if(책===DEMO_문장책){ if(DEMO_SENT[i]) DEMO_SENT[i]=[en,ko,비고!==undefined?비고:DEMO_SENT[i][2]]; return {ok:true}; } if(DEMO_WORDS[i]){DEMO_WORDS[i].en=en;DEMO_WORDS[i].ko=ko;} return {ok:true};},
+  단어삭제:function(pw,책,행들){
+    if(책===DEMO_문장책){ (행들||[]).map(Number).sort(function(a,b){return b-a;}).forEach(function(r){ DEMO_SENT.splice(r-2,1); }); return {ok:true,개수:(행들||[]).length}; }
+    (행들||[]).sort(function(a,b){return b-a;}).forEach(function(r){DEMO_WORDS.splice(Number(r)-2,1);});
       DEMO_WORDS.forEach(function(w,i){w.no=i+1;}); return {ok:true,개수:(행들||[]).length};},
   단어추가:function(pw,책,en,ko){DEMO_WORDS.push({no:DEMO_WORDS.length+1,en:en,ko:ko}); return {ok:true};},
   단어장이름변경:function(){return {ok:true,단어장목록:DEMO.선생님요약().단어장목록};},
@@ -995,6 +1017,71 @@ function 교재목록(값){
   if(Object.prototype.toString.call(값)==='[object Array]')
     return 값.map(function(x){return String(x||'').trim();}).filter(Boolean);
   return String(값).split(/\s*[,|]\s*/).map(function(x){return x.trim();}).filter(Boolean);
+}
+
+/* ==== 문장 연습 — 한 줄 읽기 ====
+   「The boy=주 / kicked=동 / the ball=목 / at the park=수2」 — 빗금이 끊어 읽는 자리, = 뒤가 역할.
+   역할: 주 · 동 · 목 · 보 · 수 (수2 = 둘째 덩어리를 꾸민다, 번호는 빗금 차례). 역할 뒤 「절」 = 그 덩어리가 통째로 절.
+   표가 없는 덩어리는 수식어로 본다 (꾸미는 대상 모름).
+   한 줄에서 세 놀이가 나온다 — 배열은 덩어리, 성분 찾기는 = 표, 끊어 읽기는 빗금 자리.
+   단은 자료에 적힌 만큼만 열린다 (성분 1단 주·동 → 2단 목·보 → 3단 절 → 4단 꾸밈 번호). */
+var 문장역할_ = {주:'주어', 동:'동사', 목:'목적어', 보:'보어', 수:'수식어'};
+var 문장놀이_ = [
+  {키:'배열', 이름:'문장 배열', 단:['덩어리 섞기', '낱말 섞기']},
+  {키:'성분', 이름:'성분 찾기', 단:['주어·동사', '+ 목적어·보어', '+ 절', '꾸미는 말']},
+  {키:'끊기', 이름:'끊어 읽기', 단:['빗금 개수 알려 줌', '개수 안 알려 줌']}
+];
+function 문장읽기_(en){
+  var r = {덩어리:[], 낱말:[], 글:'', 경고:[], 단:{배열:[], 성분:[], 끊기:[]}};
+  var 쪽 = String(en || '').split('/');
+  쪽.forEach(function(x, i){
+    var t = x.replace(/\s+/g, ' ').trim();
+    if(!t){ r.경고.push((i + 1) + '째 덩어리가 비었습니다'); return; }
+    var d = {글:t, 역할:'', 절:false, 꾸밈:0, 표:false};
+    var k = t.lastIndexOf('=');
+    if(k > -1){
+      var 표 = t.slice(k + 1).replace(/\s+/g, ''), 글 = t.slice(0, k).trim();
+      var m = 표.match(/^(주|동|목|보|수)(절)?(\d+)?$/);
+      if(!글) r.경고.push((i + 1) + '째 덩어리에 글이 없습니다 — 「' + t + '」');
+      else if(!m) r.경고.push('모르는 표 「=' + 표 + '」 — 주·동·목·보·수 중 하나 (절·번호는 그 뒤에)');
+      if(글 && m){ d.글 = 글; d.역할 = m[1]; d.절 = !!m[2]; d.꾸밈 = Number(m[3]) || 0; d.표 = true; }
+      else if(글) d.글 = 글;
+    }
+    if(!d.역할) d.역할 = '수';
+    r.덩어리.push(d);
+  });
+  var n = r.덩어리.length;
+  r.덩어리.forEach(function(d, i){
+    if(!d.꾸밈) return;
+    if(d.역할 !== '수'){ r.경고.push('「' + d.글 + '」 — 번호는 수식어(=수)에만 붙입니다'); d.꾸밈 = 0; return; }
+    if(d.꾸밈 > n || d.꾸밈 === i + 1){ r.경고.push('「' + d.글 + '」 — 꾸미는 덩어리 번호 ' + d.꾸밈 + ' 이 없습니다 (1~' + n + ', 자기 자신 빼고)'); d.꾸밈 = 0; }
+  });
+  r.글 = r.덩어리.map(function(d){ return d.글; }).join(' ');
+  r.낱말 = r.글.split(' ').filter(String);
+  function 있나(f){ return r.덩어리.some(f); }
+  var 주 = 있나(function(d){ return d.표 && d.역할 === '주'; }), 동 = 있나(function(d){ return d.표 && d.역할 === '동'; });
+  if(n >= 2){ r.단.배열.push(1); r.단.끊기.push(1, 2); }
+  if(r.낱말.length >= 2) r.단.배열.push(2);
+  if(주 && 동){
+    r.단.성분.push(1);
+    if(있나(function(d){ return d.표 && (d.역할 === '목' || d.역할 === '보'); })) r.단.성분.push(2);
+    if(있나(function(d){ return d.절; })) r.단.성분.push(3);
+    if(있나(function(d){ return d.꾸밈 > 0; })) r.단.성분.push(4);
+  } else if(있나(function(d){ return d.표; })) r.경고.push('주어(=주)와 동사(=동)가 있어야 성분 찾기가 열립니다');
+  return r;
+}
+/* 「1·2단」 처럼 — 열린 단이 없으면 빈 글 */
+function 문장단글_(단들){ return (단들 || []).length ? 단들.join('·') + '단' : ''; }
+/* 한 단어장의 줄들 → 놀이마다 열린 단 (어느 한 줄이라도 열렸으면 열린 것) */
+function 문장장단들_(줄들){
+  var 합 = {배열:{}, 성분:{}, 끊기:{}};
+  (줄들 || []).forEach(function(w){
+    var r = 문장읽기_(w && w.en);
+    Object.keys(합).forEach(function(k){ r.단[k].forEach(function(n){ 합[k][n] = 1; }); });
+  });
+  var out = {};
+  Object.keys(합).forEach(function(k){ out[k] = Object.keys(합[k]).map(Number).sort(function(a, b){ return a - b; }); });
+  return out;
 }
 
 /* ==== 수업 짜기 공용 시작 — Code.gs 와 index.html 에 글자 하나 다르지 않게 들어 있다.

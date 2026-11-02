@@ -686,6 +686,28 @@ body.fixon .screen.on .rotbtn{margin-right:118px}
 /* 넓은 규칙이 .sub 를 세로 줄로 세워서 글이 토막 난다 — 안내 글은 그냥 글로 흐르게 */
 .sub.gwhelp{display:block;line-height:1.7}
 .gwprev{margin-top:10px;font-size:14px;line-height:1.7}
+.snitem{padding:10px 2px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.snitem.snpick{cursor:pointer;flex-direction:row;align-items:flex-start;gap:8px}
+.snitem .snbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.snitem.snpick:hover{background:var(--primary-soft)}
+.snitem.sned{gap:6px}
+.snitem.sned label{margin:4px 0 0;font-size:12px}
+.snline{display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px 2px;font-size:15px;line-height:1.35}
+.snd{display:inline-flex;flex-direction:column;align-items:center;padding:4px 8px 3px;border-radius:9px;border:2px solid transparent;font-weight:700;position:relative}
+.snd small{font-size:10.5px;font-weight:800;opacity:.85;margin-top:1px}
+.snd .snno{position:absolute;top:-7px;left:-5px;font-size:9.5px;font-weight:800;background:var(--card);color:var(--sub);border-radius:6px;padding:0 3px;line-height:1.3}
+.snd.sn-주{background:#DBEAFE;color:#1E40AF}
+.snd.sn-동{background:#FEE2E2;color:#B91C1C}
+.snd.sn-목{background:#DCFCE7;color:#166534}
+.snd.sn-보{background:#EDE9FE;color:#6D28D9}
+.snd.sn-수{background:#F1F5F9;color:#475569}
+.snd.snclause{border-style:dashed;border-color:currentColor}
+.snd.snbare small{opacity:.55}
+.snsl{color:var(--sub);font-weight:800;padding:6px 1px 0}
+.snko{font-size:13px;color:var(--text)}
+.snlvs{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12px}
+.snlv{padding:2px 8px;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-weight:800}
+.snlv.off{background:transparent;color:var(--sub);border:1px dashed var(--line)}
 .gwwarn{font-size:13px;font-weight:700;color:var(--ng)}
 .gwr{display:inline-flex;align-items:center;gap:5px;margin:0;font-size:13px;font-weight:700;color:var(--text)}
 /* 아이 — 과 단어장의 구분 고르는 줄 */
