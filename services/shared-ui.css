@@ -2424,6 +2424,10 @@ html[data-theme] body:not(.hb0) .tabbar.five button::before{width:50px;margin-le
 #s-sent .snwh{font-size:14px;font-weight:800;color:var(--sub);margin:0 4px 8px}
 #s-sent .snwi{padding:14px;margin-bottom:10px}
 #s-sent .snbtns{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+/* 4형식 연습 — 오늘 몫 아래 따로 */
+#s-sent .snditr{margin-top:12px;padding:16px 18px}
+#s-sent .snditr .sub{margin-top:4px}
+#s-sent .snsrc{font-size:16px;font-weight:700;color:var(--text);line-height:1.45;padding:10px 12px;border-radius:12px;background:var(--primary-soft);margin-bottom:12px;word-break:keep-all}
 
 /* 자동 로그인 체크 — 테마의 로그인 label·input 규칙이 덮지 못하게 */
 html #s-login .autochk,html #tLogin .autochk{display:flex !important;align-items:center;justify-content:center;gap:8px;

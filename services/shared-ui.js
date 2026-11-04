@@ -32,7 +32,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-11-03a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-11-04a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -417,12 +417,12 @@ var DEMO = {
     return {ok:true, 옮긴기록:0, 학생:DEMO_배정.map(function(x){
       return {행:x.행,이름:x.이름,비밀번호:'1234',학년구분:x.학년구분,
               학년:x.학년||'',학교:x.학교||'',교재:(x.교재||[]).slice()};})};},
-  문장기록저장:function(p){ DEMO_문장기록.push({범위:p.범위, 단어장:p.단어장, 날:new Date().toDateString()}); return {ok:true}; },
-  /* 진도는 기록의 가장 큰 끝번호 — 진짜 엔진(문장진도)과 같은 셈 */
+  문장기록저장:function(p){ DEMO_문장기록.push({범위:p.범위, 단어장:p.단어장, 구분:p.유형==='4형식 연습'?'형식':'', 날:new Date().toDateString()}); return {ok:true}; },
+  /* 진도는 기록의 가장 큰 끝번호 — 진짜 엔진(문장진도)과 같은 셈. 4형식 연습(구분 형식)은 빼고 */
   문장진도:function(이름,책){
     var 진도=0, 오늘=0, 날=new Date().toDateString();
     DEMO_문장기록.forEach(function(x){
-      var m=String(x.범위||'').match(/^(\d+)~(\d+)$/); if(!m || x.단어장!==책) return;
+      var m=String(x.범위||'').match(/^(\d+)~(\d+)$/); if(!m || x.단어장!==책 || x.구분==='형식') return;
       진도=Math.max(진도, Number(m[2])); if(x.날===날) 오늘+=Number(m[2])-Number(m[1])+1;
     });
     return {ok:true, 진도:진도, 오늘:오늘, 하루몫:5, 소리:true};
@@ -1174,6 +1174,44 @@ function 문장장단들_(줄들){
   var out = {};
   Object.keys(합).forEach(function(k){ out[k] = Object.keys(합[k]).map(Number).sort(function(a, b){ return a - b; }); });
   return out;
+}
+
+/* ==== 4형식 연습 — 하루 몫 일곱 단계와 따로 돈다 (문장단계_ 에 넣지 않는다 · 진도와 무관) ====
+   4형식 = 역할 표 =목 이 꼭 둘인 문장 (=목절 이 끼면 안 센다). 영어 어순 그대로 앞이 간접목적어, 뒤가 직접목적어.
+   3형식으로 바꿀 때 쓰는 전치사는 셋째 칸(비고)에서 읽는다 — to · for · of 일 때만 바꾸기를 낸다.
+   동사에서 짐작하지 않는다 (gave → give → to 처럼 찾아내면 틀릴 여지가 있다). 셋이 아니면 찾기만 낸다.
+   묶음에 4형식 문장이 문장4형식최소_ 개 이상이면 아이 화면 첫 화면 아래에 「4형식 연습」 칸이 뜬다 */
+var 문장4형식최소_ = 5;
+function 문장전치사_(비고){
+  var t = String(비고 || '').trim().toLowerCase();
+  return ['to', 'for', 'of'].indexOf(t) > -1 ? t : '';
+}
+/* 4형식이면 {간, 직, 전치사} (간 · 직은 덩어리 자리, 전치사는 없으면 빈 글) — 아니면 null */
+function 문장4형식_(r, 비고){
+  var 목 = [], 절 = false;
+  ((r && r.덩어리) || []).forEach(function(d, i){ if(d.표 && d.역할 === '목'){ 목.push(i); if(d.절) 절 = true; } });
+  if(목.length !== 2 || 절) return null;
+  return {간:목[0], 직:목[1], 전치사:문장전치사_(비고)};
+}
+/* 3형식 조각 — 정답 차례대로. 간접목적어를 빼서 직접목적어 바로 뒤에 「전치사 · 간접목적어」. 다른 덩어리는 제자리.
+   My mom / gave / me / a present (to) → My mom · gave · a present · to · me */
+function 문장3형식조각_(r, f){
+  var out = [];
+  r.덩어리.forEach(function(d, i){
+    if(i === f.간) return;
+    out.push(d.글);
+    if(i === f.직) out.push(f.전치사, r.덩어리[f.간].글);
+  });
+  return out;
+}
+/* 묶음(줄들: {en, 비고} 또는 {r, 비고})에서 4형식 문장 수 · 그중 바꾸기까지 되는 수 */
+function 문장4형식수_(줄들){
+  var 수 = 0, 바꿈 = 0;
+  (줄들 || []).forEach(function(w){
+    var f = w && 문장4형식_(w.r || 문장읽기_(w.en), w.비고);
+    if(f){ 수++; if(f.전치사) 바꿈++; }
+  });
+  return {수:수, 바꿈:바꿈};
 }
 
 /* ==== 수업 짜기 공용 시작 — Code.gs 와 index.html 에 글자 하나 다르지 않게 들어 있다.
