@@ -699,6 +699,8 @@ body.fixon .screen.on .rotbtn{margin-right:118px}
 .snd.sn-주{background:#DBEAFE;color:#1E40AF}
 .snd.sn-동{background:#FEE2E2;color:#B91C1C}
 .snd.sn-목{background:#DCFCE7;color:#166534}
+.snd.sn-간목{background:#D1FAE5;color:#047857}
+.snd.sn-직목{background:#ECFCCB;color:#3F6212}
 .snd.sn-보{background:#EDE9FE;color:#6D28D9}
 .snd.sn-수{background:#F1F5F9;color:#475569}
 .snd.snclause{border-style:dashed;border-color:currentColor}
@@ -2381,6 +2383,8 @@ html[data-theme] body:not(.hb0) .tabbar.five button::before{width:50px;margin-le
 #s-sent .snchip.sn-주{background:#DBEAFE;border-color:#93C5FD;color:#1E40AF}
 #s-sent .snchip.sn-동{background:#FEE2E2;border-color:#FCA5A5;color:#B91C1C}
 #s-sent .snchip.sn-목{background:#DCFCE7;border-color:#86EFAC;color:#166534}
+#s-sent .snchip.sn-간목{background:#D1FAE5;border-color:#6EE7B7;color:#047857}
+#s-sent .snchip.sn-직목{background:#ECFCCB;border-color:#BEF264;color:#3F6212}
 #s-sent .snchip.sn-보{background:#EDE9FE;border-color:#C4B5FD;color:#6D28D9}
 #s-sent .snchip.sn-수{background:#F1F5F9;border-color:#CBD5E1;color:#475569}
 #s-sent .snchip.snclause{border-style:dashed;border-color:currentColor}
@@ -2398,6 +2402,8 @@ html[data-theme] body:not(.hb0) .tabbar.five button::before{width:50px;margin-le
 #s-sent .snpen.sn-주{background:#DBEAFE;color:#1E40AF}
 #s-sent .snpen.sn-동{background:#FEE2E2;color:#B91C1C}
 #s-sent .snpen.sn-목{background:#DCFCE7;color:#166534}
+#s-sent .snpen.sn-간목{background:#D1FAE5;color:#047857}
+#s-sent .snpen.sn-직목{background:#ECFCCB;color:#3F6212}
 #s-sent .snpen.sn-보{background:#EDE9FE;color:#6D28D9}
 #s-sent .snpen.sn-절{background:var(--card);color:var(--text);border-style:dashed;border-color:var(--sub)}
 #s-sent .snpen.sn-절.on{border-color:var(--text)}
