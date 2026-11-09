@@ -18,7 +18,8 @@ var SHEET = {
   공지: '공지',
   푸시: '푸시',
   문장기록: '문장기록',
-  알림예약: '알림예약'
+  알림예약: '알림예약',
+  알림기록: '알림기록'
 };
 
 var 틀린단어열 = 14;   // N열
@@ -66,7 +67,8 @@ var HEADERS = {
   푸시: ['켠때', '반', '이름', '주소', 'p256dh', 'auth', '기기'],
   문장기록: ['시각', '반', '이름', '단어장', '범위', '유형', '난이도', '문항수', '정답수', '점수',
              '소요초', '숙제여부', '틀린문장', '구분', '집계제외'],
-  알림예약: ['만든때', '종류', '날짜', '시각', '제목', '내용', '공지함께', '공지끝날', '보낸때', '켬']
+  알림예약: ['만든때', '종류', '날짜', '시각', '제목', '내용', '공지함께', '공지끝날', '보낸때', '켬', '대상종류', '대상값'],
+  알림기록: ['보낸때', '누가', '대상', '제목', '내용', '보냄', '실패']
 };
 
 /* ------------------------------------------------------------------ 앱이 사는 곳
@@ -185,6 +187,8 @@ var 열린기능_ = {
   예약저장: 예약저장,
   예약지우기: 예약지우기,
   예약켜기: 예약켜기,
+  알림명단: 알림명단,
+  알림기록목록: 알림기록목록,
   합격점저장: 합격점저장,
   설정가져오기: 설정가져오기,
   설정저장: 설정저장,
@@ -3105,30 +3109,46 @@ function 구독해제(주소) {
 function 구독목록(비번, 이름들) {
   if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
   푸시시트_();
+  var 고른 = 이름들풀기_(이름들);
+  return { ok: true, 구독: 구독모으기_(고른.length ? 고른 : null) };
+}
+
+/**
+ * 푸시 표에서 보낼 구독을 모은다 — 이름들(배열)을 주면 그 아이들만, null 이면 전부. 같은 주소는 한 번만.
+ * 구독목록(선생님 화면) · 예약알림_ · 알림거리_(알림만 보내기)가 같이 쓴다.
+ */
+function 구독모으기_(이름들) {
   var 줄들 = [];
-  try { 줄들 = rows_(SHEET.푸시); } catch (e) { 줄들 = []; }
-  var 고른 = 이름들풀기_(이름들), 걸러 = {};
-  고른.forEach(function (n) { 걸러[n] = 1; });
-  var out = [];
+  try { 줄들 = rows_(SHEET.푸시); } catch (e) { return []; }
+  var 걸러 = null;
+  if (이름들) { 걸러 = {}; 이름들.forEach(function (n) { 걸러[s_(n)] = 1; }); }
+  var 본주소 = {}, out = [];
   줄들.forEach(function (x, i) {
     var 주소 = s_(x[3]);
-    if (!주소) return;
-    if (고른.length && !걸러[s_(x[2])]) return;
+    if (!주소 || 본주소[주소]) return;
+    if (걸러 && !걸러[s_(x[2])]) return;
+    본주소[주소] = 1;
     out.push({ 행: i + 2, 이름: s_(x[2]), 주소: 주소,
                p256dh: s_(x[4]), auth: s_(x[5]), 기기: s_(x[6]) });
   });
-  return { ok: true, 구독: out };
+  return out;
 }
 
-/** 누가 알림을 켜 두었는지 — 선생님 화면에 보여 준다 */
-function 구독현황(비번) {
-  if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
+/** 알림을 켠 아이 { 이름: 1 } — 푸시 표에 그 이름의 주소가 있느냐. 구독현황 · 알림명단 · 알림거리_ 가 같이 쓴다 */
+function 알림켠이름_() {
   var 켠사람 = {};
   try {
     rows_(SHEET.푸시).forEach(function (x) {
       if (s_(x[3])) 켠사람[s_(x[2])] = 1;
     });
   } catch (e) {}
+  return 켠사람;
+}
+
+/** 누가 알림을 켜 두었는지 — 선생님 화면에 보여 준다 */
+function 구독현황(비번) {
+  if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
+  var 켠사람 = 알림켠이름_();
   var 다 = 전체명단_(), 켠수 = 0, 안켠 = [];
   다.forEach(function (이름) {
     if (켠사람[이름]) 켠수++;
@@ -3336,18 +3356,22 @@ function 공지삭제(비번, 행) {
 ================================================================== */
 var 예약종류목록_ = ['한번', '안낸아이'];
 var 예약첫분_ = 7 * 60, 예약끝분_ = 21 * 60;
-var 예약칸_ = { 만든때: 1, 종류: 2, 날짜: 3, 시각: 4, 제목: 5, 내용: 6, 공지함께: 7, 공지끝날: 8, 보낸때: 9, 켬: 10 };
+var 예약칸_ = { 만든때: 1, 종류: 2, 날짜: 3, 시각: 4, 제목: 5, 내용: 6, 공지함께: 7, 공지끝날: 8, 보낸때: 9, 켬: 10,
+               대상종류: 11, 대상값: 12 };   // 대상 두 칸이 비면(옛 줄) 전체
 
 /** 알림예약 시트 — 없으면 만들고, 칸이 모자라면 넓혀 머리글을 붙인다 (있는 머리글은 안 건드린다) */
-function 예약시트_() {
+function 예약시트_() { return 머리맞춘시트_(SHEET.알림예약, HEADERS.알림예약, { 5: 200, 6: 360 }); }
+/** 알림기록 시트 — 예약시트_ 와 같은 식 */
+function 알림기록시트_() { return 머리맞춘시트_(SHEET.알림기록, HEADERS.알림기록, { 3: 160, 4: 200, 5: 360 }); }
+
+function 머리맞춘시트_(이름, H, 넓이) {
   var ss = ss_();
-  var sh = ss.getSheetByName(SHEET.알림예약);
-  var H = HEADERS.알림예약;
+  var sh = ss.getSheetByName(이름);
   if (!sh) {
-    sh = ss.insertSheet(SHEET.알림예약);
+    sh = ss.insertSheet(이름);
     sh.getRange(1, 1, 1, H.length).setValues([H]).setFontWeight('bold').setBackground('#EFF3F9');
     sh.setFrozenRows(1);
-    sh.setColumnWidth(5, 200); sh.setColumnWidth(6, 360);
+    Object.keys(넓이 || {}).forEach(function (k) { sh.setColumnWidth(Number(k), 넓이[k]); });
     return sh;
   }
   if (typeof sh.getMaxColumns !== 'function' || typeof sh.getRange !== 'function') return sh;
@@ -3402,7 +3426,9 @@ function 예약줄_(x, i) {
     공지끝날: 끝 instanceof Date ? ymd_(끝) : s_(끝),
     보낸때: 보냄 instanceof Date ? 예약때글_(보냄).slice(0, 16) : s_(보냄),
     켬: s_(칸('켬')) !== 'X',
-    만든날: 때 ? ymd_(때) : ''
+    만든날: 때 ? ymd_(때) : '',
+    대상종류: s_(칸('대상종류')) || '전체',
+    대상값: s_(칸('대상값'))
   };
 }
 
@@ -3457,14 +3483,17 @@ function 예약저장(비번, 행, 값) {
   if (내용.length > 500) return { ok: false, 메시지: '내용은 500자까지 넣을 수 있습니다.' };
   var 공지함께 = !!값.공지함께, 끝 = 공지함께 ? s_(값.공지끝날) : '';
   if (끝 && !예약날짜꼴_(끝)) return { ok: false, 메시지: '공지 끝날 모양이 맞지 않습니다.' };
+  var 대상 = 알림대상정리_(값.대상종류, 값.대상값);
+  if (!대상.ok) return 대상;
 
   var sh = 예약시트_();
   var 줄 = [종류, 날짜, 시각, 제목, 내용, 공지함께 ? 'O' : '', 끝];
   if (!s_(행)) {
-    sh.appendRow([new Date()].concat(줄, ['', '']));
+    sh.appendRow([new Date()].concat(줄, ['', '', 대상.종류, 대상.값]));
     var 새 = sh.getLastRow();
     sh.getRange(새, 1).setNumberFormat('yyyy-MM-dd HH:mm');
     sh.getRange(새, 예약칸_.날짜, 1, 2).setNumberFormat('@');
+    sh.getRange(새, 예약칸_.대상값).setNumberFormat('@');
     return { ok: true, 예약: 예약목록(비번).예약 };
   }
   var n = 예약줄확인_(sh, 행, 값.키);
@@ -3472,6 +3501,7 @@ function 예약저장(비번, 행, 값) {
   var 전 = 예약줄_(sh.getRange(n, 1, 1, HEADERS.알림예약.length).getValues()[0], n - 2);
   sh.getRange(n, 예약칸_.날짜, 1, 2).setNumberFormat('@');
   sh.getRange(n, 예약칸_.종류, 1, 줄.length).setValues([줄]);
+  sh.getRange(n, 예약칸_.대상종류, 1, 2).setNumberFormat('@').setValues([[대상.종류, 대상.값]]);
   /* 언제 보낼지가 바뀌면 다시 나가게 보낸때를 비운다. 글만 고치면 그대로 (이미 나간 것을 또 보내지 않는다) */
   if (전.종류 !== 종류 || 전.날짜 !== 날짜 || (종류 === '한번' && 전.시각 !== 시각)) sh.getRange(n, 예약칸_.보낸때).setValue('');
   return { ok: true, 예약: 예약목록(비번).예약 };
@@ -3533,23 +3563,23 @@ function 예약알림_(지금) {
       .setValue(n.종류 === '한번' ? 글.slice(0, 16) : 오늘);
   });
 
-  var 구독 = [], 본주소 = {};
-  try {
-    rows_(SHEET.푸시).forEach(function (x) {
-      var 주소 = s_(x[3]);
-      if (!주소 || 본주소[주소]) return;
-      본주소[주소] = 1;
-      구독.push({ 이름: s_(x[2]), 주소: 주소, p256dh: s_(x[4]), auth: s_(x[5]) });
-    });
-  } catch (e) { 구독 = []; }
+  var 구독 = 구독모으기_(null);
 
   var 안낸 = null, 보낼것 = [], 웹있나 = false;
   고른.forEach(function (n) {
+    /* 대상(전체 · 반 · 아이)으로 먼저 거르고, 안낸아이면 그 안에서 또 거른다 — 두 조건을 다 만족하는 아이만 */
+    var 이름들 = 알림대상이름_(n.대상종류, n.대상값), 대상글 = 알림대상글_(n.대상종류, n.대상값);
     var 받을 = 구독;
+    if (이름들) {
+      var 걸러 = {};
+      이름들.forEach(function (x) { 걸러[x] = 1; });
+      받을 = 받을.filter(function (s) { return 걸러[s.이름]; });
+    }
     if (n.종류 === '안낸아이') {
       if (!안낸) 안낸 = 오늘안낸아이_(오늘);
       if (!Object.keys(안낸).length) return;               // 안 낸 아이가 없다 — 보낸때만 찍고 끝
-      받을 = 구독.filter(function (s) { return 안낸[s.이름]; });
+      받을 = 받을.filter(function (s) { return 안낸[s.이름]; });
+      대상글 = (대상글 === '전체' ? '' : 대상글 + ' ') + '안 낸 아이';
     }
     if (n.공지함께) {
       var 끝 = n.공지끝날;
@@ -3560,11 +3590,138 @@ function 예약알림_(지금) {
     }
     if (!받을.length) return;
     if (받을.some(function (s) { return s.주소.indexOf('fcm:') !== 0; })) 웹있나 = true;
-    보낼것.push({ 행: n.행, 종류: n.종류, 제목: n.제목, 내용: n.내용, 구독: 받을 });
+    보낼것.push({ 행: n.행, 종류: n.종류, 제목: n.제목, 내용: n.내용, 대상: 대상글, 구독: 받을 });
   });
   var 답 = { ok: true, 오늘: 오늘, 보낼것: 보낼것, 찍은수: 고른.length };
   if (웹있나) { 답.공개키 = 푸시공개키(); 답.푸시비밀키 = s_(setting_('푸시비밀키', '')); }
   return 답;
+}
+
+/* ==================================================================
+   알림만 보내기 — 공지 없이, 고른 아이에게만.
+   받는 사람(대상)은 전체 · 반 · 아이. 예약도 같은 두 칸(대상종류 · 대상값)을 쓴다.
+   대상값 — 반이면 반 이름 하나, 아이면 이름들을 세로줄(|)로 이은 글. 쉼표는 쓰지 않는다.
+   쏘는 일은 functions(aux 의 알림보내기 → sendNowNotice)가 한다. 누구에게 언제 뭘 보냈는지 알림기록 표에 남는다.
+================================================================== */
+var 알림대상종류_ = ['전체', '반', '아이'];
+var 알림기록최대_ = 200;
+var 알림제목최대_ = 40, 알림내용최대_ = 100;   // 넘으면 폰 알림창에서 잘린다
+
+/** 세로줄로 이은 글(또는 배열) → 이름들. 같은 이름은 한 번만 */
+function 알림이름들_(v) {
+  var 목록 = Object.prototype.toString.call(v) === '[object Array]' ? v : s_(v).split('|');
+  var 본것 = {}, out = [];
+  목록.forEach(function (x) {
+    var n = s_(x);
+    if (n && !본것[n]) { 본것[n] = 1; out.push(n); }
+  });
+  return out;
+}
+
+/** 대상종류 · 대상값을 다듬는다 → { ok, 종류, 값 } 또는 { ok:false, 메시지 }. 둘 다 비면 전체 */
+function 알림대상정리_(종류, 값) {
+  종류 = s_(종류) || '전체';
+  if (알림대상종류_.indexOf(종류) < 0) return { ok: false, 메시지: '받는 사람을 골라 주세요.' };
+  if (종류 === '전체') return { ok: true, 종류: '전체', 값: '' };
+  if (종류 === '반') {
+    var 반 = s_(값);
+    if (!반) return { ok: false, 메시지: '반을 골라 주세요.' };
+    if (반.indexOf('|') > -1) return { ok: false, 메시지: '반 이름에 세로줄(|)이 있으면 고를 수 없습니다.' };
+    return { ok: true, 종류: '반', 값: 반 };
+  }
+  /* 아이 — 배열로 오면 이름 하나하나에 | 가 섞였는지 본다 (섞이면 대상값이 깨진다) */
+  if (Object.prototype.toString.call(값) === '[object Array]' &&
+      값.some(function (n) { return s_(n).indexOf('|') > -1; })) {
+    return { ok: false, 메시지: '이름에 세로줄(|)이 들어 있어 고를 수 없습니다.' };
+  }
+  var 이름들 = 알림이름들_(값);
+  if (!이름들.length) return { ok: false, 메시지: '받을 아이를 골라 주세요.' };
+  return { ok: true, 종류: '아이', 값: 이름들.join('|') };
+}
+
+/** 대상 → 이름들. 전체면 null (거르지 않는다) */
+function 알림대상이름_(종류, 값) {
+  if (종류 === '반') return (반별명단_()[s_(값)] || []).slice();
+  if (종류 === '아이') return 알림이름들_(값);
+  return null;
+}
+
+/** 기록 표 · 화면에 적을 글 — 전체 · 3A반 · 민준·서연·지후 외 4명 */
+function 알림대상글_(종류, 값) {
+  if (종류 === '반') { var 반 = s_(값); return /반$/.test(반) ? 반 : 반 + '반'; }
+  if (종류 === '아이') {
+    var 이름들 = 알림이름들_(값);
+    if (이름들.length <= 3) return 이름들.join('·');
+    return 이름들.slice(0, 3).join('·') + ' 외 ' + (이름들.length - 3) + '명';
+  }
+  return '전체';
+}
+
+/** 고르개가 쓸 명단 — 학생 표에서 깐다 (푸시 표에서 깔면 알림 안 켠 아이가 안 보인다) */
+function 알림명단(비번) {
+  if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
+  var 켠사람 = 알림켠이름_(), 본것 = {}, 반본 = {}, 반들 = [], 아이들 = [];
+  읽기캐시_(SHEET.학생).forEach(function (x) {
+    var 반 = s_(x[0]), 이름 = s_(x[1]);
+    if (!이름 || 본것[이름]) return;
+    본것[이름] = 1;
+    아이들.push({ 이름: 이름, 반: 반, 켬: !!켠사람[이름] });
+    if (반 && !반본[반]) { 반본[반] = 1; 반들.push(반); }
+  });
+  반들.sort();
+  return { ok: true, 반들: 반들, 아이들: 아이들, 열쇠있나: !!푸시공개키() };
+}
+
+/** 보낸 알림 — 최근 것부터 20줄 */
+function 알림기록목록(비번) {
+  if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
+  var 줄들 = [];
+  try { 줄들 = rows_(SHEET.알림기록); } catch (e) { 줄들 = []; }
+  var out = 줄들.map(function (x) {
+    var 때 = x[0];
+    return { 보낸때: 때 instanceof Date ? 예약때글_(때).slice(0, 16) : s_(때), 누가: s_(x[1]), 대상: s_(x[2]),
+             제목: s_(x[3]), 내용: s_(x[4]), 보냄: Number(x[5]) || 0, 실패: Number(x[6]) || 0 };
+  }).filter(function (n) { return n.보낸때 || n.제목 || n.내용; });
+  out.reverse();
+  return { ok: true, 기록: out.slice(0, 20) };
+}
+
+/**
+ * 알림만 보내기 — bridge 전용 (functions 의 sendNowNotice 가 부른다. 선생님 확인은 aux 가 이미 했다).
+ *   돌려주는 것 = { ok, 구독:[{이름, 주소, p256dh, auth, 기기}], 대상글, 꺼진수, 제목, 내용, 공개키, 푸시비밀키? }
+ *   꺼진수 — 골랐는데 알림이 꺼져 빠진 아이 수. 푸시비밀키는 보낼 웹 구독이 있을 때만 싣는다 (__예약알림 과 같다).
+ */
+function 알림거리_(대상종류, 대상값, 제목, 내용) {
+  제목 = s_(제목); 내용 = s_(내용);
+  if (!제목 || !내용) return { ok: false, 메시지: '제목과 내용을 적어 주세요.' };
+  if (제목.length > 알림제목최대_) return { ok: false, 메시지: '제목은 ' + 알림제목최대_ + '자까지 넣을 수 있습니다.' };
+  if (내용.length > 알림내용최대_) return { ok: false, 메시지: '내용은 ' + 알림내용최대_ + '자까지 넣을 수 있습니다.' };
+  var 대상 = 알림대상정리_(대상종류, 대상값);
+  if (!대상.ok) return 대상;
+  var 이름들 = 알림대상이름_(대상.종류, 대상.값);
+  var 켠사람 = 알림켠이름_();
+  var 꺼진수 = (이름들 || 전체명단_()).filter(function (n) { return !켠사람[n]; }).length;
+  var 구독 = 구독모으기_(이름들);
+  var 답 = { ok: true, 구독: 구독, 대상글: 알림대상글_(대상.종류, 대상.값), 꺼진수: 꺼진수,
+             제목: 제목, 내용: 내용, 공개키: 푸시공개키() };
+  if (구독.some(function (x) { return x.주소.indexOf('fcm:') !== 0; })) 답.푸시비밀키 = s_(setting_('푸시비밀키', ''));
+  return 답;
+}
+
+/** 알림기록 표에 적는다 — 한 줄 또는 여러 줄. 최근 200줄만 두고 오래된 줄은 지운다 (bridge 전용) */
+function 알림기록쓰기_(줄들) {
+  if (Object.prototype.toString.call(줄들) !== '[object Array]') 줄들 = [줄들];
+  줄들 = 줄들.filter(function (x) { return x && typeof x === 'object'; });
+  if (!줄들.length) return { ok: true, 개수: 0 };
+  var sh = 알림기록시트_();
+  줄들.forEach(function (x) {
+    sh.appendRow([new Date(), s_(x.누가) === '예약' ? '예약' : '선생님', s_(x.대상) || '전체',
+                  s_(x.제목).slice(0, 100), s_(x.내용).slice(0, 500), Number(x.보냄) || 0, Number(x.실패) || 0]);
+    sh.getRange(sh.getLastRow(), 1).setNumberFormat('yyyy-MM-dd HH:mm');
+  });
+  var 넘침 = sh.getLastRow() - 1 - 알림기록최대_;
+  if (넘침 > 0) sh.deleteRows(2, 넘침);                  // 맨 위(오래된 것)부터
+  return { ok: true, 개수: 줄들.length, 지움: Math.max(0, 넘침) };
 }
 
 /* ==================================================================

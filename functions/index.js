@@ -456,7 +456,8 @@ function createLegacyEngine(dependencies) {
     \uACF5\uC9C0: "\uACF5\uC9C0",
     \uD478\uC2DC: "\uD478\uC2DC",
     \uBB38\uC7A5\uAE30\uB85D: "\uBB38\uC7A5\uAE30\uB85D",
-    \uC54C\uB9BC\uC608\uC57D: "\uC54C\uB9BC\uC608\uC57D"
+    \uC54C\uB9BC\uC608\uC57D: "\uC54C\uB9BC\uC608\uC57D",
+    \uC54C\uB9BC\uAE30\uB85D: "\uC54C\uB9BC\uAE30\uB85D"
   };
   var \uD2C0\uB9B0\uB2E8\uC5B4\uC5F4 = 14;
   var \uAD6C\uBD84\uC5F4 = 15;
@@ -590,7 +591,8 @@ function createLegacyEngine(dependencies) {
       "\uAD6C\uBD84",
       "\uC9D1\uACC4\uC81C\uC678"
     ],
-    \uC54C\uB9BC\uC608\uC57D: ["\uB9CC\uB4E0\uB54C", "\uC885\uB958", "\uB0A0\uC9DC", "\uC2DC\uAC01", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uACF5\uC9C0\uD568\uAED8", "\uACF5\uC9C0\uB05D\uB0A0", "\uBCF4\uB0B8\uB54C", "\uCF2C"]
+    \uC54C\uB9BC\uC608\uC57D: ["\uB9CC\uB4E0\uB54C", "\uC885\uB958", "\uB0A0\uC9DC", "\uC2DC\uAC01", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uACF5\uC9C0\uD568\uAED8", "\uACF5\uC9C0\uB05D\uB0A0", "\uBCF4\uB0B8\uB54C", "\uCF2C", "\uB300\uC0C1\uC885\uB958", "\uB300\uC0C1\uAC12"],
+    \uC54C\uB9BC\uAE30\uB85D: ["\uBCF4\uB0B8\uB54C", "\uB204\uAC00", "\uB300\uC0C1", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uBCF4\uB0C4", "\uC2E4\uD328"]
   };
   var \uC0C8\uC8FC\uC18C = "https://smarthb-english.github.io/Vocab/";
   function doGet(e) {
@@ -691,6 +693,8 @@ function createLegacyEngine(dependencies) {
     \uC608\uC57D\uC800\uC7A5,
     \uC608\uC57D\uC9C0\uC6B0\uAE30,
     \uC608\uC57D\uCF1C\uAE30,
+    \uC54C\uB9BC\uBA85\uB2E8,
+    \uC54C\uB9BC\uAE30\uB85D\uBAA9\uB85D,
     \uD569\uACA9\uC810\uC800\uC7A5,
     \uC124\uC815\uAC00\uC838\uC624\uAE30,
     \uC124\uC815\uC800\uC7A5,
@@ -3570,21 +3574,29 @@ function createLegacyEngine(dependencies) {
   function \uAD6C\uB3C5\uBAA9\uB85D(\uBE44\uBC88, \uC774\uB984\uB4E4) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
     \uD478\uC2DC\uC2DC\uD2B8_();
+    var \uACE0\uB978 = \uC774\uB984\uB4E4\uD480\uAE30_(\uC774\uB984\uB4E4);
+    return { ok: true, \uAD6C\uB3C5: \uAD6C\uB3C5\uBAA8\uC73C\uAE30_(\uACE0\uB978.length ? \uACE0\uB978 : null) };
+  }
+  function \uAD6C\uB3C5\uBAA8\uC73C\uAE30_(\uC774\uB984\uB4E4) {
     var \uC904\uB4E4 = [];
     try {
       \uC904\uB4E4 = rows_(SHEET.\uD478\uC2DC);
     } catch (e) {
-      \uC904\uB4E4 = [];
+      return [];
     }
-    var \uACE0\uB978 = \uC774\uB984\uB4E4\uD480\uAE30_(\uC774\uB984\uB4E4), \uAC78\uB7EC = {};
-    \uACE0\uB978.forEach(function(n) {
-      \uAC78\uB7EC[n] = 1;
-    });
-    var out = [];
+    var \uAC78\uB7EC = null;
+    if (\uC774\uB984\uB4E4) {
+      \uAC78\uB7EC = {};
+      \uC774\uB984\uB4E4.forEach(function(n) {
+        \uAC78\uB7EC[s_(n)] = 1;
+      });
+    }
+    var \uBCF8\uC8FC\uC18C = {}, out = [];
     \uC904\uB4E4.forEach(function(x, i) {
       var \uC8FC\uC18C = s_(x[3]);
-      if (!\uC8FC\uC18C) return;
-      if (\uACE0\uB978.length && !\uAC78\uB7EC[s_(x[2])]) return;
+      if (!\uC8FC\uC18C || \uBCF8\uC8FC\uC18C[\uC8FC\uC18C]) return;
+      if (\uAC78\uB7EC && !\uAC78\uB7EC[s_(x[2])]) return;
+      \uBCF8\uC8FC\uC18C[\uC8FC\uC18C] = 1;
       out.push({
         \uD589: i + 2,
         \uC774\uB984: s_(x[2]),
@@ -3594,10 +3606,9 @@ function createLegacyEngine(dependencies) {
         \uAE30\uAE30: s_(x[6])
       });
     });
-    return { ok: true, \uAD6C\uB3C5: out };
+    return out;
   }
-  function \uAD6C\uB3C5\uD604\uD669(\uBE44\uBC88) {
-    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+  function \uC54C\uB9BC\uCF20\uC774\uB984_() {
     var \uCF20\uC0AC\uB78C = {};
     try {
       rows_(SHEET.\uD478\uC2DC).forEach(function(x) {
@@ -3605,6 +3616,11 @@ function createLegacyEngine(dependencies) {
       });
     } catch (e) {
     }
+    return \uCF20\uC0AC\uB78C;
+  }
+  function \uAD6C\uB3C5\uD604\uD669(\uBE44\uBC88) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var \uCF20\uC0AC\uB78C = \uC54C\uB9BC\uCF20\uC774\uB984_();
     var \uB2E4 = \uC804\uCCB4\uBA85\uB2E8_(), \uCF20\uC218 = 0, \uC548\uCF20 = [];
     \uB2E4.forEach(function(\uC774\uB984) {
       if (\uCF20\uC0AC\uB78C[\uC774\uB984]) \uCF20\uC218++;
@@ -3801,17 +3817,36 @@ function createLegacyEngine(dependencies) {
   }
   var \uC608\uC57D\uC885\uB958\uBAA9\uB85D_ = ["\uD55C\uBC88", "\uC548\uB0B8\uC544\uC774"];
   var \uC608\uC57D\uCCAB\uBD84_ = 7 * 60, \uC608\uC57D\uB05D\uBD84_ = 21 * 60;
-  var \uC608\uC57D\uCE78_ = { \uB9CC\uB4E0\uB54C: 1, \uC885\uB958: 2, \uB0A0\uC9DC: 3, \uC2DC\uAC01: 4, \uC81C\uBAA9: 5, \uB0B4\uC6A9: 6, \uACF5\uC9C0\uD568\uAED8: 7, \uACF5\uC9C0\uB05D\uB0A0: 8, \uBCF4\uB0B8\uB54C: 9, \uCF2C: 10 };
+  var \uC608\uC57D\uCE78_ = {
+    \uB9CC\uB4E0\uB54C: 1,
+    \uC885\uB958: 2,
+    \uB0A0\uC9DC: 3,
+    \uC2DC\uAC01: 4,
+    \uC81C\uBAA9: 5,
+    \uB0B4\uC6A9: 6,
+    \uACF5\uC9C0\uD568\uAED8: 7,
+    \uACF5\uC9C0\uB05D\uB0A0: 8,
+    \uBCF4\uB0B8\uB54C: 9,
+    \uCF2C: 10,
+    \uB300\uC0C1\uC885\uB958: 11,
+    \uB300\uC0C1\uAC12: 12
+  };
   function \uC608\uC57D\uC2DC\uD2B8_() {
+    return \uBA38\uB9AC\uB9DE\uCD98\uC2DC\uD2B8_(SHEET.\uC54C\uB9BC\uC608\uC57D, HEADERS.\uC54C\uB9BC\uC608\uC57D, { 5: 200, 6: 360 });
+  }
+  function \uC54C\uB9BC\uAE30\uB85D\uC2DC\uD2B8_() {
+    return \uBA38\uB9AC\uB9DE\uCD98\uC2DC\uD2B8_(SHEET.\uC54C\uB9BC\uAE30\uB85D, HEADERS.\uC54C\uB9BC\uAE30\uB85D, { 3: 160, 4: 200, 5: 360 });
+  }
+  function \uBA38\uB9AC\uB9DE\uCD98\uC2DC\uD2B8_(\uC774\uB984, H, \uB113\uC774) {
     var ss = ss_();
-    var sh = ss.getSheetByName(SHEET.\uC54C\uB9BC\uC608\uC57D);
-    var H = HEADERS.\uC54C\uB9BC\uC608\uC57D;
+    var sh = ss.getSheetByName(\uC774\uB984);
     if (!sh) {
-      sh = ss.insertSheet(SHEET.\uC54C\uB9BC\uC608\uC57D);
+      sh = ss.insertSheet(\uC774\uB984);
       sh.getRange(1, 1, 1, H.length).setValues([H]).setFontWeight("bold").setBackground("#EFF3F9");
       sh.setFrozenRows(1);
-      sh.setColumnWidth(5, 200);
-      sh.setColumnWidth(6, 360);
+      Object.keys(\uB113\uC774 || {}).forEach(function(k) {
+        sh.setColumnWidth(Number(k), \uB113\uC774[k]);
+      });
       return sh;
     }
     if (typeof sh.getMaxColumns !== "function" || typeof sh.getRange !== "function") return sh;
@@ -3866,7 +3901,9 @@ function createLegacyEngine(dependencies) {
       \uACF5\uC9C0\uB05D\uB0A0: \uB05D instanceof Date2 ? ymd_(\uB05D) : s_(\uB05D),
       \uBCF4\uB0B8\uB54C: \uBCF4\uB0C4 instanceof Date2 ? \uC608\uC57D\uB54C\uAE00_(\uBCF4\uB0C4).slice(0, 16) : s_(\uBCF4\uB0C4),
       \uCF2C: s_(\uCE78("\uCF2C")) !== "X",
-      \uB9CC\uB4E0\uB0A0: \uB54C ? ymd_(\uB54C) : ""
+      \uB9CC\uB4E0\uB0A0: \uB54C ? ymd_(\uB54C) : "",
+      \uB300\uC0C1\uC885\uB958: s_(\uCE78("\uB300\uC0C1\uC885\uB958")) || "\uC804\uCCB4",
+      \uB300\uC0C1\uAC12: s_(\uCE78("\uB300\uC0C1\uAC12"))
     };
   }
   function \uC608\uC57D\uB54C\uB410\uB098_(n, \uC624\uB298, \uC9C0\uAE08\uC2DC\uAC01) {
@@ -3920,13 +3957,16 @@ function createLegacyEngine(dependencies) {
     if (\uB0B4\uC6A9.length > 500) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB0B4\uC6A9\uC740 500\uC790\uAE4C\uC9C0 \uB123\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
     var \uACF5\uC9C0\uD568\uAED8 = !!\uAC12.\uACF5\uC9C0\uD568\uAED8, \uB05D = \uACF5\uC9C0\uD568\uAED8 ? s_(\uAC12.\uACF5\uC9C0\uB05D\uB0A0) : "";
     if (\uB05D && !\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB05D)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uACF5\uC9C0 \uB05D\uB0A0 \uBAA8\uC591\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." };
+    var \uB300\uC0C1 = \uC54C\uB9BC\uB300\uC0C1\uC815\uB9AC_(\uAC12.\uB300\uC0C1\uC885\uB958, \uAC12.\uB300\uC0C1\uAC12);
+    if (!\uB300\uC0C1.ok) return \uB300\uC0C1;
     var sh = \uC608\uC57D\uC2DC\uD2B8_();
     var \uC904 = [\uC885\uB958, \uB0A0\uC9DC, \uC2DC\uAC01, \uC81C\uBAA9, \uB0B4\uC6A9, \uACF5\uC9C0\uD568\uAED8 ? "O" : "", \uB05D];
     if (!s_(\uD589)) {
-      sh.appendRow([new Date2()].concat(\uC904, ["", ""]));
+      sh.appendRow([new Date2()].concat(\uC904, ["", "", \uB300\uC0C1.\uC885\uB958, \uB300\uC0C1.\uAC12]));
       var \uC0C8 = sh.getLastRow();
       sh.getRange(\uC0C8, 1).setNumberFormat("yyyy-MM-dd HH:mm");
       sh.getRange(\uC0C8, \uC608\uC57D\uCE78_.\uB0A0\uC9DC, 1, 2).setNumberFormat("@");
+      sh.getRange(\uC0C8, \uC608\uC57D\uCE78_.\uB300\uC0C1\uAC12).setNumberFormat("@");
       return { ok: true, \uC608\uC57D: \uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
     }
     var n = \uC608\uC57D\uC904\uD655\uC778_(sh, \uD589, \uAC12.\uD0A4);
@@ -3934,6 +3974,7 @@ function createLegacyEngine(dependencies) {
     var \uC804 = \uC608\uC57D\uC904_(sh.getRange(n, 1, 1, HEADERS.\uC54C\uB9BC\uC608\uC57D.length).getValues()[0], n - 2);
     sh.getRange(n, \uC608\uC57D\uCE78_.\uB0A0\uC9DC, 1, 2).setNumberFormat("@");
     sh.getRange(n, \uC608\uC57D\uCE78_.\uC885\uB958, 1, \uC904.length).setValues([\uC904]);
+    sh.getRange(n, \uC608\uC57D\uCE78_.\uB300\uC0C1\uC885\uB958, 1, 2).setNumberFormat("@").setValues([[\uB300\uC0C1.\uC885\uB958, \uB300\uC0C1.\uAC12]]);
     if (\uC804.\uC885\uB958 !== \uC885\uB958 || \uC804.\uB0A0\uC9DC !== \uB0A0\uC9DC || \uC885\uB958 === "\uD55C\uBC88" && \uC804.\uC2DC\uAC01 !== \uC2DC\uAC01) sh.getRange(n, \uC608\uC57D\uCE78_.\uBCF4\uB0B8\uB54C).setValue("");
     return { ok: true, \uC608\uC57D: \uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
   }
@@ -3980,26 +4021,27 @@ function createLegacyEngine(dependencies) {
     \uACE0\uB978.forEach(function(n) {
       sh.getRange(n.\uD589, \uC608\uC57D\uCE78_.\uBCF4\uB0B8\uB54C).setNumberFormat("@").setValue(n.\uC885\uB958 === "\uD55C\uBC88" ? \uAE00.slice(0, 16) : \uC624\uB298);
     });
-    var \uAD6C\uB3C5 = [], \uBCF8\uC8FC\uC18C = {};
-    try {
-      rows_(SHEET.\uD478\uC2DC).forEach(function(x) {
-        var \uC8FC\uC18C = s_(x[3]);
-        if (!\uC8FC\uC18C || \uBCF8\uC8FC\uC18C[\uC8FC\uC18C]) return;
-        \uBCF8\uC8FC\uC18C[\uC8FC\uC18C] = 1;
-        \uAD6C\uB3C5.push({ \uC774\uB984: s_(x[2]), \uC8FC\uC18C, p256dh: s_(x[4]), auth: s_(x[5]) });
-      });
-    } catch (e) {
-      \uAD6C\uB3C5 = [];
-    }
+    var \uAD6C\uB3C5 = \uAD6C\uB3C5\uBAA8\uC73C\uAE30_(null);
     var \uC548\uB0B8 = null, \uBCF4\uB0BC\uAC83 = [], \uC6F9\uC788\uB098 = false;
     \uACE0\uB978.forEach(function(n) {
+      var \uC774\uB984\uB4E4 = \uC54C\uB9BC\uB300\uC0C1\uC774\uB984_(n.\uB300\uC0C1\uC885\uB958, n.\uB300\uC0C1\uAC12), \uB300\uC0C1\uAE00 = \uC54C\uB9BC\uB300\uC0C1\uAE00_(n.\uB300\uC0C1\uC885\uB958, n.\uB300\uC0C1\uAC12);
       var \uBC1B\uC744 = \uAD6C\uB3C5;
+      if (\uC774\uB984\uB4E4) {
+        var \uAC78\uB7EC = {};
+        \uC774\uB984\uB4E4.forEach(function(x) {
+          \uAC78\uB7EC[x] = 1;
+        });
+        \uBC1B\uC744 = \uBC1B\uC744.filter(function(s) {
+          return \uAC78\uB7EC[s.\uC774\uB984];
+        });
+      }
       if (n.\uC885\uB958 === "\uC548\uB0B8\uC544\uC774") {
         if (!\uC548\uB0B8) \uC548\uB0B8 = \uC624\uB298\uC548\uB0B8\uC544\uC774_(\uC624\uB298);
         if (!Object.keys(\uC548\uB0B8).length) return;
-        \uBC1B\uC744 = \uAD6C\uB3C5.filter(function(s) {
+        \uBC1B\uC744 = \uBC1B\uC744.filter(function(s) {
           return \uC548\uB0B8[s.\uC774\uB984];
         });
+        \uB300\uC0C1\uAE00 = (\uB300\uC0C1\uAE00 === "\uC804\uCCB4" ? "" : \uB300\uC0C1\uAE00 + " ") + "\uC548 \uB0B8 \uC544\uC774";
       }
       if (n.\uACF5\uC9C0\uD568\uAED8) {
         var \uB05D = n.\uACF5\uC9C0\uB05D\uB0A0;
@@ -4016,7 +4058,7 @@ function createLegacyEngine(dependencies) {
       if (\uBC1B\uC744.some(function(s) {
         return s.\uC8FC\uC18C.indexOf("fcm:") !== 0;
       })) \uC6F9\uC788\uB098 = true;
-      \uBCF4\uB0BC\uAC83.push({ \uD589: n.\uD589, \uC885\uB958: n.\uC885\uB958, \uC81C\uBAA9: n.\uC81C\uBAA9, \uB0B4\uC6A9: n.\uB0B4\uC6A9, \uAD6C\uB3C5: \uBC1B\uC744 });
+      \uBCF4\uB0BC\uAC83.push({ \uD589: n.\uD589, \uC885\uB958: n.\uC885\uB958, \uC81C\uBAA9: n.\uC81C\uBAA9, \uB0B4\uC6A9: n.\uB0B4\uC6A9, \uB300\uC0C1: \uB300\uC0C1\uAE00, \uAD6C\uB3C5: \uBC1B\uC744 });
     });
     var \uB2F5 = { ok: true, \uC624\uB298, \uBCF4\uB0BC\uAC83, \uCC0D\uC740\uC218: \uACE0\uB978.length };
     if (\uC6F9\uC788\uB098) {
@@ -4024,6 +4066,149 @@ function createLegacyEngine(dependencies) {
       \uB2F5.\uD478\uC2DC\uBE44\uBC00\uD0A4 = s_(setting_("\uD478\uC2DC\uBE44\uBC00\uD0A4", ""));
     }
     return \uB2F5;
+  }
+  var \uC54C\uB9BC\uB300\uC0C1\uC885\uB958_ = ["\uC804\uCCB4", "\uBC18", "\uC544\uC774"];
+  var \uC54C\uB9BC\uAE30\uB85D\uCD5C\uB300_ = 200;
+  var \uC54C\uB9BC\uC81C\uBAA9\uCD5C\uB300_ = 40, \uC54C\uB9BC\uB0B4\uC6A9\uCD5C\uB300_ = 100;
+  function \uC54C\uB9BC\uC774\uB984\uB4E4_(v) {
+    var \uBAA9\uB85D = Object.prototype.toString.call(v) === "[object Array]" ? v : s_(v).split("|");
+    var \uBCF8\uAC83 = {}, out = [];
+    \uBAA9\uB85D.forEach(function(x) {
+      var n = s_(x);
+      if (n && !\uBCF8\uAC83[n]) {
+        \uBCF8\uAC83[n] = 1;
+        out.push(n);
+      }
+    });
+    return out;
+  }
+  function \uC54C\uB9BC\uB300\uC0C1\uC815\uB9AC_(\uC885\uB958, \uAC12) {
+    \uC885\uB958 = s_(\uC885\uB958) || "\uC804\uCCB4";
+    if (\uC54C\uB9BC\uB300\uC0C1\uC885\uB958_.indexOf(\uC885\uB958) < 0) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBC1B\uB294 \uC0AC\uB78C\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
+    if (\uC885\uB958 === "\uC804\uCCB4") return { ok: true, \uC885\uB958: "\uC804\uCCB4", \uAC12: "" };
+    if (\uC885\uB958 === "\uBC18") {
+      var \uBC18 = s_(\uAC12);
+      if (!\uBC18) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBC18\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
+      if (\uBC18.indexOf("|") > -1) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBC18 \uC774\uB984\uC5D0 \uC138\uB85C\uC904(|)\uC774 \uC788\uC73C\uBA74 \uACE0\uB97C \uC218 \uC5C6\uC2B5\uB2C8\uB2E4." };
+      return { ok: true, \uC885\uB958: "\uBC18", \uAC12: \uBC18 };
+    }
+    if (Object.prototype.toString.call(\uAC12) === "[object Array]" && \uAC12.some(function(n) {
+      return s_(n).indexOf("|") > -1;
+    })) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: "\uC774\uB984\uC5D0 \uC138\uB85C\uC904(|)\uC774 \uB4E4\uC5B4 \uC788\uC5B4 \uACE0\uB97C \uC218 \uC5C6\uC2B5\uB2C8\uB2E4." };
+    }
+    var \uC774\uB984\uB4E4 = \uC54C\uB9BC\uC774\uB984\uB4E4_(\uAC12);
+    if (!\uC774\uB984\uB4E4.length) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBC1B\uC744 \uC544\uC774\uB97C \uACE8\uB77C \uC8FC\uC138\uC694." };
+    return { ok: true, \uC885\uB958: "\uC544\uC774", \uAC12: \uC774\uB984\uB4E4.join("|") };
+  }
+  function \uC54C\uB9BC\uB300\uC0C1\uC774\uB984_(\uC885\uB958, \uAC12) {
+    if (\uC885\uB958 === "\uBC18") return (\uBC18\uBCC4\uBA85\uB2E8_()[s_(\uAC12)] || []).slice();
+    if (\uC885\uB958 === "\uC544\uC774") return \uC54C\uB9BC\uC774\uB984\uB4E4_(\uAC12);
+    return null;
+  }
+  function \uC54C\uB9BC\uB300\uC0C1\uAE00_(\uC885\uB958, \uAC12) {
+    if (\uC885\uB958 === "\uBC18") {
+      var \uBC18 = s_(\uAC12);
+      return /반$/.test(\uBC18) ? \uBC18 : \uBC18 + "\uBC18";
+    }
+    if (\uC885\uB958 === "\uC544\uC774") {
+      var \uC774\uB984\uB4E4 = \uC54C\uB9BC\uC774\uB984\uB4E4_(\uAC12);
+      if (\uC774\uB984\uB4E4.length <= 3) return \uC774\uB984\uB4E4.join("\xB7");
+      return \uC774\uB984\uB4E4.slice(0, 3).join("\xB7") + " \uC678 " + (\uC774\uB984\uB4E4.length - 3) + "\uBA85";
+    }
+    return "\uC804\uCCB4";
+  }
+  function \uC54C\uB9BC\uBA85\uB2E8(\uBE44\uBC88) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var \uCF20\uC0AC\uB78C = \uC54C\uB9BC\uCF20\uC774\uB984_(), \uBCF8\uAC83 = {}, \uBC18\uBCF8 = {}, \uBC18\uB4E4 = [], \uC544\uC774\uB4E4 = [];
+    \uC77D\uAE30\uCE90\uC2DC_(SHEET.\uD559\uC0DD).forEach(function(x) {
+      var \uBC18 = s_(x[0]), \uC774\uB984 = s_(x[1]);
+      if (!\uC774\uB984 || \uBCF8\uAC83[\uC774\uB984]) return;
+      \uBCF8\uAC83[\uC774\uB984] = 1;
+      \uC544\uC774\uB4E4.push({ \uC774\uB984, \uBC18, \uCF2C: !!\uCF20\uC0AC\uB78C[\uC774\uB984] });
+      if (\uBC18 && !\uBC18\uBCF8[\uBC18]) {
+        \uBC18\uBCF8[\uBC18] = 1;
+        \uBC18\uB4E4.push(\uBC18);
+      }
+    });
+    \uBC18\uB4E4.sort();
+    return { ok: true, \uBC18\uB4E4, \uC544\uC774\uB4E4, \uC5F4\uC1E0\uC788\uB098: !!\uD478\uC2DC\uACF5\uAC1C\uD0A4() };
+  }
+  function \uC54C\uB9BC\uAE30\uB85D\uBAA9\uB85D(\uBE44\uBC88) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var \uC904\uB4E4 = [];
+    try {
+      \uC904\uB4E4 = rows_(SHEET.\uC54C\uB9BC\uAE30\uB85D);
+    } catch (e) {
+      \uC904\uB4E4 = [];
+    }
+    var out = \uC904\uB4E4.map(function(x) {
+      var \uB54C = x[0];
+      return {
+        \uBCF4\uB0B8\uB54C: \uB54C instanceof Date2 ? \uC608\uC57D\uB54C\uAE00_(\uB54C).slice(0, 16) : s_(\uB54C),
+        \uB204\uAC00: s_(x[1]),
+        \uB300\uC0C1: s_(x[2]),
+        \uC81C\uBAA9: s_(x[3]),
+        \uB0B4\uC6A9: s_(x[4]),
+        \uBCF4\uB0C4: Number(x[5]) || 0,
+        \uC2E4\uD328: Number(x[6]) || 0
+      };
+    }).filter(function(n) {
+      return n.\uBCF4\uB0B8\uB54C || n.\uC81C\uBAA9 || n.\uB0B4\uC6A9;
+    });
+    out.reverse();
+    return { ok: true, \uAE30\uB85D: out.slice(0, 20) };
+  }
+  function \uC54C\uB9BC\uAC70\uB9AC_(\uB300\uC0C1\uC885\uB958, \uB300\uC0C1\uAC12, \uC81C\uBAA9, \uB0B4\uC6A9) {
+    \uC81C\uBAA9 = s_(\uC81C\uBAA9);
+    \uB0B4\uC6A9 = s_(\uB0B4\uC6A9);
+    if (!\uC81C\uBAA9 || !\uB0B4\uC6A9) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC81C\uBAA9\uACFC \uB0B4\uC6A9\uC744 \uC801\uC5B4 \uC8FC\uC138\uC694." };
+    if (\uC81C\uBAA9.length > \uC54C\uB9BC\uC81C\uBAA9\uCD5C\uB300_) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC81C\uBAA9\uC740 " + \uC54C\uB9BC\uC81C\uBAA9\uCD5C\uB300_ + "\uC790\uAE4C\uC9C0 \uB123\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
+    if (\uB0B4\uC6A9.length > \uC54C\uB9BC\uB0B4\uC6A9\uCD5C\uB300_) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB0B4\uC6A9\uC740 " + \uC54C\uB9BC\uB0B4\uC6A9\uCD5C\uB300_ + "\uC790\uAE4C\uC9C0 \uB123\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
+    var \uB300\uC0C1 = \uC54C\uB9BC\uB300\uC0C1\uC815\uB9AC_(\uB300\uC0C1\uC885\uB958, \uB300\uC0C1\uAC12);
+    if (!\uB300\uC0C1.ok) return \uB300\uC0C1;
+    var \uC774\uB984\uB4E4 = \uC54C\uB9BC\uB300\uC0C1\uC774\uB984_(\uB300\uC0C1.\uC885\uB958, \uB300\uC0C1.\uAC12);
+    var \uCF20\uC0AC\uB78C = \uC54C\uB9BC\uCF20\uC774\uB984_();
+    var \uAEBC\uC9C4\uC218 = (\uC774\uB984\uB4E4 || \uC804\uCCB4\uBA85\uB2E8_()).filter(function(n) {
+      return !\uCF20\uC0AC\uB78C[n];
+    }).length;
+    var \uAD6C\uB3C5 = \uAD6C\uB3C5\uBAA8\uC73C\uAE30_(\uC774\uB984\uB4E4);
+    var \uB2F5 = {
+      ok: true,
+      \uAD6C\uB3C5,
+      \uB300\uC0C1\uAE00: \uC54C\uB9BC\uB300\uC0C1\uAE00_(\uB300\uC0C1.\uC885\uB958, \uB300\uC0C1.\uAC12),
+      \uAEBC\uC9C4\uC218,
+      \uC81C\uBAA9,
+      \uB0B4\uC6A9,
+      \uACF5\uAC1C\uD0A4: \uD478\uC2DC\uACF5\uAC1C\uD0A4()
+    };
+    if (\uAD6C\uB3C5.some(function(x) {
+      return x.\uC8FC\uC18C.indexOf("fcm:") !== 0;
+    })) \uB2F5.\uD478\uC2DC\uBE44\uBC00\uD0A4 = s_(setting_("\uD478\uC2DC\uBE44\uBC00\uD0A4", ""));
+    return \uB2F5;
+  }
+  function \uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30_(\uC904\uB4E4) {
+    if (Object.prototype.toString.call(\uC904\uB4E4) !== "[object Array]") \uC904\uB4E4 = [\uC904\uB4E4];
+    \uC904\uB4E4 = \uC904\uB4E4.filter(function(x) {
+      return x && typeof x === "object";
+    });
+    if (!\uC904\uB4E4.length) return { ok: true, \uAC1C\uC218: 0 };
+    var sh = \uC54C\uB9BC\uAE30\uB85D\uC2DC\uD2B8_();
+    \uC904\uB4E4.forEach(function(x) {
+      sh.appendRow([
+        new Date2(),
+        s_(x.\uB204\uAC00) === "\uC608\uC57D" ? "\uC608\uC57D" : "\uC120\uC0DD\uB2D8",
+        s_(x.\uB300\uC0C1) || "\uC804\uCCB4",
+        s_(x.\uC81C\uBAA9).slice(0, 100),
+        s_(x.\uB0B4\uC6A9).slice(0, 500),
+        Number(x.\uBCF4\uB0C4) || 0,
+        Number(x.\uC2E4\uD328) || 0
+      ]);
+      sh.getRange(sh.getLastRow(), 1).setNumberFormat("yyyy-MM-dd HH:mm");
+    });
+    var \uB118\uCE68 = sh.getLastRow() - 1 - \uC54C\uB9BC\uAE30\uB85D\uCD5C\uB300_;
+    if (\uB118\uCE68 > 0) sh.deleteRows(2, \uB118\uCE68);
+    return { ok: true, \uAC1C\uC218: \uC904\uB4E4.length, \uC9C0\uC6C0: Math.max(0, \uB118\uCE68) };
   }
   var \uAC8C\uC784\uC774\uB984 = { \uC9DD: "\uC9DD \uB9DE\uCD94\uAE30", \uD37C\uC990: "\uAE00\uC790 \uD37C\uC990" };
   function \uAC8C\uC784\uC2DC\uD2B8_() {
@@ -6530,6 +6715,13 @@ function createLegacyEngine(dependencies) {
     dropDeadPushes(addresses) {
       return \uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30_(addresses);
     },
+    noticeTargets(kind, value, title, body) {
+      \uC77D\uC740\uAC83_ = null;
+      return \uC54C\uB9BC\uAC70\uB9AC_(kind, value, title, body);
+    },
+    writeNoticeLog(rows) {
+      return \uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30_(rows);
+    },
     names: Object.keys(\uC5F4\uB9B0\uAE30\uB2A5_)
   };
 }
@@ -6903,8 +7095,15 @@ var \uC870\uAC01\uBD99\uC774\uAE30 = (table, pieces) => {
 };
 var privileged = (role) => role === "teacher" || role === "bridge";
 var \uC790\uB8CC\uD568\uC218 = { __\uC790\uB8CC\uC77D\uAE30: \uC790\uB8CC\uC77D\uAE30, __\uC790\uB8CC\uACE0\uCE58\uAE30: \uCE78\uACE0\uCE58\uAE30, __\uC790\uB8CC\uC9C0\uC6B0\uAE30: \uC904\uC9C0\uC6B0\uAE30, __\uC790\uB8CC\uB418\uC0B4\uB9AC\uAE30: \uB418\uC0B4\uB9AC\uAE30, __\uD734\uC9C0\uD1B5\uBE44\uC6B0\uAE30: \uD734\uC9C0\uD1B5\uBE44\uC6B0\uAE30 };
-var \uB2E4\uB9AC\uD568\uC218 = { __\uC6D4\uC2DC\uC0C1: (engine) => engine.monthly(), __\uC608\uC57D\uC54C\uB9BC: (engine, args) => engine.scheduledNotices(args[0]), __\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30: (engine, args) => engine.dropDeadPushes(args[0]) };
-var \uC801\uC744\uB2F5 = (fn, answer) => fn === "__\uC608\uC57D\uC54C\uB9BC" && answer && answer.\uD478\uC2DC\uBE44\uBC00\uD0A4 ? { ...answer, \uD478\uC2DC\uBE44\uBC00\uD0A4: "(\uBE8C)" } : answer;
+var \uB2E4\uB9AC\uD568\uC218 = {
+  __\uC6D4\uC2DC\uC0C1: (engine) => engine.monthly(),
+  __\uC608\uC57D\uC54C\uB9BC: (engine, args) => engine.scheduledNotices(args[0]),
+  __\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30: (engine, args) => engine.dropDeadPushes(args[0]),
+  __\uC54C\uB9BC\uAC70\uB9AC: (engine, args) => engine.noticeTargets(args[0], args[1], args[2], args[3]),
+  __\uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30: (engine, args) => engine.writeNoticeLog(args[0])
+};
+var \uB2E4\uB9AC\uB9CC = ["__\uC608\uC57D\uC54C\uB9BC", "__\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30", "__\uC54C\uB9BC\uAC70\uB9AC", "__\uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30"];
+var \uC801\uC744\uB2F5 = (fn, answer) => ["__\uC608\uC57D\uC54C\uB9BC", "__\uC54C\uB9BC\uAC70\uB9AC"].includes(fn) && answer && answer.\uD478\uC2DC\uBE44\uBC00\uD0A4 ? { ...answer, \uD478\uC2DC\uBE44\uBC00\uD0A4: "(\uBE8C)" } : answer;
 var \uC790\uB8CC\uD558\uAE30 = (\uC77C, store, args, how) => {
   try {
     return { ok: true, \uC790\uB8CC: pack(\uC77C(store, args[0] ?? {}, how)) };
@@ -7083,7 +7282,7 @@ var FirestoreRepository = class {
     const \uC790\uB8CC\uC77C = \uC790\uB8CC\uD568\uC218[fn];
     if (\uC790\uB8CC\uC77C && this.identity.role !== "teacher") return { ok: false, \uBA54\uC2DC\uC9C0: "\uC120\uC0DD\uB2D8\uB9CC \uD560 \uC218 \uC788\uC5B4\uC694." };
     if (fn === "__\uC870\uAC01\uD569\uCE58\uAE30" && !privileged(this.identity.role)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC120\uC0DD\uB2D8\uB9CC \uD560 \uC218 \uC788\uC5B4\uC694." };
-    if (["__\uC608\uC57D\uC54C\uB9BC", "__\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30"].includes(fn) && this.identity.role !== "bridge") return { ok: false, \uBA54\uC2DC\uC9C0: "\uC608\uC57D \uC54C\uB9BC \uD568\uC218\uB9CC \uBD80\uB97C \uC218 \uC788\uC5B4\uC694." };
+    if (\uB2E4\uB9AC\uB9CC.includes(fn) && this.identity.role !== "bridge") return { ok: false, \uBA54\uC2DC\uC9C0: "\uC608\uC57D \uC54C\uB9BC \uD568\uC218\uB9CC \uBD80\uB97C \uC218 \uC788\uC5B4\uC694." };
     const \uB204\uAC00 = "\uC120\uC0DD\uB2D8 \xB7 " + String(this.identity.user?.uid ?? "").slice(0, 6);
     const publicOnly = ["\uC2DC\uC791\uC815\uBCF4", "\uD478\uC2DC\uACF5\uAC1C\uD0A4", "\uACF5\uC9C0\uAC00\uC838\uC624\uAE30"].includes(fn) && !this.identity.role;
     if (\uB2E4\uC2DC\uBCF4\uB0C4 && this.identity.user) {
@@ -7095,7 +7294,7 @@ var FirestoreRepository = class {
       const value = this.parentCache.value;
       return args[1] ? { ok: true, \uC774\uB984: value.\uC774\uB984, \uC548\uB0B8\uC218: value.\uC548\uB0B8\uC218 } : jsonResult(value);
     }
-    if (fn === "\uD478\uC2DC\uC804\uC1A1") return this.auxiliary(fn, args);
+    if (fn === "\uD478\uC2DC\uC804\uC1A1" || fn === "\uC54C\uB9BC\uBCF4\uB0B4\uAE30") return this.auxiliary(fn, args);
     const store = await this.load(catalog, (ref) => getDoc(ref), { publicOnly });
     const started = Date.now();
     const ids = [];
@@ -7312,7 +7511,18 @@ async function sendScheduledNotices(\uD560\uC77C, { messaging, webPush, repo } =
         if (r.\uC0C1\uD0DC === 404 || r.\uC0C1\uD0DC === 410) \uC8FD\uC74C.add(r.\uC8FC\uC18C);
       }
     }
-    out.\uC608\uC57D.push({ \uD589: job.\uD589, \uC885\uB958: job.\uC885\uB958, \uB300\uC0C1: job.\uAD6C\uB3C5.length, \uBCF4\uB0C4, \uC2E4\uD328, \uD0C8: \uC904.filter((r) => ![200, 201, 202].includes(r.\uC0C1\uD0DC)).slice(0, 5) });
+    out.\uC608\uC57D.push({
+      \uD589: job.\uD589 ?? null,
+      \uC885\uB958: job.\uC885\uB958 ?? "",
+      \uB300\uC0C1\uAE00: job.\uB300\uC0C1 ?? "\uC804\uCCB4",
+      \uB300\uC0C1: job.\uAD6C\uB3C5.length,
+      \uC81C\uBAA9: \uC2E4\uC744\uAC83.\uC81C\uBAA9,
+      \uB0B4\uC6A9: \uC2E4\uC744\uAC83.\uB0B4\uC6A9,
+      \uBCF4\uB0C4,
+      \uC2E4\uD328,
+      \uD0C8: \uC904.filter((r) => ![200, 201, 202].includes(r.\uC0C1\uD0DC)).slice(0, 5),
+      \uC904: \uC904.map((r, i) => ({ \uC774\uB984: job.\uAD6C\uB3C5[i]?.\uC774\uB984 ?? "", \uAE30\uAE30: job.\uAD6C\uB3C5[i]?.\uAE30\uAE30 ?? "", \uC0C1\uD0DC: r.\uC0C1\uD0DC, \uAE00: r.\uAE00 }))
+    });
     out.\uBCF4\uB0C4 += \uBCF4\uB0C4;
     out.\uC2E4\uD328 += \uC2E4\uD328;
   }
@@ -7324,6 +7534,45 @@ async function sendScheduledNotices(\uD560\uC77C, { messaging, webPush, repo } =
     }
   }
   return out;
+}
+function noticeLogRows(out, \uB204\uAC00) {
+  return (out?.\uC608\uC57D ?? []).map((j) => ({ \uB204\uAC00, \uB300\uC0C1: j.\uB300\uC0C1\uAE00 ?? "\uC804\uCCB4", \uC81C\uBAA9: j.\uC81C\uBAA9 ?? "", \uB0B4\uC6A9: j.\uB0B4\uC6A9 ?? "", \uBCF4\uB0C4: j.\uBCF4\uB0C4 ?? 0, \uC2E4\uD328: j.\uC2E4\uD328 ?? 0 }));
+}
+async function sendNoticeWith(repo, { \uC81C\uBAA9 = "", \uB0B4\uC6A9 = "", \uB300\uC0C1\uC885\uB958 = "\uC804\uCCB4", \uB300\uC0C1\uAC12 = "" } = {}, { messaging, webPush, send = sendScheduledNotices } = {}) {
+  const \uAC70\uB9AC = await repo.call("__\uC54C\uB9BC\uAC70\uB9AC", [\uB300\uC0C1\uC885\uB958, \uB300\uC0C1\uAC12, \uC81C\uBAA9, \uB0B4\uC6A9]);
+  if (!\uAC70\uB9AC?.ok) throw new Error(\uAC70\uB9AC?.\uBA54\uC2DC\uC9C0 || "\uBC1B\uC744 \uC0AC\uB78C\uC744 \uCC3E\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.");
+  const \uAD6C\uB3C5 = \uAC70\uB9AC.\uAD6C\uB3C5 ?? [];
+  const \uD560\uC77C = {
+    \uACF5\uAC1C\uD0A4: \uAC70\uB9AC.\uACF5\uAC1C\uD0A4,
+    \uD478\uC2DC\uBE44\uBC00\uD0A4: \uAC70\uB9AC.\uD478\uC2DC\uBE44\uBC00\uD0A4,
+    \uBCF4\uB0BC\uAC83: \uAD6C\uB3C5.length ? [{ \uC81C\uBAA9: \uAC70\uB9AC.\uC81C\uBAA9, \uB0B4\uC6A9: \uAC70\uB9AC.\uB0B4\uC6A9, \uB300\uC0C1: \uAC70\uB9AC.\uB300\uC0C1\uAE00, \uAD6C\uB3C5 }] : []
+  };
+  let out = null, \uD130\uC9D0 = null;
+  try {
+    out = await send(\uD560\uC77C, { messaging, webPush, repo });
+  } catch (e) {
+    \uD130\uC9D0 = e;
+  }
+  const \uBB36\uC74C = out?.\uC608\uC57D?.[0];
+  const \uBCF4\uB0C4 = \uD130\uC9D0 ? 0 : \uBB36\uC74C?.\uBCF4\uB0C4 ?? 0, \uC2E4\uD328 = \uD130\uC9D0 ? \uAD6C\uB3C5.length : \uBB36\uC74C?.\uC2E4\uD328 ?? 0;
+  let \uAE30\uB85D\uBABB\uC500 = "";
+  try {
+    await repo.call("__\uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30", [{ \uB204\uAC00: "\uC120\uC0DD\uB2D8", \uB300\uC0C1: \uAC70\uB9AC.\uB300\uC0C1\uAE00, \uC81C\uBAA9: \uAC70\uB9AC.\uC81C\uBAA9, \uB0B4\uC6A9: \uAC70\uB9AC.\uB0B4\uC6A9, \uBCF4\uB0C4, \uC2E4\uD328 }]);
+  } catch (e) {
+    \uAE30\uB85D\uBABB\uC500 = String(e?.message ?? e);
+  }
+  if (\uD130\uC9D0) throw \uD130\uC9D0;
+  const \uB410\uB2E4 = (\uC0C1\uD0DC) => [200, 201, 202].includes(\uC0C1\uD0DC);
+  return {
+    ok: true,
+    \uBCF4\uB0C4,
+    \uC2E4\uD328,
+    \uB300\uC0C1: \uAC70\uB9AC.\uB300\uC0C1\uAE00,
+    \uAEBC\uC9C4\uC218: \uAC70\uB9AC.\uAEBC\uC9C4\uC218 ?? 0,
+    \uC9C0\uC6B4\uAD6C\uB3C5: out?.\uC9C0\uC6B4\uAD6C\uB3C5 ?? 0,
+    \uC904: (\uBB36\uC74C?.\uC904 ?? []).map((r) => ({ \uC774\uB984: r.\uC774\uB984, \uAE30\uAE30: r.\uAE30\uAE30, \uB410\uB098: \uB410\uB2E4(r.\uC0C1\uD0DC), \uC0C1\uD0DC: r.\uC0C1\uD0DC, \uC65C: \uB410\uB2E4(r.\uC0C1\uD0DC) ? "" : r.\uAE00 })),
+    ...\uAE30\uB85D\uBABB\uC500 ? { \uAE30\uB85D\uBABB\uC500 } : {}
+  };
 }
 
 // functions/src/index.mjs
@@ -7383,6 +7632,7 @@ var aux = onRequest({ region, cors: true, memory: "512MiB" }, async (req, res) =
     const { fn, args = [] } = req.body ?? {};
     if (fn === "\uD478\uC2DC\uC804\uC1A1") return void res.json({ ok: true, \uAC12: await sendPush(args[1]) });
     if (fn === "__\uADF8\uB9BC\uD30C\uC77C") return void res.json({ ok: true, \uAC12: await saveImage(args[1], args[2], args[3], args[4]) });
+    if (fn === "\uC54C\uB9BC\uBCF4\uB0B4\uAE30") return void res.json({ ok: true, \uAC12: await sendNowNotice(args[1]) });
     res.status(400).json({ ok: false, \uBA54\uC2DC\uC9C0: "\uC4F8 \uC218 \uC5C6\uB294 \uAE30\uB2A5\uC785\uB2C8\uB2E4: " + fn });
   } catch (e) {
     res.status(500).json({ ok: false, \uBA54\uC2DC\uC9C0: String(e?.message ?? e) });
@@ -7401,11 +7651,30 @@ async function runScheduledNotices({ now = Date.now(), messaging = getMessaging(
   if (state !== "active") throw new Error("runtime/config\uAC00 active\uAC00 \uC544\uB2D9\uB2C8\uB2E4.");
   const repo = new FirestoreRepository(db, dataset, { role: "bridge", user: { uid: "scheduled-notice" } });
   const \uD560\uC77C = await repo.call("__\uC608\uC57D\uC54C\uB9BC", [now]);
-  return sendScheduledNotices(\uD560\uC77C, { messaging, webPush, repo });
+  const out = await sendScheduledNotices(\uD560\uC77C, { messaging, webPush, repo });
+  const \uC904\uB4E4 = noticeLogRows(out, "\uC608\uC57D");
+  if (\uC904\uB4E4.length) {
+    try {
+      await repo.call("__\uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30", [\uC904\uB4E4]);
+    } catch (e) {
+      out.\uAE30\uB85D\uBABB\uC500 = String(e?.message ?? e);
+    }
+  }
+  for (const j of out.\uC608\uC57D) delete j.\uC904;
+  return out;
 }
 var scheduledNotices = onSchedule({ region, schedule: "*/10 * * * *", timeZone: "Asia/Seoul" }, async () => {
   console.log(JSON.stringify(await runScheduledNotices()));
 });
+async function sendNowNotice(\uAC12, { messaging = getMessaging(), webPush, repo } = {}) {
+  const { \uC81C\uBAA9 = "", \uB0B4\uC6A9 = "", \uB300\uC0C1\uC885\uB958 = "\uC804\uCCB4", \uB300\uC0C1\uAC12 = "" } = \uAC12 ?? {};
+  if (!repo) {
+    const { dataset, state } = (await db.doc("runtime/config").get()).data() ?? {};
+    if (state !== "active") throw new Error("runtime/config\uAC00 active\uAC00 \uC544\uB2D9\uB2C8\uB2E4.");
+    repo = new FirestoreRepository(db, dataset, { role: "bridge", user: { uid: "notice-now" } });
+  }
+  return sendNoticeWith(repo, { \uC81C\uBAA9, \uB0B4\uC6A9, \uB300\uC0C1\uC885\uB958, \uB300\uC0C1\uAC12 }, { messaging, webPush });
+}
 export {
   adminDb,
   aux,
@@ -7414,6 +7683,7 @@ export {
   runMonthlyAward,
   runScheduledNotices,
   scheduledNotices,
+  sendNowNotice,
   sendPush,
   teacherOk
 };

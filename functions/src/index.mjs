@@ -9,7 +9,7 @@ import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { randomUUID } from 'node:crypto';
 import { FirestoreRepository } from '../../services/firestore-repository.mjs';
 import { pushAddressOk } from './push-address.mjs';
-import { sendScheduledNotices } from './scheduled-push.mjs';
+import { sendScheduledNotices, noticeLogRows, sendNoticeWith } from './scheduled-push.mjs';
 export { pushAddressOk };
 
 initializeApp();
@@ -72,6 +72,7 @@ export const aux = onRequest({ region, cors: true, memory: '512MiB' }, async (re
     const { fn, args = [] } = req.body ?? {};
     if (fn === '푸시전송') return void res.json({ ok: true, 값: await sendPush(args[1]) });
     if (fn === '__그림파일') return void res.json({ ok: true, 값: await saveImage(args[1], args[2], args[3], args[4]) });
+    if (fn === '알림보내기') return void res.json({ ok: true, 값: await sendNowNotice(args[1]) });
     res.status(400).json({ ok: false, 메시지: '쓸 수 없는 기능입니다: ' + fn });
   } catch (e) {
     res.status(500).json({ ok: false, 메시지: String(e?.message ?? e) });
@@ -96,8 +97,28 @@ export async function runScheduledNotices({ now = Date.now(), messaging = getMes
   if (state !== 'active') throw new Error('runtime/config가 active가 아닙니다.');
   const repo = new FirestoreRepository(db, dataset, { role: 'bridge', user: { uid: 'scheduled-notice' } });
   const 할일 = await repo.call('__예약알림', [now]);
-  return sendScheduledNotices(할일, { messaging, webPush, repo });
+  const out = await sendScheduledNotices(할일, { messaging, webPush, repo });
+  // 예약으로 나간 것도 알림기록 표에 — 묶음마다 한 줄 (누가: 예약)
+  const 줄들 = noticeLogRows(out, '예약');
+  if (줄들.length) {
+    try { await repo.call('__알림기록쓰기', [줄들]); } catch (e) { out.기록못씀 = String(e?.message ?? e); }
+  }
+  for (const j of out.예약) delete j.줄;   // 로그에는 사람별 줄을 안 남긴다
+  return out;
 }
 export const scheduledNotices = onSchedule({ region, schedule: '*/10 * * * *', timeZone: 'Asia/Seoul' }, async () => {
   console.log(JSON.stringify(await runScheduledNotices()));
 });
+
+/* 알림만 보내기 — 공지 없이, 선생님이 쓴 글을 고른 아이에게만. aux 가 선생님인지 이미 봤다.
+   브라우저는 글을 암호화해 싣지 못하니 예약과 같은 sendScheduledNotices 로 쏜다 (web-push · FCM · 410 치우기).
+   공지 올릴 때 · 「알림 시험 보내기」 는 여전히 브라우저가 서명하는 푸시전송 길이다 */
+export async function sendNowNotice(값, { messaging = getMessaging(), webPush, repo } = {}) {
+  const { 제목 = '', 내용 = '', 대상종류 = '전체', 대상값 = '' } = 값 ?? {};
+  if (!repo) {
+    const { dataset, state } = (await db.doc('runtime/config').get()).data() ?? {};
+    if (state !== 'active') throw new Error('runtime/config가 active가 아닙니다.');
+    repo = new FirestoreRepository(db, dataset, { role: 'bridge', user: { uid: 'notice-now' } });
+  }
+  return sendNoticeWith(repo, { 제목, 내용, 대상종류, 대상값 }, { messaging, webPush });
+}

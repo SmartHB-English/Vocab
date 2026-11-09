@@ -220,8 +220,19 @@ var DEMO_설정 = { 합격점:80, 학원이름:'홍제인왕영어' };
 
 var DEMO_예약 = [
   {키:'1', 종류:'안낸아이', 날짜:'', 시각:'20:00', 제목:'오늘 숙제 잊지 마세요', 내용:'오늘 마감인 숙제가 남아 있어요.',
-   공지함께:false, 공지끝날:'', 보낸때:'', 켬:true}
+   공지함께:false, 공지끝날:'', 보낸때:'', 켬:true, 대상종류:'전체', 대상값:''}
 ];
+/* 알림만 보내기 · 받는 사람 고르개 흉내 — 반은 흉내 학생에게 붙여 둔다 */
+var DEMO_알림반 = {'홍길동':'3A', '김영희':'3A', '이철수':'3B', '최아람':'유치'};
+var DEMO_알림기록 = [
+  {보낸때:'2026-09-23 19:00', 누가:'예약', 대상:'안 낸 아이', 제목:'오늘 숙제 잊지 마세요', 내용:'오늘 마감인 숙제가 남아 있어요.', 보냄:1, 실패:0}
+];
+function DEMO_대상글_(종류, 값){
+  if(종류==='반') return /반$/.test(값) ? 값 : 값+'반';
+  if(종류==='아이'){ var 이름들=String(값||'').split('|').filter(String);
+    return 이름들.length<=3 ? 이름들.join('·') : 이름들.slice(0,3).join('·')+' 외 '+(이름들.length-3)+'명'; }
+  return '전체';
+}
 var DEMO = {
   설정가져오기: function(){
     return {ok:true, 합격점:DEMO_설정.합격점, 학원이름:DEMO_설정.학원이름};
@@ -490,11 +501,37 @@ var DEMO = {
   예약저장:function(pw,행,v){
     if(!(v.시각>='07:00' && v.시각<='21:00')) return {ok:false, 메시지:'알림은 아침 7시부터 밤 9시 사이에만 보낼 수 있습니다.'};
     DEMO_예약.push({키:String(Date.now()), 종류:v.종류, 날짜:v.날짜||'', 시각:v.시각, 제목:v.제목||'', 내용:v.내용||'',
-                    공지함께:!!v.공지함께, 공지끝날:v.공지끝날||'', 보낸때:'', 켬:true});
+                    공지함께:!!v.공지함께, 공지끝날:v.공지끝날||'', 보낸때:'', 켬:true,
+                    대상종류:v.대상종류||'전체', 대상값:v.대상값||''});
     return DEMO.예약목록(pw);
   },
   예약켜기:function(pw,행,켬){ var n=DEMO_예약[Number(행)-2]; if(n) n.켬=!!켬; return DEMO.예약목록(pw); },
   예약지우기:function(pw,행){ DEMO_예약.splice(Number(행)-2,1); return DEMO.예약목록(pw); },
+  알림명단:function(){
+    var 켠={}; DEMO_구독.forEach(function(x){ 켠[x.이름]=1; });
+    var 반들=[];
+    var 아이들=DEMO_배정.map(function(x){
+      var 반=DEMO_알림반[x.이름]||''; if(반 && 반들.indexOf(반)<0) 반들.push(반);
+      return {이름:x.이름, 반:반, 켬:!!켠[x.이름]}; });
+    return {ok:true, 반들:반들.sort(), 아이들:아이들, 열쇠있나:!!DEMO_열쇠.공개키};
+  },
+  알림기록목록:function(){ return {ok:true, 기록:DEMO_알림기록.slice().reverse().slice(0,20)}; },
+  /* 미리보기에서는 진짜로 쏘지 않는다 — 몇 명에게 갈지만 돌려준다 */
+  알림보내기:function(pw,v){
+    v=v||{};
+    if(!String(v.제목||'').trim() || !String(v.내용||'').trim()) return {ok:false, 메시지:'제목과 내용을 적어 주세요.'};
+    var 종류=v.대상종류||'전체', 값=String(v.대상값||'');
+    var 고른=DEMO_배정.map(function(x){ return x.이름; }).filter(function(n){
+      if(종류==='반') return DEMO_알림반[n]===값;
+      if(종류==='아이') return 값.split('|').indexOf(n)>-1;
+      return true; });
+    var 구독=DEMO_구독.filter(function(x){ return 고른.indexOf(x.이름)>-1; });
+    var 켠={}; 구독.forEach(function(x){ 켠[x.이름]=1; });
+    var 대상=DEMO_대상글_(종류, 값);
+    DEMO_알림기록.push({보낸때:'(미리보기)', 누가:'선생님', 대상:대상, 제목:v.제목, 내용:v.내용, 보냄:구독.length, 실패:0});
+    return {ok:true, 보냄:구독.length, 실패:0, 대상:대상, 꺼진수:고른.filter(function(n){ return !켠[n]; }).length,
+      줄:구독.map(function(x){ return {이름:x.이름, 기기:x.기기, 됐나:true, 상태:201, 왜:''}; })};
+  },
   푸시공개키:function(){ return DEMO_열쇠.공개키; },
   푸시열쇠:function(){ return {ok:true, 공개키:DEMO_열쇠.공개키, 비밀키:DEMO_열쇠.비밀키}; },
   푸시열쇠저장:function(pw,공개,비밀){

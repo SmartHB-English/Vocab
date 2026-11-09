@@ -6,7 +6,7 @@ import { digest } from '../services/firestore-repository.mjs';
 import { unpack, sheetId } from '../services/store-codec.mjs';
 assert.match(process.env.FIRESTORE_EMULATOR_HOST ?? '', /^(127\.0\.0\.1|localhost):\d+$/);
 process.env.GCLOUD_PROJECT ??= 'demo-smarthb-vocab';
-const { adminDb, teacherOk, pushAddressOk, sendPush, runMonthlyAward, runScheduledNotices } = await import('../functions/index.js');
+const { adminDb, teacherOk, pushAddressOk, sendPush, runMonthlyAward, runScheduledNotices, sendNowNotice } = await import('../functions/index.js');
 const db = adminDb();
 const dataset = 'fixture-functions';
 const 서울오늘 = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
@@ -60,6 +60,24 @@ test('scheduled notice stamps 보낸때 in the Admin SDK transaction before send
   assert.ok(Object.values(notices.cells).some(c => c.value === '예약 안내'));
   assert.equal((await runScheduledNotices({ now: 저녁 + 600000, messaging })).보냄, 0);
   assert.equal(sent.length, 1);
+  // 예약으로 나간 것도 알림기록 표에 남는다 (누가: 예약)
+  const log = unpack((await db.doc(`vocabDatasets/${dataset}/tables/${sheetId('알림기록')}`).get()).data().payload);
+  assert.deepEqual([2, 3, 4, 6].map(c => log.cells[`2:${c}`]?.value), ['예약', '전체', '예약 안내', 1]);
+});
+
+test('알림만 보내기 — sendNowNotice 가 Admin SDK 로 __알림거리 → 쏘기 → __알림기록쓰기, 공지는 안 늘어난다', async () => {
+  const 공지수 = async () => Object.keys(unpack((await db.doc(`vocabDatasets/${dataset}/tables/${sheetId('공지')}`).get()).data().payload).cells).length;
+  const 전 = await 공지수();
+  const sent = [];
+  const r = await sendNowNotice({ 제목: '휴강', 내용: '오늘은 쉽니다', 대상종류: '반', 대상값: 'A' }, { messaging: { send: async m => { sent.push(m.notification); return 'id'; } } });
+  assert.equal(r.ok, true); assert.equal(r.보냄, 1); assert.equal(r.대상, 'A반'); assert.equal(r.꺼진수, 0);
+  assert.deepEqual(sent, [{ title: '휴강', body: '오늘은 쉽니다' }]);
+  assert.equal(await 공지수(), 전, '공지는 올라가지 않는다');
+  const log = unpack((await db.doc(`vocabDatasets/${dataset}/tables/${sheetId('알림기록')}`).get()).data().payload);
+  assert.deepEqual([2, 3, 4, 6].map(c => log.cells[`3:${c}`]?.value), ['선생님', 'A반', '휴강', 1]);
+  // 다른 반이면 아무에게도 안 간다
+  assert.equal((await sendNowNotice({ 제목: '가', 내용: '나', 대상종류: '반', 대상값: 'B' }, { messaging: { send: async () => { throw new Error('안 불린다'); } } })).보냄, 0);
+  await assert.rejects(sendNowNotice({ 제목: '', 내용: '' }), /제목과 내용/);
 });
 
 test('monthly award runs the legacy engine through the Admin SDK and is repeatable', async () => {

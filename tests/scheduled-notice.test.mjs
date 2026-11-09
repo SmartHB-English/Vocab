@@ -332,7 +332,7 @@ test('선생님이 손으로 보내는 푸시전송 길은 그대로 — 화면�
   assert.match(teacher, /return api\('푸시전송', T\.pw, 보낼것\)/);
 });
 
-test('선생님 화면 — 「공지 보내기」 탭에 예약 칸, 시각은 7:00~21:00 만, 켠 아이 수 · 안낸아이 안내', () => {
+test('선생님 화면 — 「공지·알림」 탭에 예약 칸, 시각은 7:00~21:00 만, 켠 아이 수 · 안낸아이 안내', () => {
   const teacher = readFileSync(new URL('../teacher.html', import.meta.url), 'utf8');
   const 탭 = teacher.slice(teacher.indexOf("else if(T.tab==='notice'){"), teacher.indexOf("else if(T.tab==='miss'){"));
   assert.match(탭, /api\('예약목록',T\.pw\)/);
