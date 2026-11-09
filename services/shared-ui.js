@@ -540,6 +540,12 @@ var DEMO = {
   },
   구독등록:function(){ return {ok:true}; },
   구독해제:function(){ return {ok:true}; },
+  /* 미리보기에서도 「이 아이 알림 끄기」 가 돌게 — 흉내 표에서 그 주소를 뺀다 */
+  구독지우기:function(pw,주소들){
+    var 뺄=(주소들||[]).map(String), 전=DEMO_구독.length;
+    DEMO_구독=DEMO_구독.filter(function(x){ return 뺄.indexOf(String(x.주소))<0; });
+    return {ok:true, 개수:전-DEMO_구독.length};
+  },
   구독목록:function(pw,이름들){
     var 고른=(이름들||[]).slice();
     return {ok:true, 구독:DEMO_구독.filter(function(x){

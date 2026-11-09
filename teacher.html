@@ -1288,6 +1288,9 @@ html[data-theme="high"] .hwhero{box-shadow:0 8px 20px rgba(0,0,0,.3)}
 .bellbar.on .bi{background:#DCF5E8}
 .bellbar.on .bi svg{stroke:#15803D}
 .bellbar.on .bg{color:var(--sub);border-color:var(--line)}
+/* 켜져 있을 때는 단추가 아니라 그냥 줄 — 눌리는 시늉도 없다 */
+.bellbar.still{cursor:default;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.bellbar.still:active{transform:none}
 .belltest{display:block;width:100%;margin-top:7px;background:none;border:none;
   font-family:inherit;font-size:12px;font-weight:700;color:var(--sub);
   text-decoration:underline;text-underline-offset:3px;padding:4px;cursor:pointer}
@@ -3187,6 +3190,12 @@ var DEMO = {
   },
   구독등록:function(){ return {ok:true}; },
   구독해제:function(){ return {ok:true}; },
+  /* 미리보기에서도 「이 아이 알림 끄기」 가 돌게 — 흉내 표에서 그 주소를 뺀다 */
+  구독지우기:function(pw,주소들){
+    var 뺄=(주소들||[]).map(String), 전=DEMO_구독.length;
+    DEMO_구독=DEMO_구독.filter(function(x){ return 뺄.indexOf(String(x.주소))<0; });
+    return {ok:true, 개수:전-DEMO_구독.length};
+  },
   구독목록:function(pw,이름들){
     var 고른=(이름들||[]).slice();
     return {ok:true, 구독:DEMO_구독.filter(function(x){
@@ -5398,6 +5407,9 @@ function drawTab(){
         '<div class="panel ppact"><div class="panel-b">'+
           '<div class="ppact-t">'+esc(n)+' 학생에게</div>'+
           '<button class="btn" id="ppPush" type="button">휴대폰 알림 보내기</button>'+
+          '<div id="ppOffBox" class="hide">'+
+            '<button class="btn line" id="ppPushOff" type="button">이 아이 알림 끄기</button>'+
+            '<p class="ppnote">이 앱이 보내는 알림만 멈춥니다.</p></div>'+
           (고른.밀림.length ? '<button class="btn line" data-bochung="'+esc(n)+'" type="button">안 낸 숙제 보충으로 다시 내기</button>' : '')+
           '<button class="btn line" id="ppHw" type="button">숙제 따로 내주기</button>'+
           '<p class="ppnote">알림은 아이가 휴대폰에서 알림을 켜 두었을 때만 갑니다.</p>'+
@@ -5430,6 +5442,31 @@ function drawTab(){
         .then(function(){ btn.disabled=false; btn.textContent=글; });
     }
     if($('ppPush')) $('ppPush').onclick=function(){ 쏘기(this, [T.p고름]); };
+    /* 이 아이 알림 끄기 — 아이 화면에는 끄는 단추가 없다. 표에서 그 아이 구독 주소를 지운다(폰 설정 권한은 못 건드린다).
+       알림을 안 켠 아이면 단추를 숨긴 채로 둔다 */
+    if($('ppOffBox')){
+      var 끌아이=T.p고름;
+      api('구독목록', T.pw, [끌아이]).then(function(r){
+        var 주소들=((r&&r.ok&&r.구독)||[]).filter(function(x){ return x.이름===끌아이; })
+          .map(function(x){ return x.주소; }).filter(Boolean);
+        if(!주소들.length || T.p고름!==끌아이 || !$('ppOffBox')) return;
+        $('ppOffBox').classList.remove('hide');
+        $('ppPushOff').onclick=function(){
+          if(!confirm(끌아이+' 학생의 알림을 끕니다. 다시 켜려면 아이가 앱에서 직접 켜야 합니다. 하시겠어요?')) return;
+          var btn=this; btn.disabled=true; btn.textContent='끄는 중…';
+          api('구독지우기', T.pw, 주소들).then(function(x){
+            if(!x || !x.ok){ throw new Error((x&&x.메시지)||''); }
+            toast(끌아이+' 학생의 알림을 껐습니다');
+            /* 공지·알림 탭의 켬 수 · 「아직 안 켠 학생」 을 새로 받아 오게 한다 */
+            T.공지=null; T.알림현황=null; T.알림명단=null;
+            drawTab();
+          }).catch(function(e){
+            toast((e&&e.message)||'끄지 못했습니다');
+            btn.disabled=false; btn.textContent='이 아이 알림 끄기';
+          });
+        };
+      }).catch(function(){});
+    }
     if($('ppPushAll')) $('ppPushAll').onclick=function(){
       var 명=사람들.filter(function(x){ return x.상태==='miss'; }).map(function(x){ return x.이름; });
       if(!confirm('안 낸 학생 '+명.length+'명에게 알림을 보낼까요?')) return;

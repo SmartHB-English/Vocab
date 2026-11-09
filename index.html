@@ -1285,6 +1285,9 @@ html[data-theme="high"] .hwhero{box-shadow:0 8px 20px rgba(0,0,0,.3)}
 .bellbar.on .bi{background:#DCF5E8}
 .bellbar.on .bi svg{stroke:#15803D}
 .bellbar.on .bg{color:var(--sub);border-color:var(--line)}
+/* 켜져 있을 때는 단추가 아니라 그냥 줄 — 눌리는 시늉도 없다 */
+.bellbar.still{cursor:default;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.bellbar.still:active{transform:none}
 .belltest{display:block;width:100%;margin-top:7px;background:none;border:none;
   font-family:inherit;font-size:12px;font-weight:700;color:var(--sub);
   text-decoration:underline;text-underline-offset:3px;padding:4px;cursor:pointer}
@@ -3653,6 +3656,12 @@ var DEMO = {
   },
   구독등록:function(){ return {ok:true}; },
   구독해제:function(){ return {ok:true}; },
+  /* 미리보기에서도 「이 아이 알림 끄기」 가 돌게 — 흉내 표에서 그 주소를 뺀다 */
+  구독지우기:function(pw,주소들){
+    var 뺄=(주소들||[]).map(String), 전=DEMO_구독.length;
+    DEMO_구독=DEMO_구독.filter(function(x){ return 뺄.indexOf(String(x.주소))<0; });
+    return {ok:true, 개수:전-DEMO_구독.length};
+  },
   구독목록:function(pw,이름들){
     var 고른=(이름들||[]).slice();
     return {ok:true, 구독:DEMO_구독.filter(function(x){
@@ -7100,6 +7109,7 @@ function 알림켜기(){
   }).catch(function(){ toast('알림을 켜지 못했어요'); });
 }
 
+/* 지금은 아이 화면에서 부르지 않는다. 선생님이 끄는 길만 둔다 */
 function 알림끄기(){
   if(window.VocabNativePush) return VocabNativePush.disable().then(function(){ 알림.됨=false; 알림.지금='끔'; 그리기_알림줄(); toast('알림을 껐어요'); }).catch(function(){ toast('끄지 못했어요'); });
   if(!알림.일꾼) return;
@@ -7147,18 +7157,23 @@ function 그리기_알림줄(){
   if(알림.지금==='안됨' && !아이폰_()){ box.innerHTML=''; return; }
   var 켬 = 알림.됨;
   var 아이폰안내 = 아이폰_() && !홈화면_();
+  /* 켜져 있으면 누를 수 없는 줄 — 아이가 궁금해서 눌러 꺼 버리지 않게. 끄는 건 선생님 화면에서 */
   box.innerHTML =
-    '<button class="bellbar'+(켬?' on':'')+'" id="bellGo" type="button"'+(알림.바쁨?' disabled':'')+'>'+
-      '<span class="bi">'+알림아이콘_('공지')+'</span>'+
-      '<span class="bt"><b>'+(켬?'알림을 받고 있어요':'휴대폰으로 알림 받기')+'</b>'+
-        '<i>'+(켬 ? '숙제가 나오면 휴대폰에 떠요'
-              : (아이폰안내 ? '홈 화면에 추가하면 켤 수 있어요'
-                            : '숙제·공지를 앱을 안 켜도 받아요'))+'</i></span>'+
-      '<span class="bg">'+(알림.바쁨||(켬?'끄기':'켜기'))+'</span>'+
-    '</button>'+
+    (켬
+      ? '<div class="bellbar on still">'+
+          '<span class="bi">'+알림아이콘_('공지')+'</span>'+
+          '<span class="bt"><b>알림을 받고 있어요</b><i>숙제가 나오면 휴대폰에 떠요</i></span>'+
+        '</div>'
+      : '<button class="bellbar" id="bellGo" type="button"'+(알림.바쁨?' disabled':'')+'>'+
+          '<span class="bi">'+알림아이콘_('공지')+'</span>'+
+          '<span class="bt"><b>휴대폰으로 알림 받기</b>'+
+            '<i>'+(아이폰안내 ? '홈 화면에 추가하면 켤 수 있어요'
+                              : '숙제·공지를 앱을 안 켜도 받아요')+'</i></span>'+
+          '<span class="bg">'+(알림.바쁨||'켜기')+'</span>'+
+        '</button>')+
     (켬 && !window.VocabNativePush ? '<button class="belltest" id="bellTest" type="button">'+
             '알림이 잘 오는지 시험해 보기</button>' : '');
-  $('bellGo').onclick = function(){ 켬 ? 알림하는중_('끄는 중…', 알림끄기) : 알림하는중_('켜는 중…', 알림켜기); };
+  if(!켬) $('bellGo').onclick = function(){ 알림하는중_('켜는 중…', 알림켜기); };
   if($('bellTest')) $('bellTest').onclick = 알림시험;
 }
 

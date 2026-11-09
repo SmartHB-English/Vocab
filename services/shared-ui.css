@@ -1269,6 +1269,9 @@ html[data-theme="high"] .hwhero{box-shadow:0 8px 20px rgba(0,0,0,.3)}
 .bellbar.on .bi{background:#DCF5E8}
 .bellbar.on .bi svg{stroke:#15803D}
 .bellbar.on .bg{color:var(--sub);border-color:var(--line)}
+/* 켜져 있을 때는 단추가 아니라 그냥 줄 — 눌리는 시늉도 없다 */
+.bellbar.still{cursor:default;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.bellbar.still:active{transform:none}
 .belltest{display:block;width:100%;margin-top:7px;background:none;border:none;
   font-family:inherit;font-size:12px;font-weight:700;color:var(--sub);
   text-decoration:underline;text-underline-offset:3px;padding:4px;cursor:pointer}
