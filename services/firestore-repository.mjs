@@ -42,6 +42,9 @@ const privileged = role => role === 'teacher' || role === 'bridge';
 // 선생님 「자료」 탭 — 엔진(Code.gs)을 거치지 않고 표를 바로 고친다. 답은 날짜를 지키려고 pack 한 글로 준다.
 // 하다가 걸리면(그 사이 줄이 바뀜 등) 표를 건드리기 전에 {ok:false} 로 돌아온다 — 그때는 저장하지 않는다.
 const 자료함수 = {__자료읽기:자료읽기, __자료고치기:칸고치기, __자료지우기:줄지우기, __자료되살리기:되살리기, __휴지통비우기:휴지통비우기};
+// bridge(Cloud Functions)만 부르는 엔진 길 — 열린기능_ 에 없다. __예약알림 은 푸시비밀키를 싣고 오니 journal 에는 빼고 적는다
+const 다리함수 = {__월시상:engine=>engine.monthly(), __예약알림:(engine,args)=>engine.scheduledNotices(args[0]), __죽은구독지우기:(engine,args)=>engine.dropDeadPushes(args[0])};
+const 적을답 = (fn,answer) => fn==='__예약알림'&&answer&&answer.푸시비밀키 ? {...answer,푸시비밀키:'(뺌)'} : answer;
 const 자료하기 = (일,store,args,how) => { try { return {ok:true,자료:pack(일(store,args[0]??{},how))}; } catch(e) { if(e instanceof Error&&!e.code?.startsWith?.('permission'))return {ok:false,충돌:e.code==='충돌',메시지:e.message}; throw e; } };
 
 export class FirestoreRepository {
@@ -185,6 +188,7 @@ export class FirestoreRepository {
     const 자료일 = 자료함수[fn];
     if (자료일 && this.identity.role !== 'teacher') return {ok:false,메시지:'선생님만 할 수 있어요.'};
     if (fn === '__조각합치기' && !privileged(this.identity.role)) return {ok:false,메시지:'선생님만 할 수 있어요.'};
+    if (['__예약알림','__죽은구독지우기'].includes(fn) && this.identity.role !== 'bridge') return {ok:false,메시지:'예약 알림 함수만 부를 수 있어요.'};
     const 누가 = '선생님 · '+String(this.identity.user?.uid??'').slice(0,6);
     const publicOnly = ['시작정보','푸시공개키','공지가져오기'].includes(fn) && !this.identity.role;
     // 다시 보낸 것이면 먼저 영수증부터 — 먼저 것이 들어갔는데 다시 계획하면 「이미 봤습니다」 처럼 다른 답이 나온다
@@ -218,7 +222,7 @@ export class FirestoreRepository {
         return {ok:true,합친};
       }
       const engine = createRuntime(current,{effects:{saveImage:imageOperation?saveImage:undefined},now:()=>started,uuid});
-      const answer = fn==='__월시상' ? engine.monthly() : engine.call(fn,args);
+      const answer = 다리함수[fn] ? 다리함수[fn](engine,args) : engine.call(fn,args);
       // 자격 문서에 학부모 토큰을 적기 시작한 뒤(부모열쇠) 처음 한 번은, 채울 아이가 없어도 학생 표를 다시 묶는다
       if (fn==='학부모토큰채우기' && answer?.ok && !catalog.부모열쇠 && current.getSheetByName('학생')) current.getSheetByName('학생').dirty = true;
       return answer;
@@ -293,7 +297,7 @@ export class FirestoreRepository {
         }
       }
       // 「자료」 탭의 고치기·지우기·되살리기는 누가 · 어느 표 를 따로 적는다 — 바꾸기 전과 후는 result 안에 (전 · 후 · 지운 줄 · 되살린 줄)
-      transaction.set(this.ref(`journal/${requestId}`),{actor:this.identity.user.uid,fn,result:pack(answer),changes,at:started,...(자료일?{누가,표:String(args[0]?.표??휴지통이름)}:{})});
+      transaction.set(this.ref(`journal/${requestId}`),{actor:this.identity.user.uid,fn,result:pack(적을답(fn,answer)),changes,at:started,...(자료일?{누가,표:String(args[0]?.표??휴지통이름)}:{})});
       this.cache.clear();
       if(fn==='학부모보기'&&!args[1]&&answer?.ok)this.parentCache={token:this.identity.token,revision:currentCatalog.revision,until:started+60000,value:answer};
       return answer;

@@ -6,9 +6,10 @@ import { digest } from '../services/firestore-repository.mjs';
 import { unpack, sheetId } from '../services/store-codec.mjs';
 assert.match(process.env.FIRESTORE_EMULATOR_HOST ?? '', /^(127\.0\.0\.1|localhost):\d+$/);
 process.env.GCLOUD_PROJECT ??= 'demo-smarthb-vocab';
-const { adminDb, teacherOk, pushAddressOk, sendPush, runMonthlyAward } = await import('../functions/index.js');
+const { adminDb, teacherOk, pushAddressOk, sendPush, runMonthlyAward, runScheduledNotices } = await import('../functions/index.js');
 const db = adminDb();
 const dataset = 'fixture-functions';
+const 서울오늘 = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
 
 test('seed', async () => {
   const s = new TableStore();
@@ -18,6 +19,11 @@ test('seed', async () => {
   add('단어장목록', [['단어장','종류','시트이름','색','레슨묶음','과'], ['교재A','단어','단어_교재A','blue',10,'']]);
   add('단어_교재A', [['번호','영어','뜻','그림'], [1,'apple','사과','']]);
   for (const n of ['기록','기록보관','숙제','게임','공지','푸시']) s.insertSheet(n);
+  const 예약 = s.insertSheet('알림예약');
+  예약.appendRow(['만든때','종류','날짜','시각','제목','내용','공지함께','공지끝날','보낸때','켬']);
+  예약.appendRow([new Date(), '한번', 서울오늘, '07:00', '예약 안내', '내용', 'O', '', '', '']);
+  s.getSheetByName('푸시').appendRow(['켠때','반','이름','주소','p256dh','auth','기기']);
+  s.getSheetByName('푸시').appendRow([new Date(), '', '가상 학생', 'fcm:' + 'f'.repeat(40), '', '', 'app']);
   const { documents } = await createDatasetDocuments(s, { digest, newId: () => crypto.randomUUID() });
   for (const [path, value] of documents) await db.doc(`vocabDatasets/${dataset}/${path}`).set(value);
   await db.doc('runtime/config').set({ dataset, state: 'active' });
@@ -37,6 +43,23 @@ test('push goes only to push services', async () => {
   assert.equal(pushAddressOk('https://evil.example/fcm.googleapis.com'), false);
   assert.equal(pushAddressOk('http://fcm.googleapis.com/x'), false);
   assert.deepEqual((await sendPush([{ 주소: 'https://evil.example/' }])).줄[0].상태, 0);
+});
+
+test('scheduled notice stamps 보낸때 in the Admin SDK transaction before sending, then never picks it again', async () => {
+  const 저녁 = new Date(서울오늘 + 'T20:00:00+09:00').getTime();
+  const sent = [];
+  const messaging = { send: async m => {
+    const t = unpack((await db.doc(`vocabDatasets/${dataset}/tables/${sheetId('알림예약')}`).get()).data().payload);
+    sent.push({ m, 보낸때: t.cells['2:9']?.value });            // 쏘는 그때 이미 저장돼 있어야 한다
+    return 'id';
+  } };
+  const first = await runScheduledNotices({ now: 저녁, messaging });
+  assert.equal(first.보냄, 1);
+  assert.deepEqual(sent.map(x => [x.m.notification.title, x.보낸때]), [['예약 안내', 서울오늘 + ' 20:00']]);
+  const notices = unpack((await db.doc(`vocabDatasets/${dataset}/tables/${sheetId('공지')}`).get()).data().payload);
+  assert.ok(Object.values(notices.cells).some(c => c.value === '예약 안내'));
+  assert.equal((await runScheduledNotices({ now: 저녁 + 600000, messaging })).보냄, 0);
+  assert.equal(sent.length, 1);
 });
 
 test('monthly award runs the legacy engine through the Admin SDK and is repeatable', async () => {

@@ -108,6 +108,12 @@ self.addEventListener('message', function(e){
 });
 
 self.addEventListener('push', function(e){
+  var 실린 = null;
+  try { 실린 = e.data ? e.data.json() : null; } catch(err){ 실린 = null; }
+  if(실린 && (실린.제목 || 실린.내용)){
+    e.waitUntil(띄우기({ 제목: String(실린.제목 || '선생님 말씀'), 글: String(실린.내용 || '') }));
+    return;
+  }
   e.waitUntil(내정보().then(function(me){
     var 기본 = { 제목:'영단어학습프로그램', 글:'선생님이 알림을 보냈어요.' };
     if(!me || !me.창구) return 띄우기(기본);

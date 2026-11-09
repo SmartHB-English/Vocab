@@ -1,4 +1,4 @@
-// Apps Script 보조 창구(푸시 전송 · 그림 파일 · 매월 시상)를 대신한다. 2026-10-08 Apps Script 배포가 사라져 옮겼다.
+// Apps Script 보조 창구(푸시 전송 · 그림 파일 · 매월 시상)를 대신한다. 예약 알림(scheduledNotices)도 여기서 돈다. 2026-10-08 Apps Script 배포가 사라져 옮겼다.
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
@@ -8,6 +8,9 @@ import { onRequest } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { randomUUID } from 'node:crypto';
 import { FirestoreRepository } from '../../services/firestore-repository.mjs';
+import { pushAddressOk } from './push-address.mjs';
+import { sendScheduledNotices } from './scheduled-push.mjs';
+export { pushAddressOk };
 
 initializeApp();
 const db = getFirestore();
@@ -21,15 +24,6 @@ export async function teacherOk(uid) {
   if (!config || config.state !== 'active' || !session || session.dataset !== config.dataset) return false;
   const credential = (await db.doc(`vocabDatasets/${config.dataset}/credentials/${session.credentialId}`).get()).data();
   return !!credential && ['teacher', 'bridge'].includes(credential.role) && credential.pinHash === session.proof;
-}
-
-/* 알림 서버로만 보낸다 — 아무 주소로나 나가는 창구가 되지 않게 */
-const pushHosts = ['fcm.googleapis.com', 'push.services.mozilla.com', 'push.apple.com', 'notify.windows.com'];
-export function pushAddressOk(address) {
-  try {
-    const u = new URL(address);
-    return u.protocol === 'https:' && pushHosts.some(h => u.hostname === h || u.hostname.endsWith('.' + h));
-  } catch { return false; }
 }
 
 /* 브라우저가 만든 VAPID 표를 실어 글 없이 쏜다. 돌려주는 꼴은 옛 Code.gs 푸시전송 그대로 */
@@ -92,4 +86,18 @@ export async function runMonthlyAward() {
 }
 export const monthlyAward = onSchedule({ region, schedule: '0 6 1 * *', timeZone: 'Asia/Seoul' }, async () => {
   console.log(JSON.stringify(await runMonthlyAward()));
+});
+
+/* 알림 예약 — 10분마다 예약 표를 본다 (19시로 걸면 19시 0~9분에 나간다). 엔진이 보낸때를 먼저 찍고(거래) 보낼 것을 돌려주면
+   여기서 서명해 쏜다. 브라우저가 없으니 VAPID 표는 설정의 푸시비밀키로 함수가 만든다 (scheduled-push.mjs).
+   선생님이 손으로 보내는 길(aux 의 푸시전송 → sendPush)은 그대로다 */
+export async function runScheduledNotices({ now = Date.now(), messaging = getMessaging(), webPush } = {}) {
+  const { dataset, state } = (await db.doc('runtime/config').get()).data() ?? {};
+  if (state !== 'active') throw new Error('runtime/config가 active가 아닙니다.');
+  const repo = new FirestoreRepository(db, dataset, { role: 'bridge', user: { uid: 'scheduled-notice' } });
+  const 할일 = await repo.call('__예약알림', [now]);
+  return sendScheduledNotices(할일, { messaging, webPush, repo });
+}
+export const scheduledNotices = onSchedule({ region, schedule: '*/10 * * * *', timeZone: 'Asia/Seoul' }, async () => {
+  console.log(JSON.stringify(await runScheduledNotices()));
 });

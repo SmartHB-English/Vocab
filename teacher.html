@@ -2854,6 +2854,10 @@ var DEMO_열쇠 = {공개키:'', 비밀키:''};
 
 var DEMO_설정 = { 합격점:80, 학원이름:'홍제인왕영어' };
 
+var DEMO_예약 = [
+  {키:'1', 종류:'안낸아이', 날짜:'', 시각:'20:00', 제목:'오늘 숙제 잊지 마세요', 내용:'오늘 마감인 숙제가 남아 있어요.',
+   공지함께:false, 공지끝날:'', 보낸때:'', 켬:true}
+];
 var DEMO = {
   설정가져오기: function(){
     return {ok:true, 합격점:DEMO_설정.합격점, 학원이름:DEMO_설정.학원이름};
@@ -3117,6 +3121,16 @@ var DEMO = {
     DEMO_공지.splice(Number(행)-2,1);
     return DEMO.공지목록(pw);
   },
+  예약목록:function(){ return {ok:true, 예약:DEMO_예약.map(function(n,i){
+    var x={}; for(var k in n) x[k]=n[k]; x.행=i+2; return x; }).reverse()}; },
+  예약저장:function(pw,행,v){
+    if(!(v.시각>='07:00' && v.시각<='21:00')) return {ok:false, 메시지:'알림은 아침 7시부터 밤 9시 사이에만 보낼 수 있습니다.'};
+    DEMO_예약.push({키:String(Date.now()), 종류:v.종류, 날짜:v.날짜||'', 시각:v.시각, 제목:v.제목||'', 내용:v.내용||'',
+                    공지함께:!!v.공지함께, 공지끝날:v.공지끝날||'', 보낸때:'', 켬:true});
+    return DEMO.예약목록(pw);
+  },
+  예약켜기:function(pw,행,켬){ var n=DEMO_예약[Number(행)-2]; if(n) n.켬=!!켬; return DEMO.예약목록(pw); },
+  예약지우기:function(pw,행){ DEMO_예약.splice(Number(행)-2,1); return DEMO.예약목록(pw); },
   푸시공개키:function(){ return DEMO_열쇠.공개키; },
   푸시열쇠:function(){ return {ok:true, 공개키:DEMO_열쇠.공개키, 비밀키:DEMO_열쇠.비밀키}; },
   푸시열쇠저장:function(pw,공개,비밀){
@@ -5922,19 +5936,84 @@ function drawTab(){
       b.innerHTML = 머리('공지 보내기','') + 빈칸('불러오는 중…');
       Promise.all([
         api('공지목록',T.pw),
-        api('구독현황',T.pw).catch(function(){ return null; })
+        api('구독현황',T.pw).catch(function(){ return null; }),
+        api('예약목록',T.pw).catch(function(){ return null; })
       ]).then(function(둘){
         var r=둘[0];
         T.알림현황 = 둘[1] && 둘[1].ok ? 둘[1] : {전체:0, 켬:0, 안켠:[], 열쇠있나:false};
+        T.예약 = 둘[2] && 둘[2].ok ? (둘[2].예약||[]) : [];
         if(r&&r.ok){ T.공지=r.공지||[]; drawTab(); }
         else { T.공지=[]; toast((r&&r.메시지)||'불러오지 못했습니다'); drawTab(); }
-      }).catch(function(){ T.공지=[]; T.알림현황={전체:0,켬:0,안켠:[],열쇠있나:false}; drawTab(); });
+      }).catch(function(){ T.공지=[]; T.예약=[]; T.알림현황={전체:0,켬:0,안켠:[],열쇠있나:false}; drawTab(); });
       return;
     }
     var 공지들 = T.공지||[];
     var 살아있는 = 공지들.filter(function(n){ return n.켬 && !n.지남; });
     var 현황 = T.알림현황 || {전체:0, 켬:0, 안켠:[], 열쇠있나:false};
     var 켤수있나 = !!(현황.열쇠있나 && 현황.켬);
+    /* 알림 예약 — 때가 되면 Cloud Functions 가 10분마다 살펴 보낸다. 시각은 7:00~21:00 만 고르게 한다 */
+    var 예약들 = T.예약||[];
+    var 예약시각들 = [];
+    for(var 분=7*60; 분<=21*60; 분+=10){
+      var 시=Math.floor(분/60), 분끝=분%60;
+      예약시각들.push((시<10?'0':'')+시+':'+(분끝<10?'0':'')+분끝);
+    }
+    var 예약판 =
+      '<div class="panel-b tform">'+
+        '<div class="sub">지금 알림을 켠 아이 <b>'+현황.켬+'명</b> / 전체 '+현황.전체+'명 — '+
+          '알림을 안 켠 아이는 예약을 걸어도 <b>못 받습니다</b>.</div>'+
+        '<div class="mt"><label>종류</label><select id="rsKind">'+
+          '<option value="한번">정한 날 한 번 — 알림을 켠 아이 모두</option>'+
+          '<option value="안낸아이">매일 — 숙제를 안 낸 아이에게만</option></select>'+
+          '<div class="sub hide" id="rsMissNote" style="margin-top:5px">'+
+            '<b>오늘 마감인 숙제를 안 낸 아이에게만 갑니다. 아무도 없으면 안 보냅니다.</b></div></div>'+
+        '<div class="mt" id="rsDateBox"><label>날짜</label>'+
+          '<input id="rsDate" type="date" min="'+오늘값()+'" value="'+오늘값()+'"></div>'+
+        '<div class="mt"><label>시각</label><select id="rsTime">'+
+          예약시각들.map(function(t){ return '<option value="'+t+'"'+(t==='19:00'?' selected':'')+'>'+t+'</option>'; }).join('')+
+          '</select>'+
+          '<div class="sub" style="margin-top:5px">아침 7시 ~ 밤 9시만 됩니다. 10분마다 살펴 보내니 '+
+            '19:00 으로 걸면 19:00~19:09 사이에 나갑니다.</div></div>'+
+        '<div class="mt"><label>제목</label>'+
+          '<input id="rsTitle" placeholder="예: 내일 단어 시험" maxlength="40"></div>'+
+        '<div class="mt"><label>내용</label>'+
+          '<textarea id="rsBody" rows="3" maxlength="500" placeholder="휴대폰 알림에 뜰 말을 적어 주세요."></textarea></div>'+
+        '<div class="mt2"><label class="chk"><input type="checkbox" id="rsNotice">'+
+          '<span>보내는 그때 공지로도 올리기</span></label>'+
+          '<div class="hide" id="rsUntilBox" style="margin-top:6px"><label>공지 언제까지</label>'+
+            '<input id="rsUntil" type="date" min="'+오늘값()+'">'+
+            '<div class="sub" style="margin-top:5px">비워 두면 보낸 날부터 사흘 뒤까지 뜹니다.</div></div></div>'+
+        (현황.열쇠있나 ? '' :
+          '<div class="sub" style="margin-top:8px;color:var(--ng)">아직 아래 <b>알림 준비하기</b>를 안 해서 '+
+            '웹으로 알림을 켠 아이에게는 안 갑니다 (설치한 앱은 갑니다).</div>')+
+        '<div class="mt2"></div><button class="btn" id="btnRsAdd">예약 걸기</button>'+
+      '</div>';
+    var 예약표 = 예약들.length
+      ? '<table class="tb"><thead><tr><th>예약</th><th>언제</th><th>마지막으로 보냄</th>'+
+        '<th class="w">　</th></tr></thead><tbody>'+
+        예약들.map(function(n){
+          var 끝남 = n.종류==='한번' && !!n.보낸때;
+          var 지남 = n.종류==='한번' && !n.보낸때 && n.날짜 < 오늘값();
+          return '<tr'+(n.켬 && !끝남 && !지남 ? '' : ' class="offrow"')+'>'+
+            '<td><span class="pill '+(n.종류==='한번'?'later':'hw')+'">'+(n.종류==='한번'?'한 번':'안 낸 아이')+'</span> '+
+              '<span class="name">'+esc(n.제목||'(제목 없음)')+'</span>'+
+              (n.내용?'<div class="muted" style="white-space:pre-line;margin-top:3px">'+
+                esc(n.내용.length>90?n.내용.slice(0,90)+'…':n.내용)+'</div>':'')+
+              (n.공지함께?'<div class="muted" style="margin-top:3px">공지로도 올림'+
+                (n.공지끝날?' · '+esc(n.공지끝날)+'까지':'')+'</div>':'')+'</td>'+
+            '<td class="nw muted">'+(n.종류==='한번' ? esc(n.날짜)+' '+esc(n.시각) : '매일 '+esc(n.시각))+
+              (n.켬?'':' <span class="pill off">꺼 둠</span>')+
+              (지남?' <span class="pill off">지남</span>':'')+'</td>'+
+            '<td class="nw muted">'+(n.보낸때 ? esc(n.보낸때) : '아직')+'</td>'+
+            '<td class="nw w"><span class="row" style="gap:6px">'+
+              (끝남 ? '' : '<button class="btn line sm" style="width:auto;padding:6px 11px;margin:0" '+
+                'data-rson="'+n.행+'" data-key="'+esc(n.키)+'" data-on="'+(n.켬?'1':'')+'">'+
+                (n.켬?'끄기':'켜기')+'</button>')+
+              '<button class="btn line sm" style="width:auto;padding:6px 11px;margin:0;color:var(--ng)" '+
+                'data-rsdel="'+n.행+'" data-key="'+esc(n.키)+'">삭제</button>'+
+            '</span></td></tr>';
+        }).join('')+'</tbody></table>'
+      : 빈칸('걸어 둔 예약이 없습니다.');
 
     b.innerHTML =
       머리('공지 보내기',
@@ -5965,6 +6044,8 @@ function drawTab(){
               '</div></div>'+
             '<div class="mt2"></div><button class="btn" id="btnNcAdd">공지 올리기</button>'+
           '</div>')+
+
+        판('알림 예약','때가 되면 저절로 나갑니다', 예약판)+
 
         판('휴대폰 알림','앱을 안 열어도 뜹니다',
           '<div class="panel-b">'+
@@ -6021,6 +6102,7 @@ function drawTab(){
                 '</span></td></tr>';
             }).join('')+'</tbody></table>'
           : 빈칸('아직 올린 공지가 없습니다.'), true)+
+        판('걸어 둔 예약 '+예약들.length+'개','', 예약표, true)+
         '</div>'+
       '</div>';
 
@@ -6077,6 +6159,47 @@ function drawTab(){
         toast('준비하지 못했습니다 ('+((e&&e.message)||'알 수 없음')+')');
       });
     };
+    $('rsKind').onchange=function(){
+      var 매일 = this.value==='안낸아이';
+      $('rsDateBox').classList.toggle('hide', 매일);
+      $('rsMissNote').classList.toggle('hide', !매일);
+    };
+    $('rsNotice').onchange=function(){ $('rsUntilBox').classList.toggle('hide', !this.checked); };
+    $('btnRsAdd').onclick=function(){
+      var 종류=$('rsKind').value, 시각=$('rsTime').value;
+      var 제목=$('rsTitle').value.trim(), 내용=$('rsBody').value.trim();
+      if(!제목 && !내용){ toast('내용을 적어 주세요'); return; }
+      if(!(시각>='07:00' && 시각<='21:00')){ toast('아침 7시부터 밤 9시 사이로 골라 주세요'); return; }
+      if(종류==='한번' && !$('rsDate').value){ toast('보낼 날짜를 골라 주세요'); return; }
+      var btn=this; btn.disabled=true; btn.textContent='거는 중…';
+      api('예약저장',T.pw,'',{종류:종류, 날짜:종류==='한번'?$('rsDate').value:'', 시각:시각,
+                             제목:제목, 내용:내용, 공지함께:$('rsNotice').checked,
+                             공지끝날:$('rsNotice').checked?$('rsUntil').value:''}).then(function(r){
+        if(!(r&&r.ok)){ btn.disabled=false; btn.textContent='예약 걸기';
+                        toast((r&&r.메시지)||'걸지 못했습니다'); return; }
+        T.예약=r.예약||[];
+        toast(현황.켬 ? '예약을 걸었습니다 — 때가 되면 저절로 나갑니다'
+                     : '예약은 걸었지만 지금 알림을 켠 아이가 없습니다');
+        drawTab();
+      }).catch(function(){ btn.disabled=false; btn.textContent='예약 걸기'; toast('걸지 못했습니다'); });
+    };
+    qsa('[data-rson]').forEach(function(x){
+      x.onclick=function(){
+        api('예약켜기',T.pw,Number(x.dataset.rson), !x.dataset.on, x.dataset.key||'').then(function(r){
+          if(r&&r.ok){ T.예약=r.예약||[]; drawTab(); }
+          else { toast((r&&r.메시지)||'바꾸지 못했습니다'); T.공지=null; drawTab(); }
+        }).catch(function(){ toast('바꾸지 못했습니다'); });
+      };
+    });
+    qsa('[data-rsdel]').forEach(function(x){
+      x.onclick=function(){
+        if(!confirm('이 예약을 지울까요?')) return;
+        api('예약지우기',T.pw,Number(x.dataset.rsdel), x.dataset.key||'').then(function(r){
+          if(r&&r.ok){ toast('지웠습니다'); T.예약=r.예약||[]; drawTab(); }
+          else { toast((r&&r.메시지)||'지우지 못했습니다'); T.공지=null; drawTab(); }
+        }).catch(function(){ toast('지우지 못했습니다'); });
+      };
+    });
     qsa('[data-ncoff]').forEach(function(x){
       x.onclick=function(){
         api('공지끄기',T.pw,Number(x.dataset.ncoff), !x.dataset.on).then(function(r){

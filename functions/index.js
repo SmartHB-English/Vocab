@@ -454,7 +454,9 @@ function createLegacyEngine(dependencies) {
     \uC2DC\uC0C1: "\uC2DC\uC0C1",
     \uAC8C\uC784: "\uAC8C\uC784",
     \uACF5\uC9C0: "\uACF5\uC9C0",
-    \uD478\uC2DC: "\uD478\uC2DC"
+    \uD478\uC2DC: "\uD478\uC2DC",
+    \uBB38\uC7A5\uAE30\uB85D: "\uBB38\uC7A5\uAE30\uB85D",
+    \uC54C\uB9BC\uC608\uC57D: "\uC54C\uB9BC\uC608\uC57D"
   };
   var \uD2C0\uB9B0\uB2E8\uC5B4\uC5F4 = 14;
   var \uAD6C\uBD84\uC5F4 = 15;
@@ -495,7 +497,7 @@ function createLegacyEngine(dependencies) {
       "\uD559\uBD80\uBAA8\uB9C8\uC9C0\uB9C9",
       "\uC120\uC0DD\uB2D8\uD55C\uB9C8\uB514"
     ],
-    \uB2E8\uC5B4\uC7A5\uBAA9\uB85D: ["\uB2E8\uC5B4\uC7A5", "\uC885\uB958", "\uC2DC\uD2B8\uC774\uB984", "\uC0C9", "\uB808\uC2A8\uBB36\uC74C", "\uACFC"],
+    \uB2E8\uC5B4\uC7A5\uBAA9\uB85D: ["\uB2E8\uC5B4\uC7A5", "\uC885\uB958", "\uC2DC\uD2B8\uC774\uB984", "\uC0C9", "\uB808\uC2A8\uBB36\uC74C", "\uACFC", "\uD558\uB8E8\uBAAB", "\uC18C\uB9AC"],
     \uC219\uC81C: [
       "\uBC18",
       "\uB2E8\uC5B4\uC7A5",
@@ -514,7 +516,8 @@ function createLegacyEngine(dependencies) {
       "\uD1B5\uACFC\uC810\uC218",
       "\uC7AC\uC751\uC2DC",
       "\uC678\uC6B0\uAE30\uBD84",
-      "\uD559\uBD80\uBAA8\uC228\uAE40"
+      "\uD559\uBD80\uBAA8\uC228\uAE40",
+      "\uBB38\uD56D\uC218"
     ],
     \uAE30\uB85D: [
       "\uC2DC\uAC01",
@@ -569,7 +572,25 @@ function createLegacyEngine(dependencies) {
     \uC2DC\uC0C1: ["\uB144\uC6D4", "\uC0C1", "\uD559\uC0DD", "\uBC18", "\uAE30\uB85D", "\uB3D9\uC810\uC790", "\uC9D1\uACC4\uD55C \uB54C"],
     \uAC8C\uC784: ["\uC2DC\uAC01", "\uBC18", "\uC774\uB984", "\uAC8C\uC784", "\uC810\uC218", "\uAE30\uB85D", "\uB2E8\uC5B4\uC7A5"],
     \uACF5\uC9C0: ["\uB9CC\uB4E0\uB54C", "\uBC18", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uB05D\uB098\uB294\uB0A0", "\uCF2C"],
-    \uD478\uC2DC: ["\uCF20\uB54C", "\uBC18", "\uC774\uB984", "\uC8FC\uC18C", "p256dh", "auth", "\uAE30\uAE30"]
+    \uD478\uC2DC: ["\uCF20\uB54C", "\uBC18", "\uC774\uB984", "\uC8FC\uC18C", "p256dh", "auth", "\uAE30\uAE30"],
+    \uBB38\uC7A5\uAE30\uB85D: [
+      "\uC2DC\uAC01",
+      "\uBC18",
+      "\uC774\uB984",
+      "\uB2E8\uC5B4\uC7A5",
+      "\uBC94\uC704",
+      "\uC720\uD615",
+      "\uB09C\uC774\uB3C4",
+      "\uBB38\uD56D\uC218",
+      "\uC815\uB2F5\uC218",
+      "\uC810\uC218",
+      "\uC18C\uC694\uCD08",
+      "\uC219\uC81C\uC5EC\uBD80",
+      "\uD2C0\uB9B0\uBB38\uC7A5",
+      "\uAD6C\uBD84",
+      "\uC9D1\uACC4\uC81C\uC678"
+    ],
+    \uC54C\uB9BC\uC608\uC57D: ["\uB9CC\uB4E0\uB54C", "\uC885\uB958", "\uB0A0\uC9DC", "\uC2DC\uAC01", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uACF5\uC9C0\uD568\uAED8", "\uACF5\uC9C0\uB05D\uB0A0", "\uBCF4\uB0B8\uB54C", "\uCF2C"]
   };
   var \uC0C8\uC8FC\uC18C = "https://smarthb-english.github.io/Vocab/";
   function doGet(e) {
@@ -597,6 +618,8 @@ function createLegacyEngine(dependencies) {
     \uC5F0\uC18D\uAC00\uC838\uC624\uAE30,
     \uAC8C\uC784\uC800\uC7A5,
     \uAC8C\uC784\uC21C\uC704,
+    \uBB38\uC7A5\uAE30\uB85D\uC800\uC7A5,
+    \uBB38\uC7A5\uC9C4\uB3C4,
     \uACF5\uC9C0\uAC00\uC838\uC624\uAE30,
     \uD478\uC2DC\uACF5\uAC1C\uD0A4,
     \uAD6C\uB3C5\uB4F1\uB85D,
@@ -608,6 +631,8 @@ function createLegacyEngine(dependencies) {
     \uAE30\uB85D\uBA54\uBAA8,
     \uD559\uBD80\uBAA8\uBCF4\uAE30,
     \uD559\uBD80\uBAA8\uB9C1\uD06C\uBC1C\uAE09,
+    \uD559\uBD80\uBAA8\uB85C\uADF8\uC778,
+    \uD559\uBD80\uBAA8\uD1A0\uD070\uCC44\uC6B0\uAE30,
     \uD559\uBD80\uBAA8\uD55C\uB9C8\uB514,
     \uD559\uBD80\uBAA8\uBBF8\uB9AC\uBCF4\uAE30,
     \uD2C0\uB9B0\uC804\uBB38,
@@ -662,6 +687,10 @@ function createLegacyEngine(dependencies) {
     \uACF5\uC9C0\uB4F1\uB85D,
     \uACF5\uC9C0\uB044\uAE30,
     \uACF5\uC9C0\uC0AD\uC81C,
+    \uC608\uC57D\uBAA9\uB85D,
+    \uC608\uC57D\uC800\uC7A5,
+    \uC608\uC57D\uC9C0\uC6B0\uAE30,
+    \uC608\uC57D\uCF1C\uAE30,
     \uD569\uACA9\uC810\uC800\uC7A5,
     \uC124\uC815\uAC00\uC838\uC624\uAE30,
     \uC124\uC815\uC800\uC7A5,
@@ -1308,6 +1337,10 @@ function createLegacyEngine(dependencies) {
       b.\uACFC = \uACFC\uC774\uB984_(b);
       b.\uC5B4\uB514 = \uACFC\uCABC\uAC1C\uAE30_(\uC774\uB984, b.\uC885\uB958).\uC5B4\uB514;
       if (\uACFC\uC7A5_(b.\uC885\uB958)) b.\uCE78\uC218 = \uACFC\uCE78\uC218_(\uC2DC\uD2B8);
+      if (\uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(b.\uC885\uB958)) {
+        b.\uD558\uB8E8\uBAAB = \uD558\uB8E8\uBAAB_(x.length > 6 ? x[6] : "");
+        b.\uC18C\uB9AC = \uC18C\uB9AC\uCF2C_(x.length > 7 ? x[7] : "");
+      }
       out.push(b);
     });
     return out;
@@ -1330,6 +1363,10 @@ function createLegacyEngine(dependencies) {
         \uBA38\uB9AC[i] = HEADERS.\uB2E8\uC5B4\uC7A5\uBAA9\uB85D[i];
         \uACE0\uCE60\uAE4C = true;
       }
+    }
+    if (s_(\uBA38\uB9AC[7]) === "\uC601\uC791" || s_(\uBA38\uB9AC[7]) === "\uB4E3\uAE30") {
+      \uBA38\uB9AC[7] = "\uC18C\uB9AC";
+      \uACE0\uCE60\uAE4C = true;
     }
     if (\uACE0\uCE60\uAE4C) sh.getRange(1, 1, 1, \uD544\uC694).setValues([\uBA38\uB9AC]);
     return sh;
@@ -1375,7 +1412,7 @@ function createLegacyEngine(dependencies) {
       sh.setColumnWidth(4, 420);
       sh.setColumnWidth(5, 220);
     } else {
-      sh.getRange(1, 1, 1, 4).setValues([\uBB38\uBC95 ? ["\uBC88\uD638", "\uBB38\uC81C \uBB38\uC7A5", "\uD574\uC11D", "\uD78C\uD2B8\xB7\uD574\uC124"] : \uBB38\uC7A5 ? ["\uBC88\uD638", "\uC601\uC5B4 \uBB38\uC7A5", "\uD574\uC11D", "\uBE44\uACE0"] : ["\uBC88\uD638", "\uC601\uC5B4", "\uB73B", "\uADF8\uB9BC"]]).setFontWeight("bold").setBackground("#EFF3F9");
+      sh.getRange(1, 1, 1, 4).setValues([\uBB38\uBC95 ? ["\uBC88\uD638", "\uBB38\uC81C \uBB38\uC7A5", "\uD574\uC11D", "\uD78C\uD2B8\xB7\uD574\uC124"] : \uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(\uC885\uB958) ? ["\uBC88\uD638", "\uB04A\uC740 \uBB38\uC7A5 (The boy=\uC8FC / kicked=\uB3D9)", "\uD574\uC11D", "\uBE44\uACE0"] : \uBB38\uC7A5 ? ["\uBC88\uD638", "\uC601\uC5B4 \uBB38\uC7A5", "\uD574\uC11D", "\uBE44\uACE0"] : ["\uBC88\uD638", "\uC601\uC5B4", "\uB73B", "\uADF8\uB9BC"]]).setFontWeight("bold").setBackground("#EFF3F9");
       sh.setColumnWidth(1, 55);
       sh.setColumnWidth(2, \uBB38\uC7A5 ? 420 : 200);
       sh.setColumnWidth(3, \uBB38\uC7A5 ? 420 : 260);
@@ -1990,7 +2027,12 @@ function createLegacyEngine(dependencies) {
     if (!Object.keys(set).length) return { ok: false, \uBA54\uC2DC\uC9C0: "\uACE0\uB978 \uAE30\uB85D\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." };
     var \uBC14\uAFBC\uC218 = 0;
     [SHEET.\uAE30\uB85D, SHEET.\uAE30\uB85D\uBCF4\uAD00].forEach(function(name) {
-      var sh = sheet_(name);
+      var sh;
+      try {
+        sh = sheet_(name);
+      } catch (e) {
+        return;
+      }
       var last = sh.getLastRow();
       if (last < 2 || sh.getMaxColumns() < \uAD6C\uBD84\uC5F4) return;
       var \uB0A0\uB4E4 = sh.getRange(2, 1, last - 1, 1).getValues();
@@ -2030,7 +2072,13 @@ function createLegacyEngine(dependencies) {
     var out = [];
     var \uC2DC\uC791 = \uC2DC\uC0C1\uC2DC\uC791\uC77C_();
     [SHEET.\uAE30\uB85D, SHEET.\uAE30\uB85D\uBCF4\uAD00].forEach(function(name) {
-      rows_(name).forEach(function(x) {
+      var \uC904 = [];
+      try {
+        \uC904 = rows_(name);
+      } catch (e) {
+        return;
+      }
+      \uC904.forEach(function(x) {
         if (!(x[0] instanceof Date2)) return;
         if (\uC6D4_(x[0]) !== ym) return;
         if (\uC2DC\uC791 && ymd_(x[0]) < \uC2DC\uC791) return;
@@ -2380,7 +2428,13 @@ function createLegacyEngine(dependencies) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false };
     var \uBCF8\uAC83 = {}, \uBAA9\uB85D = [];
     [SHEET.\uAE30\uB85D, SHEET.\uAE30\uB85D\uBCF4\uAD00].forEach(function(name) {
-      rows_(name).forEach(function(x) {
+      var \uC904 = [];
+      try {
+        \uC904 = rows_(name);
+      } catch (e) {
+        return;
+      }
+      \uC904.forEach(function(x) {
         if (!(x[0] instanceof Date2)) return;
         var m = \uC6D4_(x[0]);
         if (!\uBCF8\uAC83[m]) {
@@ -2521,6 +2575,8 @@ function createLegacyEngine(dependencies) {
         // 분 — 0 이면 제한 없음 (옛 숙제)
         \uC678\uC6B0\uAE30\uBD84: \uC219\uC81C\uC2DC\uAC04_(x, \uC885\uB958).\uC678\uC6B0\uAE30\uBD84,
         // 시험 탭에서 먼저 외우는 시간 — 0 이면 건너뛴다
+        \uBB38\uD56D\uC218: \uBB38\uD56D\uC218\uC77D\uAE30_(x),
+        // 범위에서 몇 개만 — 빈칸이면 범위 전부 (섞기·자르기는 아이 기기에서)
         \uC720\uD615: s_(x[4]) || "\uC2A4\uD3A0\uB9C1",
         \uB9C8\uAC10\uC77C: \uB9C8\uAC10,
         /* 이 숙제를 다른 숙제와 가려 주는 값. 지웠다 똑같이 다시 내면 이 값이 달라진다.
@@ -2623,7 +2679,13 @@ function createLegacyEngine(dependencies) {
     var \uBD24\uB2E4 = false;
     [SHEET.\uAE30\uB85D, SHEET.\uAE30\uB85D\uBCF4\uAD00].forEach(function(name) {
       if (\uBD24\uB2E4) return;
-      rows_(name).forEach(function(x) {
+      var \uC904 = [];
+      try {
+        \uC904 = rows_(name);
+      } catch (e) {
+        return;
+      }
+      \uC904.forEach(function(x) {
         if (\uBD24\uB2E4) return;
         if (s_(x[14]) !== \uC2DC\uD5D8\uD45C\uC2DC) return;
         if (s_(x[2]) !== \uC774\uB984) return;
@@ -2673,7 +2735,12 @@ function createLegacyEngine(dependencies) {
     return sh;
   }
   function \uC6D4\uAC04\uC21C\uC704(\uBC18) {
-    var r = rows_(SHEET.\uC810\uC218);
+    var r = [];
+    try {
+      r = rows_(SHEET.\uC810\uC218);
+    } catch (e) {
+      r = [];
+    }
     var \uC624\uB298 = new Date2();
     var \uC9C0\uB09C\uB0A0 = new Date2(\uC624\uB298.getFullYear(), \uC624\uB298.getMonth() - 1, 1);
     var \uC774\uBC88\uD0A4 = \uC6D4\uD0A4_(\uC624\uB298), \uC9C0\uB09C\uD0A4 = \uC6D4\uD0A4_(\uC9C0\uB09C\uB0A0);
@@ -3614,6 +3681,9 @@ function createLegacyEngine(dependencies) {
   }
   function \uAD6C\uB3C5\uC9C0\uC6B0\uAE30(\uBE44\uBC88, \uC8FC\uC18C\uB4E4) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    return \uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30_(\uC8FC\uC18C\uB4E4);
+  }
+  function \uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30_(\uC8FC\uC18C\uB4E4) {
     var \uBE84\uAC83 = {};
     (\uC8FC\uC18C\uB4E4 || []).forEach(function(t) {
       if (s_(t)) \uBE84\uAC83[s_(t)] = 1;
@@ -3729,6 +3799,232 @@ function createLegacyEngine(dependencies) {
     sh.deleteRow(n);
     return { ok: true, \uACF5\uC9C0: \uACF5\uC9C0\uBAA9\uB85D(\uBE44\uBC88).\uACF5\uC9C0 };
   }
+  var \uC608\uC57D\uC885\uB958\uBAA9\uB85D_ = ["\uD55C\uBC88", "\uC548\uB0B8\uC544\uC774"];
+  var \uC608\uC57D\uCCAB\uBD84_ = 7 * 60, \uC608\uC57D\uB05D\uBD84_ = 21 * 60;
+  var \uC608\uC57D\uCE78_ = { \uB9CC\uB4E0\uB54C: 1, \uC885\uB958: 2, \uB0A0\uC9DC: 3, \uC2DC\uAC01: 4, \uC81C\uBAA9: 5, \uB0B4\uC6A9: 6, \uACF5\uC9C0\uD568\uAED8: 7, \uACF5\uC9C0\uB05D\uB0A0: 8, \uBCF4\uB0B8\uB54C: 9, \uCF2C: 10 };
+  function \uC608\uC57D\uC2DC\uD2B8_() {
+    var ss = ss_();
+    var sh = ss.getSheetByName(SHEET.\uC54C\uB9BC\uC608\uC57D);
+    var H = HEADERS.\uC54C\uB9BC\uC608\uC57D;
+    if (!sh) {
+      sh = ss.insertSheet(SHEET.\uC54C\uB9BC\uC608\uC57D);
+      sh.getRange(1, 1, 1, H.length).setValues([H]).setFontWeight("bold").setBackground("#EFF3F9");
+      sh.setFrozenRows(1);
+      sh.setColumnWidth(5, 200);
+      sh.setColumnWidth(6, 360);
+      return sh;
+    }
+    if (typeof sh.getMaxColumns !== "function" || typeof sh.getRange !== "function") return sh;
+    if (sh.getMaxColumns() < H.length && typeof sh.insertColumnsAfter === "function") {
+      sh.insertColumnsAfter(sh.getMaxColumns(), H.length - sh.getMaxColumns());
+    }
+    var \uBA38\uB9AC = sh.getRange(1, 1, 1, H.length).getValues()[0], \uACE0\uCE60\uAE4C = false;
+    for (var i = 0; i < H.length; i++) if (!s_(\uBA38\uB9AC[i])) {
+      \uBA38\uB9AC[i] = H[i];
+      \uACE0\uCE60\uAE4C = true;
+    }
+    if (\uACE0\uCE60\uAE4C) sh.getRange(1, 1, 1, H.length).setValues([\uBA38\uB9AC]).setFontWeight("bold").setBackground("#EFF3F9");
+    return sh;
+  }
+  function \uC608\uC57D\uB54C\uAE00_(d) {
+    return Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
+  }
+  function \uC608\uC57D\uC2DC\uAC01\uC815\uB9AC_(v) {
+    if (v instanceof Date2) return \uC608\uC57D\uB54C\uAE00_(v).slice(11, 16);
+    var m = /^(\d{1,2}):(\d{2})$/.exec(s_(v));
+    if (!m) return "";
+    var h = Number(m[1]), mi = Number(m[2]);
+    if (h > 23 || mi > 59) return "";
+    return (h < 10 ? "0" : "") + h + ":" + m[2];
+  }
+  function \uC608\uC57D\uC2DC\uAC01\uB418\uB098_(\uC2DC\uAC01) {
+    var t = \uC608\uC57D\uC2DC\uAC01\uC815\uB9AC_(\uC2DC\uAC01);
+    if (!t) return false;
+    var \uBD84 = Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+    return \uBD84 >= \uC608\uC57D\uCCAB\uBD84_ && \uBD84 <= \uC608\uC57D\uB05D\uBD84_;
+  }
+  function \uC608\uC57D\uB0A0\uC9DC\uAF34_(t) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return false;
+    var d = new Date2(Number(t.slice(0, 4)), Number(t.slice(5, 7)) - 1, Number(t.slice(8, 10)));
+    return ymd_(d) === t;
+  }
+  function \uC608\uC57D\uC904_(x, i) {
+    function \uCE78(k) {
+      return x.length >= \uC608\uC57D\uCE78_[k] ? x[\uC608\uC57D\uCE78_[k] - 1] : "";
+    }
+    var \uB54C = \uCE78("\uB9CC\uB4E0\uB54C") instanceof Date2 ? \uCE78("\uB9CC\uB4E0\uB54C") : null;
+    var \uB0A0\uC9DC = \uCE78("\uB0A0\uC9DC"), \uB05D = \uCE78("\uACF5\uC9C0\uB05D\uB0A0"), \uBCF4\uB0C4 = \uCE78("\uBCF4\uB0B8\uB54C");
+    return {
+      \uD589: i + 2,
+      \uD0A4: \uB54C ? String(\uB54C.getTime()) : "",
+      \uC885\uB958: s_(\uCE78("\uC885\uB958")),
+      \uB0A0\uC9DC: \uB0A0\uC9DC instanceof Date2 ? ymd_(\uB0A0\uC9DC) : s_(\uB0A0\uC9DC),
+      \uC2DC\uAC01: \uC608\uC57D\uC2DC\uAC01\uC815\uB9AC_(\uCE78("\uC2DC\uAC01")),
+      \uC81C\uBAA9: s_(\uCE78("\uC81C\uBAA9")),
+      \uB0B4\uC6A9: s_(\uCE78("\uB0B4\uC6A9")),
+      \uACF5\uC9C0\uD568\uAED8: s_(\uCE78("\uACF5\uC9C0\uD568\uAED8")) === "O",
+      \uACF5\uC9C0\uB05D\uB0A0: \uB05D instanceof Date2 ? ymd_(\uB05D) : s_(\uB05D),
+      \uBCF4\uB0B8\uB54C: \uBCF4\uB0C4 instanceof Date2 ? \uC608\uC57D\uB54C\uAE00_(\uBCF4\uB0C4).slice(0, 16) : s_(\uBCF4\uB0C4),
+      \uCF2C: s_(\uCE78("\uCF2C")) !== "X",
+      \uB9CC\uB4E0\uB0A0: \uB54C ? ymd_(\uB54C) : ""
+    };
+  }
+  function \uC608\uC57D\uB54C\uB410\uB098_(n, \uC624\uB298, \uC9C0\uAE08\uC2DC\uAC01) {
+    if (!n.\uCF2C || !n.\uC2DC\uAC01 || !n.\uC81C\uBAA9 && !n.\uB0B4\uC6A9) return false;
+    if (\uC9C0\uAE08\uC2DC\uAC01 < n.\uC2DC\uAC01) return false;
+    if (n.\uC885\uB958 === "\uD55C\uBC88") return n.\uB0A0\uC9DC === \uC624\uB298 && !n.\uBCF4\uB0B8\uB54C;
+    if (n.\uC885\uB958 === "\uC548\uB0B8\uC544\uC774") return n.\uBCF4\uB0B8\uB54C.slice(0, 10) !== \uC624\uB298;
+    return false;
+  }
+  function \uC608\uC57D\uC904\uD655\uC778_(sh, \uD589, \uD0A4) {
+    var n = Number(\uD589);
+    if (!(n >= 2 && n <= sh.getLastRow())) return 0;
+    if (s_(\uD0A4)) {
+      var \uB54C = sh.getRange(n, \uC608\uC57D\uCE78_.\uB9CC\uB4E0\uB54C).getValue();
+      if (!(\uB54C instanceof Date2) || String(\uB54C.getTime()) !== s_(\uD0A4)) return 0;
+    }
+    return n;
+  }
+  function \uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    \uC608\uC57D\uC2DC\uD2B8_();
+    var \uC904\uB4E4 = [];
+    try {
+      \uC904\uB4E4 = rows_(SHEET.\uC54C\uB9BC\uC608\uC57D);
+    } catch (e) {
+      \uC904\uB4E4 = [];
+    }
+    var out = \uC904\uB4E4.map(\uC608\uC57D\uC904_).filter(function(n) {
+      return n.\uC885\uB958 && (n.\uC81C\uBAA9 || n.\uB0B4\uC6A9);
+    });
+    out.reverse();
+    return { ok: true, \uC608\uC57D: out, \uC624\uB298: ymd_(new Date2()) };
+  }
+  function \uC608\uC57D\uC800\uC7A5(\uBE44\uBC88, \uD589, \uAC12) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    \uAC12 = \uAC12 || {};
+    var \uC885\uB958 = s_(\uAC12.\uC885\uB958);
+    if (\uC608\uC57D\uC885\uB958\uBAA9\uB85D_.indexOf(\uC885\uB958) < 0) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC885\uB958\uB97C \uACE8\uB77C \uC8FC\uC138\uC694." };
+    var \uB0A0\uC9DC = "";
+    if (\uC885\uB958 === "\uD55C\uBC88") {
+      \uB0A0\uC9DC = s_(\uAC12.\uB0A0\uC9DC);
+      if (!\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB0A0\uC9DC)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBCF4\uB0BC \uB0A0\uC9DC\uB97C \uACE8\uB77C \uC8FC\uC138\uC694." };
+      if (\uB0A0\uC9DC < ymd_(new Date2())) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC9C0\uB09C \uB0A0\uC9DC\uC785\uB2C8\uB2E4." };
+    }
+    var \uC2DC\uAC01 = \uC608\uC57D\uC2DC\uAC01\uC815\uB9AC_(\uAC12.\uC2DC\uAC01);
+    if (!\uC2DC\uAC01) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC2DC\uAC01 \uBAA8\uC591\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. (\uC608: 19:00)" };
+    if (!\uC608\uC57D\uC2DC\uAC01\uB418\uB098_(\uC2DC\uAC01)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC54C\uB9BC\uC740 \uC544\uCE68 7\uC2DC\uBD80\uD130 \uBC24 9\uC2DC \uC0AC\uC774\uC5D0\uB9CC \uBCF4\uB0BC \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
+    var \uC81C\uBAA9 = s_(\uAC12.\uC81C\uBAA9), \uB0B4\uC6A9 = s_(\uAC12.\uB0B4\uC6A9);
+    if (!\uC81C\uBAA9 && !\uB0B4\uC6A9) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB0B4\uC6A9\uC744 \uC801\uC5B4 \uC8FC\uC138\uC694." };
+    if (\uC81C\uBAA9.length > 40) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC81C\uBAA9\uC740 40\uC790\uAE4C\uC9C0 \uB123\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
+    if (\uB0B4\uC6A9.length > 500) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB0B4\uC6A9\uC740 500\uC790\uAE4C\uC9C0 \uB123\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
+    var \uACF5\uC9C0\uD568\uAED8 = !!\uAC12.\uACF5\uC9C0\uD568\uAED8, \uB05D = \uACF5\uC9C0\uD568\uAED8 ? s_(\uAC12.\uACF5\uC9C0\uB05D\uB0A0) : "";
+    if (\uB05D && !\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB05D)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uACF5\uC9C0 \uB05D\uB0A0 \uBAA8\uC591\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." };
+    var sh = \uC608\uC57D\uC2DC\uD2B8_();
+    var \uC904 = [\uC885\uB958, \uB0A0\uC9DC, \uC2DC\uAC01, \uC81C\uBAA9, \uB0B4\uC6A9, \uACF5\uC9C0\uD568\uAED8 ? "O" : "", \uB05D];
+    if (!s_(\uD589)) {
+      sh.appendRow([new Date2()].concat(\uC904, ["", ""]));
+      var \uC0C8 = sh.getLastRow();
+      sh.getRange(\uC0C8, 1).setNumberFormat("yyyy-MM-dd HH:mm");
+      sh.getRange(\uC0C8, \uC608\uC57D\uCE78_.\uB0A0\uC9DC, 1, 2).setNumberFormat("@");
+      return { ok: true, \uC608\uC57D: \uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
+    }
+    var n = \uC608\uC57D\uC904\uD655\uC778_(sh, \uD589, \uAC12.\uD0A4);
+    if (!n) return { ok: false, \uBA54\uC2DC\uC9C0: "\uADF8 \uC0AC\uC774 \uC608\uC57D\uC774 \uBC14\uB00C\uC5C8\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C \uBD88\uB7EC\uC640 \uC8FC\uC138\uC694." };
+    var \uC804 = \uC608\uC57D\uC904_(sh.getRange(n, 1, 1, HEADERS.\uC54C\uB9BC\uC608\uC57D.length).getValues()[0], n - 2);
+    sh.getRange(n, \uC608\uC57D\uCE78_.\uB0A0\uC9DC, 1, 2).setNumberFormat("@");
+    sh.getRange(n, \uC608\uC57D\uCE78_.\uC885\uB958, 1, \uC904.length).setValues([\uC904]);
+    if (\uC804.\uC885\uB958 !== \uC885\uB958 || \uC804.\uB0A0\uC9DC !== \uB0A0\uC9DC || \uC885\uB958 === "\uD55C\uBC88" && \uC804.\uC2DC\uAC01 !== \uC2DC\uAC01) sh.getRange(n, \uC608\uC57D\uCE78_.\uBCF4\uB0B8\uB54C).setValue("");
+    return { ok: true, \uC608\uC57D: \uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
+  }
+  function \uC608\uC57D\uC9C0\uC6B0\uAE30(\uBE44\uBC88, \uD589, \uD0A4) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var sh = \uC608\uC57D\uC2DC\uD2B8_();
+    var n = \uC608\uC57D\uC904\uD655\uC778_(sh, \uD589, \uD0A4);
+    if (!n) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC774\uBBF8 \uC9C0\uC6CC\uC9C4 \uC608\uC57D\uC785\uB2C8\uB2E4." };
+    sh.deleteRow(n);
+    return { ok: true, \uC608\uC57D: \uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
+  }
+  function \uC608\uC57D\uCF1C\uAE30(\uBE44\uBC88, \uD589, \uCF2C, \uD0A4) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var sh = \uC608\uC57D\uC2DC\uD2B8_();
+    var n = \uC608\uC57D\uC904\uD655\uC778_(sh, \uD589, \uD0A4);
+    if (!n) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC774\uBBF8 \uC9C0\uC6CC\uC9C4 \uC608\uC57D\uC785\uB2C8\uB2E4." };
+    sh.getRange(n, \uC608\uC57D\uCE78_.\uCF2C).setValue(\uCF2C ? "O" : "X");
+    return { ok: true, \uC608\uC57D: \uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
+  }
+  function \uC624\uB298\uC548\uB0B8\uC544\uC774_(\uC624\uB298) {
+    var \uC548\uB0B8 = {};
+    \uC804\uCCB4\uC219\uC81C().forEach(function(h) {
+      if (!\uC219\uC81C\uC778\uAC00_(h) || h.\uB9C8\uAC10\uC77C !== \uC624\uB298) return;
+      h.\uC548\uD55C\uC0AC\uB78C.forEach(function(\uC774\uB984) {
+        \uC548\uB0B8[\uC774\uB984] = 1;
+      });
+    });
+    return \uC548\uB0B8;
+  }
+  function \uC608\uC57D\uC54C\uB9BC_(\uC9C0\uAE08) {
+    var \uBE48\uB2F5 = { ok: true, \uBCF4\uB0BC\uAC83: [] };
+    var sh = ss_().getSheetByName(SHEET.\uC54C\uB9BC\uC608\uC57D);
+    if (!sh) return \uBE48\uB2F5;
+    var \uB54C = new Date2(Number(\uC9C0\uAE08) || new Date2().getTime());
+    var \uAE00 = \uC608\uC57D\uB54C\uAE00_(\uB54C);
+    var \uC624\uB298 = \uAE00.slice(0, 10), \uC9C0\uAE08\uC2DC\uAC01 = \uAE00.slice(11, 16);
+    \uBE48\uB2F5.\uC624\uB298 = \uC624\uB298;
+    var \uACE0\uB978 = [];
+    rows_(SHEET.\uC54C\uB9BC\uC608\uC57D).forEach(function(x, i) {
+      var n = \uC608\uC57D\uC904_(x, i);
+      if (\uC608\uC57D\uB54C\uB410\uB098_(n, \uC624\uB298, \uC9C0\uAE08\uC2DC\uAC01)) \uACE0\uB978.push(n);
+    });
+    if (!\uACE0\uB978.length) return \uBE48\uB2F5;
+    \uACE0\uB978.forEach(function(n) {
+      sh.getRange(n.\uD589, \uC608\uC57D\uCE78_.\uBCF4\uB0B8\uB54C).setNumberFormat("@").setValue(n.\uC885\uB958 === "\uD55C\uBC88" ? \uAE00.slice(0, 16) : \uC624\uB298);
+    });
+    var \uAD6C\uB3C5 = [], \uBCF8\uC8FC\uC18C = {};
+    try {
+      rows_(SHEET.\uD478\uC2DC).forEach(function(x) {
+        var \uC8FC\uC18C = s_(x[3]);
+        if (!\uC8FC\uC18C || \uBCF8\uC8FC\uC18C[\uC8FC\uC18C]) return;
+        \uBCF8\uC8FC\uC18C[\uC8FC\uC18C] = 1;
+        \uAD6C\uB3C5.push({ \uC774\uB984: s_(x[2]), \uC8FC\uC18C, p256dh: s_(x[4]), auth: s_(x[5]) });
+      });
+    } catch (e) {
+      \uAD6C\uB3C5 = [];
+    }
+    var \uC548\uB0B8 = null, \uBCF4\uB0BC\uAC83 = [], \uC6F9\uC788\uB098 = false;
+    \uACE0\uB978.forEach(function(n) {
+      var \uBC1B\uC744 = \uAD6C\uB3C5;
+      if (n.\uC885\uB958 === "\uC548\uB0B8\uC544\uC774") {
+        if (!\uC548\uB0B8) \uC548\uB0B8 = \uC624\uB298\uC548\uB0B8\uC544\uC774_(\uC624\uB298);
+        if (!Object.keys(\uC548\uB0B8).length) return;
+        \uBC1B\uC744 = \uAD6C\uB3C5.filter(function(s) {
+          return \uC548\uB0B8[s.\uC774\uB984];
+        });
+      }
+      if (n.\uACF5\uC9C0\uD568\uAED8) {
+        var \uB05D = n.\uACF5\uC9C0\uB05D\uB0A0;
+        if (!\uB05D) {
+          var d = new Date2(\uB54C.getTime());
+          d.setDate(d.getDate() + 3);
+          \uB05D = ymd_(d);
+        }
+        var \uACF5 = \uACF5\uC9C0\uC2DC\uD2B8_();
+        \uACF5.appendRow([new Date2(), "", n.\uC81C\uBAA9, n.\uB0B4\uC6A9, \uB05D, ""]);
+        \uACF5.getRange(\uACF5.getLastRow(), 1).setNumberFormat("yyyy-MM-dd HH:mm");
+      }
+      if (!\uBC1B\uC744.length) return;
+      if (\uBC1B\uC744.some(function(s) {
+        return s.\uC8FC\uC18C.indexOf("fcm:") !== 0;
+      })) \uC6F9\uC788\uB098 = true;
+      \uBCF4\uB0BC\uAC83.push({ \uD589: n.\uD589, \uC885\uB958: n.\uC885\uB958, \uC81C\uBAA9: n.\uC81C\uBAA9, \uB0B4\uC6A9: n.\uB0B4\uC6A9, \uAD6C\uB3C5: \uBC1B\uC744 });
+    });
+    var \uB2F5 = { ok: true, \uC624\uB298, \uBCF4\uB0BC\uAC83, \uCC0D\uC740\uC218: \uACE0\uB978.length };
+    if (\uC6F9\uC788\uB098) {
+      \uB2F5.\uACF5\uAC1C\uD0A4 = \uD478\uC2DC\uACF5\uAC1C\uD0A4();
+      \uB2F5.\uD478\uC2DC\uBE44\uBC00\uD0A4 = s_(setting_("\uD478\uC2DC\uBE44\uBC00\uD0A4", ""));
+    }
+    return \uB2F5;
+  }
   var \uAC8C\uC784\uC774\uB984 = { \uC9DD: "\uC9DD \uB9DE\uCD94\uAE30", \uD37C\uC990: "\uAE00\uC790 \uD37C\uC990" };
   function \uAC8C\uC784\uC2DC\uD2B8_() {
     var ss = ss_();
@@ -3761,6 +4057,94 @@ function createLegacyEngine(dependencies) {
         s_(p.\uB2E8\uC5B4\uC7A5)
       ]);
       sh.getRange(sh.getLastRow(), 1).setNumberFormat("yyyy-MM-dd HH:mm");
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: String(e) };
+    } finally {
+      lock.releaseLock();
+    }
+  }
+  var \uBB38\uC7A5\uD558\uB8E8\uC720\uD615 = "\uD558\uB8E8 \uB2E8\uACC4";
+  var \uBB38\uC7A5\uD615\uC2DD\uC720\uD615 = "4\uD615\uC2DD \uC5F0\uC2B5";
+  var \uBB38\uC7A5\uD615\uC2DD\uAD6C\uBD84_ = "\uD615\uC2DD";
+  var \uBB38\uC7A5\uC720\uD615\uB4E4_ = [\uBB38\uC7A5\uD558\uB8E8\uC720\uD615, "\uD558\uB8E8 6\uB2E8\uACC4", "\uBB38\uC7A5 \uBC30\uC5F4", "\uC131\uBD84 \uCC3E\uAE30", "\uB04A\uC5B4 \uC77D\uAE30", \uBB38\uC7A5\uD615\uC2DD\uC720\uD615];
+  var \uAE30\uBCF8\uD558\uB8E8\uBAAB = 5;
+  function \uD558\uB8E8\uBAAB_(v) {
+    var n = Math.round(Number(v) || 0);
+    return n >= 1 ? Math.min(50, n) : \uAE30\uBCF8\uD558\uB8E8\uBAAB;
+  }
+  function \uC18C\uB9AC\uCF2C_(v) {
+    return ["\uB054", "x", "0", "\uC544\uB2C8\uC624", "no", "off", "false", "n"].indexOf(s_(v).toLowerCase()) < 0;
+  }
+  function \uBB38\uC7A5\uC9C4\uB3C4(\uC774\uB984, \uB2E8\uC5B4\uC7A5) {
+    var b = \uB2E8\uC5B4\uC7A5\uCC3E\uAE30_(\uB2E8\uC5B4\uC7A5);
+    if (!b || !\uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(b.\uC885\uB958)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBB38\uC7A5 \uBB36\uC74C\uC744 \uCC3E\uC744 \uC218 \uC5C6\uC5B4\uC694." };
+    var \uC9C4\uB3C4 = 0, \uC624\uB298 = 0, \uC624\uB298\uB0A0 = ymd_(new Date2()), \uC904\uB4E4 = [];
+    try {
+      \uC904\uB4E4 = rows_(SHEET.\uBB38\uC7A5\uAE30\uB85D);
+    } catch (e) {
+      \uC904\uB4E4 = [];
+    }
+    \uC904\uB4E4.forEach(function(x) {
+      if (s_(x[2]) !== s_(\uC774\uB984) || s_(x[3]) !== s_(\uB2E8\uC5B4\uC7A5)) return;
+      if (s_(x[13]).indexOf(\uBB34\uD6A8\uAF2C\uB9AC_) > -1) return;
+      if (s_(x[13]).indexOf(\uBB38\uC7A5\uD615\uC2DD\uAD6C\uBD84_) === 0) return;
+      var m = s_(x[4]).match(/^(\d+)\s*~\s*(\d+)$/);
+      if (!m) return;
+      var \uCC98\uC74C = Number(m[1]), \uB05D = Number(m[2]);
+      if (\uB05D > \uC9C4\uB3C4) \uC9C4\uB3C4 = \uB05D;
+      var \uB0A0 = x[0] instanceof Date2 ? ymd_(x[0]) : s_(x[0]).slice(0, 10);
+      if (\uB0A0 === \uC624\uB298\uB0A0 && \uB05D >= \uCC98\uC74C) \uC624\uB298 += \uB05D - \uCC98\uC74C + 1;
+    });
+    var \uBAA9\uB85D = \uB2E8\uC5B4\uC7A5\uBAA9\uB85D().filter(function(x) {
+      return x.\uC774\uB984 === b.\uC774\uB984;
+    })[0] || {};
+    return { ok: true, \uC9C4\uB3C4, \uC624\uB298, \uD558\uB8E8\uBAAB: \uBAA9\uB85D.\uD558\uB8E8\uBAAB || \uAE30\uBCF8\uD558\uB8E8\uBAAB, \uC18C\uB9AC: \uBAA9\uB85D.\uC18C\uB9AC !== false };
+  }
+  function \uBB38\uC7A5\uAE30\uB85D\uC2DC\uD2B8_(\uB9CC\uB4E4\uAE4C) {
+    var ss = ss_();
+    var sh = ss.getSheetByName(SHEET.\uBB38\uC7A5\uAE30\uB85D);
+    if (!sh && !\uB9CC\uB4E4\uAE4C) return null;
+    if (!sh) sh = ss.insertSheet(SHEET.\uBB38\uC7A5\uAE30\uB85D);
+    if (sh.getLastRow() === 0) {
+      sh.getRange(1, 1, 1, HEADERS.\uBB38\uC7A5\uAE30\uB85D.length).setValues([HEADERS.\uBB38\uC7A5\uAE30\uB85D]).setFontWeight("bold").setBackground("#EFF3F9");
+      sh.setFrozenRows(1);
+    }
+    return sh;
+  }
+  function \uBB38\uC7A5\uAE30\uB85D\uC800\uC7A5(p) {
+    p = p || {};
+    var \uC720\uD615 = s_(p.\uC720\uD615);
+    if (\uBB38\uC7A5\uC720\uD615\uB4E4_.indexOf(\uC720\uD615) < 0) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBAA8\uB974\uB294 \uB180\uC774\uC785\uB2C8\uB2E4." };
+    if (!s_(p.\uC774\uB984) || !s_(p.\uB2E8\uC5B4\uC7A5)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC774\uB984\uACFC \uBB38\uC7A5 \uBB36\uC74C\uC774 \uC788\uC5B4\uC57C \uD569\uB2C8\uB2E4." };
+    var sh = \uBB38\uC7A5\uAE30\uB85D\uC2DC\uD2B8_(false);
+    if (!sh) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBB38\uC7A5 \uAE30\uB85D\uD45C\uAC00 \uC544\uC9C1 \uC5C6\uC5B4\uC694. \uC120\uC0DD\uB2D8\uAED8 \uB9D0\uC500\uB4DC\uB9AC\uC138\uC694." };
+    var lock = LockService.getScriptLock();
+    try {
+      lock.waitLock(1e4);
+    } catch (e) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: "\uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uD574 \uC8FC\uC138\uC694." };
+    }
+    try {
+      var \uBB38\uD56D = Math.max(0, Number(p.\uBB38\uD56D\uC218) || 0), \uC815\uB2F5 = Math.min(\uBB38\uD56D, Math.max(0, Number(p.\uC815\uB2F5\uC218) || 0));
+      var \uD2C0\uB9B0 = (p.\uD2C0\uB9B0\uBB38\uC7A5 || []).map ? (p.\uD2C0\uB9B0\uBB38\uC7A5 || []).map(s_).filter(String) : [s_(p.\uD2C0\uB9B0\uBB38\uC7A5)].filter(String);
+      sh.appendRow([
+        new Date2(),
+        "",
+        s_(p.\uC774\uB984),
+        s_(p.\uB2E8\uC5B4\uC7A5),
+        s_(p.\uBC94\uC704),
+        \uC720\uD615,
+        Math.max(1, Math.round(Number(p.\uB09C\uC774\uB3C4) || 1)),
+        \uBB38\uD56D,
+        \uC815\uB2F5,
+        \uBB38\uD56D ? Math.round(\uC815\uB2F5 / \uBB38\uD56D * 100) : 0,
+        Math.max(0, Math.round(Number(p.\uC18C\uC694\uCD08) || 0)),
+        p.\uC219\uC81C\uC5EC\uBD80 ? "O" : "",
+        \uD2C0\uB9B0.join(" | "),
+        \uC720\uD615 === \uBB38\uC7A5\uD615\uC2DD\uC720\uD615 ? \uBB38\uC7A5\uD615\uC2DD\uAD6C\uBD84_ : p.\uC219\uC81C\uC5EC\uBD80 ? "" : "\uC5F0\uC2B5",
+        ""
+      ]);
       return { ok: true };
     } catch (e) {
       return { ok: false, \uBA54\uC2DC\uC9C0: String(e) };
@@ -4096,6 +4480,7 @@ function createLegacyEngine(dependencies) {
       \uB2E8\uACC4,
       \uD1B5\uACFC\uC810\uC218: s_(x.length > 14 ? x[14] : ""),
       \uC7AC\uC751\uC2DC: s_(x.length > 15 ? x[15] : ""),
+      \uBB38\uD56D\uC218: \uBB38\uD56D\uC218\uC77D\uAE30_(x),
       \uB9C9\uD78C\uC0AC\uB78C,
       \uD559\uBD80\uBAA8\uC228\uAE40: (x.length > 17 ? s_(x[17]) : "") === "1",
       \uB4F1\uB85D\uC77C: \uB4F1\uB85D
@@ -4234,6 +4619,8 @@ function createLegacyEngine(dependencies) {
     var \uB9C8\uAC10 = \uC885\uB958 === "\uAE30\uD55C" || \uC885\uB958 === "\uC2DC\uD5D8" ? s_(h.\uB9C8\uAC10\uC77C) : ymd_(new Date2());
     var \uB2E8\uC5B4\uC7A5 = s_(h.\uB2E8\uC5B4\uC7A5) || s_(h.\uAD50\uC7AC);
     if (!\uB2E8\uC5B4\uC7A5) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB2E8\uC5B4\uC7A5\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
+    var \uBB38\uD56D\uC218 = \uBB38\uD56D\uC218\uAC12_(h.\uBB38\uD56D\uC218);
+    if (\uBB38\uD56D\uC218 === null) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBB38\uD56D \uC218\uB294 1\uC5D0\uC11C 200 \uC0AC\uC774\uB85C \uB123\uC5B4 \uC8FC\uC138\uC694." };
     var \uC804\uCCB4 = \uC804\uCCB4\uBA85\uB2E8_();
     var \uACE0\uB978 = \uC774\uB984\uB4E4\uD480\uAE30_(h.\uD559\uC0DD\uB4E4 && h.\uD559\uC0DD\uB4E4.length ? h.\uD559\uC0DD\uB4E4 : h.\uD559\uC0DD).filter(function(n) {
       return \uC804\uCCB4.indexOf(n) > -1;
@@ -4262,8 +4649,12 @@ function createLegacyEngine(dependencies) {
       // 연습 · 시험 — 비면 옛 숙제 그대로
       \uB2E8\uACC4\uC815\uB9AC_(h.\uB2E8\uACC4) === "\uC2DC\uD5D8" && s_(h.\uD1B5\uACFC\uC810\uC218) !== "" ? Number(h.\uD1B5\uACFC\uC810\uC218) || 0 : "",
       \uB2E8\uACC4\uC815\uB9AC_(h.\uB2E8\uACC4) === "\uC2DC\uD5D8" && s_(h.\uC7AC\uC751\uC2DC) !== "" ? Number(h.\uC7AC\uC751\uC2DC) || 0 : "",
-      Number(h.\uC678\uC6B0\uAE30\uBD84) > 0 ? Math.round(Number(h.\uC678\uC6B0\uAE30\uBD84)) : ""
+      Number(h.\uC678\uC6B0\uAE30\uBD84) > 0 ? Math.round(Number(h.\uC678\uC6B0\uAE30\uBD84)) : "",
       // 외우기분 — 비면 외우기 없이 바로 시험
+      "",
+      // 학부모숨김
+      \uBB38\uD56D\uC218
+      // 문항수 — 비면 범위 전부
     ]];
     \uC219\uC81C\uCE78\uD655\uBCF4_(sh);
     var lock = null;
@@ -4276,14 +4667,14 @@ function createLegacyEngine(dependencies) {
     var \uC0C8\uD589;
     try {
       \uC0C8\uD589 = sh.getLastRow() + 1;
-      sh.getRange(\uC0C8\uD589, 1, 1, 17).setValues(\uC904);
+      sh.getRange(\uC0C8\uD589, 1, 1, 19).setValues(\uC904);
     } finally {
       if (lock) try {
         lock.releaseLock();
       } catch (e) {
       }
     }
-    var \uC801\uD78C = sh.getRange(\uC0C8\uD589, 1, 1, 17).getValues()[0];
+    var \uC801\uD78C = sh.getRange(\uC0C8\uD589, 1, 1, 19).getValues()[0];
     var \uB2F5 = { ok: true, \uAC1C\uC218: 1, \uB300\uC0C1: \uACE0\uB978.length || \uAD50\uC7AC\uD559\uC0DD_(\uB2E8\uC5B4\uC7A5).length, \uC219\uC81C: \uC0C8\uC219\uC81C\uC904_(\uC801\uD78C, \uC0C8\uD589) };
     if (!h.\uBC14\uB010\uC904\uB9CC) \uB2F5.\uC219\uC81C\uBAA9\uB85D = \uC804\uCCB4\uC219\uC81C();
     return \uB2F5;
@@ -4297,6 +4688,17 @@ function createLegacyEngine(dependencies) {
     }
     \uC61B\uC2DC\uD5D8\uC2DC\uAC04\uCE90\uC2DC_ = { \uC678\uC6B0\uAE30: \uBD84("\uC678\uC6B0\uAE30\uC2DC\uAC04\uBD84", \uAE30\uBCF8\uC678\uC6B0\uAE30\uBD84), \uC2DC\uD5D8: \uBD84("\uC2DC\uD5D8\uC2DC\uAC04\uBD84", \uAE30\uBCF8\uC2DC\uD5D8\uBD84) };
     return \uC61B\uC2DC\uD5D8\uC2DC\uAC04\uCE90\uC2DC_;
+  }
+  function \uBB38\uD56D\uC218\uAC12_(v) {
+    if (v === void 0 || v === null || s_(v) === "") return "";
+    var n = Number(v);
+    if (!isFinite(n) || n <= 0) return "";
+    if (n > 200 || Math.round(n) !== n) return null;
+    return n;
+  }
+  function \uBB38\uD56D\uC218\uC77D\uAE30_(x) {
+    var v = x.length > 18 ? x[18] : "", n = Number(v);
+    return s_(v) !== "" && isFinite(n) && n > 0 ? n : "";
   }
   function \uC219\uC81C\uC2DC\uAC04_(x, \uC885\uB958) {
     var \uC81C\uD55C = Number(x.length > 12 ? x[12] : 0) || 0, \uC678 = Number(x.length > 16 ? x[16] : 0) || 0;
@@ -5236,7 +5638,8 @@ function createLegacyEngine(dependencies) {
         \uC81C\uD55C\uC2DC\uAC04: \uC2DC\uAC04.\uC81C\uD55C\uC2DC\uAC04,
         \uC678\uC6B0\uAE30\uBD84: \uC2DC\uAC04.\uC678\uC6B0\uAE30\uBD84,
         \uD1B5\uACFC\uC810\uC218: s_(x[14]),
-        \uC7AC\uC751\uC2DC: s_(x[15])
+        \uC7AC\uC751\uC2DC: s_(x[15]),
+        \uBB38\uD56D\uC218: \uBB38\uD56D\uC218\uC77D\uAE30_(x)
       };
     }
     return \uC77D\uB294\uB3D9\uC548_(function() {
@@ -5267,6 +5670,11 @@ function createLegacyEngine(dependencies) {
     var \uB4A4\uCE78 = { \uC81C\uD55C\uC2DC\uAC04: 13, \uD1B5\uACFC\uC810\uC218: 15, \uC7AC\uC751\uC2DC: 16, \uC678\uC6B0\uAE30\uBD84: 17 };
     var \uB05D\uAC12 = { \uC81C\uD55C\uC2DC\uAC04: 180, \uC678\uC6B0\uAE30\uBD84: 180, \uD1B5\uACFC\uC810\uC218: 100, \uC7AC\uC751\uC2DC: 20 };
     var \uB4A4 = [];
+    if (h.\uBB38\uD56D\uC218 !== void 0) {
+      var \uBB38 = \uBB38\uD56D\uC218\uAC12_(h.\uBB38\uD56D\uC218);
+      if (\uBB38 === null) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBB38\uD56D \uC218\uB294 1\uC5D0\uC11C 200 \uC0AC\uC774\uB85C \uB123\uC5B4 \uC8FC\uC138\uC694." };
+      \uB4A4.push([19, \uBB38]);
+    }
     for (var k in \uB4A4\uCE78) {
       if (h[k] === void 0) continue;
       var v = h[k] === "" || h[k] === null ? "" : Math.round(Number(h[k]));
@@ -5391,7 +5799,10 @@ function createLegacyEngine(dependencies) {
   }
   function \uBCF8\uBB38\uC7A5_(\uC885\uB958) {
     var t = s_(\uC885\uB958);
-    return t === "\uBCF8\uBB38" || t === "\uBB38\uBC95";
+    return t === "\uBCF8\uBB38" || t === "\uBB38\uBC95" || t === "\uBB38\uC7A5";
+  }
+  function \uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(\uC885\uB958) {
+    return s_(\uC885\uB958) === "\uBB38\uC7A5";
   }
   function \uBB38\uBC95\uC7A5_(\uC885\uB958) {
     return s_(\uC885\uB958) === "\uBB38\uBC95";
@@ -5465,6 +5876,9 @@ function createLegacyEngine(dependencies) {
     });
     if (!\uD56D\uBAA9.length) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC778\uC2DD\uB41C \uB2E8\uC5B4\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4." };
     var b = \uB2E8\uC5B4\uC7A5\uCC3E\uAE30_(\uC774\uB984);
+    if (b && \uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(\uC885\uB958) !== \uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(b.\uC885\uB958)) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: "\uAC19\uC740 \uC774\uB984\uC758 \u300C" + (b.\uC885\uB958 || "\uBCF4\uD1B5") + "\u300D \uB2E8\uC5B4\uC7A5\uC774 \uC788\uC2B5\uB2C8\uB2E4. \uC774\uB984\uC744 \uBC14\uAFD4 \uC8FC\uC138\uC694." };
+    }
     var sh;
     if (!b) {
       sh = \uB2E8\uC5B4\uC2DC\uD2B8\uB9CC\uB4E4\uAE30_(\uC774\uB984, \uC885\uB958);
@@ -5473,6 +5887,10 @@ function createLegacyEngine(dependencies) {
       if (!sh) sh = \uB2E8\uC5B4\uC2DC\uD2B8\uB9CC\uB4E4\uAE30_(\uC774\uB984, \uC885\uB958);
       if (\uB36E\uC5B4\uC4F0\uAE30 && sh.getLastRow() > 1) sh.deleteRows(2, sh.getLastRow() - 1);
       if (s_(\uC885\uB958) !== b.\uC885\uB958) \uBAA9\uB85D\uC2DC\uD2B8_().getRange(b.\uD589, 2).setValue(s_(\uC885\uB958));
+    }
+    if (\uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(\uC885\uB958)) {
+      \uBB38\uC7A5\uAE30\uB85D\uC2DC\uD2B8_(true);
+      \uB2E8\uC5B4\uC7A5\uBAA9\uB85D\uCE78\uD655\uBCF4_();
     }
     var \uC2DC\uC791\uBC88\uD638 = Math.max(0, sh.getLastRow() - 1);
     var \uADF8\uB9BC\uC218 = 0;
@@ -5489,6 +5907,7 @@ function createLegacyEngine(dependencies) {
   }
   function \uB2E8\uC5B4\uBAA9\uB85D(\uBE44\uBC88, \uB2E8\uC5B4\uC7A5) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false };
+    \uB2E8\uC5B4\uC7A5\uBAA9\uB85D\uCE78\uD655\uBCF4_();
     var sh = \uB2E8\uC5B4\uC2DC\uD2B8_(\uB2E8\uC5B4\uC7A5);
     if (!sh) return { ok: true, \uB2E8\uC5B4\uB4E4: [] };
     var last = sh.getLastRow();
@@ -5517,9 +5936,9 @@ function createLegacyEngine(dependencies) {
     out.sort(function(a, b2) {
       return a.\uBC88\uD638 - b2.\uBC88\uD638;
     });
-    return { ok: true, \uB2E8\uC5B4\uB4E4: out, \uC885\uB958: \uBB38\uC7A5 ? "\uBCF8\uBB38" : b ? b.\uC885\uB958 : "" };
+    return { ok: true, \uB2E8\uC5B4\uB4E4: out, \uC885\uB958: \uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(b && b.\uC885\uB958) ? "\uBB38\uC7A5" : \uBB38\uC7A5 ? "\uBCF8\uBB38" : b ? b.\uC885\uB958 : "" };
   }
-  function \uB2E8\uC5B4\uC218\uC815(\uBE44\uBC88, \uB2E8\uC5B4\uC7A5, \uD589, en, ko) {
+  function \uB2E8\uC5B4\uC218\uC815(\uBE44\uBC88, \uB2E8\uC5B4\uC7A5, \uD589, en, ko, \uBE44\uACE0) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false };
     var \uB9C9 = \uACFC\uBA74\uB9C9\uAE30_(\uB2E8\uC5B4\uC7A5);
     if (\uB9C9) return \uB9C9;
@@ -5529,6 +5948,13 @@ function createLegacyEngine(dependencies) {
     var n = Number(\uD589);
     if (!(n >= 2 && n <= sh.getLastRow())) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC5C6\uB294 \uC904\uC785\uB2C8\uB2E4. \uC0C8\uB85C\uACE0\uCE68 \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694." };
     sh.getRange(n, 2, 1, 2).setValues([[s_(en), s_(ko)]]);
+    var b = \uB2E8\uC5B4\uC7A5\uCC3E\uAE30_(\uB2E8\uC5B4\uC7A5);
+    if (\uBE44\uACE0 !== void 0 && \uBE44\uACE0 !== null && b && \uBCF8\uBB38\uC7A5_(b.\uC885\uB958)) {
+      if (s_(\uBE44\uACE0) || sh.getLastColumn() >= 4) {
+        \uB137\uC9F8\uCE78\uD655\uBCF4_(sh, b.\uC885\uB958);
+        sh.getRange(n, 4).setValue(s_(\uBE44\uACE0));
+      }
+    }
     return { ok: true };
   }
   function \uB2E8\uC5B4\uC0AD\uC81C(\uBE44\uBC88, \uB2E8\uC5B4\uC7A5, \uD589\uB4E4) {
@@ -5882,14 +6308,55 @@ function createLegacyEngine(dependencies) {
         break;
       }
       if (!n) return { ok: false, \uBA54\uC2DC\uC9C0: "\uD559\uC0DD\uC744 \uCC3E\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4." };
-      var \uC0C8 = \uD559\uBD80\uBAA8\uD1A0\uD070\uC0C8\uB85C_();
-      sh.getRange(n, 9).setValue(\uC0C8);
-      sh.getRange(n, 10).setValue("");
-      \uD559\uBD80\uBAA8\uCE90\uC2DC\uBC84\uB9AC\uAE30_(\uC61B);
+      var \uC0C8 = \uD559\uBD80\uBAA8\uD1A0\uD070\uC801\uAE30_(sh, n, \uC61B);
       return { ok: true, \uC774\uB984, \uC8FC\uC18C: \uD559\uBD80\uBAA8\uC8FC\uC18C_(\uC0C8) };
     } finally {
       lock.releaseLock();
     }
+  }
+  function \uD559\uBD80\uBAA8\uD1A0\uD070\uC801\uAE30_(sh, n, \uC61B) {
+    var \uC0C8 = \uD559\uBD80\uBAA8\uD1A0\uD070\uC0C8\uB85C_();
+    sh.getRange(n, 9).setValue(\uC0C8);
+    sh.getRange(n, 10).setValue("");
+    \uD559\uBD80\uBAA8\uCE90\uC2DC\uBC84\uB9AC\uAE30_(\uC61B);
+    return \uC0C8;
+  }
+  var \uD559\uBD80\uBAA8\uB85C\uADF8\uC778\uD2C0\uB9BC_ = "\uC774\uB984\uC774\uB098 \uBE44\uBC00\uBC88\uD638\uAC00 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.";
+  function \uD559\uBD80\uBAA8\uB85C\uADF8\uC778(\uC774\uB984, \uBE44\uBC88) {
+    var \uD2C0\uB9BC = { ok: false, \uBA54\uC2DC\uC9C0: \uD559\uBD80\uBAA8\uB85C\uADF8\uC778\uD2C0\uB9BC_ };
+    var \uCC3E\uB294\uC774\uB984 = \uC774\uB984\uB9DE\uCD94\uAE30_(\uC774\uB984);
+    if (!\uCC3E\uB294\uC774\uB984 || !s_(\uBE44\uBC88)) return \uD2C0\uB9BC;
+    var sh = \uD559\uBD80\uBAA8\uCE78\uD655\uBCF4_();
+    var lock = LockService.getScriptLock();
+    try {
+      lock.waitLock(1e4);
+    } catch (e) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: "\uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uD574 \uC8FC\uC138\uC694." };
+    }
+    try {
+      var \uC904\uB4E4 = rows_(SHEET.\uD559\uC0DD);
+      for (var i = 0; i < \uC904\uB4E4.length; i++) {
+        if (s_(\uC904\uB4E4[i][1]) !== \uCC3E\uB294\uC774\uB984) continue;
+        if (s_(\uC904\uB4E4[i][2]) !== s_(\uBE44\uBC88)) return \uD2C0\uB9BC;
+        var \uD1A0\uD070 = \uC904\uB4E4[i].length > 8 ? s_(\uC904\uB4E4[i][8]).toLowerCase() : "";
+        if (!\uD1A0\uD070\uBAA8\uC591_(\uD1A0\uD070)) \uD1A0\uD070 = \uD559\uBD80\uBAA8\uD1A0\uD070\uC801\uAE30_(sh, i + 2, "");
+        return { ok: true, \uD1A0\uD070 };
+      }
+      return \uD2C0\uB9BC;
+    } finally {
+      lock.releaseLock();
+    }
+  }
+  function \uD559\uBD80\uBAA8\uD1A0\uD070\uCC44\uC6B0\uAE30(\uBE44\uBC88) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false };
+    var sh = \uD559\uBD80\uBAA8\uCE78\uD655\uBCF4_(), \uC904\uB4E4 = rows_(SHEET.\uD559\uC0DD), n = 0;
+    for (var i = 0; i < \uC904\uB4E4.length; i++) {
+      if (!s_(\uC904\uB4E4[i][1])) continue;
+      if (\uD1A0\uD070\uBAA8\uC591_(\uC904\uB4E4[i].length > 8 ? \uC904\uB4E4[i][8] : "")) continue;
+      \uD559\uBD80\uBAA8\uD1A0\uD070\uC801\uAE30_(sh, i + 2, "");
+      n++;
+    }
+    return { ok: true, \uAC1C\uC218: n };
   }
   function \uD559\uBD80\uBAA8\uD55C\uB9C8\uB514(\uBE44\uBC88, \uC774\uB984, \uAE00) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
@@ -6056,6 +6523,13 @@ function createLegacyEngine(dependencies) {
     monthly() {
       return \uB9E4\uC6D4\uC2DC\uC0C1();
     },
+    scheduledNotices(now) {
+      \uC77D\uC740\uAC83_ = null;
+      return \uC608\uC57D\uC54C\uB9BC_(now);
+    },
+    dropDeadPushes(addresses) {
+      return \uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30_(addresses);
+    },
     names: Object.keys(\uC5F4\uB9B0\uAE30\uB2A5_)
   };
 }
@@ -6186,8 +6660,14 @@ async function createDatasetDocuments(store, { digest: digest2, previousIdentiti
     if (!name) continue;
     const id = previousIdentities.find((i) => i.row === row)?.id ?? "student-" + newId();
     identities.push({ id, name, row });
-    documents.set(`credentials/${id}`, { role: "student", name, row, pinHash: await digest2(String(r[2] ?? "").trim()) });
     const token = String(r[8] ?? "").trim().toLowerCase();
+    documents.set(`credentials/${id}`, {
+      role: "student",
+      name,
+      row,
+      pinHash: await digest2(String(r[2] ?? "").trim()),
+      .../^[0-9a-f]{32,128}$/.test(token) ? { parentToken: token } : {}
+    });
     if (/^[0-9a-f]{32,128}$/.test(token)) {
       const credentialId = "parent-" + id;
       documents.set(`credentials/${credentialId}`, { role: "parent", name, row, pinHash: await digest2(token) });
@@ -6407,7 +6887,7 @@ async function auxiliary(user, fn, args) {
 }
 var \uB2E4\uC2DC\uBCF4\uB0BC\uCF54\uB4DC = /* @__PURE__ */ new Set(["aborted", "failed-precondition", "unavailable", "deadline-exceeded", "resource-exhausted"]);
 var \uC694\uCCAD\uBC88\uD638\uAF34 = /^[0-9A-Za-z-]{8,80}$/;
-var \uC870\uAC01\uD45C\uB4E4 = ["\uAE30\uB85D"];
+var \uC870\uAC01\uD45C\uB4E4 = ["\uAE30\uB85D", "\uBB38\uC7A5\uAE30\uB85D"];
 var \uC870\uAC01\uBAA8\uC744\uC218 = 50;
 var \uC870\uAC01\uACBD\uB85C = (id) => `tables/${id}/appends`;
 var \uC870\uAC01\uBD99\uC774\uAE30 = (table, pieces) => {
@@ -6423,6 +6903,8 @@ var \uC870\uAC01\uBD99\uC774\uAE30 = (table, pieces) => {
 };
 var privileged = (role) => role === "teacher" || role === "bridge";
 var \uC790\uB8CC\uD568\uC218 = { __\uC790\uB8CC\uC77D\uAE30: \uC790\uB8CC\uC77D\uAE30, __\uC790\uB8CC\uACE0\uCE58\uAE30: \uCE78\uACE0\uCE58\uAE30, __\uC790\uB8CC\uC9C0\uC6B0\uAE30: \uC904\uC9C0\uC6B0\uAE30, __\uC790\uB8CC\uB418\uC0B4\uB9AC\uAE30: \uB418\uC0B4\uB9AC\uAE30, __\uD734\uC9C0\uD1B5\uBE44\uC6B0\uAE30: \uD734\uC9C0\uD1B5\uBE44\uC6B0\uAE30 };
+var \uB2E4\uB9AC\uD568\uC218 = { __\uC6D4\uC2DC\uC0C1: (engine) => engine.monthly(), __\uC608\uC57D\uC54C\uB9BC: (engine, args) => engine.scheduledNotices(args[0]), __\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30: (engine, args) => engine.dropDeadPushes(args[0]) };
+var \uC801\uC744\uB2F5 = (fn, answer) => fn === "__\uC608\uC57D\uC54C\uB9BC" && answer && answer.\uD478\uC2DC\uBE44\uBC00\uD0A4 ? { ...answer, \uD478\uC2DC\uBE44\uBC00\uD0A4: "(\uBE8C)" } : answer;
 var \uC790\uB8CC\uD558\uAE30 = (\uC77C, store, args, how) => {
   try {
     return { ok: true, \uC790\uB8CC: pack(\uC77C(store, args[0] ?? {}, how)) };
@@ -6542,7 +7024,43 @@ var FirestoreRepository = class {
     } catch (e) {
       console.warn("\uAE30\uB85D \uC870\uAC01 \uD569\uCE58\uAE30\uB97C \uB2E4\uC74C\uC73C\uB85C \uBBF8\uB8F9\uB2C8\uB2E4", e);
     }
+    try {
+      await this.call("\uD559\uBD80\uBAA8\uD1A0\uD070\uCC44\uC6B0\uAE30", [String(pin ?? "").trim()]);
+    } catch (e) {
+      console.warn("\uD559\uBD80\uBAA8 \uD1A0\uD070 \uCC44\uC6B0\uAE30\uB97C \uB2E4\uC74C\uC73C\uB85C \uBBF8\uB8F9\uB2C8\uB2E4", e);
+    }
     return { ok: true };
+  }
+  // 학부모 — 아이 이름 + 아이 비번. 비번으로 그 아이 자격을 세우고, 그 자격 문서(credentials/{id})의 parentToken 만 읽어 돌려준다.
+  // 자료는 주지 않는다 — 화면이 받은 토큰으로 학부모보기 를 부른다 (나가는 문은 하나).
+  // 학생 자격으로는 학생 표의 토큰 칸(secrets)을 못 읽고 새로 적지도 못한다. 그래서 토큰은 선생님이 들어올 때
+  // 엔진의 학부모토큰채우기 가 빈 아이마다 만들어 두고, 자격 문서에 같이 적힌다 (dataset-model).
+  // 틀렸을 때 까닭(명단에 없음 · 비번 다름)은 가리지 않는다.
+  async parentPinLogin(name, pin) {
+    const \uD2C0\uB9BC = { ok: false, \uBA54\uC2DC\uC9C0: "\uC774\uB984\uC774\uB098 \uBE44\uBC00\uBC88\uD638\uAC00 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." };
+    const cleanPin = String(pin ?? "").trim();
+    if (!cleanPin) return \uD2C0\uB9BC;
+    const identities = (await this.catalog()).identities;
+    const exact = String(name ?? "").trim();
+    const match = identities.find((i) => i.name === exact) ?? identities.find((i) => i.name.replace(/\s/g, "") === exact.replace(/\s/g, ""));
+    if (!exact || !match) return \uD2C0\uB9BC;
+    try {
+      await this.grant(match.id, await digest(cleanPin));
+    } catch (e) {
+      if (e.code === "permission-denied") return \uD2C0\uB9BC;
+      throw e;
+    }
+    const \uC900\uBE44\uC911 = { ok: false, \uBA54\uC2DC\uC9C0: "\uD559\uBD80\uBAA8 \uD654\uBA74\uC744 \uC900\uBE44\uD558\uACE0 \uC788\uC5B4\uC694. \uB0B4\uC77C \uB2E4\uC2DC \uD574 \uBCF4\uC2DC\uAC70\uB098 \uC120\uC0DD\uB2D8\uAED8 \uB9D0\uC500\uD574 \uC8FC\uC138\uC694." };
+    let own;
+    try {
+      own = await getDoc(this.ref(`credentials/${match.id}`));
+    } catch (e) {
+      if (e.code === "permission-denied") return \uC900\uBE44\uC911;
+      throw e;
+    }
+    const token = String(own.exists() && own.data().parentToken || "").toLowerCase();
+    if (!/^[0-9a-f]{32,128}$/.test(token)) return \uC900\uBE44\uC911;
+    return { ok: true, \uD1A0\uD070: token };
   }
   async parentLogin(token) {
     const clean = String(token ?? "").trim().toLowerCase();
@@ -6558,12 +7076,14 @@ var FirestoreRepository = class {
     const requestId = String(this.identity.user?.uid ?? "") + "_" + (\uC694\uCCAD\uBC88\uD638\uAF34.test(String(\uC694\uCCAD\uBC88\uD638 ?? "")) ? \uC694\uCCAD\uBC88\uD638 : randomId());
     if (fn === "\uB85C\uADF8\uC778") return this.studentLogin(...args);
     if (fn === "\uC120\uC0DD\uB2D8\uB85C\uADF8\uC778") return this.teacherLogin(...args);
+    if (fn === "\uD559\uBD80\uBAA8\uB85C\uADF8\uC778") return this.parentPinLogin(...args);
     if (fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30") {
       if (!await this.parentLogin(args[0])) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB9C1\uD06C\uAC00 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC120\uC0DD\uB2D8\uAED8 \uBB38\uC758\uD574 \uC8FC\uC138\uC694." };
     }
     const \uC790\uB8CC\uC77C = \uC790\uB8CC\uD568\uC218[fn];
     if (\uC790\uB8CC\uC77C && this.identity.role !== "teacher") return { ok: false, \uBA54\uC2DC\uC9C0: "\uC120\uC0DD\uB2D8\uB9CC \uD560 \uC218 \uC788\uC5B4\uC694." };
     if (fn === "__\uC870\uAC01\uD569\uCE58\uAE30" && !privileged(this.identity.role)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC120\uC0DD\uB2D8\uB9CC \uD560 \uC218 \uC788\uC5B4\uC694." };
+    if (["__\uC608\uC57D\uC54C\uB9BC", "__\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30"].includes(fn) && this.identity.role !== "bridge") return { ok: false, \uBA54\uC2DC\uC9C0: "\uC608\uC57D \uC54C\uB9BC \uD568\uC218\uB9CC \uBD80\uB97C \uC218 \uC788\uC5B4\uC694." };
     const \uB204\uAC00 = "\uC120\uC0DD\uB2D8 \xB7 " + String(this.identity.user?.uid ?? "").slice(0, 6);
     const publicOnly = ["\uC2DC\uC791\uC815\uBCF4", "\uD478\uC2DC\uACF5\uAC1C\uD0A4", "\uACF5\uC9C0\uAC00\uC838\uC624\uAE30"].includes(fn) && !this.identity.role;
     if (\uB2E4\uC2DC\uBCF4\uB0C4 && this.identity.user) {
@@ -6612,7 +7132,9 @@ var FirestoreRepository = class {
         return { ok: true, \uD569\uCE5C };
       }
       const engine = createRuntime(current, { effects: { saveImage: imageOperation ? saveImage2 : void 0 }, now: () => started, uuid });
-      return fn === "__\uC6D4\uC2DC\uC0C1" ? engine.monthly() : engine.call(fn, args);
+      const answer = \uB2E4\uB9AC\uD568\uC218[fn] ? \uB2E4\uB9AC\uD568\uC218[fn](engine, args) : engine.call(fn, args);
+      if (fn === "\uD559\uBD80\uBAA8\uD1A0\uD070\uCC44\uC6B0\uAE30" && answer?.ok && !catalog.\uBD80\uBAA8\uC5F4\uC1E0 && current.getSheetByName("\uD559\uC0DD")) current.getSheetByName("\uD559\uC0DD").dirty = true;
+      return answer;
     };
     const result = execute(store);
     if (imageOperation) {
@@ -6682,7 +7204,13 @@ var FirestoreRepository = class {
         transaction.delete(this.ref(`tables/${sheetId(name)}`));
         changes.push(name);
       }
-      transaction.set(this.ref("meta/catalog"), { ...currentCatalog, tables: nextMetadata, revision: fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30" ? currentCatalog.revision : requestId, identities: compiled?.identities ?? currentCatalog.identities });
+      transaction.set(this.ref("meta/catalog"), {
+        ...currentCatalog,
+        tables: nextMetadata,
+        revision: fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30" ? currentCatalog.revision : requestId,
+        identities: compiled?.identities ?? currentCatalog.identities,
+        ...compiled && privileged(this.identity.role) ? { \uBD80\uBAA8\uC5F4\uC1E0: true } : {}
+      });
       if (compiled && privileged(this.identity.role)) {
         for (const [path, data] of compiled.documents) if (path.startsWith("credentials/") || path.startsWith("links/")) transaction.set(this.ref(path), data);
         const nextPaths = new Set(compiled.documents.keys());
@@ -6697,7 +7225,7 @@ var FirestoreRepository = class {
           if (/^[0-9a-f]{32,128}$/.test(token) && !nextPaths.has("links/" + token)) transaction.delete(this.ref("links/" + token));
         }
       }
-      transaction.set(this.ref(`journal/${requestId}`), { actor: this.identity.user.uid, fn, result: pack(answer), changes, at: started, ...\uC790\uB8CC\uC77C ? { \uB204\uAC00, \uD45C: String(args[0]?.\uD45C ?? \uD734\uC9C0\uD1B5\uC774\uB984) } : {} });
+      transaction.set(this.ref(`journal/${requestId}`), { actor: this.identity.user.uid, fn, result: pack(\uC801\uC744\uB2F5(fn, answer)), changes, at: started, ...\uC790\uB8CC\uC77C ? { \uB204\uAC00, \uD45C: String(args[0]?.\uD45C ?? \uD734\uC9C0\uD1B5\uC774\uB984) } : {} });
       this.cache.clear();
       if (fn === "\uD559\uBD80\uBAA8\uBCF4\uAE30" && !args[1] && answer?.ok) this.parentCache = { token: this.identity.token, revision: currentCatalog.revision, until: started + 6e4, value: answer };
       return answer;
@@ -6707,6 +7235,96 @@ var FirestoreRepository = class {
     });
   }
 };
+
+// functions/src/push-address.mjs
+var pushHosts = ["fcm.googleapis.com", "push.services.mozilla.com", "push.apple.com", "notify.windows.com"];
+function pushAddressOk(address) {
+  try {
+    const u = new URL(address);
+    return u.protocol === "https:" && pushHosts.some((h) => u.hostname === h || u.hostname.endsWith("." + h));
+  } catch {
+    return false;
+  }
+}
+
+// functions/src/scheduled-push.mjs
+var \uC54C\uB9BC\uC5F0\uB77D\uCC98 = "https://smarthb-english.github.io/Vocab/";
+var \uC8FD\uC740FCM = ["messaging/registration-token-not-registered", "messaging/invalid-registration-token"];
+function vapidPrivateKey(\uBE44\uBC00\uD0A4\uAE00) {
+  const t = String(\uBE44\uBC00\uD0A4\uAE00 ?? "").trim();
+  if (!t) return "";
+  if (t.startsWith("{")) {
+    try {
+      return String(JSON.parse(t).d ?? "");
+    } catch {
+      return "";
+    }
+  }
+  return t;
+}
+async function \uC6F9\uBCF4\uB0B4\uAE30(webPush, sub, \uC2E4\uC744\uAC83, vapid) {
+  const \uC8FC\uC18C = String(sub.\uC8FC\uC18C);
+  if (!pushAddressOk(\uC8FC\uC18C)) return { \uC8FC\uC18C, \uC0C1\uD0DC: 0, \uAE00: "\uC54C\uB9BC \uC11C\uBC84 \uC8FC\uC18C\uAC00 \uC544\uB2D9\uB2C8\uB2E4." };
+  if (!vapid.privateKey || !vapid.publicKey) return { \uC8FC\uC18C, \uC0C1\uD0DC: 0, \uAE00: "\uD478\uC2DC \uC5F4\uC1E0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4 \u2014 \uC120\uC0DD\uB2D8 \uD654\uBA74\uC5D0\uC11C \uC54C\uB9BC \uC900\uBE44\uD558\uAE30\uB97C \uD574 \uC8FC\uC138\uC694." };
+  const \uC5F4\uC1E0\uC788\uB098 = !!(sub.p256dh && sub.auth);
+  try {
+    const r = await webPush.sendNotification(
+      { endpoint: \uC8FC\uC18C, keys: \uC5F4\uC1E0\uC788\uB098 ? { p256dh: sub.p256dh, auth: sub.auth } : void 0 },
+      \uC5F4\uC1E0\uC788\uB098 ? JSON.stringify(\uC2E4\uC744\uAC83) : null,
+      { vapidDetails: vapid, TTL: 86400 }
+    );
+    return { \uC8FC\uC18C, \uC0C1\uD0DC: r?.statusCode ?? 201, \uAE00: String(r?.body ?? "").slice(0, 200) };
+  } catch (e) {
+    return { \uC8FC\uC18C, \uC0C1\uD0DC: Number(e?.statusCode) || 0, \uAE00: String(e?.body || e?.message || e).slice(0, 200) };
+  }
+}
+async function fcm\uBCF4\uB0B4\uAE30(messaging, sub, \uC2E4\uC744\uAC83) {
+  const \uC8FC\uC18C = String(sub.\uC8FC\uC18C), token = \uC8FC\uC18C.slice(4);
+  if (!/^[A-Za-z0-9_:\-]{20,4096}$/.test(token)) return { \uC8FC\uC18C, \uC0C1\uD0DC: 400, \uAE00: "FCM \uD1A0\uD070\uC774 \uC62C\uBC14\uB974\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." };
+  try {
+    await messaging.send({
+      token,
+      notification: { title: \uC2E4\uC744\uAC83.\uC81C\uBAA9, body: \uC2E4\uC744\uAC83.\uB0B4\uC6A9 },
+      data: { route: "notices" },
+      android: { priority: "high", notification: { channelId: "academy", icon: "ic_stat_bell" } },
+      apns: { payload: { aps: { sound: "default" } } }
+    });
+    return { \uC8FC\uC18C, \uC0C1\uD0DC: 200, \uAE00: "" };
+  } catch (e) {
+    return { \uC8FC\uC18C, \uC0C1\uD0DC: \uC8FD\uC740FCM.includes(e?.code) ? 410 : 0, \uAE00: String(e?.code || "FCM \uC804\uC1A1 \uC2E4\uD328") };
+  }
+}
+async function sendScheduledNotices(\uD560\uC77C, { messaging, webPush, repo } = {}) {
+  const \uBCF4\uB0BC\uAC83 = \uD560\uC77C?.\uBCF4\uB0BC\uAC83 ?? [];
+  const out = { \uC624\uB298: \uD560\uC77C?.\uC624\uB298 ?? "", \uCC0D\uC740\uC218: \uD560\uC77C?.\uCC0D\uC740\uC218 ?? 0, \uC608\uC57D: [], \uBCF4\uB0C4: 0, \uC2E4\uD328: 0, \uC9C0\uC6B4\uAD6C\uB3C5: 0 };
+  if (!\uBCF4\uB0BC\uAC83.length) return out;
+  const vapid = { subject: \uC54C\uB9BC\uC5F0\uB77D\uCC98, publicKey: String(\uD560\uC77C.\uACF5\uAC1C\uD0A4 ?? ""), privateKey: vapidPrivateKey(\uD560\uC77C.\uD478\uC2DC\uBE44\uBC00\uD0A4) };
+  if (\uBCF4\uB0BC\uAC83.some((j) => j.\uAD6C\uB3C5.some((s) => !String(s.\uC8FC\uC18C).startsWith("fcm:"))) && !webPush) webPush = (await import("web-push")).default;
+  const \uC8FD\uC74C = /* @__PURE__ */ new Set();
+  for (const job of \uBCF4\uB0BC\uAC83) {
+    const \uC2E4\uC744\uAC83 = { \uC81C\uBAA9: job.\uC81C\uBAA9 || "\uC120\uC0DD\uB2D8 \uB9D0\uC500", \uB0B4\uC6A9: job.\uB0B4\uC6A9 || "" };
+    const \uC904 = await Promise.all(job.\uAD6C\uB3C5.map((sub) => String(sub.\uC8FC\uC18C).startsWith("fcm:") ? fcm\uBCF4\uB0B4\uAE30(messaging, sub, \uC2E4\uC744\uAC83) : \uC6F9\uBCF4\uB0B4\uAE30(webPush, sub, \uC2E4\uC744\uAC83, vapid)));
+    let \uBCF4\uB0C4 = 0, \uC2E4\uD328 = 0;
+    for (const r of \uC904) {
+      if ([200, 201, 202].includes(r.\uC0C1\uD0DC)) \uBCF4\uB0C4++;
+      else {
+        \uC2E4\uD328++;
+        if (r.\uC0C1\uD0DC === 404 || r.\uC0C1\uD0DC === 410) \uC8FD\uC74C.add(r.\uC8FC\uC18C);
+      }
+    }
+    out.\uC608\uC57D.push({ \uD589: job.\uD589, \uC885\uB958: job.\uC885\uB958, \uB300\uC0C1: job.\uAD6C\uB3C5.length, \uBCF4\uB0C4, \uC2E4\uD328, \uD0C8: \uC904.filter((r) => ![200, 201, 202].includes(r.\uC0C1\uD0DC)).slice(0, 5) });
+    out.\uBCF4\uB0C4 += \uBCF4\uB0C4;
+    out.\uC2E4\uD328 += \uC2E4\uD328;
+  }
+  if (\uC8FD\uC74C.size && repo) {
+    try {
+      out.\uC9C0\uC6B4\uAD6C\uB3C5 = (await repo.call("__\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30", [[...\uC8FD\uC74C]]))?.\uAC1C\uC218 ?? 0;
+    } catch (e) {
+      out.\uAD6C\uB3C5\uBABB\uC9C0\uC6C0 = String(e?.message ?? e);
+    }
+  }
+  return out;
+}
 
 // functions/src/index.mjs
 initializeApp();
@@ -6719,15 +7337,6 @@ async function teacherOk(uid) {
   if (!config || config.state !== "active" || !session || session.dataset !== config.dataset) return false;
   const credential = (await db.doc(`vocabDatasets/${config.dataset}/credentials/${session.credentialId}`).get()).data();
   return !!credential && ["teacher", "bridge"].includes(credential.role) && credential.pinHash === session.proof;
-}
-var pushHosts = ["fcm.googleapis.com", "push.services.mozilla.com", "push.apple.com", "notify.windows.com"];
-function pushAddressOk(address) {
-  try {
-    const u = new URL(address);
-    return u.protocol === "https:" && pushHosts.some((h) => u.hostname === h || u.hostname.endsWith("." + h));
-  } catch {
-    return false;
-  }
 }
 async function sendPush(list, messaging = getMessaging()) {
   const \uC904 = await Promise.all((list || []).map(async (x) => {
@@ -6787,12 +7396,24 @@ async function runMonthlyAward() {
 var monthlyAward = onSchedule({ region, schedule: "0 6 1 * *", timeZone: "Asia/Seoul" }, async () => {
   console.log(JSON.stringify(await runMonthlyAward()));
 });
+async function runScheduledNotices({ now = Date.now(), messaging = getMessaging(), webPush } = {}) {
+  const { dataset, state } = (await db.doc("runtime/config").get()).data() ?? {};
+  if (state !== "active") throw new Error("runtime/config\uAC00 active\uAC00 \uC544\uB2D9\uB2C8\uB2E4.");
+  const repo = new FirestoreRepository(db, dataset, { role: "bridge", user: { uid: "scheduled-notice" } });
+  const \uD560\uC77C = await repo.call("__\uC608\uC57D\uC54C\uB9BC", [now]);
+  return sendScheduledNotices(\uD560\uC77C, { messaging, webPush, repo });
+}
+var scheduledNotices = onSchedule({ region, schedule: "*/10 * * * *", timeZone: "Asia/Seoul" }, async () => {
+  console.log(JSON.stringify(await runScheduledNotices()));
+});
 export {
   adminDb,
   aux,
   monthlyAward,
   pushAddressOk,
   runMonthlyAward,
+  runScheduledNotices,
+  scheduledNotices,
   sendPush,
   teacherOk
 };

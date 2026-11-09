@@ -218,6 +218,10 @@ var DEMO_열쇠 = {공개키:'', 비밀키:''};
 
 var DEMO_설정 = { 합격점:80, 학원이름:'홍제인왕영어' };
 
+var DEMO_예약 = [
+  {키:'1', 종류:'안낸아이', 날짜:'', 시각:'20:00', 제목:'오늘 숙제 잊지 마세요', 내용:'오늘 마감인 숙제가 남아 있어요.',
+   공지함께:false, 공지끝날:'', 보낸때:'', 켬:true}
+];
 var DEMO = {
   설정가져오기: function(){
     return {ok:true, 합격점:DEMO_설정.합격점, 학원이름:DEMO_설정.학원이름};
@@ -481,6 +485,16 @@ var DEMO = {
     DEMO_공지.splice(Number(행)-2,1);
     return DEMO.공지목록(pw);
   },
+  예약목록:function(){ return {ok:true, 예약:DEMO_예약.map(function(n,i){
+    var x={}; for(var k in n) x[k]=n[k]; x.행=i+2; return x; }).reverse()}; },
+  예약저장:function(pw,행,v){
+    if(!(v.시각>='07:00' && v.시각<='21:00')) return {ok:false, 메시지:'알림은 아침 7시부터 밤 9시 사이에만 보낼 수 있습니다.'};
+    DEMO_예약.push({키:String(Date.now()), 종류:v.종류, 날짜:v.날짜||'', 시각:v.시각, 제목:v.제목||'', 내용:v.내용||'',
+                    공지함께:!!v.공지함께, 공지끝날:v.공지끝날||'', 보낸때:'', 켬:true});
+    return DEMO.예약목록(pw);
+  },
+  예약켜기:function(pw,행,켬){ var n=DEMO_예약[Number(행)-2]; if(n) n.켬=!!켬; return DEMO.예약목록(pw); },
+  예약지우기:function(pw,행){ DEMO_예약.splice(Number(행)-2,1); return DEMO.예약목록(pw); },
   푸시공개키:function(){ return DEMO_열쇠.공개키; },
   푸시열쇠:function(){ return {ok:true, 공개키:DEMO_열쇠.공개키, 비밀키:DEMO_열쇠.비밀키}; },
   푸시열쇠저장:function(pw,공개,비밀){

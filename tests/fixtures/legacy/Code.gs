@@ -17,7 +17,8 @@ var SHEET = {
   게임: '게임',
   공지: '공지',
   푸시: '푸시',
-  문장기록: '문장기록'
+  문장기록: '문장기록',
+  알림예약: '알림예약'
 };
 
 var 틀린단어열 = 14;   // N열
@@ -64,7 +65,8 @@ var HEADERS = {
   공지: ['만든때', '반', '제목', '내용', '끝나는날', '켬'],
   푸시: ['켠때', '반', '이름', '주소', 'p256dh', 'auth', '기기'],
   문장기록: ['시각', '반', '이름', '단어장', '범위', '유형', '난이도', '문항수', '정답수', '점수',
-             '소요초', '숙제여부', '틀린문장', '구분', '집계제외']
+             '소요초', '숙제여부', '틀린문장', '구분', '집계제외'],
+  알림예약: ['만든때', '종류', '날짜', '시각', '제목', '내용', '공지함께', '공지끝날', '보낸때', '켬']
 };
 
 /* ------------------------------------------------------------------ 앱이 사는 곳
@@ -179,6 +181,10 @@ var 열린기능_ = {
   공지등록: 공지등록,
   공지끄기: 공지끄기,
   공지삭제: 공지삭제,
+  예약목록: 예약목록,
+  예약저장: 예약저장,
+  예약지우기: 예약지우기,
+  예약켜기: 예약켜기,
   합격점저장: 합격점저장,
   설정가져오기: 설정가져오기,
   설정저장: 설정저장,
@@ -3207,6 +3213,10 @@ function 알림권한확인() {
 /** 죽은 주소 지우기 — 보내다가 404/410 이 난 것들 */
 function 구독지우기(비번, 주소들) {
   if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
+  return 죽은구독지우기_(주소들);
+}
+/* 예약 알림(functions 의 scheduledNotices)도 이것으로 치운다 — bridge 전용 */
+function 죽은구독지우기_(주소들) {
   var 뺄것 = {};
   (주소들 || []).forEach(function (t) { if (s_(t)) 뺄것[s_(t)] = 1; });
   if (!Object.keys(뺄것).length) return { ok: true, 개수: 0 };
@@ -3314,6 +3324,247 @@ function 공지삭제(비번, 행) {
   if (!(n >= 2 && n <= sh.getLastRow())) return { ok: false, 메시지: '이미 지워진 공지입니다.' };
   sh.deleteRow(n);
   return { ok: true, 공지: 공지목록(비번).공지 };
+}
+
+/* ==================================================================
+   알림 예약 — 선생님이 미리 써 두면 때가 됐을 때 저절로 나간다.
+     한번      날짜와 시각에 한 번 보내고 끝 (알림을 켠 아이 전부)
+     안낸아이  매일 그 시각에, 오늘 마감인 숙제를 안 낸 아이에게만
+   보내는 일은 Cloud Functions(scheduledNotices, 10분마다)가 한다 — 엔진의 __예약알림 이 고르고,
+   보낸때를 먼저 찍은 뒤 돌려준 목록으로 함수가 서명해서 쏜다. 함수가 겹쳐 돌아도 두 번 안 나간다.
+   시각은 7:00 ~ 21:00 만 받는다 — 새벽에 아이들 폰이 다 울리면 안 된다.
+================================================================== */
+var 예약종류목록_ = ['한번', '안낸아이'];
+var 예약첫분_ = 7 * 60, 예약끝분_ = 21 * 60;
+var 예약칸_ = { 만든때: 1, 종류: 2, 날짜: 3, 시각: 4, 제목: 5, 내용: 6, 공지함께: 7, 공지끝날: 8, 보낸때: 9, 켬: 10 };
+
+/** 알림예약 시트 — 없으면 만들고, 칸이 모자라면 넓혀 머리글을 붙인다 (있는 머리글은 안 건드린다) */
+function 예약시트_() {
+  var ss = ss_();
+  var sh = ss.getSheetByName(SHEET.알림예약);
+  var H = HEADERS.알림예약;
+  if (!sh) {
+    sh = ss.insertSheet(SHEET.알림예약);
+    sh.getRange(1, 1, 1, H.length).setValues([H]).setFontWeight('bold').setBackground('#EFF3F9');
+    sh.setFrozenRows(1);
+    sh.setColumnWidth(5, 200); sh.setColumnWidth(6, 360);
+    return sh;
+  }
+  if (typeof sh.getMaxColumns !== 'function' || typeof sh.getRange !== 'function') return sh;
+  if (sh.getMaxColumns() < H.length && typeof sh.insertColumnsAfter === 'function') {
+    sh.insertColumnsAfter(sh.getMaxColumns(), H.length - sh.getMaxColumns());
+  }
+  var 머리 = sh.getRange(1, 1, 1, H.length).getValues()[0], 고칠까 = false;
+  for (var i = 0; i < H.length; i++) if (!s_(머리[i])) { 머리[i] = H[i]; 고칠까 = true; }
+  if (고칠까) sh.getRange(1, 1, 1, H.length).setValues([머리]).setFontWeight('bold').setBackground('#EFF3F9');
+  return sh;
+}
+
+/* 'yyyy-MM-dd HH:mm:ss' — 시각 기준은 스크립트 시간대(Asia/Seoul) */
+function 예약때글_(d) { return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'); }
+
+/** '9:00' · '19:05' → '09:00' · '19:05'. 꼴이 틀리면 '' */
+function 예약시각정리_(v) {
+  if (v instanceof Date) return 예약때글_(v).slice(11, 16);
+  var m = /^(\d{1,2}):(\d{2})$/.exec(s_(v));
+  if (!m) return '';
+  var h = Number(m[1]), mi = Number(m[2]);
+  if (h > 23 || mi > 59) return '';
+  return (h < 10 ? '0' : '') + h + ':' + m[2];
+}
+/** 7:00 ~ 21:00 안인가 (21:00 은 받고 21:01 은 막는다) */
+function 예약시각되나_(시각) {
+  var t = 예약시각정리_(시각);
+  if (!t) return false;
+  var 분 = Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+  return 분 >= 예약첫분_ && 분 <= 예약끝분_;
+}
+function 예약날짜꼴_(t) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return false;
+  var d = new Date(Number(t.slice(0, 4)), Number(t.slice(5, 7)) - 1, Number(t.slice(8, 10)));
+  return ymd_(d) === t;
+}
+
+/** 알림예약 한 줄 → 화면 꼴 */
+function 예약줄_(x, i) {
+  function 칸(k) { return x.length >= 예약칸_[k] ? x[예약칸_[k] - 1] : ''; }
+  var 때 = 칸('만든때') instanceof Date ? 칸('만든때') : null;
+  var 날짜 = 칸('날짜'), 끝 = 칸('공지끝날'), 보냄 = 칸('보낸때');
+  return {
+    행: i + 2,
+    키: 때 ? String(때.getTime()) : '',
+    종류: s_(칸('종류')),
+    날짜: 날짜 instanceof Date ? ymd_(날짜) : s_(날짜),
+    시각: 예약시각정리_(칸('시각')),
+    제목: s_(칸('제목')),
+    내용: s_(칸('내용')),
+    공지함께: s_(칸('공지함께')) === 'O',
+    공지끝날: 끝 instanceof Date ? ymd_(끝) : s_(끝),
+    보낸때: 보냄 instanceof Date ? 예약때글_(보냄).slice(0, 16) : s_(보냄),
+    켬: s_(칸('켬')) !== 'X',
+    만든날: 때 ? ymd_(때) : ''
+  };
+}
+
+/** 이 줄을 지금 보낼 때인가 — 오늘 · 지금시각('HH:mm') 은 Asia/Seoul 기준 */
+function 예약때됐나_(n, 오늘, 지금시각) {
+  if (!n.켬 || !n.시각 || (!n.제목 && !n.내용)) return false;
+  if (지금시각 < n.시각) return false;
+  if (n.종류 === '한번') return n.날짜 === 오늘 && !n.보낸때;
+  if (n.종류 === '안낸아이') return n.보낸때.slice(0, 10) !== 오늘;
+  return false;
+}
+
+function 예약줄확인_(sh, 행, 키) {
+  var n = Number(행);
+  if (!(n >= 2 && n <= sh.getLastRow())) return 0;
+  if (s_(키)) {
+    var 때 = sh.getRange(n, 예약칸_.만든때).getValue();
+    if (!(때 instanceof Date) || String(때.getTime()) !== s_(키)) return 0;   // 그 사이 줄이 밀렸다
+  }
+  return n;
+}
+
+/** 선생님 화면 — 예약 전부 (새것부터) */
+function 예약목록(비번) {
+  if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
+  예약시트_();
+  var 줄들 = [];
+  try { 줄들 = rows_(SHEET.알림예약); } catch (e) { 줄들 = []; }
+  var out = 줄들.map(예약줄_).filter(function (n) { return n.종류 && (n.제목 || n.내용); });
+  out.reverse();
+  return { ok: true, 예약: out, 오늘: ymd_(new Date()) };
+}
+
+/** 새로 넣거나(행이 비면) 고친다. 다 따져 본 뒤에 쓴다 — 하나라도 틀리면 아무것도 안 바뀐다 */
+function 예약저장(비번, 행, 값) {
+  if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
+  값 = 값 || {};
+  var 종류 = s_(값.종류);
+  if (예약종류목록_.indexOf(종류) < 0) return { ok: false, 메시지: '종류를 골라 주세요.' };
+  var 날짜 = '';
+  if (종류 === '한번') {
+    날짜 = s_(값.날짜);
+    if (!예약날짜꼴_(날짜)) return { ok: false, 메시지: '보낼 날짜를 골라 주세요.' };
+    if (날짜 < ymd_(new Date())) return { ok: false, 메시지: '지난 날짜입니다.' };
+  }
+  var 시각 = 예약시각정리_(값.시각);
+  if (!시각) return { ok: false, 메시지: '시각 모양이 맞지 않습니다. (예: 19:00)' };
+  if (!예약시각되나_(시각)) return { ok: false, 메시지: '알림은 아침 7시부터 밤 9시 사이에만 보낼 수 있습니다.' };
+  var 제목 = s_(값.제목), 내용 = s_(값.내용);
+  if (!제목 && !내용) return { ok: false, 메시지: '내용을 적어 주세요.' };
+  if (제목.length > 40) return { ok: false, 메시지: '제목은 40자까지 넣을 수 있습니다.' };
+  if (내용.length > 500) return { ok: false, 메시지: '내용은 500자까지 넣을 수 있습니다.' };
+  var 공지함께 = !!값.공지함께, 끝 = 공지함께 ? s_(값.공지끝날) : '';
+  if (끝 && !예약날짜꼴_(끝)) return { ok: false, 메시지: '공지 끝날 모양이 맞지 않습니다.' };
+
+  var sh = 예약시트_();
+  var 줄 = [종류, 날짜, 시각, 제목, 내용, 공지함께 ? 'O' : '', 끝];
+  if (!s_(행)) {
+    sh.appendRow([new Date()].concat(줄, ['', '']));
+    var 새 = sh.getLastRow();
+    sh.getRange(새, 1).setNumberFormat('yyyy-MM-dd HH:mm');
+    sh.getRange(새, 예약칸_.날짜, 1, 2).setNumberFormat('@');
+    return { ok: true, 예약: 예약목록(비번).예약 };
+  }
+  var n = 예약줄확인_(sh, 행, 값.키);
+  if (!n) return { ok: false, 메시지: '그 사이 예약이 바뀌었습니다. 새로 불러와 주세요.' };
+  var 전 = 예약줄_(sh.getRange(n, 1, 1, HEADERS.알림예약.length).getValues()[0], n - 2);
+  sh.getRange(n, 예약칸_.날짜, 1, 2).setNumberFormat('@');
+  sh.getRange(n, 예약칸_.종류, 1, 줄.length).setValues([줄]);
+  /* 언제 보낼지가 바뀌면 다시 나가게 보낸때를 비운다. 글만 고치면 그대로 (이미 나간 것을 또 보내지 않는다) */
+  if (전.종류 !== 종류 || 전.날짜 !== 날짜 || (종류 === '한번' && 전.시각 !== 시각)) sh.getRange(n, 예약칸_.보낸때).setValue('');
+  return { ok: true, 예약: 예약목록(비번).예약 };
+}
+
+function 예약지우기(비번, 행, 키) {
+  if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
+  var sh = 예약시트_();
+  var n = 예약줄확인_(sh, 행, 키);
+  if (!n) return { ok: false, 메시지: '이미 지워진 예약입니다.' };
+  sh.deleteRow(n);
+  return { ok: true, 예약: 예약목록(비번).예약 };
+}
+
+/** 끄면 안 나간다 — 지우지 않고 꺼 두는 길 */
+function 예약켜기(비번, 행, 켬, 키) {
+  if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
+  var sh = 예약시트_();
+  var n = 예약줄확인_(sh, 행, 키);
+  if (!n) return { ok: false, 메시지: '이미 지워진 예약입니다.' };
+  sh.getRange(n, 예약칸_.켬).setValue(켬 ? 'O' : 'X');
+  return { ok: true, 예약: 예약목록(비번).예약 };
+}
+
+/** 오늘 마감인 숙제를 안 낸 아이 { 이름: 1 } — 「안 한 학생」 · 미제출시트 와 같은 셈 (전체숙제 → 숙제줄_) */
+function 오늘안낸아이_(오늘) {
+  var 안낸 = {};
+  전체숙제().forEach(function (h) {
+    if (!숙제인가_(h) || h.마감일 !== 오늘) return;       // 시험은 미제출이 아니다
+    h.안한사람.forEach(function (이름) { 안낸[이름] = 1; });
+  });
+  return 안낸;
+}
+
+/**
+ * 예약 알림 — bridge 전용 (functions 의 scheduledNotices 가 10분마다 부른다).
+ * 때가 된 줄의 보낸때를 먼저 찍고(같은 거래 안에서), 보낼 것을 돌려준다. 보내는 일은 함수가 한다.
+ *   돌려주는 것 = { ok, 오늘, 보낼것:[{행, 종류, 제목, 내용, 구독:[{이름, 주소, p256dh, auth}]}], 공개키, 푸시비밀키 }
+ *   푸시비밀키는 웹 구독에 보낼 것이 있을 때만 싣는다.
+ */
+function 예약알림_(지금) {
+  var 빈답 = { ok: true, 보낼것: [] };
+  var sh = ss_().getSheetByName(SHEET.알림예약);
+  if (!sh) return 빈답;
+  var 때 = new Date(Number(지금) || new Date().getTime());
+  var 글 = 예약때글_(때);
+  var 오늘 = 글.slice(0, 10), 지금시각 = 글.slice(11, 16);
+  빈답.오늘 = 오늘;
+  var 고른 = [];
+  rows_(SHEET.알림예약).forEach(function (x, i) {
+    var n = 예약줄_(x, i);
+    if (예약때됐나_(n, 오늘, 지금시각)) 고른.push(n);
+  });
+  if (!고른.length) return 빈답;
+
+  /* 먼저 찍는다 — 보내다 터져도 같은 줄이 두 번 나가지 않는다 */
+  고른.forEach(function (n) {
+    sh.getRange(n.행, 예약칸_.보낸때).setNumberFormat('@')
+      .setValue(n.종류 === '한번' ? 글.slice(0, 16) : 오늘);
+  });
+
+  var 구독 = [], 본주소 = {};
+  try {
+    rows_(SHEET.푸시).forEach(function (x) {
+      var 주소 = s_(x[3]);
+      if (!주소 || 본주소[주소]) return;
+      본주소[주소] = 1;
+      구독.push({ 이름: s_(x[2]), 주소: 주소, p256dh: s_(x[4]), auth: s_(x[5]) });
+    });
+  } catch (e) { 구독 = []; }
+
+  var 안낸 = null, 보낼것 = [], 웹있나 = false;
+  고른.forEach(function (n) {
+    var 받을 = 구독;
+    if (n.종류 === '안낸아이') {
+      if (!안낸) 안낸 = 오늘안낸아이_(오늘);
+      if (!Object.keys(안낸).length) return;               // 안 낸 아이가 없다 — 보낸때만 찍고 끝
+      받을 = 구독.filter(function (s) { return 안낸[s.이름]; });
+    }
+    if (n.공지함께) {
+      var 끝 = n.공지끝날;
+      if (!끝) { var d = new Date(때.getTime()); d.setDate(d.getDate() + 3); 끝 = ymd_(d); }
+      var 공 = 공지시트_();
+      공.appendRow([new Date(), '', n.제목, n.내용, 끝, '']);
+      공.getRange(공.getLastRow(), 1).setNumberFormat('yyyy-MM-dd HH:mm');
+    }
+    if (!받을.length) return;
+    if (받을.some(function (s) { return s.주소.indexOf('fcm:') !== 0; })) 웹있나 = true;
+    보낼것.push({ 행: n.행, 종류: n.종류, 제목: n.제목, 내용: n.내용, 구독: 받을 });
+  });
+  var 답 = { ok: true, 오늘: 오늘, 보낼것: 보낼것, 찍은수: 고른.length };
+  if (웹있나) { 답.공개키 = 푸시공개키(); 답.푸시비밀키 = s_(setting_('푸시비밀키', '')); }
+  return 답;
 }
 
 /* ==================================================================
