@@ -815,6 +815,9 @@ body.fixon .screen.on .rotbtn{margin-right:118px}
   border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));
 }
 .sheetbar .inner{max-width:560px;margin:0 auto}
+/* 키보드가 올라오면 숨긴다 — 키보드 위에 큰 제출 단추가 떠 있으면 쓰다가 잘못 눌러 낸다.
+   display 가 아니라 visibility 로 — 높이가 그대로라 아래 여백을 다시 재지 않는다(화면이 안 튄다) */
+.sheetbar.kbhide{visibility:hidden;pointer-events:none}
 .sheetbar .left{font-size:12px;font-weight:800;color:var(--sub);margin-bottom:7px;text-align:center}
 .sheetsum{
   background:var(--primary-soft);border:1.5px solid var(--primary);border-radius:14px;
