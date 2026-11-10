@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 
 const PAGES = 'https://smarthb-english.github.io/Vocab/app-update/';
 const FILES = ['index.html', 'parent.html', 'sw.js', 'parent-sw.js', 'manifest.json', 'parent-manifest.json',
-  'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'privacy.html', 'delete-account.html', 'services/firestore.bundle.js', 'app/native-push.js', 'app/app-boot.js', 'app/app.css'];
+  'mascot.js', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'privacy.html', 'delete-account.html', 'services/firestore.bundle.js', 'app/native-push.js', 'app/app-boot.js', 'app/app.css'];
 
 const hash = createHash('sha256');
 for (const f of FILES) hash.update(f).update(readFileSync(f));

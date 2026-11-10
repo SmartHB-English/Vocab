@@ -2459,6 +2459,19 @@ html #s-login .autochk,html #tLogin .autochk{display:flex !important;align-items
   margin:14px 0 12px !important;font-size:15px !important;font-weight:600;color:var(--sub) !important;text-align:center;cursor:pointer;user-select:none}
 html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !important;height:20px !important;margin:0 !important;
   accent-color:var(--primary,#FF9500) !important;flex:none !important;cursor:pointer}
+
+/* ===================== 마스코트 (학생 화면 · 문제와 결과) =====================
+   문제 화면 위쪽 흐름 안에 둔다 — 겹쳐 띄우지 않으므로 문제를 가리지 않는다.
+   mascot.js 를 못 불러오면 자리가 비어 있으니 :empty 로 접힌다. */
+.mascot-slot{width:clamp(140px,40vw,180px);height:clamp(140px,40vw,180px);margin:2px auto 0;flex:none}
+.mascot-slot:empty{display:none}
+.mascot{width:100%;height:100%}
+.mascot svg{display:block;width:100%;height:100%;overflow:visible}
+#s-quiz .qwrap{min-height:calc(100vh - 212px - clamp(140px,40vw,180px))}
+@media (orientation:landscape) and (max-height:520px){
+  .mascot-slot{width:110px;height:110px}
+  #s-quiz .qwrap{min-height:0}
+}
 /* END GENERATED services/shared-ui.css */
 </style>
 </head>
@@ -2648,6 +2661,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div class="bar"><i id="qBar"></i></div>
+    <div class="mascot-slot" id="qMascot"></div>
     <div class="qwrap">
       <div class="qcard">
         <div class="q" id="qQ"></div>
@@ -2756,6 +2770,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
         <div class="stName" id="shName" style="margin-top:6px"></div>
         <div class="bar"><i id="shBar"></i></div>
       </div>
+      <div class="mascot-slot" id="shMascot"></div>
       <div id="shSum"></div>
       <div id="shList"></div>
     </div>
@@ -2775,6 +2790,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
     <div class="bar"><i id="vBar"></i></div>
+    <div class="mascot-slot" id="vMascot"></div>
 
     <div class="qcard" style="min-height:110px;padding:20px 16px">
       <div class="q" id="vQ" style="font-size:34px"></div>
@@ -2949,6 +2965,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
     <div class="top" style="justify-content:flex-end;padding-bottom:6px">
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
+    <div class="mascot-slot" id="rMascot"></div>
     <div class="card center">
       <div class="sub" id="rTitle"></div>
       <div class="score mt"><span id="rScore">0</span><small>점</small></div>
@@ -3040,6 +3057,7 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
 <div class="toast" id="toast"></div>
 <div class="fx" id="fx"></div>
 
+<script src="mascot.js"></script>
 <script>
 /* BEGIN GENERATED services/api-client.js */
 /* Single owner of the legacy HTTP RPC protocol.
@@ -3148,7 +3166,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-11-04b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-11-10a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -4927,7 +4945,25 @@ function show(name){
   if(name === 'games') try{ 게임자료받기_(); }catch(e){}
   if(name === 'sent') try{ 문장화면열기_(); }catch(e){}
   try{ 나가기단추맞추기_(); }catch(e){}
+  if(name === 'quiz' || name === 'verb' || name === 'sheet') 마스코트('idle', name);
+  if(name === 'result') 마스코트('celebrate', name);
   window.scrollTo(0,0);
+}
+/* 마스코트 — 한 마리만 만들어 두고 문제·결과 화면의 자리로 옮겨 다닌다 (mascot.js 의 createMascot).
+   mascot.js 를 못 불러와도 문제 풀기는 그대로 되어야 하므로 무슨 일이 있어도 넘어간다 */
+var 마스코트자리_ = {quiz:'qMascot', verb:'vMascot', sheet:'shMascot', result:'rMascot'};
+var 마스코트_ = null, 마스코트판_ = null;
+function 마스코트(동작, 화면){
+  try{
+    if(typeof createMascot !== 'function') return;
+    var 자리 = $(마스코트자리_[화면]); if(!자리) return;
+    if(!마스코트판_){
+      마스코트판_ = document.createElement('div'); 마스코트판_.className = 'mascot';
+      자리.appendChild(마스코트판_);
+      마스코트_ = createMascot(마스코트판_, { sleepAfter: 30000 });
+    }else if(마스코트판_.parentNode !== 자리) 자리.appendChild(마스코트판_);
+    if(동작) 마스코트_.play(동작);
+  }catch(e){}
 }
 /* 시험 중에는 나가기 단추를 눌리지 않게 가린다 (자리는 남겨 둔다 — 시계가 밀리지 않게).
    시험지 화면의 「← 그만」(shBack)은 data-back 이 아니라 따로 챙긴다 */
@@ -8304,8 +8340,10 @@ function judge(ans, btn){
     else { $('qInput').style.color='var(--ok)'; }
     beep('ok');
     if(S.콤보>=3) 반짝(S.콤보>=10?'🎉':'⭐');
+    마스코트(S.콤보>=3 ? 'combo' : 'correct', 'quiz');
   }else{
     S.콤보=0;
+    마스코트('wrong', 'quiz');
     S.오답.push({en:w.en,ko:w.ko,mine:String(ans||'').trim()});
     $('qMsg').textContent='정답 : '+정답; $('qMsg').style.color='var(--ng)';
     if(btn){
@@ -8877,7 +8915,7 @@ function startVerb(){
   S.모드='verb'; S.재시험=false;
   S.문제=문항뽑기_(r.list, 숙제문항수_()); S.범위=기록범위(r);
   S.idx=0; S.칸수=0; S.칸정답=0; S.오답=[];
-  S.게임점수=0; S.최고콤보=0; S.콤보=0;
+  S.게임점수=0; S.최고콤보=0; S.콤보=0; S.v연속=0;
   S.시작시각=Date.now();
   show('verb'); renderVerb();
   var 숙제한 = 숙제제한_();
@@ -8959,10 +8997,12 @@ function judgeVerb(){
   if(틀린.length){
     S.오답.push({en:w.en, ko:w.ko, 틀린:틀린});
     $('vMsg').textContent=''; beep('ng');
+    S.v연속=0; 마스코트('wrong', 'verb');
   }else{
     $('vMsg').textContent='세 개 다 맞았어요!';
     $('vMsg').style.color='var(--ok)';
     beep('ok'); 반짝('⭐');
+    S.v연속=(S.v연속||0)+1; 마스코트(S.v연속>=3 ? 'combo' : 'correct', 'verb');
   }
   S.v상태='feedback';
   /* 칸을 잠가 자판을 닫는다. 이래야 「완료」를 연달아 눌러 단어가 훅훅 넘어가지 않는다 */

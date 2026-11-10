@@ -2443,3 +2443,16 @@ html #s-login .autochk,html #tLogin .autochk{display:flex !important;align-items
   margin:14px 0 12px !important;font-size:15px !important;font-weight:600;color:var(--sub) !important;text-align:center;cursor:pointer;user-select:none}
 html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !important;height:20px !important;margin:0 !important;
   accent-color:var(--primary,#FF9500) !important;flex:none !important;cursor:pointer}
+
+/* ===================== 마스코트 (학생 화면 · 문제와 결과) =====================
+   문제 화면 위쪽 흐름 안에 둔다 — 겹쳐 띄우지 않으므로 문제를 가리지 않는다.
+   mascot.js 를 못 불러오면 자리가 비어 있으니 :empty 로 접힌다. */
+.mascot-slot{width:clamp(140px,40vw,180px);height:clamp(140px,40vw,180px);margin:2px auto 0;flex:none}
+.mascot-slot:empty{display:none}
+.mascot{width:100%;height:100%}
+.mascot svg{display:block;width:100%;height:100%;overflow:visible}
+#s-quiz .qwrap{min-height:calc(100vh - 212px - clamp(140px,40vw,180px))}
+@media (orientation:landscape) and (max-height:520px){
+  .mascot-slot{width:110px;height:110px}
+  #s-quiz .qwrap{min-height:0}
+}
