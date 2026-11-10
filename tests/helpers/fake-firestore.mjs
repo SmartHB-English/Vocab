@@ -35,6 +35,8 @@ export async function runTransaction(db, fn) {
     delete(ref) { 쓸것.push([ref.path]); return tx; },
   };
   const 답 = await fn(tx);
+  // 거절: 경로를 받아 참이면 그 쓰기를 규칙이 막은 것으로 친다 — 거래 전체가 안 써진다
+  if (db.거절 && 쓸것.some(([path]) => db.거절(path))) throw 오류('permission-denied');
   for (const [path, data] of 쓸것) data === undefined ? db.docs.delete(path) : db.docs.set(path, structuredClone(data));
   if (쓸것.length) db.commits++;
   if (db.답잃음 > 0) { db.답잃음--; throw 오류('unavailable'); }

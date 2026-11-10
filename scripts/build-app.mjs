@@ -8,15 +8,21 @@ import { execFileSync } from 'node:child_process';
 const PAGES = 'https://smarthb-english.github.io/Vocab/app-update/';
 const FILES = ['index.html', 'parent.html', 'sw.js', 'parent-sw.js', 'manifest.json', 'parent-manifest.json',
   'mascot.js', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'privacy.html', 'delete-account.html', 'services/firestore.bundle.js', 'app/native-push.js', 'app/app-boot.js', 'app/app.css'];
+// 폴더째 넣는 것 — 알 키우기 그림(pet/eg1~5 · pet1~10). 안의 파일을 하나하나 적지 않는다
+const DIRS = ['pet'];
+const dirFiles = DIRS.flatMap((d) => readdirSync(d, { recursive: true, withFileTypes: true })
+  .filter((e) => e.isFile()).map((e) => `${e.parentPath}/${e.name}`.replace(/\\/g, '/'))).sort();
 
 const hash = createHash('sha256');
-for (const f of FILES) hash.update(f).update(readFileSync(f));
+// 폴더 안 파일도 이름 · 내용을 해시에 넣는다 — 그림만 바꿔도 버전이 바뀌어야 앱이 받아 간다
+for (const f of [...FILES, ...dirFiles]) hash.update(f).update(readFileSync(f));
 const appVersion = /var 앱버전 = '([^']+)'/.exec(readFileSync('index.html', 'utf8'))?.[1];
 if (!appVersion) throw new Error('index.html에서 앱버전을 못 찾음');
 const version = `${appVersion}-${hash.digest('hex').slice(0, 8)}`;
 
 rmSync('www', { recursive: true, force: true });
 for (const f of FILES) cpSync(f, `www/${f.replace(/^app\//, '')}`);
+for (const d of DIRS) cpSync(d, `www/${d}`, { recursive: true });
 writeFileSync('www/app-boot.js', readFileSync('www/app-boot.js', 'utf8').replace('__BUNDLE_VERSION__', version));
 const html = readFileSync('www/index.html', 'utf8');
 const viewport = '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">';

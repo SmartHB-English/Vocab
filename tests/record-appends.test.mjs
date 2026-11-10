@@ -44,6 +44,8 @@ const 본체 = db => db.docs.get(`vocabDatasets/${판}/tables/${sheetId('기록'
 const 목록 = db => db.docs.get(`vocabDatasets/${판}/meta/catalog`);
 const 조각들 = db => [...db.docs.keys()].filter(k => k.includes(`/tables/${sheetId('기록')}/appends/`)).sort();
 const 제출 = (범위, 구분 = '숙제', 점수 = 80) => ({ 이름: '홍길동', 단어장: '교재A', 범위, 유형: '스펠링', 문항수: 10, 정답수: 8, 점수, 숙제여부: true, 구분, 틀린단어: 'a,b' });
+/* 연습 — 줄만 붙인다. 숙제는 알 키우기의 펫 표도 같이 써서 목록(catalog)이 바뀐다 (tests/pet-egg.test.mjs) */
+const 연습제출 = 범위 => ({ ...제출(범위), 숙제여부: false });
 const 잠깐 = () => new Promise(r => setTimeout(r, 3));
 /* 선생님 눈으로 본 기록 표의 「범위」 칸들 — 본체 + 조각을 합친 차례 */
 async function 범위들(db) {
@@ -68,7 +70,7 @@ test('표: 줄을 뒤에 붙이기만 하면 그 줄들을, 옛 줄을 고치거
 test('6) 줄을 뒤에 붙이기만 하면 본체·목록을 안 건드리고 조각만 쓴다', async () => {
   const db = await 판차리기(), r = await 학생(db);
   const 전본체 = structuredClone(본체(db)), 전목록 = structuredClone(목록(db));
-  assert.deepEqual(await r.call('결과저장', [제출('조각1')]), { ok: true });
+  assert.deepEqual(await r.call('결과저장', [연습제출('조각1')]), { ok: true });
   assert.deepEqual(본체(db), 전본체);
   assert.deepEqual(목록(db), 전목록);
   assert.equal(조각들(db).length, 1);
@@ -171,7 +173,7 @@ test('9-1) 49개면 아직 안 합친다 · 학생은 합치기를 부를 수 �
 test('9-2) 같은 번호로 다시 보내도 조각은 하나 — 영수증', async () => {
   const db = await 판차리기(), r = await 학생(db);
   db.답잃음 = 1;
-  await assert.rejects(r.call('결과저장', [제출('한번')], { 요청번호: 'piece-retry-0001' }), e => e.다시보내도됨 === true);
-  assert.deepEqual(await r.call('결과저장', [제출('한번')], { 요청번호: 'piece-retry-0001', 다시보냄: true }), { ok: true });
+  await assert.rejects(r.call('결과저장', [연습제출('한번')], { 요청번호: 'piece-retry-0001' }), e => e.다시보내도됨 === true);
+  assert.deepEqual(await r.call('결과저장', [연습제출('한번')], { 요청번호: 'piece-retry-0001', 다시보냄: true }), { ok: true });
   assert.equal(조각들(db).length, 1);
 });

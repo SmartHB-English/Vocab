@@ -57,6 +57,6 @@ test('runtime preserves production login through the actual table adapter', () =
   const books=store.insertSheet('단어장목록'); books.appendRow(['단어장','종류','시트이름','색','레슨묶음','과']);
   const engine=createRuntime(store);
   assert.equal(engine.call('로그인',['가상학생','11']).ok,false);
-  assert.deepEqual(engine.call('로그인',[' 가상학생 ','0011']),{ok:true,학생:{이름:'가상 학생',학년구분:'유치'},단어장목록:[]});
+  assert.deepEqual(engine.call('로그인',[' 가상학생 ','0011']),{ok:true,학생:{이름:'가상 학생',학년구분:'유치'},단어장목록:[],펫: { 알종류: '', 펫종류: '', 숙제수: 0, 부화: false, 부화한날: '', 다섯: 5 }});
   assert.throws(() => engine.call('constructor'), /쓸 수 없는/);
 });

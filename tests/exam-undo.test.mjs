@@ -52,7 +52,7 @@ test('그 기록을 무르면 같은 결과저장이 들어간다 — 무른 기
   const e = 엔진();
   assert.deepEqual(e.call('시험무르기', '1234', [키(1)], true), { ok: true, 개수: 1, 무름: true });
   assert.deepEqual(구분들(e.기록), ['시험(무효)', '숙제', '오답 재시험', '시험']);
-  assert.deepEqual(시험보기(e, '1~10'), { ok: true });
+  assert.equal(시험보기(e, '1~10').ok, true);             // 숙제로 낸 시험이라 펫 칸(알 키우기)이 같이 온다
   assert.equal(e.기록.getLastRow(), 6);                          // 옛 기록 4줄 + 새 시험 1줄
   assert.equal(e.기록.getRange(6, 15).getValue(), '시험');
 });
@@ -70,7 +70,7 @@ test('기록보관에 있는 시험도 무러진다', () => {
   assert.equal(시험보기(e, '31~40').이미봄, true);              // 보관함도 막고 있었다
   assert.equal(e.call('시험무르기', '1234', [키(5)], true).개수, 1);
   assert.deepEqual(구분들(e.보관), ['시험(무효)']);
-  assert.deepEqual(시험보기(e, '31~40'), { ok: true });
+  assert.equal(시험보기(e, '31~40').ok, true);
 });
 
 test('오답 재시험 기록은 키를 같이 보내도 안 바뀐다 — 숙제는 이제 같이 무러진다 (기록무르기)', () => {

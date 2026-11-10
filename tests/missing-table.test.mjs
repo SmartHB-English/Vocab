@@ -26,7 +26,9 @@ function 엔진() {
 test('보관함이 없어도 시험을 낼 수 있다', () => {
   const r = 엔진()('결과저장', [{ 이름:'홍길동', 단어장:'교재A', 범위:'1~10', 유형:'스펠링',
     문항수:10, 정답수:9, 점수:90, 숙제여부:true, 구분:'시험' }]);
-  assert.deepEqual(r, { ok: true });
+  assert.equal(r.ok, true);
+  assert.equal(r.이미봄, undefined);
+  assert.equal(r.펫.숙제수, 1, '펫 표도 없던 자료 — 첫 숙제에 만든다');
 });
 
 test('보관함이 없어도 선생님 화면 기록이 불러와진다', () => {

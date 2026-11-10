@@ -2498,6 +2498,32 @@ html[data-theme] body:not(.hb0) .mascot-slot.onbar{transition:left .5s var(--eas
   #s-quiz .qwrap{min-height:0}
 }
 /* END GENERATED services/shared-ui.css */
+/* 알 키우기 — 홈의 숙제 바로 아래. 그림에 색을 덧입히지 않는다 (그림마다 제 색 · 무늬가 있다) */
+.eggcard{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:16px}
+.eggpic{position:relative;flex:0 0 auto;width:118px;height:128px;display:flex;align-items:flex-end;justify-content:center}
+.eggpic::before{content:"";position:absolute;left:6px;right:6px;bottom:4px;height:96px;border-radius:50%;
+  background:radial-gradient(closest-side,var(--eggglow) 0%,var(--eggglow) 55%,transparent 100%)}
+.eggfloat{position:relative;height:120px;display:flex;align-items:flex-end;justify-content:center;animation:알둥실 3s ease-in-out infinite}
+.eggfloat img{display:block;height:120px;width:auto;max-width:118px;object-fit:contain;transform-origin:50% 90%}
+.eggpic.pet .eggfloat{animation-duration:3.6s}
+.eggtxt{flex:1;min-width:0}
+.eggname{display:block;font-size:16.5px;font-weight:900;letter-spacing:-.3px;color:var(--text)}
+.eggmsg{display:block;margin-top:3px;font-size:13px;font-weight:700;color:var(--sub);line-height:1.4}
+.eggprog{display:flex;align-items:center;gap:8px;margin-top:10px}
+.eggbar{flex:1;height:9px;border-radius:9px;background:var(--fill,rgba(120,120,128,.12));overflow:hidden}
+.eggbar i{display:block;height:100%;border-radius:9px;background:var(--primary);transition:width .5s var(--ease,ease)}
+.eggn{font-size:13px;font-weight:900;color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums}
+.eggpic .unknown{filter:grayscale(1) brightness(1.05);opacity:.35}
+html[data-theme="kid"]{--eggglow:rgba(255,190,110,.22)}
+html[data-theme="high"]{--eggglow:rgba(255,255,255,.16)}
+@keyframes 알둥실{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes 알흔들{0%,100%{transform:rotate(0)}20%{transform:rotate(-9deg)}45%{transform:rotate(8deg)}70%{transform:rotate(-5deg)}88%{transform:rotate(3deg)}}
+@keyframes 알깨짐{0%{transform:scale(1);opacity:1}60%{transform:scale(1.25);opacity:.9}100%{transform:scale(1.45);opacity:0}}
+@keyframes 펫톡{0%{transform:scale(.3) translateY(18px);opacity:0}60%{transform:scale(1.12) translateY(-4px);opacity:1}100%{transform:scale(1) translateY(0);opacity:1}}
+.eggfloat img.shake{animation:알흔들 .5s ease-in-out}
+.eggfloat img.burst{animation:알깨짐 .5s ease-in forwards}
+.eggfloat img.popin{animation:펫톡 .5s var(--spring,cubic-bezier(.34,1.56,.64,1)) both}
+@media (prefers-reduced-motion:reduce){ .eggfloat{animation:none} }
 </style>
 </head>
 <body>
@@ -2551,6 +2577,7 @@ html[data-theme] body:not(.hb0) .mascot-slot.onbar{transition:left .5s var(--eas
     <div id="sayBox"></div>
     <div id="todayBox"></div>
     <div id="hwBox"></div>
+    <div id="eggBox"></div>
     <div id="leftBox"></div>
     <div id="bellBox"></div>
   </section>
@@ -3197,7 +3224,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-11-10a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-11-10b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -3275,6 +3302,12 @@ var DEMO_SENT = [
 var DEMO_문장기록 = [];
 
 var DEMO_시작일 = '';
+/* 알 키우기 흉내 — 미리보기에서만. 처음엔 알 두 칸 */
+var DEMO_펫 = { 알종류:'eg2', 펫종류:'', 숙제수:2, 부화:false };
+function DEMO_펫상태_(){
+  return { 알종류:DEMO_펫.알종류, 펫종류:DEMO_펫.부화 ? DEMO_펫.펫종류 : '', 숙제수:DEMO_펫.숙제수,
+           부화:!!DEMO_펫.부화, 부화한날:DEMO_펫.부화 ? '2026-11-10' : '', 다섯:5 };
+}
 
 var DEMO_배정 = [
   {행:2,이름:'홍길동',학년구분:'초중등',학년:'중2',학교:'인왕중',단어장:[],
@@ -3446,7 +3479,7 @@ var DEMO = {
     var 책 = 교재.length
       ? 전체.filter(function(b){ return 교재.indexOf(b.이름)>-1; })
       : 전체;
-    return {ok:true, 학생:{이름:me.이름, 학년구분:me.학년구분}, 단어장목록:책};},
+    return {ok:true, 학생:{이름:me.이름, 학년구분:me.학년구분}, 단어장목록:책, 펫:DEMO_펫상태_()};},
   단어가져오기:function(name){
     if(name===DEMO_문장책) return DEMO_SENT.map(function(p,i){ return {no:i+1, en:p[0], ko:p[1], 종류:'문장', 비고:p[2]||''}; });
     if(DEMO_과책[name]){
@@ -3489,7 +3522,16 @@ var DEMO = {
     {단어장:'중2 5과 본문',시작:1,끝:3,유형:'영작',마감일:오늘,개별:false,색:'#16A34A',종류:'당일',남은일수:0,완료:false,점수:0,낸때:903,수업:'중2 6과 2회차',순서:3},
     {단어장:'중2 6과 문법',시작:1,끝:DEMO_GRAM.length,유형:'빈칸 채우기',마감일:오늘,개별:false,색:'#8B5CF6',종류:'당일',남은일수:0,완료:false,점수:0,낸때:904,수업:'중2 6과 2회차',순서:4}
   ];},
-  결과저장:function(){return {ok:true,demo:true};},
+  결과저장:function(p){
+    /* 엔진(Code.gs 펫자라기_)과 같은 규칙을 흉내만 — 숙제일 때 한 칸, 다섯이면 깨어난다. 아무 데도 안 적는다 */
+    if(!(p && p.숙제여부)) return {ok:true,demo:true};
+    var 펫 = DEMO_펫, 자랐나 = false, 깼나 = false;
+    if(!펫.알종류) 펫.알종류 = 'eg' + (1 + Math.floor(Math.random()*5));
+    if(!펫.부화){
+      펫.숙제수 = Math.min(5, 펫.숙제수 + 1); 자랐나 = true;
+      if(펫.숙제수 >= 5){ 펫.부화 = true; 깼나 = true; 펫.펫종류 = 'pet' + (1 + Math.floor(Math.random()*10)); }
+    }
+    return {ok:true,demo:true,펫:DEMO_펫상태_(),자랐나:자랐나,부화했나:깼나};},
   시상저장API:function(pw,ym){return {ok:true,년월:ym||'2026-09',개수:4};},
   시상시작일저장:function(pw,d){DEMO_시작일=d||''; return {ok:true,시작일:DEMO_시작일};},
   시상항목저장:function(pw,목록){
@@ -4975,6 +5017,7 @@ function show(name){
   if(name === 'streak') try{ 순위자료받기_(); }catch(e){}
   if(name === 'games') try{ 게임자료받기_(); }catch(e){}
   if(name === 'sent') try{ 문장화면열기_(); }catch(e){}
+  if(name === 'home') try{ 펫그리기_(); }catch(e){}
   try{ 나가기단추맞추기_(); }catch(e){}
   /* 아이폰 키보드 — 위에 붙어 있어야 하는 것을 보이는 영역 위에 붙여 둔다. 다른 화면으로 가면 빈 목록으로 떼어 낸다.
      시험지: 상단바 + 떠 있는 시계, 키보드가 올라오면 아래 제출 바를 숨긴다.
@@ -5236,6 +5279,7 @@ function 학생들어가기_(r, n, p, 기억할까){
     $('loginMsg').textContent='';
     S.학생=r.학생;
     S.내단어장 = r.단어장목록 || null;   // 선생님이 지정한 것만. 없으면 전부
+    S.펫 = r.펫 || null; S.펫연출 = null;   // 알 키우기 — 엔진이 준 그대로. 기기에 적어 두지 않는다
     try{localStorage.setItem('hb_last',JSON.stringify({이름:r.학생.이름}));}catch(e){}
     var saved=null; try{saved=localStorage.getItem('hb_theme');}catch(e){}
     setTheme(saved || (r.학생.학년구분==='고등'?'high':'kid'));
@@ -6510,6 +6554,80 @@ function 유치끝_(){
   });
 }
 
+/* ==== 알 키우기 화면 — 숙제를 내면 알이 자라고, 다섯 번이면 깨어난다 ====
+   알을 올리는 것은 엔진(Code.gs 결과저장 → 펫자라기_)이다. 여기는 로그인 · 결과저장 답(S.펫)을 받아 그리기만 한다.
+   기기에 적어 두지 않는다 (아이가 지우거나 고친다). 서버를 따로 부르지도 않는다.
+   연출은 시험 결과 화면이 아니라 홈에 돌아왔을 때 — 자랐으면 한 번 흔들, 깨어났으면 알이 커졌다 사라지고 펫이 톡 */
+function 펫그림_(이름){ return 'pet/' + 이름 + '.webp'; }
+var 펫미리받음_ = false;
+function 펫미리받기_(){
+  /* 깨어나는 순간 그림을 받으면 한 박자 비어 보인다 — 알 칸을 그릴 때 열 가지를 다 받아 둔다 */
+  if(펫미리받음_) return; 펫미리받음_ = true;
+  for(var i = 1; i <= 10; i++){ var im = new Image(); im.src = 펫그림_('pet' + i); }
+}
+function 펫받음_(r){
+  if(!r || !r.펫) return;
+  var 전 = S.펫;
+  S.펫 = r.펫;
+  if(r.부화했나) S.펫연출 = { 무엇:'부화', 알: (전 && 전.알종류) || r.펫.알종류 };
+  else if(r.자랐나) S.펫연출 = { 무엇:'자람' };
+}
+function 펫칸글_(펫){
+  var 다섯 = 펫.다섯 || 5, n = Math.max(0, Math.min(다섯, Number(펫.숙제수) || 0));
+  if(펫.부화 && 펫.펫종류){
+    return '<div class="card eggcard">' +
+      '<div class="eggpic pet"><div class="eggfloat"><img alt="내 펫" src="' + esc(펫그림_(펫.펫종류)) + '"></div></div>' +
+      '<div class="eggtxt"><b class="eggname">새 친구</b>' +
+      '<span class="eggmsg">함께 지내고 있어요</span></div></div>';
+  }
+  var 알 = 펫.알종류 || 'eg1';
+  return '<div class="card eggcard">' +
+    '<div class="eggpic"><div class="eggfloat"><img alt="알" class="' + (펫.알종류 ? '' : 'unknown') + '" src="' + esc(펫그림_(알)) + '"></div></div>' +
+    '<div class="eggtxt"><b class="eggname">' + (펫.알종류 ? '내 알' : '알이 기다려요') + '</b>' +
+    '<span class="eggmsg">숙제를 다섯 번 내면 깨어나요</span>' +
+    '<div class="eggprog"><div class="eggbar"><i style="width:' + Math.round(n / 다섯 * 100) + '%"></i></div>' +
+    '<span class="eggn">' + n + ' / ' + 다섯 + '</span></div></div></div>';
+}
+var 펫보기_ = null;   /* 알 칸이 화면에 들어오는지 지켜보는 것 — 그릴 때마다 새로 */
+function 펫그리기_(){
+  var 칸 = $('eggBox'); if(!칸) return;
+  if(펫보기_){ try{ 펫보기_.disconnect(); }catch(e){} 펫보기_ = null; }
+  if(!S.학생 || !S.펫){ 칸.innerHTML = ''; return; }
+  var 펫 = S.펫, 연출 = S.펫연출;
+  if(!펫.부화) 펫미리받기_();
+  var 부화연출 = 연출 && 연출.무엇 === '부화' && 펫.부화;
+  /* 연출이 남아 있으면 앞 모습(부화면 다 찬 알)부터 — 아이 눈에 들어올 때 움직인다 */
+  칸.innerHTML = 부화연출 ? 펫칸글_({ 알종류: 연출.알, 숙제수: 펫.다섯 || 5, 다섯: 펫.다섯 || 5 }) : 펫칸글_(펫);
+  if(!연출) return;
+  function 움직이기(){
+    if(S.펫연출 !== 연출) return;
+    S.펫연출 = null;                     /* 한 번 보여 주면 끝 */
+    var 그림 = 칸.querySelector('.eggfloat img'); if(!그림) return;
+    if(!부화연출){
+      그림.classList.add('shake');
+      setTimeout(function(){ 그림.classList.remove('shake'); }, 600);
+      return;
+    }
+    /* 알이 커졌다 사라지면 → 펫이 톡 */
+    그림.classList.add('burst');
+    setTimeout(function(){
+      if(S.펫 !== 펫) return;
+      칸.innerHTML = 펫칸글_(펫);
+      var 새 = 칸.querySelector('.eggfloat img'); if(새) 새.classList.add('popin');
+    }, 500);
+  }
+  /* 숙제가 길면 알 칸이 화면 아래에 있다 — 스크롤해서 보일 때 움직인다 */
+  if(typeof IntersectionObserver !== 'function'){ setTimeout(움직이기, 300); return; }
+  var 지켜봄 = new IntersectionObserver(function(들){
+    if(!들.some(function(d){ return d.isIntersecting; })) return;
+    지켜봄.disconnect(); if(펫보기_ === 지켜봄) 펫보기_ = null;
+    setTimeout(움직이기, 250);
+  }, { threshold: 0.6 });
+  펫보기_ = 지켜봄;
+  지켜봄.observe(칸);
+}
+/* ==== 알 키우기 화면 끝 ==== */
+
 /* 결과 보내기 (결과저장 세 자리가 같이 쓴다)
    · 반 전체가 한꺼번에 끝내면 저장이 몰린다 — 채점 화면은 바로 보이고, 보내는 것만 0~1.5초 사이 임의로 늦춘다
    · 끝내 못 보냈으면 조용히 넘기지 않는다 — 아이에게 알리고 「다시 보내기」 단추를 준다
@@ -6529,6 +6647,7 @@ function 결과보내기_(칸, 자료, 받음){
   function 보내기(늦춤){
     setTimeout(function(){
       api같은번호(번호, '결과저장', 자료).then(function(r){
+        try{ 펫받음_(r); }catch(e){}
         if(r && (r.ok || r.demo || r.이미봄)) 받음(r); else 못보냄();
       }, 못보냄);
     }, 늦춤);

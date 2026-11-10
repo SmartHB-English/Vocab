@@ -28,6 +28,8 @@ service cloud.firestore {
         allow get: if signedIn() && (resource.data.public == true || member(dataset));
         allow create, update, delete: if (teacher(dataset) && writable(dataset))
           || (writable(dataset) && credential().role == 'student' && request.resource.data.name in ['기록','게임','푸시','문장기록'] && request.resource.data.name == resource.data.name && request.resource.data.public == resource.data.public)
+          // 알 키우기의 펫 표 — 첫 숙제 때 학생이 만들 수도 있다. 공개로는 못 바꾸고, 지우지는 못한다 (지우면 request.resource 가 없다)
+          || (writable(dataset) && credential().role == 'student' && request.resource.data.name == '펫' && request.resource.data.public == false && (resource == null || resource.data.name == '펫'))
           || (writable(dataset) && credential().role == 'parent' && request.resource.data.name in ['학생','푸시'] && request.resource.data.name == resource.data.name && request.resource.data.public == resource.data.public);
         // 덧붙임 조각 — 줄을 뒤에 붙이기만 한 제출은 본체를 다시 쓰지 않고 조각 문서 하나를 새로 만든다 (services/firestore-repository.mjs).
         // 학생은 자기 이름(actor)으로 만들 수만 있다. 덧붙임이니 고칠 일이 없고, 합친 뒤 지우는 것은 선생님만.

@@ -2720,7 +2720,7 @@ var 미리보기 = (location.protocol === 'file:') ||
                location.search.indexOf('demo') > -1;
 var GAS = !미리보기 && (안쪽 || !!창구주소);
 
-var 앱버전 = '2026-11-10a';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
+var 앱버전 = '2026-11-10b';   /* 파일이 제대로 올라갔는지 눈으로 확인하는 표시 */
 
 /* ------------------------------- 미리보기용 예시 자료 */
 var DEMO_WORDS = [
@@ -2798,6 +2798,12 @@ var DEMO_SENT = [
 var DEMO_문장기록 = [];
 
 var DEMO_시작일 = '';
+/* 알 키우기 흉내 — 미리보기에서만. 처음엔 알 두 칸 */
+var DEMO_펫 = { 알종류:'eg2', 펫종류:'', 숙제수:2, 부화:false };
+function DEMO_펫상태_(){
+  return { 알종류:DEMO_펫.알종류, 펫종류:DEMO_펫.부화 ? DEMO_펫.펫종류 : '', 숙제수:DEMO_펫.숙제수,
+           부화:!!DEMO_펫.부화, 부화한날:DEMO_펫.부화 ? '2026-11-10' : '', 다섯:5 };
+}
 
 var DEMO_배정 = [
   {행:2,이름:'홍길동',학년구분:'초중등',학년:'중2',학교:'인왕중',단어장:[],
@@ -2969,7 +2975,7 @@ var DEMO = {
     var 책 = 교재.length
       ? 전체.filter(function(b){ return 교재.indexOf(b.이름)>-1; })
       : 전체;
-    return {ok:true, 학생:{이름:me.이름, 학년구분:me.학년구분}, 단어장목록:책};},
+    return {ok:true, 학생:{이름:me.이름, 학년구분:me.학년구분}, 단어장목록:책, 펫:DEMO_펫상태_()};},
   단어가져오기:function(name){
     if(name===DEMO_문장책) return DEMO_SENT.map(function(p,i){ return {no:i+1, en:p[0], ko:p[1], 종류:'문장', 비고:p[2]||''}; });
     if(DEMO_과책[name]){
@@ -3012,7 +3018,16 @@ var DEMO = {
     {단어장:'중2 5과 본문',시작:1,끝:3,유형:'영작',마감일:오늘,개별:false,색:'#16A34A',종류:'당일',남은일수:0,완료:false,점수:0,낸때:903,수업:'중2 6과 2회차',순서:3},
     {단어장:'중2 6과 문법',시작:1,끝:DEMO_GRAM.length,유형:'빈칸 채우기',마감일:오늘,개별:false,색:'#8B5CF6',종류:'당일',남은일수:0,완료:false,점수:0,낸때:904,수업:'중2 6과 2회차',순서:4}
   ];},
-  결과저장:function(){return {ok:true,demo:true};},
+  결과저장:function(p){
+    /* 엔진(Code.gs 펫자라기_)과 같은 규칙을 흉내만 — 숙제일 때 한 칸, 다섯이면 깨어난다. 아무 데도 안 적는다 */
+    if(!(p && p.숙제여부)) return {ok:true,demo:true};
+    var 펫 = DEMO_펫, 자랐나 = false, 깼나 = false;
+    if(!펫.알종류) 펫.알종류 = 'eg' + (1 + Math.floor(Math.random()*5));
+    if(!펫.부화){
+      펫.숙제수 = Math.min(5, 펫.숙제수 + 1); 자랐나 = true;
+      if(펫.숙제수 >= 5){ 펫.부화 = true; 깼나 = true; 펫.펫종류 = 'pet' + (1 + Math.floor(Math.random()*10)); }
+    }
+    return {ok:true,demo:true,펫:DEMO_펫상태_(),자랐나:자랐나,부화했나:깼나};},
   시상저장API:function(pw,ym){return {ok:true,년월:ym||'2026-09',개수:4};},
   시상시작일저장:function(pw,d){DEMO_시작일=d||''; return {ok:true,시작일:DEMO_시작일};},
   시상항목저장:function(pw,목록){

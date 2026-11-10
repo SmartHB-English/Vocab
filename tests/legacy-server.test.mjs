@@ -7,6 +7,7 @@ test('login: preserve whitespace name matching, leading-zero PIN and textbook as
   const c = legacy({ 학생: [student] });
   assert.deepEqual(plain(c.로그인(' 테스트학생 ', ' 0011 ')), {
     ok: true, 학생: { 이름: '테스트 학생', 학년구분: '초중등' }, 단어장목록: [{ 이름: '교재A', 색: 'orange' }],
+    펫: { 알종류: '', 펫종류: '', 숙제수: 0, 부화: false, 부화한날: '', 다섯: 5 },   // 알 키우기 — 펫 표가 없으면 아직 알을 못 받은 것
   });
   assert.equal(c.로그인('테스트학생', '11').ok, false);
 });

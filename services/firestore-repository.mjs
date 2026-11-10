@@ -28,6 +28,13 @@ const 요청번호꼴 = /^[0-9A-Za-z-]{8,80}$/;
 // · 선생님이 들어올 때 조각이 조각모을수 이상이면 본체로 합치고 비운다
 // 엔진(Code.gs)은 모른다 — appendRow 를 그대로 쓰고, 덧붙이기만 했는지는 table-store 가 가린다.
 const 조각표들 = ['기록', '문장기록'];
+// 곁표 — 학생이 숙제를 낼 때 기록 조각과 함께 본체를 다시 쓰는 작은 표 (알 키우기의 펫 표).
+// 기록 본체는 그대로 두고 조각 하나 + 곁표 본체 + 목록(catalog)만 한 거래로 쓴다.
+// 규칙이 곁표 쓰기를 막으면(규칙이 아직 안 올라감) 곁표 바뀐 것은 버리고 기록 조각만 쓴다 — 숙제 제출이 먼저다.
+// 다툼 · 끊김은 다른 쓰기와 똑같이 「다시 보내도 됨」 을 달아 던진다 — 화면(api-client)이 같은 요청번호로 다시 보낸다.
+// 학생 로그인도 곁표는 같이 읽는다 (홈에 알을 바로 그리려고).
+const 곁표들 = ['펫'];
+const 곁뺀답 = answer => { if (!answer || typeof answer !== 'object') return answer; const { 펫, 자랐나, 부화했나, ...나머지 } = answer; return 나머지; };
 const 조각모을수 = 50;
 const 조각경로 = id => `tables/${id}/appends`;
 const 조각붙이기 = (table, pieces) => {
@@ -57,12 +64,12 @@ export class FirestoreRepository {
     if (!d.exists()) throw new Error('자료 이관 준비가 끝나지 않았습니다.');
     return d.data();
   }
-  async load(catalog, reader, { publicOnly = false, fresh = false } = {}) {
+  async load(catalog, reader, { publicOnly = false, fresh = false, also = [] } = {}) {
     const role = this.identity.role;
     const appends = new Map();
     const tables = await Promise.all(catalog.tables.map(async meta => {
       const isPublic = ['학생','설정','단어장목록','공지'].includes(meta.name) || meta.name.startsWith('단어_');
-      if (publicOnly && !isPublic) return null;
+      if (publicOnly && !isPublic && !also.includes(meta.name)) return null;
       const id = sheetId(meta.name), version = meta.version;
       const fetchData = async (section, expected) => {
         const key = section + '/' + id;
@@ -132,7 +139,7 @@ export class FirestoreRepository {
     try { await this.grant(match.id,await digest(cleanPin)); }
     catch (e) { if (e.code === 'permission-denied') return {ok:false,메시지:'비밀번호가 달라요.'}; throw e; }
     Object.assign(this.identity,{role:'student',credentialId:match.id,row:match.row,name:match.name,pin:cleanPin});
-    const store = await this.load(catalog, ref=>getDoc(ref),{publicOnly:true});
+    const store = await this.load(catalog, ref=>getDoc(ref),{publicOnly:true,also:곁표들});
     return jsonResult(createRuntime(store).call('로그인',[name,pin]));
   }
   async teacherLogin(pin) {
@@ -234,14 +241,24 @@ export class FirestoreRepository {
     if (자료일 && !result.ok) return result;
     if (!store.deleted.size && !store.getSheets().some(s=>s.dirty)) return jsonResult(result);
     const dirty = store.getSheets().filter(s=>s.dirty);
-    const appendRows = !자료일 && !store.deleted.size && dirty.length === 1 && 조각표들.includes(dirty[0].name) ? dirty[0].appendedRows() : null;
+    const 붙인표 = !자료일 && !store.deleted.size ? dirty.filter(s=>조각표들.includes(s.name) && s.appendedRows()) : [];
+    let appendRows = 붙인표.length === 1 && dirty.length === 1 ? 붙인표[0].appendedRows() : null;
+    let 줄답 = result;
+    if (붙인표.length === 1 && dirty.length > 1 && dirty.every(s=>s===붙인표[0] || 곁표들.includes(s.name))) {
+      try { return await this.곁쓰기(fn, 붙인표[0].name, execute, requestId, started); }
+      catch (error) {
+        if (error?.code !== 'permission-denied') { if (다시보낼코드.has(error?.code)) error.다시보내도됨 = true; throw error; }
+        console.warn('곁표(' + 곁표들.join(',') + ')에 못 써서 기록만 남깁니다', error);
+        appendRows = 붙인표[0].appendedRows(); 줄답 = 곁뺀답(result);
+      }
+    }
     if (appendRows) {
       // 줄을 뒤에 붙이기만 했다 — 본체 · 목록(catalog)은 그대로 두고 조각 문서 하나만 새로 만든다. 남과 다툴 문서가 없다
-      const name = dirty[0].name, pieceId = String(started).padStart(15,'0')+'_'+requestId;
+      const name = 붙인표[0].name, pieceId = String(started).padStart(15,'0')+'_'+requestId;
       return runTransaction(this.db,async transaction => {
         const oldReceipt = await transaction.get(this.ref(`journal/${requestId}`));
         if (oldReceipt.exists()) return unpack(oldReceipt.data().result);
-        const answer = jsonResult(result);
+        const answer = jsonResult(줄답);
         transaction.set(this.ref(`${조각경로(sheetId(name))}/${pieceId}`),{name,rows:pack(appendRows),actor:this.identity.user.uid,at:started});
         transaction.set(this.ref(`journal/${requestId}`),{actor:this.identity.user.uid,fn,result:pack(answer),changes:[name],at:started,조각:pieceId});
         return answer;
@@ -304,5 +321,36 @@ export class FirestoreRepository {
       if(fn==='학부모보기'&&!args[1]&&answer?.ok)this.parentCache={token:this.identity.token,revision:currentCatalog.revision,until:started+60000,value:answer};
       return answer;
     }).catch(error => { if (다시보낼코드.has(error?.code)) error.다시보내도됨 = true; throw error; });
+  }
+  // 기록 조각 하나 + 곁표 본체 + 목록 — 한 거래. 목록을 거래로 읽으므로 표마다 버전이 맞는다(곁표가 바뀌면 목록도 바뀐다) — 표는 캐시로 읽어도 된다.
+  // 거래 안에서 엔진을 다시 돌린다: 그 사이 다른 아이가 곁표를 고쳤어도 새 표 위에서 센다.
+  async 곁쓰기(fn, name, execute, requestId, started) {
+    const pieceId = String(started).padStart(15,'0')+'_'+requestId;
+    return runTransaction(this.db,async transaction => {
+      const oldReceipt = await transaction.get(this.ref(`journal/${requestId}`));
+      if (oldReceipt.exists()) return unpack(oldReceipt.data().result);
+      const currentCatalog = await this.catalog(ref=>transaction.get(ref));
+      const current = await this.load(currentCatalog,ref=>getDoc(ref));
+      const answer = jsonResult(execute(current));
+      const rows = current.getSheetByName(name)?.appendedRows();
+      if (current.deleted.size || !rows || current.getSheets().some(s=>s.dirty && s.name!==name && !곁표들.includes(s.name)))
+        throw Object.assign(new Error('자료가 변경되었습니다. 다시 시도해 주세요.'),{code:'aborted'});
+      transaction.set(this.ref(`${조각경로(sheetId(name))}/${pieceId}`),{name,rows:pack(rows),actor:this.identity.user.uid,at:started});
+      const before = new Map(currentCatalog.tables.map(t=>[t.name,t]));
+      const tables = current.getSheets(), nextMetadata = [], changes = [name];
+      for (let position=0;position<tables.length;position++) {
+        const table=tables[position];
+        if (!table.dirty || table.name===name) { nextMetadata.push(before.get(table.name)); continue; }
+        const full=table.export(), payload=pack(publicTable(full));
+        if (new TextEncoder().encode(payload).length > 850000) throw new Error('자료가 커서 나누어 저장해야 합니다.');
+        const version=await digest(payload);
+        transaction.set(this.ref(`tables/${sheetId(full.name)}`),{payload,version,name:full.name,public:false});
+        transaction.set(this.ref(`journal/${requestId}/tables/${sheetId(full.name)}`),{payload:pack(full)});
+        nextMetadata.push({...tableMetadata(full,position),version}); changes.push(full.name);
+      }
+      transaction.set(this.ref('meta/catalog'),{...currentCatalog,tables:nextMetadata,revision:requestId});
+      transaction.set(this.ref(`journal/${requestId}`),{actor:this.identity.user.uid,fn,result:pack(answer),changes,at:started,조각:pieceId});
+      return answer;
+    });
   }
 }
