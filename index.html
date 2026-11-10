@@ -573,7 +573,9 @@ body.fixon .screen.on .rotbtn{margin-right:118px}
 .vans{font-size:13px;color:var(--ng);font-weight:700;margin:-4px 0 10px 84px}
 
 /* 스크롤 시험지 */
-.sheetwrap{padding-bottom:96px}
+/* 아래 바(.sheetbar)는 높이가 글 줄 수 · 홈바(safe-area)에 따라 달라진다 — index.html 의 시험지바재기_ 가
+   실제 높이를 재서 padding-bottom 을 덮어쓴다. 이 값은 재기 전 · 스크립트가 못 돌 때의 바닥값이다 */
+.sheetwrap{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .sheettop{
   position:sticky;top:0;z-index:6;background:var(--bg);
   padding:8px 0 10px;border-bottom:1px solid var(--line);margin-bottom:12px
@@ -582,6 +584,9 @@ body.fixon .screen.on .rotbtn{margin-right:118px}
 .sheettop .stName{font-size:14px;font-weight:800;letter-spacing:-.3px}
 .sheettop .stCnt{font-size:12px;font-weight:800;color:var(--sub);white-space:nowrap}
 .sheettop .bar{margin-top:7px}
+/* 마스코트가 바에 올라타게 — 띄움은 감싸는 줄이 가진다 */
+.sheettop .barline{margin-top:7px}
+.sheettop .barline > .bar{margin-top:0}
 .qrow{
   background:var(--card);border:1.5px solid var(--line);border-radius:14px;
   padding:12px 13px;margin-bottom:10px
@@ -1178,7 +1183,7 @@ td.nw{white-space:nowrap}
   background:var(--ng);color:#fff;font-size:10px;font-weight:900;line-height:17px;
   text-align:center;font-style:normal}
 .tabbar .tbadge.hide{display:none}
-body.hastab #app{padding-bottom:96px}
+body.hastab #app{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 html[data-theme="high"] .tabbar{box-shadow:0 -4px 16px rgba(0,0,0,.28)}
 @media print{ .tabbar{display:none!important} }
 
@@ -1550,7 +1555,7 @@ input,select,textarea{border-radius:14px}
 
 /* 단어장 — 아래 도구막대 */
 #s-book.screen{animation:none}
-#s-book .wblist{padding-bottom:110px}
+#s-book .wblist{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
 .wbrow{border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;padding:13px 4px;margin:0}
 .wbrow.on{border-color:var(--line);background:#FFFBEB}
 #wbChips{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:520px;margin:0 auto;
@@ -2467,7 +2472,24 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
 .mascot-slot:empty{display:none}
 .mascot{width:100%;height:100%}
 .mascot svg{display:block;width:100%;height:100%;overflow:visible}
-#s-quiz .qwrap{min-height:calc(100vh - 212px - clamp(140px,40vw,180px))}
+#s-quiz .qwrap{min-height:calc(100vh - 212px - var(--msz,44px))}
+/* 문제 화면 셋(객관식 · 시험지 · 3단변화)은 게이지 바 위에 작게 태운다 — 진행도를 따라 걸어간다.
+   .bar 는 overflow:hidden 이라 그 안에 못 넣는다. .barline 이 바를 감싸고, 마스코트는 그 안에서 absolute.
+   left 는 0 ~ (100% - 마스코트 너비) 사이로만 움직인다 — 양 끝에서 반쪽만큼 안으로 당긴 것과 같다.
+   --mp(0~1)는 index.html 의 게이지맞추기_ 가 넣는다. 결과 화면(rMascot)은 위의 큰 규칙 그대로 */
+.barline{--msz:44px;position:relative;padding-top:calc(var(--msz) - 6px)}
+.barline:has(> .mascot-slot:empty){padding-top:0}
+.mascot-slot.onbar{position:absolute;top:0;margin:0;width:var(--msz);height:var(--msz);
+  left:calc(var(--mp,0) * (100% - var(--msz)));transition:left .25s;pointer-events:none;z-index:1}
+html[data-theme] body:not(.hb0) .mascot-slot.onbar{transition:left .5s var(--ease)}
+.mascot-slot.onbar .mascot{transform-origin:50% 100%}
+.mascot-slot.onbar.pop .mascot{animation:마스코트팡 .3s ease-out}
+@keyframes 마스코트팡{0%{transform:scale(1)}45%{transform:scale(1.4)}100%{transform:scale(1)}}
+@media (max-width:360px){ .barline{--msz:38px} }
+@media (prefers-reduced-motion:reduce){
+  .mascot-slot.onbar,html[data-theme] body:not(.hb0) .mascot-slot.onbar{transition:none}
+  .mascot-slot.onbar.pop .mascot{animation:none}
+}
 @media (orientation:landscape) and (max-height:520px){
   .mascot-slot{width:110px;height:110px}
   #s-quiz .qwrap{min-height:0}
@@ -2660,8 +2682,10 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
       </div>
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
-    <div class="bar"><i id="qBar"></i></div>
-    <div class="mascot-slot" id="qMascot"></div>
+    <div class="barline">
+      <div class="bar"><i id="qBar"></i></div>
+      <div class="mascot-slot onbar" id="qMascot"></div>
+    </div>
     <div class="qwrap">
       <div class="qcard">
         <div class="q" id="qQ"></div>
@@ -2768,9 +2792,11 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
           <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
         </div>
         <div class="stName" id="shName" style="margin-top:6px"></div>
-        <div class="bar"><i id="shBar"></i></div>
+        <div class="barline">
+          <div class="bar"><i id="shBar"></i></div>
+          <div class="mascot-slot onbar" id="shMascot"></div>
+        </div>
       </div>
-      <div class="mascot-slot" id="shMascot"></div>
       <div id="shSum"></div>
       <div id="shList"></div>
     </div>
@@ -2789,8 +2815,10 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
       <div class="hud"><span id="vProg"></span><span class="clock hide" id="vClock"></span></div>
       <button class="iconbtn rotbtn hide" aria-label="화면 돌리기">가로</button>
     </div>
-    <div class="bar"><i id="vBar"></i></div>
-    <div class="mascot-slot" id="vMascot"></div>
+    <div class="barline">
+      <div class="bar"><i id="vBar"></i></div>
+      <div class="mascot-slot onbar" id="vMascot"></div>
+    </div>
 
     <div class="qcard" style="min-height:110px;padding:20px 16px">
       <div class="q" id="vQ" style="font-size:34px"></div>
@@ -4963,7 +4991,23 @@ function 마스코트(동작, 화면){
       마스코트_ = createMascot(마스코트판_, { sleepAfter: 30000 });
     }else if(마스코트판_.parentNode !== 자리) 자리.appendChild(마스코트판_);
     if(동작) 마스코트_.play(동작);
+    /* 게이지 위 44px 에서는 표정이 안 보인다 — 맞·틀·콤보 때 잠깐 커졌다 돌아온다 */
+    if(자리.classList.contains('onbar') && (동작==='correct' || 동작==='wrong' || 동작==='combo')){
+      자리.classList.remove('pop'); void 자리.offsetWidth; 자리.classList.add('pop');
+      clearTimeout(자리._팡); 자리._팡 = setTimeout(function(){ 자리.classList.remove('pop'); }, 320);
+    }
   }catch(e){}
+}
+/* 게이지와 그 위 마스코트를 같이 옮긴다 — 객관식 · 시험지 · 3단변화가 모두 이것을 부른다.
+   바비율은 게이지 너비, 걸음비율은 마스코트 자리(안 주면 바비율). 둘 다 0~1 */
+function 게이지맞추기_(바id, 바비율, 걸음비율){
+  function 자르기(v){ v = Number(v); return isFinite(v) ? Math.max(0, Math.min(1, v)) : 0; }
+  var 바 = $(바id); if(!바) return;
+  var 비 = 자르기(바비율);
+  바.style.width = (비*100)+'%';
+  var 줄 = 바.parentNode && 바.parentNode.parentNode;
+  if(줄 && 줄.classList && 줄.classList.contains('barline'))
+    줄.style.setProperty('--mp', String(걸음비율 === undefined ? 비 : 자르기(걸음비율)));
 }
 /* 시험 중에는 나가기 단추를 눌리지 않게 가린다 (자리는 남겨 둔다 — 시계가 밀리지 않게).
    시험지 화면의 「← 그만」(shBack)은 data-back 이 아니라 따로 챙긴다 */
@@ -8279,9 +8323,10 @@ function renderQ(){
 
   var 총 = S.모드==='time' ? '∞' : S.문제.length;
   $('qProg').textContent=(S.idx+1)+' / '+총;
-  $('qBar').style.width = S.모드==='time'
-    ? (S.남은/60*100)+'%'
-    : (S.idx/S.문제.length*100)+'%';
+  /* 시간 모드는 게이지가 남은 시간이라 줄어든다 — 마스코트는 거꾸로 가지 않게 푼 문제 수로 걷는다
+     (끝이 없으니 한 문제에 한 걸음씩 다가가되 끝에 닿지 않게) */
+  if(S.모드==='time') 게이지맞추기_('qBar', S.남은/60, S.idx/(S.idx+10));
+  else 게이지맞추기_('qBar', S.idx/S.문제.length);
   updateCombo();
 
   if(S.모드==='choice'){
@@ -8423,6 +8468,7 @@ function drawSheet(){
   $('shSubmit').textContent='다 썼어요 · 제출';
   $('shSubmit').classList.remove('ghost');
   $('shBarWrap').classList.remove('hide');
+  시험지바재기_();
 }
 
 function 시험지줄(w,i){
@@ -8606,10 +8652,29 @@ function 시험지수(){
   var 총=S.문제.length;
   var 쓴 = S.답.filter(function(v){ return String(v||'').trim(); }).length;
   $('shCnt').textContent = 쓴+' / '+총+' 씀';
-  $('shBar').style.width = (쓴/총*100)+'%';
+  게이지맞추기_('shBar', 쓴/총);
   var 남 = 총-쓴;
   $('shLeft').textContent = 남 ? ('아직 '+남+'문제 안 썼어요 — 위아래로 오가며 고쳐 써도 됩니다')
                               : '다 썼어요. 제출하면 채점됩니다';
+  시험지바재기_();
+}
+
+/* 시험지 아래 여백 = 아래 바(shBarWrap)의 실제 높이 + 12px.
+   바 높이는 왼쪽 글 줄 수 · 글씨 크기 · 아이폰 홈바(safe-area)에 따라 달라서 숫자로 박으면 마지막 문제가 가린다.
+   ResizeObserver 로 바를 지켜보고, 없는 브라우저는 resize · 화면 돌리기 때 다시 잰다 */
+var 시험지바지킴_ = false;
+function 시험지바재기_(){
+  var 바=$('shBarWrap'), 감쌈=document.querySelector('#s-sheet .sheetwrap');
+  if(!바 || !감쌈) return;
+  var 높이 = 바.classList.contains('hide') ? 0 : 바.offsetHeight;
+  감쌈.style.paddingBottom = 높이 ? (높이+12)+'px' : '';
+  if(시험지바지킴_) return;
+  시험지바지킴_ = true;
+  if(typeof ResizeObserver === 'function'){
+    try{ new ResizeObserver(function(){ 시험지바재기_(); }).observe(바); return; }catch(e){}
+  }
+  window.addEventListener('resize', 시험지바재기_);
+  window.addEventListener('orientationchange', 시험지바재기_);
 }
 
 $('shBack').onclick=function(){
@@ -8679,6 +8744,7 @@ function 채점하기(){
   $('shSubmit').textContent='결과 보기';
   $('shSubmit').classList.add('ghost');
   $('shLeft').textContent='채점이 끝났습니다';
+  시험지바재기_();
   try{ window.scrollTo(0,0); }catch(e){}
   finishQuiz();
 }
@@ -8965,7 +9031,7 @@ function renderVerb(){
   $('vSubmit').classList.remove('gone');
   $('vNext').classList.add('hide');
   $('vProg').textContent=(S.idx+1)+' / '+S.문제.length;
-  $('vBar').style.width=(S.idx/S.문제.length*100)+'%';
+  게이지맞추기_('vBar', S.idx/S.문제.length);
   S.v상태='input';
   setTimeout(function(){ try{$('vBase').focus();}catch(e){} },40);
 }

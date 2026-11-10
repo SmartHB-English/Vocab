@@ -557,7 +557,9 @@ body.fixon .screen.on .rotbtn{margin-right:118px}
 .vans{font-size:13px;color:var(--ng);font-weight:700;margin:-4px 0 10px 84px}
 
 /* 스크롤 시험지 */
-.sheetwrap{padding-bottom:96px}
+/* 아래 바(.sheetbar)는 높이가 글 줄 수 · 홈바(safe-area)에 따라 달라진다 — index.html 의 시험지바재기_ 가
+   실제 높이를 재서 padding-bottom 을 덮어쓴다. 이 값은 재기 전 · 스크립트가 못 돌 때의 바닥값이다 */
+.sheetwrap{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .sheettop{
   position:sticky;top:0;z-index:6;background:var(--bg);
   padding:8px 0 10px;border-bottom:1px solid var(--line);margin-bottom:12px
@@ -566,6 +568,9 @@ body.fixon .screen.on .rotbtn{margin-right:118px}
 .sheettop .stName{font-size:14px;font-weight:800;letter-spacing:-.3px}
 .sheettop .stCnt{font-size:12px;font-weight:800;color:var(--sub);white-space:nowrap}
 .sheettop .bar{margin-top:7px}
+/* 마스코트가 바에 올라타게 — 띄움은 감싸는 줄이 가진다 */
+.sheettop .barline{margin-top:7px}
+.sheettop .barline > .bar{margin-top:0}
 .qrow{
   background:var(--card);border:1.5px solid var(--line);border-radius:14px;
   padding:12px 13px;margin-bottom:10px
@@ -1162,7 +1167,7 @@ td.nw{white-space:nowrap}
   background:var(--ng);color:#fff;font-size:10px;font-weight:900;line-height:17px;
   text-align:center;font-style:normal}
 .tabbar .tbadge.hide{display:none}
-body.hastab #app{padding-bottom:96px}
+body.hastab #app{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 html[data-theme="high"] .tabbar{box-shadow:0 -4px 16px rgba(0,0,0,.28)}
 @media print{ .tabbar{display:none!important} }
 
@@ -1534,7 +1539,7 @@ input,select,textarea{border-radius:14px}
 
 /* 단어장 — 아래 도구막대 */
 #s-book.screen{animation:none}
-#s-book .wblist{padding-bottom:110px}
+#s-book .wblist{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
 .wbrow{border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;padding:13px 4px;margin:0}
 .wbrow.on{border-color:var(--line);background:#FFFBEB}
 #wbChips{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:520px;margin:0 auto;
@@ -2451,7 +2456,24 @@ html #s-login #inAuto,html #tLogin #tAuto{all:revert !important;width:20px !impo
 .mascot-slot:empty{display:none}
 .mascot{width:100%;height:100%}
 .mascot svg{display:block;width:100%;height:100%;overflow:visible}
-#s-quiz .qwrap{min-height:calc(100vh - 212px - clamp(140px,40vw,180px))}
+#s-quiz .qwrap{min-height:calc(100vh - 212px - var(--msz,44px))}
+/* 문제 화면 셋(객관식 · 시험지 · 3단변화)은 게이지 바 위에 작게 태운다 — 진행도를 따라 걸어간다.
+   .bar 는 overflow:hidden 이라 그 안에 못 넣는다. .barline 이 바를 감싸고, 마스코트는 그 안에서 absolute.
+   left 는 0 ~ (100% - 마스코트 너비) 사이로만 움직인다 — 양 끝에서 반쪽만큼 안으로 당긴 것과 같다.
+   --mp(0~1)는 index.html 의 게이지맞추기_ 가 넣는다. 결과 화면(rMascot)은 위의 큰 규칙 그대로 */
+.barline{--msz:44px;position:relative;padding-top:calc(var(--msz) - 6px)}
+.barline:has(> .mascot-slot:empty){padding-top:0}
+.mascot-slot.onbar{position:absolute;top:0;margin:0;width:var(--msz);height:var(--msz);
+  left:calc(var(--mp,0) * (100% - var(--msz)));transition:left .25s;pointer-events:none;z-index:1}
+html[data-theme] body:not(.hb0) .mascot-slot.onbar{transition:left .5s var(--ease)}
+.mascot-slot.onbar .mascot{transform-origin:50% 100%}
+.mascot-slot.onbar.pop .mascot{animation:마스코트팡 .3s ease-out}
+@keyframes 마스코트팡{0%{transform:scale(1)}45%{transform:scale(1.4)}100%{transform:scale(1)}}
+@media (max-width:360px){ .barline{--msz:38px} }
+@media (prefers-reduced-motion:reduce){
+  .mascot-slot.onbar,html[data-theme] body:not(.hb0) .mascot-slot.onbar{transition:none}
+  .mascot-slot.onbar.pop .mascot{animation:none}
+}
 @media (orientation:landscape) and (max-height:520px){
   .mascot-slot{width:110px;height:110px}
   #s-quiz .qwrap{min-height:0}
