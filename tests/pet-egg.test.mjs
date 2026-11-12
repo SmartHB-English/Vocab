@@ -136,13 +136,62 @@ test('6. 결과저장이 자랐나 · 부화했나를 제대로 돌려준다', (
   assert.equal(연습(store).펫, undefined);
 });
 
-test('6-1. 시험을 두 번 내면 두 번째는 받지 않고 알도 안 자란다 (이미본시험_)', () => {
+test('6-1. 시험을 두 번 내면 두 번째는 받지 않는다 (이미본시험_) — 알은 처음부터 안 자란다', () => {
   const store = 판([['홍길동', 'eg1', '', 0, 0, 0, '', '']]);
   const 시험 = { 구분: '시험', 범위: '1~25' };
-  assert.equal(부르기(store, '결과저장', [{ 이름: '홍길동', 단어장: '교재A', 유형: '스펠링', 점수: 90, 숙제여부: true, ...시험 }]).자랐나, true);
+  const 처음 = 부르기(store, '결과저장', [{ 이름: '홍길동', 단어장: '교재A', 유형: '스펠링', 점수: 90, 숙제여부: true, ...시험 }]);
+  assert.equal(처음.ok, true); assert.notEqual(처음.자랐나, true);
   const 두번 = 부르기(store, '결과저장', [{ 이름: '홍길동', 단어장: '교재A', 유형: '스펠링', 점수: 90, 숙제여부: true, ...시험 }]);
   assert.equal(두번.ok, false); assert.equal(두번.이미봄, true);
-  assert.equal(줄(store).숙제수, 1);
+  assert.equal(줄(store).숙제수, 0);
+});
+
+/* 기록 표의 줄들 — 머리 빼고 */
+const 기록줄 = store => { const sh = store.getSheetByName('기록'); return sh.getRange(1, 1, sh.getLastRow(), 16).getValues().slice(1); };
+
+test('6-3. 구분이 숙제(빈칸)면 자라고, 보충이어도 자란다', () => {
+  const store = 판([['홍길동', 'eg1', '', 0, 0, 0, '', '']]);
+  const a = 숙제(store, '홍길동', { 구분: '' });
+  assert.equal(a.자랐나, true);
+  const b = 숙제(store, '홍길동', { 구분: '보충' });
+  assert.equal(b.자랐나, true, '보충은 안 낸 숙제를 다시 내주는 것 — 센다');
+  assert.equal(줄(store).숙제수, 2);
+});
+
+test('6-4. 구분이 시험이면 안 자란다 — 기록은 그대로 저장된다', () => {
+  const store = 판([['홍길동', 'eg1', '', 2, 0, 0, '', '']]);
+  const r = 숙제(store, '홍길동', { 구분: '시험' });
+  assert.deepEqual(r, { ok: true }, '자랐나 · 부화했나 · 펫을 안 보낸다 — 화면이 알을 헛되이 흔들지 않게');
+  assert.equal(줄(store).숙제수, 2);
+  const 기록 = 기록줄(store);
+  assert.equal(기록.length, 1, '기록은 남는다');
+  assert.equal(기록[0][2], '홍길동'); assert.equal(기록[0][12], 'O'); assert.equal(기록[0][14], '시험');
+});
+
+test('6-5. 구분이 시험(무효)여도 안 자란다', () => {
+  const store = 판([['홍길동', 'eg1', '', 2, 0, 0, '', '']]);
+  const r = 숙제(store, '홍길동', { 구분: '시험(무효)' });
+  assert.deepEqual(r, { ok: true });
+  assert.equal(줄(store).숙제수, 2);
+  assert.equal(기록줄(store).length, 1);
+});
+
+test('6-6. 시험으로 다섯 번을 내도 안 깨어난다 — 펫 줄도 안 생긴다', () => {
+  const store = 판();
+  const 답 = [1, 2, 3, 4, 5].map(() => 숙제(store, '홍길동', { 구분: '시험' }));
+  assert.ok(답.every(r => r.ok === true && r.자랐나 !== true && r.부화했나 !== true));
+  assert.equal(store.getSheetByName('펫'), null);
+  assert.equal(기록줄(store).length, 5);
+  /* 알이 있던 아이도 그대로 */
+  const 있던 = 판([['홍길동', 'eg2', '', 4, 0, 0, '', '']]);
+  [1, 2, 3, 4, 5].forEach(() => 숙제(있던, '홍길동', { 구분: '시험' }));
+  assert.equal(줄(있던).숙제수, 4); assert.equal(줄(있던).부화한날, ''); assert.equal(줄(있던).펫종류, '');
+});
+
+test('6-7. 오답 재시험(숙제여부 거짓)도 안 자란다', () => {
+  const store = 판([['홍길동', 'eg1', '', 2, 0, 0, '', '']]);
+  assert.deepEqual(숙제(store, '홍길동', { 구분: '오답 재시험', 숙제여부: false }), { ok: true });
+  assert.equal(줄(store).숙제수, 2);
 });
 
 test('6-2. 명단에 없는 이름으로는 줄을 만들지 않는다', () => {
