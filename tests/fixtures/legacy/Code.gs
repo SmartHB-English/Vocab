@@ -2398,10 +2398,18 @@ function 월간순위(반) {
   });
 
   function 정리(m) {
-    return Object.keys(m).map(function (n) {
+    var 목록 = Object.keys(m).map(function (n) {
       var v = m[n];
       return { 이름: v.이름, 점수: Math.round(v.합 / v.수 * 10) / 10 };
-    }).sort(function (a, b) { return b.점수 - a.점수; });
+    }).sort(function (a, b) {
+      if (b.점수 !== a.점수) return b.점수 - a.점수;
+      return a.이름 < b.이름 ? -1 : 1;
+    });
+    var 등수 = 0, 앞 = null;                                // 같은 점수면 같은 등수 — 불꽃·게임 줄세우기와 같은 셈
+    return 목록.map(function (x, i) {
+      if (x.점수 !== 앞) { 등수 = i + 1; 앞 = x.점수; }
+      return { 이름: x.이름, 점수: x.점수, 등수: 등수 };
+    });
   }
 
   return {

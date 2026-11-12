@@ -77,8 +77,8 @@ test('monthly ranking: blank excluded, zero included, other classes and months e
     [new Date('2026-09-07T00:00:00Z'),'반1','B','시험',90],
   ] });
   const r = c.월간순위('반1');
-  assert.deepEqual(plain(r.순위), [{이름:'A',점수:50}]);
-  assert.deepEqual(plain(r.시상), [{이름:'B',점수:90}]);
+  assert.deepEqual(plain(r.순위), [{이름:'A',점수:50,등수:1}]);
+  assert.deepEqual(plain(r.시상), [{이름:'B',점수:90,등수:1}]);
 });
 test('history: newest 20 own entries with stable numeric types', () => {
   const rows = Array.from({length:25},(_,i)=>record({score:i})); rows.push(record({name:'다른학생',score:99}));

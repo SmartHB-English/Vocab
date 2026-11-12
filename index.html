@@ -2244,12 +2244,18 @@ html[data-theme] body:not(.hb0) #s-streak #skTabs:empty{display:none}
 .hbpd .av{width:48px;height:48px;border-radius:50%;color:var(--tileFg);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;
   box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--line);animation:popA .5s var(--spring) both}
 .hbpd.me .av{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--primary)}
+/* 공동 등수 — 얼굴 셋까지 10px 씩 겹치고, 더 있으면 옆에 「외 n명」 */
+.hbpd .avs{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;row-gap:4px;max-width:100%;padding:3px 0}
+.hbpd .avs .av{width:32px;height:32px;font-size:11px;flex:none;box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--line)}
+.hbpd.me .avs .av{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--primary)}
+.hbpd .avs .av + .av{margin-left:-10px}
+.hbpd .avs .more{margin-left:5px;font-size:11px;font-weight:800;color:var(--sub);white-space:nowrap}
+.hbpd.tie .nm{font-size:13px}
 .hbpd .nm{font-size:14px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hbpd .sc{font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums;margin-top:-6px}
 .hbpd .bar{width:100%;border-radius:16px 16px 6px 6px;background:var(--card);display:flex;justify-content:center;padding-top:10px;box-sizing:border-box;font-size:26px;font-weight:900;
   transform-origin:bottom;animation:growB .7s var(--spring) both}
 @keyframes growB{0%{transform:scaleY(0)}100%{transform:scaleY(1)}}
-html[data-theme] body:not(.hb0) #skList .skrow.inpod{display:none}
 html[data-theme] body:not(.hb0) #skList .card{padding:0;overflow:hidden;border-radius:16px}
 html[data-theme] body:not(.hb0) #skList .skrow{min-height:56px;padding:0 16px;margin:0;border-radius:0;border-bottom:.5px solid var(--line);gap:12px}
 html[data-theme] body:not(.hb0) #skList .skrow.me{background:var(--primary-soft)}
@@ -2290,8 +2296,6 @@ html[data-theme] body:not(.hb0) #shList .qrow:not(.sent):has(.sin) .sin{flex:1;m
 html[data-theme] body:not(.hb0) #shList .qn{width:26px;height:26px;border-radius:50%;background:var(--fill);color:var(--sub);font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex:none}
 /* 외우기 칸에는 「내 숙제 기록 · 사용법」 묶음을 두지 않는다 (시안: 시험 칸에만) */
 html[data-theme] body:not(.hb0)[data-sv="mem"] #s-study .row.mt:has(#btnRecords){display:none}
-/* 순위 — 시상대에 다 올라가면 빈 표는 감춘다 */
-html[data-theme] body:not(.hb0) #skList .card:not(:has(.skrow:not(.inpod))):has(.skrow){display:none}
 /* 태블릿 전용 꾸밈 — 폰에서는 숨김 */
 .hbtbrand,.hbtfoot,.hbloginart{display:none}
 
@@ -3792,9 +3796,9 @@ var DEMO = {
   내기록:function(){return [{시각:'09/06 18:20',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:10,정답수:8,점수:80,게임점수:2400}];},
   월간순위:function(){return {
     이번달:'2026년 9월',
-    순위:[{이름:'김영희',점수:95},{이름:'홍길동',점수:88},{이름:'박지훈',점수:74}],
+    순위:[{이름:'김영희',점수:95,등수:1},{이름:'홍길동',점수:88,등수:2},{이름:'박지훈',점수:74,등수:3}],
     지난달:'2026년 8월',
-    시상:[{이름:'홍길동',점수:97},{이름:'김영희',점수:93},{이름:'박지훈',점수:85}]};},
+    시상:[{이름:'홍길동',점수:97,등수:1},{이름:'김영희',점수:93,등수:2},{이름:'박지훈',점수:85,등수:3}]};},
   선생님로그인:function(pw){return {ok:pw==='1234'};},
   선생님요약:function(){return {ok:true,
     시험목록:[
@@ -6040,8 +6044,9 @@ function drawMonthRank(){
   $('skWho').innerHTML='<div class="card center"><div class="sub">'+esc(r.이번달||'이번 달')+'</div></div>';
   $('skList').innerHTML='<div class="card">'+r.순위.map(function(x,i){
     var 나 = S.학생 && x.이름===S.학생.이름;
-    return '<div class="skrow'+(나?' me':'')+'">'+
-      '<span class="rk">'+(i<3?메달[i]:(i+1))+'</span>'+
+    var 등 = x.등수 || (i+1);   /* 엔진을 다시 올리기 전 옛 자료에는 등수가 없다 */
+    return '<div class="skrow'+(나?' me':'')+'" data-rank="'+등+'">'+
+      '<span class="rk">'+(등<=3?메달[등-1]:등)+'</span>'+
       '<span class="nm">'+esc(x.이름)+(나?' (나)':'')+'</span>'+
       '<span class="st">'+x.점수+'점</span></div>';
   }).join('')+'</div>';
@@ -6079,7 +6084,7 @@ function drawGameRank(){
   var 메달=['🥇','🥈','🥉'];
   $('skList').innerHTML = 목록.length
     ? '<div class="card">'+목록.map(function(x){
-        return '<div class="skrow'+(x.나?' me':'')+'">'+
+        return '<div class="skrow'+(x.나?' me':'')+'" data-rank="'+x.등수+'">'+
           '<span class="rk">'+(x.등수<=3?메달[x.등수-1]:x.등수)+'</span>'+
           '<span class="nm">'+esc(x.이름)+(x.나?' (나)':'')+'</span>'+
           '<span class="st">'+x.점수+'점</span></div>';
@@ -6107,7 +6112,7 @@ function drawStreakRank(){
   var 메달=['🥇','🥈','🥉'];
   $('skList').innerHTML = 목록.length
     ? '<div class="card">'+목록.map(function(x){
-        return '<div class="skrow'+(x.나?' me':'')+(x.연속?'':' zero')+'">'+
+        return '<div class="skrow'+(x.나?' me':'')+(x.연속?'':' zero')+'" data-rank="'+x.등수+'">'+
           '<span class="rk">'+((x.연속 && x.등수<=3) ? 메달[x.등수-1] : x.등수)+'</span>'+
           '<span class="nm">'+esc(x.이름)+(x.나?' (나)':'')+'</span>'+
           '<span class="st">'+(x.연속?'🔥 '+x.연속+'일':'-')+'</span>'+
@@ -6123,6 +6128,22 @@ function drawStreakRank(){
     '오늘 숙제는 아직 기회가 있어서, 안 냈어도 불이 바로 꺼지지 않아요.'+
     (r.시작일 ? '<br><span class="sub">'+esc(r.시작일)+' 부터 셉니다</span>' : '');
 }
+
+/* ==== 시상대 고르기 시작 ==== (tests/rank-podium.test.mjs 가 떼어 돌린다)
+   목록 순서대로 받은 사람들에서 서로 다른 등수를 위에서부터 셋까지 고르고,
+   등수마다 그 등수인 사람을 다 모은다. 동점은 가르지 않고, 빈 칸은 비워 둔다.
+   사람: {등, 이름, 점, 나, 영}  — 영(연속 0일)은 올리지 않는다 */
+function 시상대고르기(사람들){
+  var 칸=[];
+  (사람들||[]).forEach(function(v){
+    if(!v || v.영 || !(v.등>0)) return;
+    for(var k=0;k<칸.length;k++){ if(칸[k].등===v.등){ 칸[k].사람.push(v); return; } }
+    if(칸.length<3) 칸.push({등:v.등, 사람:[v]});
+  });
+  칸.sort(function(a,b){ return a.등-b.등; });
+  return 칸;
+}
+/* ==== 시상대 고르기 끝 ==== */
 
 /* 지난달 1~3등 한 줄 배너 */
 function drawTrophy(){
@@ -10484,20 +10505,26 @@ function 문장형식끝_(){
   function 시상대(){
     var pod=$('hbPod'), my=$('hbMy'); if(!pod) return;
     var 줄=[].slice.call(document.querySelectorAll('#skList .skrow'));
-    function 등(r,i){ var t=(r.querySelector('.rk')||{}).textContent||''; var n=parseInt(t,10); return isNaN(n) ? i+1 : n; }
-    function 뜻(r){ return { 이름:((r.querySelector('.nm')||{}).textContent||'').replace(/\s*\(나\)\s*$/,''), 점:(r.querySelector('.st')||{}).textContent||'', 나:r.classList.contains('me'), 영:r.classList.contains('zero') }; }
-    var 셋=줄.slice(0,3).map(function(r,i){ var v=뜻(r); v.등=등(r,i); return v; }).filter(function(v){ return !v.영; });
-    if(셋.length >= 2){
-      var 자리=[셋[1], 셋[0], 셋[2]];
-      var 높이={1:'96px',2:'72px',3:'56px'};
-      pod.innerHTML = 자리.map(function(v){
-        if(!v) return '<div></div>';
-        return '<div class="hbpd'+(v.나?' me':'')+'"><span class="av" style="background:'+이름색(v.이름)+(v.등===1?';width:60px;height:60px':'')+'">'+esc(이름머리(v.이름))+'</span>'+
-          '<span class="nm">'+esc(v.이름)+'</span><span class="sc">'+esc(v.점)+'</span>'+
-          '<span class="bar" style="height:'+(높이[v.등]||'48px')+(v.등===1?';background:var(--primary);color:#fff':'')+'">'+v.등+'</span></div>';
+    /* 등수는 줄에 심어 둔 data-rank (자료의 등수) 를 그대로 쓴다 — .rk 글자(메달)를 읽지 않는다 */
+    function 등(r){ var n=parseInt(r.getAttribute('data-rank'),10); return isNaN(n) ? 0 : n; }
+    function 뜻(r){ return { 이름:((r.querySelector('.nm')||{}).textContent||'').replace(/\s*\(나\)\s*$/,''), 점:(r.querySelector('.st')||{}).textContent||'', 나:r.classList.contains('me'), 영:r.classList.contains('zero'), 등:등(r) }; }
+    var 칸=시상대고르기(줄.map(뜻));
+    if(칸.length){
+      var 자리=[칸[1], 칸[0], 칸[2]];          /* 가운데 1등 · 왼쪽 2등 · 오른쪽 3등 */
+      var 높이=['72px','96px','56px'];
+      pod.innerHTML = 자리.map(function(c,j){
+        if(!c) return '<div></div>';
+        var 첫=j===1, 들=c.사람, 여럿=들.length>1, 나있음=들.some(function(v){ return v.나; });
+        var 얼굴 = 여럿
+          ? '<span class="avs">'+들.slice(0,3).map(function(v){
+              return '<span class="av" style="background:'+이름색(v.이름)+'">'+esc(이름머리(v.이름))+'</span>';
+            }).join('')+(들.length>3?'<span class="more">외 '+(들.length-3)+'명</span>':'')+'</span>'
+          : '<span class="av" style="background:'+이름색(들[0].이름)+(첫?';width:60px;height:60px':'')+'">'+esc(이름머리(들[0].이름))+'</span>';
+        return '<div class="hbpd'+(나있음?' me':'')+(여럿?' tie':'')+'">'+얼굴+
+          '<span class="nm">'+esc(여럿 ? 들.length+'명 공동 '+c.등+'등' : 들[0].이름)+'</span><span class="sc">'+esc(들[0].점)+'</span>'+
+          '<span class="bar" style="height:'+높이[j]+(첫?';background:var(--primary);color:#fff':'')+'">'+c.등+'</span></div>';
       }).join('');
       pod.classList.remove('hide');
-      줄.slice(0,3).forEach(function(r){ r.classList.add('inpod'); });
     } else { pod.innerHTML=''; pod.classList.add('hide'); }
     /* 아바타 */
     줄.forEach(function(r){
@@ -10510,11 +10537,13 @@ function 문장형식끝_(){
     if(my){
       if(나i>=0){
         var v2=뜻(줄[나i]);
-        $('hbMyRk').textContent = 등(줄[나i],나i)+'위';
+        var 내등=등(줄[나i]);
+        var 공동=줄.some(function(r,i){ return i!==나i && 등(r)===내등; });
+        $('hbMyRk').textContent = (공동?'공동 ':'')+내등+'위';
         $('hbMySc').textContent = v2.점;
         var 위=줄[나i-1]; var 말='';
-        if(나i===0) 말='지금 1등이에요!';
-        else if(위){ var a2=parseFloat(뜻(위).점.replace(/[^\d.]/g,'')), b2=parseFloat(v2.점.replace(/[^\d.]/g,'')); if(!isNaN(a2)&&!isNaN(b2)&&a2>b2) 말=뜻(위).이름+'까지 '+(Math.round((a2-b2)*10)/10)+' 남았어요'; }
+        if(내등===1) 말=공동?'지금 공동 1등이에요!':'지금 1등이에요!';
+        else if(위 && 등(위)!==내등){ var a2=parseFloat(뜻(위).점.replace(/[^\d.]/g,'')), b2=parseFloat(v2.점.replace(/[^\d.]/g,'')); if(!isNaN(a2)&&!isNaN(b2)&&a2>b2) 말=뜻(위).이름+'까지 '+(Math.round((a2-b2)*10)/10)+' 남았어요'; }
         $('hbMyGap').textContent=말;
         my.classList.remove('hide');
       } else my.classList.add('hide');
