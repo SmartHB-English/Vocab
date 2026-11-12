@@ -78,3 +78,54 @@ test('6) 월간순위 — 같은 점수면 같은 등수', () => {
     ['가람', 90, 1], ['나래', 90, 1], ['다현', 90, 1], ['라온', 80, 4], ['마루', 80, 4], ['바다', 70, 6]
   ]);
 });
+
+/* ---- 프롬프트45: 묶음 칸을 누르면 목록에서 그 등수 줄들이 잠깐 켜진다 ---- */
+function 가짜줄(등수, 이름) {
+  const 반 = new Set();
+  return { 이름, 반, 굴림: 0,
+    getAttribute: k => (k === 'data-rank' ? String(등수) : null),
+    classList: { add: c => 반.add(c), remove: c => 반.delete(c) },
+    scrollIntoView(o) { this.굴림++; this.굴림법 = o; } };
+}
+function 켜기판() {
+  const 시계들 = [];
+  const c = { setTimeout: (f, ms) => { 시계들.push({ f, ms, 꺼짐: false }); return 시계들.length; },
+    clearTimeout: id => { if (시계들[id - 1]) 시계들[id - 1].꺼짐 = true; } };
+  vm.runInNewContext(html.slice(처음, 끝), c);
+  return { c, 시계들 };
+}
+const 목록줄 = () => [가짜줄(1, '가'), 가짜줄(1, '나'), 가짜줄(1, '다'), 가짜줄(4, '라'), 가짜줄(5, '마'), 가짜줄(6, '바')];
+
+test('45-1) 1등 묶음을 누르면 등수 1인 줄만 골라진다', () => {
+  const 줄 = 목록줄();
+  assert.deepEqual([...ctx.시상대켤줄(줄, '1')].map(r => r.이름), ['가', '나', '다']);
+  assert.deepEqual([...ctx.시상대켤줄(줄, 4)].map(r => r.이름), ['라']);
+  const { c, 시계들 } = 켜기판();
+  const 상태 = { 켠: [], 시계: null };
+  c.시상대켜기(줄, '1', 상태);
+  assert.deepEqual(줄.filter(r => r.반.has('tiehl')).map(r => r.이름), ['가', '나', '다']);
+  assert.equal(줄[0].굴림, 1, '첫 줄로 미끄러진다');
+  assert.equal(줄[0].굴림법.block, 'center', '맨 위에 붙이지 않는다 — 상단바에 가린다');
+  assert.equal(시계들[0].ms, 1500);
+  시계들[0].f();
+  assert.equal(줄.filter(r => r.반.has('tiehl')).length, 0, '저절로 꺼진다');
+});
+
+test('45-2) 한 명뿐인 칸에는 누르는 것이 안 달린다 — 묶음 칸만 button', () => {
+  const 그리기 = html.slice(html.indexOf('var 칸=시상대고르기(줄.map(뜻));'), html.indexOf("pod.classList.remove('hide');", html.indexOf('var 칸=시상대고르기(줄.map(뜻));')));
+  assert.match(그리기, /여럿\s*\?\s*'<button type="button" class="hbpd'[^\n]*data-tie="'\+c\.등\+'"[^\n]*aria-label=/);
+  assert.match(그리기, /:\s*'<div class="hbpd'\+\(나있음\?' me':''\)\+'">'/, '한 명 칸은 div 그대로');
+  assert.match(그리기, /querySelectorAll\('\[data-tie\]'\)/, '누르는 것은 data-tie 칸에만 단다');
+});
+
+test('45-3) 다른 묶음을 누르면 앞서 켠 것이 꺼진다', () => {
+  const 줄 = [가짜줄(1, '가'), 가짜줄(1, '나'), 가짜줄(3, '다'), 가짜줄(3, '라')];
+  const { c, 시계들 } = 켜기판();
+  const 상태 = { 켠: [], 시계: null };
+  c.시상대켜기(줄, 1, 상태);
+  c.시상대켜기(줄, 3, 상태);
+  assert.deepEqual(줄.filter(r => r.반.has('tiehl')).map(r => r.이름), ['다', '라']);
+  assert.equal(시계들[0].꺼짐, true, '앞의 시계는 멈춘다');
+  시계들[1].f();
+  assert.equal(줄.filter(r => r.반.has('tiehl')).length, 0);
+});

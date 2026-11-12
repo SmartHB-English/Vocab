@@ -2251,6 +2251,15 @@ html[data-theme] body:not(.hb0) #s-streak #skTabs:empty{display:none}
 .hbpd .avs .av + .av{margin-left:-10px}
 .hbpd .avs .more{margin-left:5px;font-size:11px;font-weight:800;color:var(--sub);white-space:nowrap}
 .hbpd.tie .nm{font-size:13px}
+/* 묶음 칸은 단추 — 생김새는 div 칸과 똑같이, 누르는 동안만 살짝 눌린다 */
+button.hbpd{-webkit-appearance:none;appearance:none;background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:center;
+  cursor:pointer;width:100%;-webkit-tap-highlight-color:transparent;transition:transform .12s ease}
+button.hbpd:active{transform:scale(.96)}
+button.hbpd:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:16px}
+/* 묶음을 누르면 목록의 그 등수 줄들이 잠깐 켜진다 — 내 줄은 제 배경을 지키고 테두리만 더한다 */
+html[data-theme] body:not(.hb0) #skList .skrow{transition:background-color .35s ease,box-shadow .35s ease}
+html[data-theme] body:not(.hb0) #skList .skrow.tiehl{background-color:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent)}
+html[data-theme] body:not(.hb0) #skList .skrow.me.tiehl{background-color:var(--primary-soft);box-shadow:inset 0 0 0 2px var(--accent)}
 .hbpd .nm{font-size:14px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hbpd .sc{font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums;margin-top:-6px}
 .hbpd .bar{width:100%;border-radius:16px 16px 6px 6px;background:var(--card);display:flex;justify-content:center;padding-top:10px;box-sizing:border-box;font-size:26px;font-weight:900;
@@ -6142,6 +6151,26 @@ function 시상대고르기(사람들){
   });
   칸.sort(function(a,b){ return a.등-b.등; });
   return 칸;
+}
+/* 묶음 칸을 누르면 목록에서 켤 줄 — data-rank 가 그 등수인 줄만 */
+function 시상대켤줄(줄들, 등수){
+  return [].filter.call(줄들||[], function(r){ return String(r.getAttribute('data-rank'))===String(등수); });
+}
+/* 앞서 켠 것을 끄고, 그 등수 줄들을 켜고, 첫 줄로 미끄러진다. 1.5초 뒤 저절로 꺼진다.
+   상태: {켠:[], 시계:null} — 누를 때마다 같은 것을 넘긴다 */
+function 시상대켜기(줄들, 등수, 상태){
+  if(상태.시계){ clearTimeout(상태.시계); 상태.시계=null; }
+  (상태.켠||[]).forEach(function(r){ r.classList.remove('tiehl'); });
+  var 켤=시상대켤줄(줄들, 등수);
+  켤.forEach(function(r){ r.classList.add('tiehl'); });
+  상태.켠=켤;
+  if(켤[0] && 켤[0].scrollIntoView) 켤[0].scrollIntoView({behavior:'smooth', block:'center'});
+  상태.시계=setTimeout(function(){
+    켤.forEach(function(r){ r.classList.remove('tiehl'); });
+    if(상태.켠===켤) 상태.켠=[];
+    상태.시계=null;
+  }, 1500);
+  return 켤;
 }
 /* ==== 시상대 고르기 끝 ==== */
 
@@ -10502,6 +10531,7 @@ function 문장형식끝_(){
     var 내=el('<div class="hbmy hide" id="hbMy"><div><small>내 순위</small><b id="hbMyRk"></b></div><span id="hbMyGap"></span><b id="hbMySc"></b></div>');
     sk.appendChild(내);
   }
+  var 켜기상태={켠:[], 시계:null};
   function 시상대(){
     var pod=$('hbPod'), my=$('hbMy'); if(!pod) return;
     var 줄=[].slice.call(document.querySelectorAll('#skList .skrow'));
@@ -10520,10 +10550,17 @@ function 문장형식끝_(){
               return '<span class="av" style="background:'+이름색(v.이름)+'">'+esc(이름머리(v.이름))+'</span>';
             }).join('')+(들.length>3?'<span class="more">외 '+(들.length-3)+'명</span>':'')+'</span>'
           : '<span class="av" style="background:'+이름색(들[0].이름)+(첫?';width:60px;height:60px':'')+'">'+esc(이름머리(들[0].이름))+'</span>';
-        return '<div class="hbpd'+(나있음?' me':'')+(여럿?' tie':'')+'">'+얼굴+
+        /* 묶음 칸만 누를 수 있다 — 한 명뿐인 칸은 div 그대로 */
+        var 머리 = 여럿
+          ? '<button type="button" class="hbpd'+(나있음?' me':'')+' tie" data-tie="'+c.등+'" aria-label="'+esc(들.length+'명 공동 '+c.등+'등 — 눌러서 보기')+'">'
+          : '<div class="hbpd'+(나있음?' me':'')+'">';
+        return 머리+얼굴+
           '<span class="nm">'+esc(여럿 ? 들.length+'명 공동 '+c.등+'등' : 들[0].이름)+'</span><span class="sc">'+esc(들[0].점)+'</span>'+
-          '<span class="bar" style="height:'+높이[j]+(첫?';background:var(--primary);color:#fff':'')+'">'+c.등+'</span></div>';
+          '<span class="bar" style="height:'+높이[j]+(첫?';background:var(--primary);color:#fff':'')+'">'+c.등+'</span>'+(여럿?'</button>':'</div>');
       }).join('');
+      [].forEach.call(pod.querySelectorAll('[data-tie]'), function(b){
+        b.onclick=function(){ 시상대켜기(document.querySelectorAll('#skList .skrow'), b.getAttribute('data-tie'), 켜기상태); };
+      });
       pod.classList.remove('hide');
     } else { pod.innerHTML=''; pod.classList.add('hide'); }
     /* 아바타 */

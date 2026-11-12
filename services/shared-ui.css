@@ -2235,6 +2235,15 @@ html[data-theme] body:not(.hb0) #s-streak #skTabs:empty{display:none}
 .hbpd .avs .av + .av{margin-left:-10px}
 .hbpd .avs .more{margin-left:5px;font-size:11px;font-weight:800;color:var(--sub);white-space:nowrap}
 .hbpd.tie .nm{font-size:13px}
+/* 묶음 칸은 단추 — 생김새는 div 칸과 똑같이, 누르는 동안만 살짝 눌린다 */
+button.hbpd{-webkit-appearance:none;appearance:none;background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:center;
+  cursor:pointer;width:100%;-webkit-tap-highlight-color:transparent;transition:transform .12s ease}
+button.hbpd:active{transform:scale(.96)}
+button.hbpd:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:16px}
+/* 묶음을 누르면 목록의 그 등수 줄들이 잠깐 켜진다 — 내 줄은 제 배경을 지키고 테두리만 더한다 */
+html[data-theme] body:not(.hb0) #skList .skrow{transition:background-color .35s ease,box-shadow .35s ease}
+html[data-theme] body:not(.hb0) #skList .skrow.tiehl{background-color:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent)}
+html[data-theme] body:not(.hb0) #skList .skrow.me.tiehl{background-color:var(--primary-soft);box-shadow:inset 0 0 0 2px var(--accent)}
 .hbpd .nm{font-size:14px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hbpd .sc{font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums;margin-top:-6px}
 .hbpd .bar{width:100%;border-radius:16px 16px 6px 6px;background:var(--card);display:flex;justify-content:center;padding-top:10px;box-sizing:border-box;font-size:26px;font-weight:900;
