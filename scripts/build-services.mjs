@@ -7,6 +7,7 @@ const pairs = [
   { source: 'services/shared-ui.css', targets: ['index.html', 'teacher.html'] },
   { source: 'services/shared-ui.js', targets: ['index.html', 'teacher.html'] },
   { source: 'services/teacher-data.js', targets: ['teacher.html'] },   // 「자료」 탭 — 선생님 화면에만
+  { source: 'services/exam-watch.js', targets: ['index.html'] },       // 시험 감시 — 학생 화면에만
 ];
 const check = process.argv.includes('--check');
 let stale = false;

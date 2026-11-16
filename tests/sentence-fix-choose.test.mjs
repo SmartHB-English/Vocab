@@ -30,6 +30,7 @@ function 화면(바깥 = {}) {
   const ctx = vm.createContext({ location: { protocol: 'https:', hostname: 'example.invalid', search: '' }, 창구주소: 'firestore:v1',
     setTimeout: f => f(), localStorage: { getItem: () => null, setItem() {}, removeItem() {} }, ...바깥 });
   vm.runInContext(shared, ctx);
+  vm.runInContext(read('../services/exam-watch.js'), ctx);   // 시험 감시 — document 가 없으니 시험감시_ 는 null, 감시싣기_ 는 0 을 싣는다
   vm.runInContext(문장칸.slice(0, 문장칸.lastIndexOf('/*')).replace(/^[^\n]*\n/, '/*\n'), ctx);
   Object.assign(ctx, {
     $: id => (칸[id] ??= { innerHTML: '', textContent: '', className: '', disabled: false }), qsa: () => [], beep() {},

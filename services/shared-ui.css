@@ -1088,6 +1088,10 @@ body.desk .screen:not(#s-teacher){display:none !important}
 .pill.fail{background:#FEE2E2;color:#B91C1C;border:1px solid #FCA5A5}
 .pill.siheom{background:#FEF3C7;color:#92400E}
 .pill.off{background:#E5E7EB;color:#6B7280}
+/* 시험 중 앱 이탈 · 복사 붙여넣기 — 「확인 필요」. 눈에는 띄되 겁주지 않게 (빨강 아님, 단정이 아니다) */
+.pill.watch{background:#E0F2FE;color:#075985;border:1px solid #7DD3FC;cursor:pointer;margin-left:4px}
+.wmemo .watchline{display:block;margin-top:4px;color:var(--sub)}
+.wmemo .watchline b{color:var(--text)}
 .tb tr.grow2.many{cursor:pointer}
 .tb tr.grow2.many:hover{background:var(--primary-soft)}
 .tb tr.offrow td{opacity:.45}

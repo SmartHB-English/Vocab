@@ -1107,6 +1107,10 @@ body.desk .screen:not(#s-teacher){display:none !important}
 .pill.fail{background:#FEE2E2;color:#B91C1C;border:1px solid #FCA5A5}
 .pill.siheom{background:#FEF3C7;color:#92400E}
 .pill.off{background:#E5E7EB;color:#6B7280}
+/* 시험 중 앱 이탈 · 복사 붙여넣기 — 「확인 필요」. 눈에는 띄되 겁주지 않게 (빨강 아님, 단정이 아니다) */
+.pill.watch{background:#E0F2FE;color:#075985;border:1px solid #7DD3FC;cursor:pointer;margin-left:4px}
+.wmemo .watchline{display:block;margin-top:4px;color:var(--sub)}
+.wmemo .watchline b{color:var(--text)}
 .tb tr.grow2.many{cursor:pointer}
 .tb tr.grow2.many:hover{background:var(--primary-soft)}
 .tb tr.offrow td{opacity:.45}
@@ -3305,7 +3309,9 @@ var DEMO = {
     지난달:'2026년 8월',
     시상:[{이름:'홍길동',점수:97,등수:1},{이름:'김영희',점수:93,등수:2},{이름:'박지훈',점수:85,등수:3}]};},
   선생님로그인:function(pw){return {ok:pw==='1234'};},
-  선생님요약:function(){return {ok:true,
+  선생님요약:function(){
+    var DEMO_감시={1:[1,8,0], 2:[4,52,2], 4:[2,20,0]};   // 키 → [이탈수, 이탈초, 복사시도] — 2 는 「확인 필요」, 1 · 4 는 아니다
+    return {ok:true,
     시험목록:[
       {키:1,시각:'09/06 18:20',이름:'홍길동',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:10,정답수:8,점수:80,게임점수:2400,소요초:95,숙제:true,재시험:false,구분:'숙제',틀린단어:'analyze, assume'},
       {키:3,시각:'09/06 18:24',이름:'홍길동',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:2,정답수:1,점수:50,게임점수:100,소요초:20,숙제:false,재시험:true,구분:'오답 재시험',틀린단어:'assume'},
@@ -3315,6 +3321,10 @@ var DEMO = {
       t.제외=!!DEMO_제외[t.키];
       if(!t.재시험){ t.무효=!!DEMO_무효[t.키]; if(t.무효) t.구분=(t.구분||'')+'(무효)'; }
       DEMO_배정.forEach(function(x){ if(x.이름===t.이름) t.교재=(x.교재||[]).slice(); });
+      /* 시험 중 앱 이탈 · 복사 붙여넣기 — 진짜는 엔진(기록분석_)이 확인필요 를 정해 내려 준다. 흉내도 같은 기준 */
+      var 감=DEMO_감시[t.키]||[0,0,0];
+      t.이탈수=감[0]; t.이탈초=감[1]; t.복사시도=감[2];
+      t.확인필요 = 감[0]>=3 || 감[1]>=30 || 감[2]>=1;
       return t;
     }),
     학생별:[{이름:'홍길동',교재:['예시 단어장','불규칙 동사 50'],횟수:1,오답노트:1,보충:2,시험:1,못낸:0,평균:80,시험평균:72,최근:'09/06 18:20'},
@@ -5180,6 +5190,13 @@ function 지난숙제손잡이(전체){
   });
 }
 
+/* 시험 중 앱 이탈 · 복사 붙여넣기 — 숫자를 그대로. 확인필요 는 엔진이 정해 내려 준다 (여기서 따지지 않는다) */
+function 감시글_(t){
+  return '앱 나감 '+(Number(t.이탈수)||0)+'번 · '+(Number(t.이탈초)||0)+'초 · 복사 '+(Number(t.복사시도)||0)+'번';
+}
+function 감시배지_(t){
+  return t.확인필요 ? '<span class="pill watch" title="'+esc(감시글_(t))+'">확인 필요</span>' : '';
+}
 function 구분칩(t){
   if(t.무효) return '<span class="pill off">무름</span>';
   if(t.재시험) return '<span class="pill note">오답노트</span>';
@@ -5598,7 +5615,7 @@ function drawTab(){
               '<td class="nw muted">'+esc(t.범위)+' · '+esc(t.유형)+'</td>'+
               '<td class="num">'+점수칸(t.점수)+'</td>'+
               '<td class="num muted">'+t.정답수+'/'+t.문항수+'</td>'+
-              '<td class="nw">'+구분칩(t)+'</td>'+
+              '<td class="nw">'+구분칩(t)+감시배지_(t)+'</td>'+
               '<td class="ctr">'+(t.제외
                 ? '<span class="pill off">뺌</span>'
                 : '<span class="muted">넣음</span>')+'</td>'+
@@ -5619,6 +5636,9 @@ function drawTab(){
       var 몇 = 전문 ? 전문.length : (t.틀린더 ? null : String(t.틀린단어||'').split(',').filter(function(x){return x.trim();}).length);
       return '<tr class="wmemotr"><td colspan="10"><div class="wmemo" data-memo="'+t.키+'">'+
         '<b>틀린 단어'+(몇===null ? '' : ' '+몇+'개')+'</b> '+(비었나 ? '<span class="sub">없음 — 다 맞았어요</span>' : 본글)+
+        '<span class="watchline"><b>시험 중</b> '+esc(감시글_(t))+
+          (t.확인필요 ? ' — 확인 필요' : '')+
+          ' <span class="sub">(아이 폰이 잰 값 · 화면 꺼짐 · 전화 · 알림도 들어갑니다)</span></span>'+
       '</div></td></tr>';
     }
     if($('btnMoreRec')) $('btnMoreRec').onclick=function(){ T.결과몇=(T.결과몇||60)+60; drawTab(); };

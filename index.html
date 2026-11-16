@@ -1104,6 +1104,10 @@ body.desk .screen:not(#s-teacher){display:none !important}
 .pill.fail{background:#FEE2E2;color:#B91C1C;border:1px solid #FCA5A5}
 .pill.siheom{background:#FEF3C7;color:#92400E}
 .pill.off{background:#E5E7EB;color:#6B7280}
+/* 시험 중 앱 이탈 · 복사 붙여넣기 — 「확인 필요」. 눈에는 띄되 겁주지 않게 (빨강 아님, 단정이 아니다) */
+.pill.watch{background:#E0F2FE;color:#075985;border:1px solid #7DD3FC;cursor:pointer;margin-left:4px}
+.wmemo .watchline{display:block;margin-top:4px;color:var(--sub)}
+.wmemo .watchline b{color:var(--text)}
 .tb tr.grow2.many{cursor:pointer}
 .tb tr.grow2.many:hover{background:var(--primary-soft)}
 .tb tr.offrow td{opacity:.45}
@@ -3809,7 +3813,9 @@ var DEMO = {
     지난달:'2026년 8월',
     시상:[{이름:'홍길동',점수:97,등수:1},{이름:'김영희',점수:93,등수:2},{이름:'박지훈',점수:85,등수:3}]};},
   선생님로그인:function(pw){return {ok:pw==='1234'};},
-  선생님요약:function(){return {ok:true,
+  선생님요약:function(){
+    var DEMO_감시={1:[1,8,0], 2:[4,52,2], 4:[2,20,0]};   // 키 → [이탈수, 이탈초, 복사시도] — 2 는 「확인 필요」, 1 · 4 는 아니다
+    return {ok:true,
     시험목록:[
       {키:1,시각:'09/06 18:20',이름:'홍길동',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:10,정답수:8,점수:80,게임점수:2400,소요초:95,숙제:true,재시험:false,구분:'숙제',틀린단어:'analyze, assume'},
       {키:3,시각:'09/06 18:24',이름:'홍길동',단어장:'예시 단어장',범위:'1~10',유형:'스펠링',문항수:2,정답수:1,점수:50,게임점수:100,소요초:20,숙제:false,재시험:true,구분:'오답 재시험',틀린단어:'assume'},
@@ -3819,6 +3825,10 @@ var DEMO = {
       t.제외=!!DEMO_제외[t.키];
       if(!t.재시험){ t.무효=!!DEMO_무효[t.키]; if(t.무효) t.구분=(t.구분||'')+'(무효)'; }
       DEMO_배정.forEach(function(x){ if(x.이름===t.이름) t.교재=(x.교재||[]).slice(); });
+      /* 시험 중 앱 이탈 · 복사 붙여넣기 — 진짜는 엔진(기록분석_)이 확인필요 를 정해 내려 준다. 흉내도 같은 기준 */
+      var 감=DEMO_감시[t.키]||[0,0,0];
+      t.이탈수=감[0]; t.이탈초=감[1]; t.복사시도=감[2];
+      t.확인필요 = 감[0]>=3 || 감[1]>=30 || 감[2]>=1;
       return t;
     }),
     학생별:[{이름:'홍길동',교재:['예시 단어장','불규칙 동사 50'],횟수:1,오답노트:1,보충:2,시험:1,못낸:0,평균:80,시험평균:72,최근:'09/06 18:20'},
@@ -5009,6 +5019,80 @@ function 뒤로기록_(이전, 갈곳){
   발자국_();
 }
 
+/* BEGIN GENERATED services/exam-watch.js */
+/* ==== 시험 감시 — 시험 하나 동안 앱을 나갔다 온 것 · 복사 붙여넣기를 센다 ====
+   원본은 여기 하나 (node scripts/build-services.mjs 가 index.html 에 박는다). 학생 화면에만 — 선생님 · 학부모 화면에는 없다.
+   · 시작() — 센 것을 0 으로 되돌리고 듣기 시작. 끝() — { 이탈수, 이탈초, 복사시도 } 를 돌려주고 듣기를 뗀다
+     (끝() 을 두 번 불러도 같은 값 — 결과 화면으로 넘어갈 때 한 번, 보낼 때 한 번 부른다. 다음 시작() 이 0 으로 되돌린다)
+   · 이탈 — visibilitychange 하나만 듣는다 (pagehide · blur 를 겹쳐 들으면 한 번 나간 것이 두 번으로 세어진다).
+     가려질 때 시각을 적고, 돌아왔을 때만 센다. 나간 채로 안 돌아오면 그 시험은 제출이 안 되니 셀 일이 없다
+   · 복사 · 잘라내기 · 붙여넣기 · 긴 누르기(contextmenu) — 막으면서 센다. 아이에게는 아무 말도 안 한다 (토스트도 없다)
+   · 글자 고르기(user-select)는 건드리지 않는다 — 아이가 자기가 쓴 답을 고칠 수 있어야 한다
+   · 켜 있는 동안만 막는다. 시험 화면을 떠나면 show() 가 끝() 을 불러 뗀다
+   문서 · 지금 은 바꿔 끼울 수 있다 (tests/exam-watch.test.mjs 가 가짜 문서 · 가짜 시계로 돌린다) */
+function 시험감시만들기_(문서, 지금){
+  지금 = 지금 || function(){ return Date.now(); };
+  var 막을것 = ['copy', 'cut', 'paste', 'contextmenu'];
+  var 잡기 = { capture: true };      /* 붙일 때와 뗄 때 같은 것으로 — true 만 넘기면 떼지 못하는 곳이 있다 */
+  var 이탈수 = 0, 이탈밀리 = 0, 복사시도 = 0, 나간때 = null, 켜짐 = false;
+  function 보임바뀜(){
+    if(문서.visibilityState === 'hidden'){ if(나간때 === null) 나간때 = 지금(); return; }
+    if(나간때 === null) return;
+    이탈수++;
+    이탈밀리 += Math.max(0, 지금() - 나간때);
+    나간때 = null;
+  }
+  function 막기(e){
+    try{ e.preventDefault(); }catch(x){}
+    복사시도++;
+  }
+  function 떼기(){
+    if(!켜짐) return;
+    켜짐 = false;
+    문서.removeEventListener('visibilitychange', 보임바뀜);
+    막을것.forEach(function(t){ 문서.removeEventListener(t, 막기, 잡기); });
+  }
+  return {
+    시작: function(){
+      떼기();
+      이탈수 = 0; 이탈밀리 = 0; 복사시도 = 0; 나간때 = null;
+      켜짐 = true;
+      문서.addEventListener('visibilitychange', 보임바뀜);
+      막을것.forEach(function(t){ 문서.addEventListener(t, 막기, 잡기); });
+    },
+    끝: function(){
+      떼기();
+      나간때 = null;
+      return { 이탈수: 이탈수, 이탈초: Math.round(이탈밀리 / 1000), 복사시도: 복사시도 };
+    },
+    /* 보낸 뒤 0 으로 — 다음 판이 시작() 없이 보내도 앞 시험 숫자가 섞이지 않게 */
+    치우기: function(){ 떼기(); 이탈수 = 0; 이탈밀리 = 0; 복사시도 = 0; 나간때 = null; },
+    켜졌나: function(){ return 켜짐; }
+  };
+}
+var 시험감시_ = typeof document !== 'undefined' && document.addEventListener ? 시험감시만들기_(document) : null;
+/* 보낼 꾸러미에 싣는다 — 이 판을 시작() 으로 켠 화면(기록이 남는 판)에서만 부른다 */
+function 감시싣기_(자료){
+  var 센 = 시험감시_ ? 시험감시_.끝() : { 이탈수: 0, 이탈초: 0, 복사시도: 0 };
+  if(시험감시_) 시험감시_.치우기();
+  자료.이탈수 = 센.이탈수; 자료.이탈초 = 센.이탈초; 자료.복사시도 = 센.복사시도;
+  return 자료;
+}
+/* ==== 시험 감시 끝 ==== */
+/* END GENERATED services/exam-watch.js */
+
+/* 시험 감시 켜고 떼기 — 기록이 남는 판(숙제 · 시험 · 오답노트)의 시험 화면에 들어설 때 켜고, 그 화면들을 떠나면 뗀다.
+   혼자 연습은 기록에 안 남으니 재지 않는다 (아래 조건은 결과 보낼 때 「혼자 연습」 을 거르는 조건과 같다).
+   채점이 끝난 시험지를 다시 보는 것(btnSeeSheet)은 새 판이 아니다. 문장 탭은 판을 시작할 때 켠다 (문장판시작_) */
+var 감시화면_ = { quiz:1, sheet:1, verb:1 };
+function 시험감시맞추기_(전, name){
+  if(!시험감시_) return;
+  if(!감시화면_[name]){ if(시험감시_.켜졌나()) 시험감시_.끝(); return; }
+  if(감시화면_[전]) return;
+  if(name === 'sheet' && S.채점됨) return;
+  if(S.현재숙제 || 시험판) 시험감시_.시작();
+}
+
 /* 시계가 붙어 있는 화면 — 그 화면을 떠나면 시계를 멈춘다 */
 var 시계화면_ = { shClock:'sheet', vClock:'verb', wbClock:'book' };
 
@@ -5018,6 +5102,7 @@ function show(name){
   try{
     if(제한 && 제한.어디 && 시계화면_[제한.어디] !== name) 제한멈춤_();
   }catch(e){}
+  try{ 시험감시맞추기_(지금화면_(), name); }catch(e){}
   뒤로기록_(지금화면_(), name);
   qsa('.screen').forEach(function(el){el.classList.remove('on');});
   var t = $('s-'+name); if(t) t.classList.add('on');
@@ -9013,7 +9098,7 @@ function finishQuiz(){
   }
 
   $('rSaved').textContent='기록 저장 중…';
-  결과보내기_('rSaved',{
+  결과보내기_('rSaved',감시싣기_({
     이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:유형이름,
     문항수:총, 정답수:S.정답수, 점수:점수, 게임점수:S.게임점수,
     최고콤보:S.최고콤보, 소요초:초, 숙제여부:탭시험 ? true : !S.재시험,
@@ -9022,7 +9107,7 @@ function finishQuiz(){
       var t=String(w.en||'');
       return t.length>56 ? t.slice(0,55)+'…' : t;
     }).join(문장방법_(S.모드) ? ' / ' : ', ')
-  },function(r){
+  }),function(r){
     if(r.demo){
       $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">미리보기 모드 — 이 결과는 어디에도 저장되지 않았습니다.</span>';
       숙제냈음(점수);
@@ -9379,13 +9464,13 @@ function finishVerb(){
     return;
   }
   $('rSaved').textContent='기록 저장 중…';
-  결과보내기_('rSaved',{
+  결과보내기_('rSaved',감시싣기_({
     이름:S.학생.이름, 단어장:S.단어장, 범위:S.범위, 유형:'3단변화',
     문항수:총, 정답수:S.칸정답, 점수:점수, 게임점수:0,
     최고콤보:0, 소요초:초, 숙제여부:탭시험 ? true : !S.재시험,
     구분: 기록구분(),
     틀린단어:S.오답.map(function(w){return 세형태(w.en).원형;}).join(', ')
-  },function(r){
+  }),function(r){
     if(r.demo){
       $('rSaved').innerHTML='<span style="color:var(--warn);font-weight:800">미리보기 모드 — 이 결과는 어디에도 저장되지 않았습니다.</span>';
       숙제냈음(점수);
@@ -9642,6 +9727,7 @@ function 문장소리끊기_(){
 
 function 문장화면열기_(){
   SN.판 = null; SN.문 = null;
+  if(시험감시_) 시험감시_.치우기();     /* 판을 그만두고 나왔다 — 떼고 0 으로 */
   var 책들 = 내문장책들_();
   if(SN.책 && !책들.some(function(x){ return x.이름===SN.책; })) SN.책 = null;
   if(!SN.책){
@@ -9770,6 +9856,7 @@ function 문장형식판시작_(){
   var 판 = 문장형식문제들_(문장형식줄들_(), 문장형식판수_);
   if(!판.문제.length) return;
   SN.판 = {형식:true, 문장:판.문장, 문제:판.문제, 소리:false, i:0, 맞음:0, 문항:0, 틀린:{}, 소요:0, 들어온때:Date.now()};
+  if(시험감시_) 시험감시_.시작();      /* 문장 판도 기록에 남는다 — 앱 이탈 · 복사 붙여넣기를 센다 */
   문장문제열기_();
 }
 /* 바꾸기 한 문제의 조각 — 정답 차례의 글들 · 미끼. 4→3 은 주·동·직목·전치사·간목, 3→4 는 주·동·간목·직목 + 전치사 미끼 하나 */
@@ -9835,6 +9922,7 @@ function 문장판시작_(이어){
   var 몫 = 문장오늘몫_(); if(!몫.문장.length) return;
   SN.판 = {시작:몫.시작, 끝:몫.끝, 문장:몫.문장, 소리:SN.진도.소리 !== false, 문제:문장문제들_(몫.문장, SN.줄.줄),
            i:0, 맞음:0, 문항:0, 틀린:{}, 소요:0, 들어온때:Date.now()};
+  if(시험감시_) 시험감시_.시작();      /* 문장 판도 기록에 남는다 — 앱 이탈 · 복사 붙여넣기를 센다 */
   if(이어){
     SN.판.i = Math.max(0, 이어.i); SN.판.맞음 = 이어.맞음 || 0; SN.판.문항 = 이어.문항 || 0;
     SN.판.틀린 = 이어.틀린 || {}; SN.판.소요 = 이어.소요 || 0;
@@ -10149,11 +10237,11 @@ function 문장판끝_(){
       '<button type="button" class="btn line" id="snBack">그만</button>'+
     '</div>';
   $('snBack').onclick = function(){ 문장화면열기_(); };
-  var 자료 = {
+  var 자료 = 감시싣기_({
     이름:S.학생.이름, 단어장:SN.책, 범위:P.시작+'~'+P.끝, 유형:'하루 단계', 난이도:문장단계_.length,   /* 단계 수는 세어서 — 소리를 꺼도 그대로 */
     문항수:문항, 정답수:P.맞음, 소요초:초, 숙제여부:false,
     틀린문장:틀린것.map(function(w){ return w.r.글; })
-  };
+  });
   문장기록보내기_(자료, function(){
     /* 진도는 서버 기록이 정한다 — 저장이 된 뒤에만 앞으로 간다 */
     진.진도 = Math.max(진.진도, P.끝); 진.오늘 += 이번;
@@ -10211,11 +10299,11 @@ function 문장형식끝_(){
     '</div>';
   $('snBack').onclick = function(){ 문장화면열기_(); };
   $('snDitrAgain').onclick = function(){ 문장형식판시작_(); };
-  문장기록보내기_({
+  문장기록보내기_(감시싣기_({
     이름:S.학생.이름, 단어장:SN.책, 범위:번호들.join(','), 유형:'4형식 연습', 구분:'형식', 난이도:2,   /* 한 문장에 두 문제 */
     문항수:문항, 정답수:P.맞음, 소요초:초, 숙제여부:false,
     틀린문장:틀린것.map(function(w){ return w.r.글; })
-  }, function(){
+  }), function(){
     var 칸 = $('snSaved'); if(칸) 칸.textContent = 미리보기 ? '미리보기라 저장되지 않았어요' : '기록했어요';
   });
 }
