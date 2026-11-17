@@ -148,6 +148,8 @@ export class FirestoreRepository {
     Object.assign(this.identity,{role:'teacher',pin:String(pin ?? '').trim()});
     try { await this.조각정리(); } catch (e) { console.warn('기록 조각 합치기를 다음으로 미룹니다', e); }
     try { await this.call('학부모토큰채우기',[String(pin ?? '').trim()]); } catch (e) { console.warn('학부모 토큰 채우기를 다음으로 미룹니다', e); }
+    // 번호가 빈 아이에게만 학생번호 — 채울 아이가 없으면 아무것도 안 쓴다(저장도 안 한다)
+    try { await this.call('학생번호채우기',[String(pin ?? '').trim()]); } catch (e) { console.warn('학생번호 채우기를 다음으로 미룹니다', e); }
     return {ok:true};
   }
   // 학부모 — 아이 이름 + 아이 비번. 비번으로 그 아이 자격을 세우고, 그 자격 문서(credentials/{id})의 parentToken 만 읽어 돌려준다.

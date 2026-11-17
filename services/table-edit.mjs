@@ -12,6 +12,9 @@ const 하루 = 86400000;
 
 /* 지운 줄에서 떼어 둘 칸 — store-codec.publicTable 이 공개 표에서 비우는 칸과 같다 */
 const 비밀칸들 = { 학생: [3, 9] };
+/* 손으로 못 고치는 칸 (머리글로 찾는다) — 학생번호는 한 번 붙으면 안 바뀐다 (엔진 학생번호채우기).
+   보이기는 한다(표꺼내기 가 안 비운다). 줄 지우기는 막지 않는다 — 아이가 나가면 줄을 지운다 */
+const 못고칠칸 = { 학생: ['학생번호'] };
 /* 날짜로 읽을 머리글 — 빈 칸에 날짜를 적었을 때 글이 아니라 날짜로 넣는다 */
 const 날짜머리 = new Set(['시각', '날짜', '등록시각', '마감일', '켠때', '만든때', '끝나는날', '학부모마지막', '지운때']);
 
@@ -89,6 +92,7 @@ export function 칸고치기(store, { 표, 행, 열, 전줄, 값 } = {}) {
   if (행 > sheet.getMaxRows()) sheet.maxRows = 행;
   if (열 > sheet.getMaxColumns()) sheet.maxColumns = 열;
   const 머리 = String(sheet.getRange(1, 열).getValue() ?? '').trim();
+  if (못고칠칸[표]?.includes(머리)) throw new Error('이 칸은 고칠 수 없습니다.');
   const 전 = sheet.getRange(행, 열).getValue();
   const 후 = 값맞추기(전, 값, 머리);
   sheet.getRange(행, 열).setValue(후);
