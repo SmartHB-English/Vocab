@@ -6248,6 +6248,7 @@ function drawStreakRank(){
     '숙제가 없던 날은 건너뛰어요. 그래서 주말이나 학원에 안 오는 날에는 불이 꺼지지 않습니다.<br>'+
     '마감이 한참 뒤인 숙제를 미리 풀면 <b>푼 그날</b>에 불이 붙어요.<br>'+
     '오늘 숙제는 아직 기회가 있어서, 안 냈어도 불이 바로 꺼지지 않아요.'+
+    (하루끝글_() ? ' 자정이 아니라 <b>다음 날 '+하루끝글_()+'</b>가 하루의 끝입니다 — 새벽에 내도 전날 숙제로 쳐요.' : '')+
     (r.시작일 ? '<br><span class="sub">'+esc(r.시작일)+' 부터 셉니다</span>' : '');
 }
 
@@ -7619,6 +7620,14 @@ function 숙제만_(){
   return (S.숙제 || []).filter(function(h){ return 숙제인가_(h); });
 }
 
+/* 하루의 끝 — 설정 '숙제마감시' (서버 기본 8). 이 시각 전의 새벽은 어제로 친다.
+   0 이거나 서버가 안 보내면 예전처럼 자정이 끝이라 안내를 안 띄운다 (빈 글자) */
+function 하루끝글_(){
+  var h = Number(시작정보 && 시작정보.숙제마감시);
+  if(!(isFinite(h) && h>0 && h<24)) return '';
+  var 시 = Math.floor(h), 분 = Math.round((h-시)*60);
+  return (시<12 ? '아침 '+시 : '낮 '+(시===12 ? 12 : 시-12))+'시'+(분 ? ' '+분+'분' : '');
+}
 function drawHw(){
   var box=$('hwBox');
   drawLeftover();
@@ -7754,7 +7763,9 @@ function drawHw(){
     '</div>';
   }).join('');
 
-  box.innerHTML = 수업칸 + (낱개.length ? '<div class="cklist">'+머리+줄들+'</div>' : '');
+  var 끝글 = 하루끝글_();
+  box.innerHTML = 수업칸 + (낱개.length ? '<div class="cklist">'+머리+줄들+'</div>' : '') +
+    (끝글 ? '<div class="sub" id="hwDue" style="font-size:12px;text-align:center;margin:-4px 0 12px">오늘 숙제는 내일 '+끝글+'까지예요</div>' : '');
   qsa('[data-again]', box).forEach(function(b){
     b.onclick = function(){ 다시연습시작_(S.숙제[+b.dataset.again]); };
   });
