@@ -4613,21 +4613,28 @@ function 항목고르개(A){
 }
 
 /* 같은 숙제(단어장·범위·유형·종류·마감일)를 한 줄로 묶는다.
-   교재로 내거나 학생을 골라 내면 한 숙제가 여러 줄로 쪼개지기 때문이다. */
+   교재로 내거나 학생을 골라 내면 한 숙제가 여러 줄로 쪼개지기 때문이다.
+   다만 같은 아이에게 같은 숙제가 두 번 나갔으면 서로 다른 숙제다 — 숙제마다 따로 풀어야 하니 묶지 않고,
+   낸 차례와 등록 시각을 작게 붙여 가른다 (같은숙제칩_) */
 function 숙제묶기(list){
-  var 맵 = {}, 차례 = [];
+  var 맵 = {}, 차례 = [], 벌 = {};
   (list||[]).forEach(function(h){
     /* 칸(구분)도 열쇠에 — 과의 본문 1~12 와 문법 1~12 가 한 줄로 합쳐지면 지울 때 둘 다 지워진다 */
-    var k = [h.단어장, h.칸||'', h.시작+'~'+h.끝, h.유형, h.종류, h.마감일||''].join('|');
+    var 바탕 = [h.단어장, h.칸||'', h.시작+'~'+h.끝, h.유형, h.종류, h.마감일||''].join('|');
+    var 사람 = (h.한사람||[]).concat(h.안한사람||[]);
+    var k = 바탕, n = 0;
+    while(맵[k] && 사람.some(function(x){ return 맵[k].사람[x]; })){ n++; k = 바탕 + '|' + n; }
     if(!맵[k]){
       맵[k] = {
         키:k, 단어장:h.단어장, 칸:h.칸||'', 시작:h.시작, 끝:h.끝, 유형:h.유형,
         종류:h.종류, 마감일:h.마감일, 색:h.색,
-        한:0, 대상:0, 안한:[], 모자람:[], 줄들:[], 행들:[]
+        한:0, 대상:0, 안한:[], 모자람:[], 줄들:[], 행들:[], 사람:{}
       };
       차례.push(맵[k]);
+      (벌[바탕] = 벌[바탕] || []).push(맵[k]);
     }
     var g = 맵[k];
+    사람.forEach(function(x){ g.사람[x] = 1; });
     var 안 = h.안한사람||[], 한 = (h.한사람||[]).length;
     g.한 += 한;
     g.대상 += (h.대상수 || (안.length + 한));
@@ -4640,7 +4647,23 @@ function 숙제묶기(list){
     var 고른 = g.줄들.some(function(x){ return x.학생; });
     g.대상글 = 고른 ? '고른 학생 ' + g.대상 + '명' : g.단어장 + ' 배우는 ' + g.대상 + '명';
   });
+  /* 같은 숙제가 두 벌 이상 — 먼저 낸 차례로 「1번 · 11/17 14:05」 */
+  Object.keys(벌).forEach(function(b){
+    var 무리 = 벌[b];
+    function 때(g){ return Math.min.apply(null, g.줄들.map(function(x){ return Number(x.낸때)||0; })); }
+    무리.slice().sort(function(a, c){ return 때(a) - 때(c); }).forEach(function(g, i){
+      var t = 때(g), d = t ? new Date(t) : null;
+      g.같은숙제글 = 무리.length < 2 ? '' : (i + 1) + '번' + (d ? ' · ' + (d.getMonth()+1) + '/' + d.getDate() + ' ' +
+        ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2) : '');
+      g.줄들.forEach(function(x){ x.같은숙제글 = g.같은숙제글; });
+    });
+  });
   return 차례;
+}
+/* 같은 단어장·범위 숙제가 둘 이상일 때만 — 낸 차례 · 등록 시각을 작게 */
+function 같은숙제칩_(x){
+  return x && x.같은숙제글
+    ? ' <span class="muted" style="font-size:11px;font-weight:600">'+esc(x.같은숙제글)+'</span>' : '';
 }
 function 마감칩(g){
   if(g.종류==='보충') return '<span class="pill bochung">오늘까지 · 보충</span>';
@@ -6617,7 +6640,7 @@ function drawTab(){
           var 줄 =
             '<tr class="grow2'+(g.줄들.length>1?' many':'')+'" data-mg="'+esc(키)+'">'+
               '<td class="nw">'+책칩(g.단어장)+' <span class="muted">'+(g.칸 ? esc(g.칸)+' ' : '')+esc(선생님범위글_(g.단어장,g.시작,g.끝))+'</span>'+
-                (g.줄들.length>1?' <span class="pill hw">'+g.줄들.length+'건 묶음</span>':'')+'</td>'+
+                같은숙제칩_(g)+(g.줄들.length>1?' <span class="pill hw">'+g.줄들.length+'건 묶음</span>':'')+'</td>'+
               '<td class="nw muted">'+esc(g.유형)+'</td>'+
               '<td class="nw">'+마감칩(g)+'</td>'+
               '<td class="nw muted">'+esc(g.대상글)+'</td>'+
@@ -7863,7 +7886,7 @@ function 숙제표(list, 시험표){
       '<td class="w"><input type="checkbox" class="hwPick" data-row="'+h.행+'"'+(켬?' checked':'')+
         ' onclick="event.stopPropagation()"></td>'+
       '<td class="nw">'+종류칩(h.종류)+'</td>'+
-      '<td class="nw">'+책칩(h.단어장)+' <span class="muted">'+esc(선생님범위글_(h.단어장,h.시작,h.끝))+'</span>'+문항칩(h)+
+      '<td class="nw">'+책칩(h.단어장)+' <span class="muted">'+esc(선생님범위글_(h.단어장,h.시작,h.끝))+'</span>'+문항칩(h)+같은숙제칩_(h)+
         (h.학부모숨김?' <span class="pill prhide">학부모 안 보임</span>':'')+'</td>'+
       '<td class="nw muted">'+(h.학생
         ? '<span class="pill hw">'+esc(h.학생)+'</span>'
@@ -7894,7 +7917,7 @@ function 숙제표(list, 시험표){
       '<td class="nw">'+종류칩(g.종류)+'</td>'+
       '<td class="nw">'+책칩(g.단어장)+' <span class="muted">'+(g.칸 ? esc(g.칸)+' ' : '')+esc(선생님범위글_(g.단어장,g.시작,g.끝))+'</span>'+
         (g.줄들.every(function(x){ return Number(x.문항수||0)===Number(g.줄들[0].문항수||0); }) ? 문항칩(g.줄들[0]) : '')+
-        ' <span class="pill hw">'+g.줄들.length+'건 묶음</span>'+
+        같은숙제칩_(g)+' <span class="pill hw">'+g.줄들.length+'건 묶음</span>'+
         (다숨김?' <span class="pill prhide">학부모 안 보임</span>':숨긴수?' <span class="pill prhide">일부 안 보임</span>':'')+'</td>'+
       '<td class="nw muted">'+esc(g.대상글)+'</td>'+
       '<td class="nw muted">'+esc(g.유형)+'</td>'+

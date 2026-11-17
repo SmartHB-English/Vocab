@@ -48,11 +48,11 @@ test('exam: zero score still counts as an attempt/completion', () => {
 });
 test('completion map: archives, daily maximum, student isolation and retest exclusion', () => {
   const c = legacy({ 기록: [record({score: 79}), record({score: 100, kind: '오답 재시험'}), record({name: '다른학생', score: 100})], 기록보관: [record({score: 90})] });
-  assert.deepEqual(plain(c.완료점수들_('테스트학생')), { '교재A|1~10': { '2026-10-07': 90 } });
+  assert.deepEqual(plain(c.완료점수들_('테스트학생')), { '숙제|교재A|1~10': { '2026-10-07': 90 } });
 });
 test('date boundary: UTC records use academy day in Seoul', () => {
   const c = legacy({ 기록: [record({at: '2026-10-06T14:59:59Z',score: 81}), record({at: '2026-10-06T15:00:00Z',score: 82})] });
-  assert.deepEqual(plain(c.완료점수들_('테스트학생')), { '교재A|1~10': { '2026-10-06': 81, '2026-10-07': 82 } });
+  assert.deepEqual(plain(c.완료점수들_('테스트학생')), { '숙제|교재A|1~10': { '2026-10-06': 81, '2026-10-07': 82 } });
 });
 test('assignment: explicit student outranks class and textbook routing', () => {
   const c = legacy(), books = { A: ['교재A'], B: ['교재B'] }, classes = { 반1: ['A'] };
