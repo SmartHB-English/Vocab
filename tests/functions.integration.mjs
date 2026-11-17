@@ -6,7 +6,7 @@ import { digest } from '../services/firestore-repository.mjs';
 import { unpack, sheetId } from '../services/store-codec.mjs';
 assert.match(process.env.FIRESTORE_EMULATOR_HOST ?? '', /^(127\.0\.0\.1|localhost):\d+$/);
 process.env.GCLOUD_PROJECT ??= 'demo-smarthb-vocab';
-const { adminDb, teacherOk, pushAddressOk, sendPush, runMonthlyAward, runScheduledNotices, sendNowNotice } = await import('../functions/index.js');
+const { adminDb, teacherOk, pushAddressOk, sendPush, runMonthlyAward, runScheduledNotices, runScheduledHomework, sendNowNotice } = await import('../functions/index.js');
 const db = adminDb();
 const dataset = 'fixture-functions';
 const 서울오늘 = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
@@ -22,6 +22,11 @@ test('seed', async () => {
   const 예약 = s.insertSheet('알림예약');
   예약.appendRow(['만든때','종류','날짜','시각','제목','내용','공지함께','공지끝날','보낸때','켬']);
   예약.appendRow([new Date(), '한번', 서울오늘, '07:00', '예약 안내', '내용', 'O', '', '', '']);
+  // 숙제 예약 — 오늘 07:00, 알림함께 (프롬프트 52)
+  const 숙예 = s.insertSheet('숙제예약');
+  숙예.appendRow(['만든때','날짜','시각','요약','내용','알림함께','보낸때','켬']);
+  숙예.appendRow([new Date(), 서울오늘, '07:00', '교재 배우는 학생 · 교재A 1~1 · 스펠링 · 당일',
+    JSON.stringify({ 단어장: '교재A', 시작: 1, 끝: 1, 유형: '스펠링', 종류: '당일', 마감일: '', 학생들: [] }), 'O', '', '']);
   s.getSheetByName('푸시').appendRow(['켠때','반','이름','주소','p256dh','auth','기기']);
   s.getSheetByName('푸시').appendRow([new Date(), '', '가상 학생', 'fcm:' + 'f'.repeat(40), '', '', 'app']);
   const { documents } = await createDatasetDocuments(s, { digest, newId: () => crypto.randomUUID() });
@@ -111,4 +116,26 @@ test('expired FCM token uses legacy cleanup status; transient failure does not',
     assert.equal(result.줄[0].상태,status);
   }
   assert.equal((await sendPush([{주소:'fcm:bad'}],{send:async()=>{throw Error('must not send');}})).줄[0].상태,400);
+});
+
+test('scheduled homework — Admin SDK 거래로 보낸때를 먼저 찍고 숙제를 낸 뒤 「숙제 나왔어요」 를 쏜다, 다시 돌아도 한 번만', async () => {
+  const 저녁 = new Date(서울오늘 + 'T20:00:00+09:00').getTime();
+  const sent = [];
+  const messaging = { send: async m => {
+    const t = unpack((await db.doc(`vocabDatasets/${dataset}/tables/${sheetId('숙제예약')}`).get()).data().payload);
+    sent.push({ 제목: m.notification.title, 보낸때: t.cells['2:7']?.value });   // 쏘는 그때 이미 저장돼 있어야 한다
+    return 'id';
+  } };
+  const first = await runScheduledHomework({ now: 저녁, messaging });
+  assert.deepEqual(first.낸것.map(x => x.됐나), [true]);
+  assert.equal(first.보냄, 1);
+  assert.deepEqual(sent, [{ 제목: '숙제 나왔어요', 보낸때: 서울오늘 + ' 20:00' }]);
+  const hw = unpack((await db.doc(`vocabDatasets/${dataset}/tables/${sheetId('숙제')}`).get()).data().payload);
+  const 줄들 = Object.entries(hw.cells).filter(([k, c]) => k.endsWith(':2') && k !== '1:2' && c.value === '교재A');
+  assert.equal(줄들.length, 1);
+  const 다음 = await runScheduledHomework({ now: 저녁 + 600000, messaging });
+  assert.equal(다음.찍은수, 0);
+  assert.equal(sent.length, 1);
+  const log = unpack((await db.doc(`vocabDatasets/${dataset}/tables/${sheetId('알림기록')}`).get()).data().payload);
+  assert.ok(Object.entries(log.cells).some(([k, c]) => k.endsWith(':3') && c.value === '숙제 받는 아이'), '알림기록에 대상: 숙제 받는 아이 (누가: 예약)');
 });

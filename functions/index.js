@@ -457,11 +457,18 @@ function createLegacyEngine(dependencies) {
     \uD478\uC2DC: "\uD478\uC2DC",
     \uBB38\uC7A5\uAE30\uB85D: "\uBB38\uC7A5\uAE30\uB85D",
     \uC54C\uB9BC\uC608\uC57D: "\uC54C\uB9BC\uC608\uC57D",
-    \uC54C\uB9BC\uAE30\uB85D: "\uC54C\uB9BC\uAE30\uB85D"
+    \uC54C\uB9BC\uAE30\uB85D: "\uC54C\uB9BC\uAE30\uB85D",
+    \uC219\uC81C\uC608\uC57D: "\uC219\uC81C\uC608\uC57D",
+    \uD3AB: "\uD3AB"
   };
   var \uD2C0\uB9B0\uB2E8\uC5B4\uC5F4 = 14;
   var \uAD6C\uBD84\uC5F4 = 15;
   var \uC81C\uC678\uC5F4 = 16;
+  var \uAC10\uC2DC\uCE78\uC774\uB984 = ["\uC774\uD0C8\uC218", "\uC774\uD0C8\uCD08", "\uBCF5\uC0AC\uC2DC\uB3C4"];
+  var \uAC10\uC2DC\uC5F4 = 17;
+  var \uC219\uC81C\uCF54\uB4DC\uC5F4 = 20;
+  var \uC774\uD0C8\uCD08\uCD5C\uB300_ = 7200;
+  var \uAC10\uC2DC\uD69F\uC218\uCD5C\uB300_ = 999;
   var \uC7AC\uC2DC\uD5D8\uD45C\uC2DC = "\uC624\uB2F5 \uC7AC\uC2DC\uD5D8";
   var \uBCF4\uCDA9\uD45C\uC2DC = "\uBCF4\uCDA9";
   var \uC2DC\uD5D8\uD45C\uC2DC = "\uC2DC\uD5D8";
@@ -496,7 +503,8 @@ function createLegacyEngine(dependencies) {
       "\uAD50\uC7AC",
       "\uD559\uBD80\uBAA8\uB9C1\uD06C",
       "\uD559\uBD80\uBAA8\uB9C8\uC9C0\uB9C9",
-      "\uC120\uC0DD\uB2D8\uD55C\uB9C8\uB514"
+      "\uC120\uC0DD\uB2D8\uD55C\uB9C8\uB514",
+      "\uD559\uC0DD\uBC88\uD638"
     ],
     \uB2E8\uC5B4\uC7A5\uBAA9\uB85D: ["\uB2E8\uC5B4\uC7A5", "\uC885\uB958", "\uC2DC\uD2B8\uC774\uB984", "\uC0C9", "\uB808\uC2A8\uBB36\uC74C", "\uACFC", "\uD558\uB8E8\uBAAB", "\uC18C\uB9AC"],
     \uC219\uC81C: [
@@ -518,7 +526,8 @@ function createLegacyEngine(dependencies) {
       "\uC7AC\uC751\uC2DC",
       "\uC678\uC6B0\uAE30\uBD84",
       "\uD559\uBD80\uBAA8\uC228\uAE40",
-      "\uBB38\uD56D\uC218"
+      "\uBB38\uD56D\uC218",
+      "\uC219\uC81C\uCF54\uB4DC"
     ],
     \uAE30\uB85D: [
       "\uC2DC\uAC01",
@@ -536,7 +545,11 @@ function createLegacyEngine(dependencies) {
       "\uC219\uC81C\uC5EC\uBD80",
       "\uD2C0\uB9B0\uB2E8\uC5B4",
       "\uAD6C\uBD84",
-      "\uC9D1\uACC4\uC81C\uC678"
+      "\uC9D1\uACC4\uC81C\uC678",
+      "\uC774\uD0C8\uC218",
+      "\uC774\uD0C8\uCD08",
+      "\uBCF5\uC0AC\uC2DC\uB3C4",
+      "\uC219\uC81C\uCF54\uB4DC"
     ],
     \uAE30\uB85D\uBCF4\uAD00: [
       "\uC2DC\uAC01",
@@ -554,7 +567,11 @@ function createLegacyEngine(dependencies) {
       "\uC219\uC81C\uC5EC\uBD80",
       "\uD2C0\uB9B0\uB2E8\uC5B4",
       "\uAD6C\uBD84",
-      "\uC9D1\uACC4\uC81C\uC678"
+      "\uC9D1\uACC4\uC81C\uC678",
+      "\uC774\uD0C8\uC218",
+      "\uC774\uD0C8\uCD08",
+      "\uBCF5\uC0AC\uC2DC\uB3C4",
+      "\uC219\uC81C\uCF54\uB4DC"
     ],
     \uC810\uC218: ["\uB0A0\uC9DC", "\uBC18", "\uC774\uB984", "\uC2DC\uD5D8\uBA85", "\uC810\uC218"],
     \uBBF8\uC81C\uCD9C: [
@@ -589,10 +606,15 @@ function createLegacyEngine(dependencies) {
       "\uC219\uC81C\uC5EC\uBD80",
       "\uD2C0\uB9B0\uBB38\uC7A5",
       "\uAD6C\uBD84",
-      "\uC9D1\uACC4\uC81C\uC678"
+      "\uC9D1\uACC4\uC81C\uC678",
+      "\uC774\uD0C8\uC218",
+      "\uC774\uD0C8\uCD08",
+      "\uBCF5\uC0AC\uC2DC\uB3C4"
     ],
     \uC54C\uB9BC\uC608\uC57D: ["\uB9CC\uB4E0\uB54C", "\uC885\uB958", "\uB0A0\uC9DC", "\uC2DC\uAC01", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uACF5\uC9C0\uD568\uAED8", "\uACF5\uC9C0\uB05D\uB0A0", "\uBCF4\uB0B8\uB54C", "\uCF2C", "\uB300\uC0C1\uC885\uB958", "\uB300\uC0C1\uAC12"],
-    \uC54C\uB9BC\uAE30\uB85D: ["\uBCF4\uB0B8\uB54C", "\uB204\uAC00", "\uB300\uC0C1", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uBCF4\uB0C4", "\uC2E4\uD328"]
+    \uC54C\uB9BC\uAE30\uB85D: ["\uBCF4\uB0B8\uB54C", "\uB204\uAC00", "\uB300\uC0C1", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uBCF4\uB0C4", "\uC2E4\uD328"],
+    \uC219\uC81C\uC608\uC57D: ["\uB9CC\uB4E0\uB54C", "\uB0A0\uC9DC", "\uC2DC\uAC01", "\uC694\uC57D", "\uB0B4\uC6A9", "\uC54C\uB9BC\uD568\uAED8", "\uBCF4\uB0B8\uB54C", "\uCF2C"],
+    \uD3AB: ["\uC774\uB984", "\uC54C\uC885\uB958", "\uD3AB\uC885\uB958", "\uC219\uC81C\uC218", "\uD638\uAC10\uB3C4", "\uBA39\uC774", "\uBD80\uD654\uD55C\uB0A0", "\uB3C4\uAC10"]
   };
   var \uC0C8\uC8FC\uC18C = "https://smarthb-english.github.io/Vocab/";
   function doGet(e) {
@@ -635,6 +657,7 @@ function createLegacyEngine(dependencies) {
     \uD559\uBD80\uBAA8\uB9C1\uD06C\uBC1C\uAE09,
     \uD559\uBD80\uBAA8\uB85C\uADF8\uC778,
     \uD559\uBD80\uBAA8\uD1A0\uD070\uCC44\uC6B0\uAE30,
+    \uD559\uC0DD\uBC88\uD638\uCC44\uC6B0\uAE30,
     \uD559\uBD80\uBAA8\uD55C\uB9C8\uB514,
     \uD559\uBD80\uBAA8\uBBF8\uB9AC\uBCF4\uAE30,
     \uD2C0\uB9B0\uC804\uBB38,
@@ -693,6 +716,10 @@ function createLegacyEngine(dependencies) {
     \uC608\uC57D\uC800\uC7A5,
     \uC608\uC57D\uC9C0\uC6B0\uAE30,
     \uC608\uC57D\uCF1C\uAE30,
+    \uC219\uC81C\uC608\uC57D\uBAA9\uB85D,
+    \uC219\uC81C\uC608\uC57D\uC800\uC7A5,
+    \uC219\uC81C\uC608\uC57D\uC9C0\uC6B0\uAE30,
+    \uC219\uC81C\uC608\uC57D\uCF1C\uAE30,
     \uC54C\uB9BC\uBA85\uB2E8,
     \uC54C\uB9BC\uAE30\uB85D\uBAA9\uB85D,
     \uD569\uACA9\uC810\uC800\uC7A5,
@@ -739,6 +766,7 @@ function createLegacyEngine(dependencies) {
     });
     \uAE30\uB85D\uCE78\uD655\uBCF4_(SHEET.\uAE30\uB85D);
     \uAE30\uB85D\uCE78\uD655\uBCF4_(SHEET.\uAE30\uB85D\uBCF4\uAD00);
+    \uBB38\uC7A5\uAE30\uB85D\uC2DC\uD2B8_(true);
     \uBAA9\uB85D\uCE78\uD655\uBCF4_();
     \uBA85\uB2E8\uCE78\uD655\uBCF4_();
     var \uC788\uB098 = false;
@@ -1257,12 +1285,26 @@ function createLegacyEngine(dependencies) {
   function ymd_(d) {
     return Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd");
   }
+  var \uAE30\uBCF8\uC219\uC81C\uB9C8\uAC10\uC2DC = 8;
+  var \uC219\uC81C\uB9C8\uAC10\uC2DC\uCE90\uC2DC_ = null;
+  function \uC219\uC81C\uB9C8\uAC10\uC2DC_() {
+    if (\uC219\uC81C\uB9C8\uAC10\uC2DC\uCE90\uC2DC_ !== null) return \uC219\uC81C\uB9C8\uAC10\uC2DC\uCE90\uC2DC_;
+    var t = s_(setting_("\uC219\uC81C\uB9C8\uAC10\uC2DC", ""));
+    var n = t === "" ? \uAE30\uBCF8\uC219\uC81C\uB9C8\uAC10\uC2DC : Number(t);
+    \uC219\uC81C\uB9C8\uAC10\uC2DC\uCE90\uC2DC_ = isFinite(n) && n >= 0 && n < 24 ? n : \uAE30\uBCF8\uC219\uC81C\uB9C8\uAC10\uC2DC;
+    return \uC219\uC81C\uB9C8\uAC10\uC2DC\uCE90\uC2DC_;
+  }
+  function \uD559\uC2B5\uB0A0_(\uB54C) {
+    return ymd_(new Date2(\uB54C.getTime() - \uC219\uC81C\uB9C8\uAC10\uC2DC_() * 36e5));
+  }
   function \uC2DC\uC791\uC815\uBCF4() {
     var \uB2F4\uAE34 = \uCE90\uC2DC\uC77D\uAE30_("\uC2DC\uC791\uC815\uBCF4");
     if (\uB2F4\uAE34 && \uB2F4\uAE34.\uB2E8\uC5B4\uC7A5\uBAA9\uB85D) return \uB2F4\uAE34;
     var r = {
       \uD559\uC6D0\uC774\uB984: setting_("\uD559\uC6D0\uC774\uB984", \uAE30\uBCF8\uD559\uC6D0\uC774\uB984),
       \uD569\uACA9\uC810: \uD569\uACA9\uC810_(),
+      \uC219\uC81C\uB9C8\uAC10\uC2DC: \uC219\uC81C\uB9C8\uAC10\uC2DC_(),
+      // 아이 화면의 「내일 아침 8시까지」 안내 — 0 이면 안내를 안 띄운다
       \uB2E8\uC5B4\uC7A5\uBAA9\uB85D: \uB2E8\uC5B4\uC7A5\uBAA9\uB85D()
     };
     \uCE90\uC2DC\uB2F4\uAE30_("\uC2DC\uC791\uC815\uBCF4", r, \uAE30\uB85D\uCE90\uC2DC\uCD08_);
@@ -1676,7 +1718,8 @@ function createLegacyEngine(dependencies) {
           \uC774\uB984: \uCC3E\uB294\uC774\uB984,
           \uD559\uB144\uAD6C\uBD84: s_(r[i][3]) || "\uCD08\uC911\uB4F1"
         },
-        \uB2E8\uC5B4\uC7A5\uBAA9\uB85D: \uB0B4\uB2E8\uC5B4\uC7A5_(\uAD50\uC7AC.length ? \uAD50\uC7AC : null)
+        \uB2E8\uC5B4\uC7A5\uBAA9\uB85D: \uB0B4\uB2E8\uC5B4\uC7A5_(\uAD50\uC7AC.length ? \uAD50\uC7AC : null),
+        \uD3AB: \uB85C\uADF8\uC778\uD3AB_(\uCC3E\uB294\uC774\uB984)
       };
     }
     return { ok: false, \uBA54\uC2DC\uC9C0: "\uBA85\uB2E8\uC5D0 \uC5C6\uB294 \uC774\uB984\uC774\uC5D0\uC694. \uC120\uC0DD\uB2D8\uAED8 \uB9D0\uC500\uB4DC\uB9AC\uC138\uC694." };
@@ -1935,6 +1978,7 @@ function createLegacyEngine(dependencies) {
   }
   function \uC124\uC815\uC4F0\uAE30_(\uD56D\uBAA9, \uAC12) {
     \uD569\uACA9\uC810\uCE90\uC2DC_ = null;
+    \uC219\uC81C\uB9C8\uAC10\uC2DC\uCE90\uC2DC_ = null;
     \uC61B\uC2DC\uD5D8\uC2DC\uAC04\uCE90\uC2DC_ = null;
     var sh = sheet_(SHEET.\uC124\uC815);
     var v = rows_(SHEET.\uC124\uC815);
@@ -1982,17 +2026,44 @@ function createLegacyEngine(dependencies) {
     if (g === \uBCF4\uCDA9\uD45C\uC2DC) return "\uBCF4\uCDA9";
     return \uC219\uC81C\uC600\uB098_(\uC219\uC81C\uC5EC\uBD80) ? "\uC219\uC81C" : "\uC5F0\uC2B5";
   }
-  function \uAE30\uB85D\uCE78\uD655\uBCF4_(name) {
+  function \uAE30\uB85D\uCE78\uD655\uBCF4_(name, \uC81C\uC678\uB9CC) {
     var sh = sheet_(name);
-    if (sh.getMaxColumns() < \uC81C\uC678\uC5F4) {
-      sh.insertColumnsAfter(sh.getMaxColumns(), \uC81C\uC678\uC5F4 - sh.getMaxColumns());
+    var \uB05D\uC5F4 = \uC81C\uC678\uB9CC ? \uC81C\uC678\uC5F4 : \uC219\uC81C\uCF54\uB4DC\uC5F4;
+    if (sh.getMaxColumns() < \uB05D\uC5F4) {
+      sh.insertColumnsAfter(sh.getMaxColumns(), \uB05D\uC5F4 - sh.getMaxColumns());
     }
     var \uCE78 = sh.getRange(1, \uC81C\uC678\uC5F4);
     if (s_(\uCE78.getValue()) === "") {
       \uCE78.setValue("\uC9D1\uACC4\uC81C\uC678").setFontWeight("bold").setBackground("#EFF3F9");
       sh.setColumnWidth(\uC81C\uC678\uC5F4, 80);
     }
+    if (!\uC81C\uC678\uB9CC) {
+      \uAC10\uC2DC\uBA38\uB9AC\uD655\uBCF4_(sh, \uAC10\uC2DC\uC5F4);
+      var \uCF54\uB4DC\uCE78 = sh.getRange(1, \uC219\uC81C\uCF54\uB4DC\uC5F4);
+      if (s_(\uCF54\uB4DC\uCE78.getValue()) === "") \uCF54\uB4DC\uCE78.setValue("\uC219\uC81C\uCF54\uB4DC").setFontWeight("bold").setBackground("#EFF3F9");
+    }
     return sh;
+  }
+  function \uAC10\uC2DC\uBA38\uB9AC\uD655\uBCF4_(sh, \uCCAB\uC5F4) {
+    var \uB05D\uC5F4 = \uCCAB\uC5F4 + \uAC10\uC2DC\uCE78\uC774\uB984.length - 1;
+    if (sh.getMaxColumns() < \uB05D\uC5F4) sh.insertColumnsAfter(sh.getMaxColumns(), \uB05D\uC5F4 - sh.getMaxColumns());
+    var \uBA38\uB9AC = sh.getRange(1, \uCCAB\uC5F4, 1, \uAC10\uC2DC\uCE78\uC774\uB984.length).getValues()[0];
+    for (var i = 0; i < \uAC10\uC2DC\uCE78\uC774\uB984.length; i++) {
+      if (s_(\uBA38\uB9AC[i]) !== "") continue;
+      sh.getRange(1, \uCCAB\uC5F4 + i).setValue(\uAC10\uC2DC\uCE78\uC774\uB984[i]).setFontWeight("bold").setBackground("#EFF3F9");
+    }
+  }
+  function \uAC10\uC2DC\uAC12_(p) {
+    p = p || {};
+    function \uC218(v, \uCD5C\uB300) {
+      var n = Math.floor(Number(v));
+      if (!isFinite(n) || n < 0) return 0;
+      return Math.min(n, \uCD5C\uB300);
+    }
+    return [\uC218(p.\uC774\uD0C8\uC218, \uAC10\uC2DC\uD69F\uC218\uCD5C\uB300_), \uC218(p.\uC774\uD0C8\uCD08, \uC774\uD0C8\uCD08\uCD5C\uB300_), \uC218(p.\uBCF5\uC0AC\uC2DC\uB3C4, \uAC10\uC2DC\uD69F\uC218\uCD5C\uB300_)];
+  }
+  function \uD655\uC778\uD544\uC694_(\uC774\uD0C8\uC218, \uC774\uD0C8\uCD08, \uBCF5\uC0AC\uC2DC\uB3C4) {
+    return (Number(\uC774\uD0C8\uC218) || 0) >= 3 || (Number(\uC774\uD0C8\uCD08) || 0) >= 30 || (Number(\uBCF5\uC0AC\uC2DC\uB3C4) || 0) >= 1;
   }
   function \uAE30\uB85D\uC81C\uC678\uC124\uC815(\uBE44\uBC88, \uD0A4\uB4E4, \uBE84\uAE4C) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
@@ -2094,6 +2165,8 @@ function createLegacyEngine(dependencies) {
           \uC774\uB984: s_(x[2]),
           \uB2E8\uC5B4\uC7A5: s_(x[3]),
           \uBC94\uC704: s_(x[4]),
+          \uCF54\uB4DC: \uCF54\uB4DC\uCE78_(x),
+          \uAC08\uB798: \uAE30\uB85D\uAC08\uB798_(x[14]),
           \uD56D\uBAA9,
           \uC2DC\uD5D8: \uD56D\uBAA9 === "\uC2DC\uD5D8",
           // 시험은 평균을 따로 낸다
@@ -2128,7 +2201,7 @@ function createLegacyEngine(dependencies) {
       };
       var m = \uB9F5[k];
       if (r.\uD56D\uBAA9 !== "\uC624\uB2F5\uB178\uD2B8") {
-        var \uD0A4 = r.\uB2E8\uC5B4\uC7A5 + "|" + r.\uBC94\uC704;
+        var \uD0A4 = \uC644\uB8CC\uC5F4\uC1E0_("", r.\uCF54\uB4DC, r.\uAC08\uB798, r.\uB2E8\uC5B4\uC7A5, r.\uBC94\uC704);
         var \uCE78 = m.\uB0B8\uAC83[\uD0A4] = m.\uB0B8\uAC83[\uD0A4] || {};
         if (\uCE78[r.\uB0A0] === void 0 || r.\uC810\uC218 > \uCE78[r.\uB0A0]) \uCE78[r.\uB0A0] = r.\uC810\uC218;
       }
@@ -2170,6 +2243,7 @@ function createLegacyEngine(dependencies) {
         \uB05D: Number(x[3]) || 0,
         \uCE78: s_(x.length > 11 ? x[11] : ""),
         // 과 숙제의 구분 — 기록 범위가 「본문 1~12」 꼴이다
+        \uCF54\uB4DC: \uCF54\uB4DC\uCE78_(x),
         \uD559\uC0DD: s_(x[7]),
         \uC885\uB958: \uC219\uC81C\uC885\uB958_(x[8] || "\uAE30\uD55C"),
         \uB4F1\uB85D: \uB4F1\uB85D ? ymd_(\uB4F1\uB85D) : "",
@@ -2187,10 +2261,7 @@ function createLegacyEngine(dependencies) {
       });
       var \uB0B8\uC218 = 0, \uC548\uD55C\uC218 = 0;
       \uB0B4\uC219\uC81C.forEach(function(h) {
-        var \uC774\uB984\uB4E4 = h.\uCE78 ? [h.\uCE78 + " " + h.\uC2DC\uC791 + "~" + h.\uB05D] : \uBC94\uC704\uC774\uB984\uB4E4_(h.\uB2E8\uC5B4\uC7A5, h.\uC2DC\uC791, h.\uB05D);
-        var \uB0A0\uB4E4 = \uC774\uB984\uB4E4.reduce(function(\uCC3E\uC74C, \uBC94) {
-          return \uCC3E\uC74C || \uB0B8\uAC83[h.\uB2E8\uC5B4\uC7A5 + "|" + \uBC94];
-        }, null);
+        var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uB0B8\uAC83, "", h.\uB2E8\uC5B4\uC7A5, h.\uC2DC\uC791, h.\uB05D, h.\uCE78, h.\uC885\uB958, h.\uCF54\uB4DC);
         var \uD310\uB2E8\uB0A0 = h.\uB9C8\uAC10 || h.\uB4F1\uB85D || "";
         if (\uB0B8\uAC83_(\uB0A0\uB4E4, h.\uC885\uB958, h.\uB4F1\uB85D, \uD310\uB2E8\uB0A0)) \uB0B8\uC218++;
         if (!\uD47C\uAC83_(\uB0A0\uB4E4, h.\uC885\uB958, h.\uB4F1\uB85D, \uD310\uB2E8\uB0A0, 0)) \uC548\uD55C\uC218++;
@@ -2533,7 +2604,7 @@ function createLegacyEngine(dependencies) {
       return \uB2E8\uACC4\uC815\uB9AC_(x.length > 13 ? x[13] : "");
     });
     var \uC751\uC2DC = \uB2E8\uACC4\uC788\uB2E4 ? \uC751\uC2DC\uD45C_(\uC774\uB984) : {}, \uB354\uC900\uD45C = \uB2E8\uACC4\uC788\uB2E4 ? \uC7AC\uC751\uC2DC\uCD94\uAC00\uD45C_() : {};
-    var today = ymd_(new Date2());
+    var today = \uD559\uC2B5\uB0A0_(new Date2());
     var \uC0C9\uB9F5 = {};
     \uB2E8\uC5B4\uC7A5\uBAA9\uB85D().forEach(function(b) {
       \uC0C9\uB9F5[b.\uC774\uB984] = b.\uC0C9;
@@ -2553,7 +2624,8 @@ function createLegacyEngine(dependencies) {
       var \uC885\uB958 = s_(x[8]) ? \uC219\uC81C\uC885\uB958_(x[8]) : \uB9C8\uAC10 === today ? "\uB2F9\uC77C" : "\uAE30\uD55C";
       var \uB4F1\uB85D = x[6] instanceof Date2 ? ymd_(x[6]) : "";
       var \uCE78 = s_(x.length > 11 ? x[11] : "");
-      var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uB05D\uB0B8\uAC83, "", \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78);
+      var \uCF54\uB4DC = \uCF54\uB4DC\uCE78_(x);
+      var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uB05D\uB0B8\uAC83, "", \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uC885\uB958, \uCF54\uB4DC);
       var \uD310\uB2E8\uB0A0 = \uB9C8\uAC10 || today;
       var \uAE30\uB85D = \uB0B8\uAC83_(\uB0A0\uB4E4, \uC885\uB958, \uB4F1\uB85D, \uD310\uB2E8\uB0A0);
       var \uC644\uB8CC = !!\uAE30\uB85D;
@@ -2586,6 +2658,8 @@ function createLegacyEngine(dependencies) {
         /* 이 숙제를 다른 숙제와 가려 주는 값. 지웠다 똑같이 다시 내면 이 값이 달라진다.
            유치부가 「어디까지 했나」 를 기기에 적어 둘 때 이것을 열쇠로 쓴다. */
         \uB0B8\uB54C: x[6] instanceof Date2 ? x[6].getTime() : 0,
+        /* 그 숙제로 낸 기록에 같이 적을 코드 — 아이 앱이 결과저장에 실어 보낸다 (연습 · 오답 재시험은 안 싣는다) */
+        \uCF54\uB4DC,
         \uAC1C\uBCC4: !!\uB300\uC0C1,
         \uC0C9: \uC0C9\uB9F5[\uB2E8\uC5B4\uC7A5] || "",
         \uC885\uB958,
@@ -2637,7 +2711,7 @@ function createLegacyEngine(dependencies) {
       var sh = sheet_(SHEET.\uAE30\uB85D);
       if (!\uCE90\uC2DC\uC77D\uAE30_("\uAE30\uB85D\uCE78\uD655\uBCF4")) {
         try {
-          \uAE30\uB85D\uCE78\uD655\uBCF4_(SHEET.\uAE30\uB85D);
+          \uAE30\uB85D\uCE78\uD655\uBCF4_(SHEET.\uAE30\uB85D, true);
           \uCE90\uC2DC\uB2F4\uAE30_("\uAE30\uB85D\uCE78\uD655\uBCF4", 1, 21600);
         } catch (e) {
         }
@@ -2662,8 +2736,10 @@ function createLegacyEngine(dependencies) {
         Number(p.\uC18C\uC694\uCD08) || 0,
         p.\uC219\uC81C\uC5EC\uBD80 ? "O" : "",
         \uC694\uC57D,
-        s_(p.\uAD6C\uBD84)
-      ]);
+        s_(p.\uAD6C\uBD84),
+        ""
+        // 집계제외 — 선생님이 고른다
+      ].concat(\uAC10\uC2DC\uAC12_(p)).concat([s_(p.\uAD6C\uBD84) === \uC7AC\uC2DC\uD5D8\uD45C\uC2DC ? "" : \uC219\uC81C\uCF54\uB4DC\uAC12_(p.\uC219\uC81C\uCF54\uB4DC)]));
       var row = sh.getLastRow();
       sh.getRange(row, 1, 1, HEADERS.\uAE30\uB85D.length).setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP).setVerticalAlignment("middle");
       sh.getRange(row, 1).setNumberFormat("yyyy-MM-dd HH:mm");
@@ -2672,12 +2748,79 @@ function createLegacyEngine(dependencies) {
           "\uD2C0\uB9B0 \uB2E8\uC5B4 " + \uB2E8\uC5B4\uB4E4.length + "\uAC1C\n\n" + \uB2E8\uC5B4\uB4E4.join("\n")
         );
       }
+      var \uC2DC\uD5D8\uC774\uC5C8\uB098 = s_(p.\uAD6C\uBD84) === \uC2DC\uD5D8\uD45C\uC2DC || s_(p.\uAD6C\uBD84) === \uBB34\uD6A8\uC2DC\uD5D8\uD45C\uC2DC;
+      if (p.\uC219\uC81C\uC5EC\uBD80 && !\uC2DC\uD5D8\uC774\uC5C8\uB098) {
+        try {
+          var \uD3AB = \uD3AB\uC790\uB77C\uAE30_(s_(p.\uC774\uB984));
+          if (\uD3AB) return { ok: true, \uD3AB: \uD3AB.\uD3AB, \uC790\uB790\uB098: \uD3AB.\uC790\uB790\uB098, \uBD80\uD654\uD588\uB098: \uD3AB.\uBD80\uD654\uD588\uB098 };
+        } catch (e) {
+        }
+      }
       return { ok: true };
     } catch (e) {
       return { ok: false, \uBA54\uC2DC\uC9C0: String(e) };
     } finally {
       lock.releaseLock();
     }
+  }
+  var \uD3AB\uCE78_ = { \uC774\uB984: 1, \uC54C\uC885\uB958: 2, \uD3AB\uC885\uB958: 3, \uC219\uC81C\uC218: 4, \uD638\uAC10\uB3C4: 5, \uBA39\uC774: 6, \uBD80\uD654\uD55C\uB0A0: 7, \uB3C4\uAC10: 8 };
+  var \uC54C\uC885\uB958\uBAA9\uB85D_ = ["eg1", "eg2", "eg3", "eg4", "eg5"];
+  var \uD3AB\uC885\uB958\uBAA9\uB85D_ = ["pet1", "pet2", "pet3", "pet4", "pet5", "pet6", "pet7", "pet8", "pet9", "pet10"];
+  var \uBD80\uD654\uC219\uC81C\uC218_ = 5;
+  function \uD3AB\uC2DC\uD2B8_() {
+    return \uBA38\uB9AC\uB9DE\uCD98\uC2DC\uD2B8_(SHEET.\uD3AB, HEADERS.\uD3AB, { 1: 110, 7: 140 });
+  }
+  function \uBB34\uC791\uC704\uD558\uB098_(\uBAA9\uB85D) {
+    return \uBAA9\uB85D[Math.floor(Math.random() * \uBAA9\uB85D.length)];
+  }
+  function \uB0B4\uD3AB\uC904_(\uC774\uB984) {
+    var sh = ss_().getSheetByName(SHEET.\uD3AB);
+    if (!sh || !\uC774\uB984) return null;
+    var last = sh.getLastRow();
+    if (last < 2) return null;
+    var \uAC12\uB4E4 = sh.getRange(2, 1, last - 1, HEADERS.\uD3AB.length).getValues();
+    for (var i = 0; i < \uAC12\uB4E4.length; i++) if (s_(\uAC12\uB4E4[i][0]) === \uC774\uB984) return { \uD589: i + 2, \uAC12: \uAC12\uB4E4[i] };
+    return null;
+  }
+  function \uD3AB\uC0C1\uD0DC_(\uC904) {
+    var v = \uC904 ? \uC904.\uAC12 : [];
+    var \uB0A0 = v[\uD3AB\uCE78_.\uBD80\uD654\uD55C\uB0A0 - 1];
+    var \uB0A0\uAE00 = \uB0A0 instanceof Date2 ? Utilities.formatDate(\uB0A0, Session.getScriptTimeZone(), "yyyy-MM-dd") : s_(\uB0A0);
+    return {
+      \uC54C\uC885\uB958: s_(v[\uD3AB\uCE78_.\uC54C\uC885\uB958 - 1]),
+      \uD3AB\uC885\uB958: \uB0A0\uAE00 ? s_(v[\uD3AB\uCE78_.\uD3AB\uC885\uB958 - 1]) : "",
+      \uC219\uC81C\uC218: Math.max(0, Math.min(\uBD80\uD654\uC219\uC81C\uC218_, Number(v[\uD3AB\uCE78_.\uC219\uC81C\uC218 - 1]) || 0)),
+      \uBD80\uD654: !!\uB0A0\uAE00,
+      \uBD80\uD654\uD55C\uB0A0: \uB0A0\uAE00,
+      \uB2E4\uC12F: \uBD80\uD654\uC219\uC81C\uC218_
+    };
+  }
+  function \uB85C\uADF8\uC778\uD3AB_(\uC774\uB984) {
+    try {
+      return \uD3AB\uC0C1\uD0DC_(\uB0B4\uD3AB\uC904_(\uC774\uB984));
+    } catch (e) {
+      return \uD3AB\uC0C1\uD0DC_(null);
+    }
+  }
+  function \uD3AB\uC790\uB77C\uAE30_(\uC774\uB984) {
+    if (!\uC774\uB984 || \uC774\uB984\uB9DE\uCD94\uAE30_(\uC774\uB984) !== \uC774\uB984) return null;
+    var sh = \uD3AB\uC2DC\uD2B8_();
+    var \uC904 = \uB0B4\uD3AB\uC904_(\uC774\uB984);
+    if (!\uC904) {
+      sh.appendRow([\uC774\uB984, \uBB34\uC791\uC704\uD558\uB098_(\uC54C\uC885\uB958\uBAA9\uB85D_), "", 0, 0, 0, "", ""]);
+      \uC904 = \uB0B4\uD3AB\uC904_(\uC774\uB984);
+    }
+    var \uC9C0\uAE08 = \uD3AB\uC0C1\uD0DC_(\uC904);
+    if (\uC9C0\uAE08.\uBD80\uD654) return { \uD3AB: \uC9C0\uAE08, \uC790\uB790\uB098: false, \uBD80\uD654\uD588\uB098: false };
+    if (\uC54C\uC885\uB958\uBAA9\uB85D_.indexOf(\uC9C0\uAE08.\uC54C\uC885\uB958) < 0) sh.getRange(\uC904.\uD589, \uD3AB\uCE78_.\uC54C\uC885\uB958).setValue(\uBB34\uC791\uC704\uD558\uB098_(\uC54C\uC885\uB958\uBAA9\uB85D_));
+    var n = \uC9C0\uAE08.\uC219\uC81C\uC218 + 1;
+    sh.getRange(\uC904.\uD589, \uD3AB\uCE78_.\uC219\uC81C\uC218).setValue(n);
+    var \uAE68\uC5B4\uB0A8 = n >= \uBD80\uD654\uC219\uC81C\uC218_;
+    if (\uAE68\uC5B4\uB0A8) {
+      sh.getRange(\uC904.\uD589, \uD3AB\uCE78_.\uD3AB\uC885\uB958).setValue(\uBB34\uC791\uC704\uD558\uB098_(\uD3AB\uC885\uB958\uBAA9\uB85D_));
+      sh.getRange(\uC904.\uD589, \uD3AB\uCE78_.\uBD80\uD654\uD55C\uB0A0).setValue(new Date2()).setNumberFormat("yyyy-MM-dd");
+    }
+    return { \uD3AB: \uD3AB\uC0C1\uD0DC_(\uB0B4\uD3AB\uC904_(\uC774\uB984)), \uC790\uB790\uB098: true, \uBD80\uD654\uD588\uB098: \uAE68\uC5B4\uB0A8 };
   }
   function \uC774\uBBF8\uBCF8\uC2DC\uD5D8_(\uC774\uB984, \uB2E8\uC5B4\uC7A5, \uBC94\uC704) {
     var \uBD24\uB2E4 = false;
@@ -2766,11 +2909,20 @@ function createLegacyEngine(dependencies) {
       t[\uC774\uB984].\uC218++;
     });
     function \uC815\uB9AC(m) {
-      return Object.keys(m).map(function(n) {
+      var \uBAA9\uB85D = Object.keys(m).map(function(n) {
         var v = m[n];
         return { \uC774\uB984: v.\uC774\uB984, \uC810\uC218: Math.round(v.\uD569 / v.\uC218 * 10) / 10 };
       }).sort(function(a, b) {
-        return b.\uC810\uC218 - a.\uC810\uC218;
+        if (b.\uC810\uC218 !== a.\uC810\uC218) return b.\uC810\uC218 - a.\uC810\uC218;
+        return a.\uC774\uB984 < b.\uC774\uB984 ? -1 : 1;
+      });
+      var \uB4F1\uC218 = 0, \uC55E = null;
+      return \uBAA9\uB85D.map(function(x, i) {
+        if (x.\uC810\uC218 !== \uC55E) {
+          \uB4F1\uC218 = i + 1;
+          \uC55E = x.\uC810\uC218;
+        }
+        return { \uC774\uB984: x.\uC774\uB984, \uC810\uC218: x.\uC810\uC218, \uB4F1\uC218 };
       });
     }
     return {
@@ -3139,6 +3291,12 @@ function createLegacyEngine(dependencies) {
         // 앞 다섯 개까지만 — 전문은 기록메모 로
         \uD2C0\uB9B0\uB354: \uCE78.\uB354
       });
+      var \uAC10 = \uAC10\uC2DC\uAC12_({ \uC774\uD0C8\uC218: x[\uAC10\uC2DC\uC5F4 - 1], \uC774\uD0C8\uCD08: x[\uAC10\uC2DC\uC5F4], \uBCF5\uC0AC\uC2DC\uB3C4: x[\uAC10\uC2DC\uC5F4 + 1] });
+      var \uC774\uBC88 = \uC2DC\uD5D8\uBAA9\uB85D[\uC2DC\uD5D8\uBAA9\uB85D.length - 1];
+      \uC774\uBC88.\uC774\uD0C8\uC218 = \uAC10[0];
+      \uC774\uBC88.\uC774\uD0C8\uCD08 = \uAC10[1];
+      \uC774\uBC88.\uBCF5\uC0AC\uC2DC\uB3C4 = \uAC10[2];
+      \uC774\uBC88.\uD655\uC778\uD544\uC694 = \uD655\uC778\uD544\uC694_(\uAC10[0], \uAC10[1], \uAC10[2]);
       if (\uCE78.\uB354) \uAE34\uC904.push(\uC2DC\uD5D8\uBAA9\uB85D[\uC2DC\uD5D8\uBAA9\uB85D.length - 1]);
     }
     var \uC804\uBB38 = {};
@@ -3315,12 +3473,12 @@ function createLegacyEngine(dependencies) {
         }
       }
       \uC904\uB4E4.forEach(function(x) {
-        if (s_(x[14]) === \uC7AC\uC2DC\uD5D8\uD45C\uC2DC) return;
-        if (\uBB34\uD6A8\uC778\uAC00_(x[14])) return;
+        var \uAC08\uB798 = \uAE30\uB85D\uAC08\uB798_(x[14]);
+        if (!\uAC08\uB798) return;
         if (!(x[0] instanceof Date2)) return;
         if (\uD55C\uC0AC\uB78C && s_(x[2]) !== s_(\uC774\uB984)) return;
-        var key = (\uD55C\uC0AC\uB78C ? "" : s_(x[2]) + "|") + s_(x[3]) + "|" + s_(x[4]);
-        var \uB0A0 = ymd_(x[0]);
+        var key = \uC644\uB8CC\uC5F4\uC1E0_(\uD55C\uC0AC\uB78C ? "" : s_(x[2]) + "|", \uCF54\uB4DC\uCE78_(x), \uAC08\uB798, s_(x[3]), s_(x[4]));
+        var \uB0A0 = \uD559\uC2B5\uB0A0_(x[0]);
         var \uC810 = Number(x[8]) || 0;
         var \uCE78 = m[key] = m[key] || {};
         if (\uCE78[\uB0A0] === void 0 || \uC810 > \uCE78[\uB0A0]) \uCE78[\uB0A0] = \uC810;
@@ -3389,7 +3547,7 @@ function createLegacyEngine(dependencies) {
   }
   function \uC219\uC81C\uB0A0\uD45C_() {
     var \uC2DC\uC791 = \uC5F0\uC18D\uC2DC\uC791\uC77C_();
-    var today = ymd_(new Date2());
+    var today = \uD559\uC2B5\uB0A0_(new Date2());
     var \uC804\uCCB4 = \uC804\uCCB4\uBA85\uB2E8_();
     var \uAD50\uC7AC\uB9F5 = \uAD50\uC7AC\uB9F5_();
     var \uBC18\uD559\uC0DD = \uBC18\uBCC4\uBA85\uB2E8_();
@@ -3413,7 +3571,7 @@ function createLegacyEngine(dependencies) {
       );
       var \uC544\uC9C1 = \uB0A0 > today;
       \uB300\uC0C1\uB4E4.forEach(function(\uC774\uB984) {
-        var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uC644\uB8CC, \uC774\uB984 + "|", \uB2E8\uC5B4\uC7A5, Number(x[2]) || 1, Number(x[3]) || 0, x.length > 11 ? x[11] : "");
+        var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uC644\uB8CC, \uC774\uB984 + "|", \uB2E8\uC5B4\uC7A5, Number(x[2]) || 1, Number(x[3]) || 0, x.length > 11 ? x[11] : "", \uC885\uB958, \uCF54\uB4DC\uCE78_(x));
         var key = \uC774\uB984;
         if (\uC544\uC9C1) {
           if (\uB2F9\uC77C\uCE58\uAE30_(\uC885\uB958)) return;
@@ -3436,7 +3594,7 @@ function createLegacyEngine(dependencies) {
     return \uD45C;
   }
   function \uC5F0\uC18D\uC138\uAE30_(\uCE78) {
-    var today = ymd_(new Date2());
+    var today = \uD559\uC2B5\uB0A0_(new Date2());
     var \uB0A0\uB4E4 = Object.keys(\uCE78 || {}).sort();
     var \uCD5C\uACE0 = 0, \uC774\uC5B4\uC9D0 = 0;
     \uB0A0\uB4E4.forEach(function(d2) {
@@ -4036,7 +4194,7 @@ function createLegacyEngine(dependencies) {
         });
       }
       if (n.\uC885\uB958 === "\uC548\uB0B8\uC544\uC774") {
-        if (!\uC548\uB0B8) \uC548\uB0B8 = \uC624\uB298\uC548\uB0B8\uC544\uC774_(\uC624\uB298);
+        if (!\uC548\uB0B8) \uC548\uB0B8 = \uC624\uB298\uC548\uB0B8\uC544\uC774_(\uD559\uC2B5\uB0A0_(\uB54C));
         if (!Object.keys(\uC548\uB0B8).length) return;
         \uBC1B\uC744 = \uBC1B\uC744.filter(function(s) {
           return \uC548\uB0B8[s.\uC774\uB984];
@@ -4061,6 +4219,206 @@ function createLegacyEngine(dependencies) {
       \uBCF4\uB0BC\uAC83.push({ \uD589: n.\uD589, \uC885\uB958: n.\uC885\uB958, \uC81C\uBAA9: n.\uC81C\uBAA9, \uB0B4\uC6A9: n.\uB0B4\uC6A9, \uB300\uC0C1: \uB300\uC0C1\uAE00, \uAD6C\uB3C5: \uBC1B\uC744 });
     });
     var \uB2F5 = { ok: true, \uC624\uB298, \uBCF4\uB0BC\uAC83, \uCC0D\uC740\uC218: \uACE0\uB978.length };
+    if (\uC6F9\uC788\uB098) {
+      \uB2F5.\uACF5\uAC1C\uD0A4 = \uD478\uC2DC\uACF5\uAC1C\uD0A4();
+      \uB2F5.\uD478\uC2DC\uBE44\uBC00\uD0A4 = s_(setting_("\uD478\uC2DC\uBE44\uBC00\uD0A4", ""));
+    }
+    return \uB2F5;
+  }
+  var \uC219\uC81C\uC608\uC57D\uCE78_ = { \uB9CC\uB4E0\uB54C: 1, \uB0A0\uC9DC: 2, \uC2DC\uAC01: 3, \uC694\uC57D: 4, \uB0B4\uC6A9: 5, \uC54C\uB9BC\uD568\uAED8: 6, \uBCF4\uB0B8\uB54C: 7, \uCF2C: 8 };
+  var \uC219\uC81C\uC608\uC57D\uBABB\uB0C4_ = "\uBABB \uB0C4";
+  function \uC219\uC81C\uC608\uC57D\uC2DC\uD2B8_() {
+    return \uBA38\uB9AC\uB9DE\uCD98\uC2DC\uD2B8_(SHEET.\uC219\uC81C\uC608\uC57D, HEADERS.\uC219\uC81C\uC608\uC57D, { 4: 320, 5: 360, 7: 260 });
+  }
+  function \uC219\uC81C\uC608\uC57D\uC904_(x, i) {
+    function \uCE78(k) {
+      return x.length >= \uC219\uC81C\uC608\uC57D\uCE78_[k] ? x[\uC219\uC81C\uC608\uC57D\uCE78_[k] - 1] : "";
+    }
+    var \uB54C = \uCE78("\uB9CC\uB4E0\uB54C") instanceof Date2 ? \uCE78("\uB9CC\uB4E0\uB54C") : null;
+    var \uB0A0\uC9DC = \uCE78("\uB0A0\uC9DC"), \uBCF4\uB0C4 = \uCE78("\uBCF4\uB0B8\uB54C");
+    var \uBCF4\uB0B8\uB54C = \uBCF4\uB0C4 instanceof Date2 ? \uC608\uC57D\uB54C\uAE00_(\uBCF4\uB0C4).slice(0, 16) : s_(\uBCF4\uB0C4);
+    var \uBABB = \uBCF4\uB0B8\uB54C.indexOf(\uC219\uC81C\uC608\uC57D\uBABB\uB0C4_);
+    return {
+      \uD589: i + 2,
+      \uD0A4: \uB54C ? String(\uB54C.getTime()) : "",
+      \uB0A0\uC9DC: \uB0A0\uC9DC instanceof Date2 ? ymd_(\uB0A0\uC9DC) : s_(\uB0A0\uC9DC),
+      \uC2DC\uAC01: \uC608\uC57D\uC2DC\uAC01\uC815\uB9AC_(\uCE78("\uC2DC\uAC01")),
+      \uC694\uC57D: s_(\uCE78("\uC694\uC57D")),
+      \uB0B4\uC6A9: s_(\uCE78("\uB0B4\uC6A9")),
+      \uC54C\uB9BC\uD568\uAED8: s_(\uCE78("\uC54C\uB9BC\uD568\uAED8")) === "O",
+      \uBCF4\uB0B8\uB54C,
+      \uBABB\uB0C4: \uBABB > -1 ? s_(\uBCF4\uB0B8\uB54C.slice(\uBABB + \uC219\uC81C\uC608\uC57D\uBABB\uB0C4_.length)).replace(/^[—:\-\s]+/, "") || "\uAE4C\uB2ED \uBAA8\uB984" : "",
+      \uCF2C: s_(\uCE78("\uCF2C")) !== "X",
+      \uB9CC\uB4E0\uB0A0: \uB54C ? ymd_(\uB54C) : ""
+    };
+  }
+  function \uC219\uC81C\uC608\uC57D\uB0B4\uC6A9_(v, \uB0A0\uC9DC) {
+    var h = v;
+    if (typeof h === "string") {
+      try {
+        h = JSON.parse(h);
+      } catch (e) {
+        h = null;
+      }
+    }
+    if (!h || typeof h !== "object" || Object.prototype.toString.call(h) === "[object Array]") return { \uBA54\uC2DC\uC9C0: "\uC219\uC81C \uB0B4\uC6A9\uC774 \uBE44\uC5C8\uC2B5\uB2C8\uB2E4." };
+    if (!s_(h.\uB2E8\uC5B4\uC7A5) && !s_(h.\uAD50\uC7AC)) return { \uBA54\uC2DC\uC9C0: "\uB2E8\uC5B4\uC7A5\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
+    if (\uBB38\uD56D\uC218\uAC12_(h.\uBB38\uD56D\uC218) === null) return { \uBA54\uC2DC\uC9C0: "\uBB38\uD56D \uC218\uB294 1\uC5D0\uC11C 200 \uC0AC\uC774\uB85C \uB123\uC5B4 \uC8FC\uC138\uC694." };
+    var \uC885\uB958 = \uC219\uC81C\uC885\uB958_(h.\uC885\uB958);
+    var \uB2F4\uC744 = {};
+    Object.keys(h).forEach(function(k) {
+      if (k !== "\uBC14\uB010\uC904\uB9CC") \uB2F4\uC744[k] = h[k];
+    });
+    \uB2F4\uC744.\uC885\uB958 = \uC885\uB958;
+    if (\uC885\uB958 === "\uAE30\uD55C" || \uC885\uB958 === "\uC2DC\uD5D8") {
+      var \uB9C8\uAC10 = s_(h.\uB9C8\uAC10\uC77C);
+      if (!\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB9C8\uAC10)) return { \uBA54\uC2DC\uC9C0: \uC885\uB958 === "\uC2DC\uD5D8" ? "\uC2DC\uD5D8 \uB0A0\uC9DC\uB97C \uACE8\uB77C \uC8FC\uC138\uC694." : "\uB9C8\uAC10\uC77C\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
+      if (\uB9C8\uAC10 < \uB0A0\uC9DC) return { \uBA54\uC2DC\uC9C0: "\uB9C8\uAC10\uC77C\uC774 \uC219\uC81C\uAC00 \uB098\uAC00\uB294 \uB0A0\uBCF4\uB2E4 \uC55E\uC785\uB2C8\uB2E4." };
+      \uB2F4\uC744.\uB9C8\uAC10\uC77C = \uB9C8\uAC10;
+    } else {
+      \uB2F4\uC744.\uB9C8\uAC10\uC77C = "";
+    }
+    return { h: \uB2F4\uC744 };
+  }
+  function \uC219\uC81C\uC608\uC57D\uC694\uC57D_(h) {
+    var \uACE0\uB978 = \uC774\uB984\uB4E4\uD480\uAE30_(h.\uD559\uC0DD\uB4E4 && h.\uD559\uC0DD\uB4E4.length ? h.\uD559\uC0DD\uB4E4 : h.\uD559\uC0DD);
+    var \uB204\uAD6C = \uACE0\uB978.length ? \uACE0\uB978.length > 2 ? \uACE0\uB978.slice(0, 2).join(", ") + " \uC678 " + (\uACE0\uB978.length - 2) + "\uBA85" : \uACE0\uB978.join(", ") : "\uAD50\uC7AC \uBC30\uC6B0\uB294 \uD559\uC0DD";
+    var \uCC45 = (s_(h.\uB2E8\uC5B4\uC7A5) || s_(h.\uAD50\uC7AC)) + (s_(h.\uCE78) ? " " + s_(h.\uCE78) : "");
+    var \uBC94\uC704 = (Number(h.\uC2DC\uC791) || 1) + "~" + (Number(h.\uB05D) || 0);
+    var \uC885\uB958 = \uC219\uC81C\uC885\uB958_(h.\uC885\uB958);
+    return [
+      \uB204\uAD6C,
+      \uCC45 + " " + \uBC94\uC704,
+      s_(h.\uC720\uD615) || "\uC2A4\uD3A0\uB9C1",
+      \uC885\uB958 + (\uC885\uB958 === "\uAE30\uD55C" || \uC885\uB958 === "\uC2DC\uD5D8" ? " (" + s_(h.\uB9C8\uAC10\uC77C) + ")" : "")
+    ].join(" \xB7 ");
+  }
+  function \uC219\uC81C\uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var \uC904\uB4E4 = [];
+    try {
+      \uC904\uB4E4 = rows_(SHEET.\uC219\uC81C\uC608\uC57D);
+    } catch (e) {
+      \uC904\uB4E4 = [];
+    }
+    var out = \uC904\uB4E4.map(\uC219\uC81C\uC608\uC57D\uC904_).filter(function(n) {
+      return n.\uB0A0\uC9DC && n.\uB0B4\uC6A9;
+    });
+    out.reverse();
+    return { ok: true, \uC608\uC57D: out, \uC624\uB298: ymd_(new Date2()) };
+  }
+  function \uC219\uC81C\uC608\uC57D\uC800\uC7A5(\uBE44\uBC88, \uD589, \uAC12) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    \uAC12 = \uAC12 || {};
+    var \uB0A0\uC9DC = s_(\uAC12.\uB0A0\uC9DC);
+    if (!\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB0A0\uC9DC)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC219\uC81C\uAC00 \uB098\uAC08 \uB0A0\uC9DC\uB97C \uACE8\uB77C \uC8FC\uC138\uC694." };
+    if (\uB0A0\uC9DC < ymd_(new Date2())) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC9C0\uB09C \uB0A0\uC9DC\uC785\uB2C8\uB2E4." };
+    var \uC2DC\uAC01 = \uC608\uC57D\uC2DC\uAC01\uC815\uB9AC_(\uAC12.\uC2DC\uAC01);
+    if (!\uC2DC\uAC01) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC2DC\uAC01 \uBAA8\uC591\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. (\uC608: 08:00)" };
+    if (!\uC608\uC57D\uC2DC\uAC01\uB418\uB098_(\uC2DC\uAC01)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC219\uC81C \uC608\uC57D\uC740 \uC544\uCE68 7\uC2DC\uBD80\uD130 \uBC24 9\uC2DC \uC0AC\uC774\uC5D0\uB9CC \uAC78 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
+    var \uB0B4\uC6A9 = \uC219\uC81C\uC608\uC57D\uB0B4\uC6A9_(\uAC12.\uB0B4\uC6A9, \uB0A0\uC9DC);
+    if (!\uB0B4\uC6A9.h) return { ok: false, \uBA54\uC2DC\uC9C0: \uB0B4\uC6A9.\uBA54\uC2DC\uC9C0 };
+    var \uC904 = [\uB0A0\uC9DC, \uC2DC\uAC01, \uC219\uC81C\uC608\uC57D\uC694\uC57D_(\uB0B4\uC6A9.h), JSON.stringify(\uB0B4\uC6A9.h), \uAC12.\uC54C\uB9BC\uD568\uAED8 ? "O" : ""];
+    var sh = \uC219\uC81C\uC608\uC57D\uC2DC\uD2B8_();
+    if (!s_(\uD589)) {
+      sh.appendRow([new Date2()].concat(\uC904, ["", ""]));
+      var \uC0C8 = sh.getLastRow();
+      sh.getRange(\uC0C8, 1).setNumberFormat("yyyy-MM-dd HH:mm");
+      sh.getRange(\uC0C8, \uC219\uC81C\uC608\uC57D\uCE78_.\uB0A0\uC9DC, 1, 2).setNumberFormat("@");
+      return { ok: true, \uC608\uC57D: \uC219\uC81C\uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
+    }
+    var n = \uC608\uC57D\uC904\uD655\uC778_(sh, \uD589, \uAC12.\uD0A4);
+    if (!n) return { ok: false, \uBA54\uC2DC\uC9C0: "\uADF8 \uC0AC\uC774 \uC608\uC57D\uC774 \uBC14\uB00C\uC5C8\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C \uBD88\uB7EC\uC640 \uC8FC\uC138\uC694." };
+    var \uC804 = \uC219\uC81C\uC608\uC57D\uC904_(sh.getRange(n, 1, 1, HEADERS.\uC219\uC81C\uC608\uC57D.length).getValues()[0], n - 2);
+    sh.getRange(n, \uC219\uC81C\uC608\uC57D\uCE78_.\uB0A0\uC9DC, 1, 2).setNumberFormat("@");
+    sh.getRange(n, \uC219\uC81C\uC608\uC57D\uCE78_.\uB0A0\uC9DC, 1, \uC904.length).setValues([\uC904]);
+    if (\uC804.\uB0A0\uC9DC !== \uB0A0\uC9DC || \uC804.\uC2DC\uAC01 !== \uC2DC\uAC01 || \uC804.\uBABB\uB0C4) sh.getRange(n, \uC219\uC81C\uC608\uC57D\uCE78_.\uBCF4\uB0B8\uB54C).setValue("");
+    return { ok: true, \uC608\uC57D: \uC219\uC81C\uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
+  }
+  function \uC219\uC81C\uC608\uC57D\uC9C0\uC6B0\uAE30(\uBE44\uBC88, \uD589, \uD0A4) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var sh = \uC219\uC81C\uC608\uC57D\uC2DC\uD2B8_();
+    var n = \uC608\uC57D\uC904\uD655\uC778_(sh, \uD589, \uD0A4);
+    if (!n) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC774\uBBF8 \uC9C0\uC6CC\uC9C4 \uC608\uC57D\uC785\uB2C8\uB2E4." };
+    sh.deleteRow(n);
+    return { ok: true, \uC608\uC57D: \uC219\uC81C\uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
+  }
+  function \uC219\uC81C\uC608\uC57D\uCF1C\uAE30(\uBE44\uBC88, \uD589, \uCF2C, \uD0A4) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var sh = \uC219\uC81C\uC608\uC57D\uC2DC\uD2B8_();
+    var n = \uC608\uC57D\uC904\uD655\uC778_(sh, \uD589, \uD0A4);
+    if (!n) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC774\uBBF8 \uC9C0\uC6CC\uC9C4 \uC608\uC57D\uC785\uB2C8\uB2E4." };
+    sh.getRange(n, \uC219\uC81C\uC608\uC57D\uCE78_.\uCF2C).setValue(\uCF2C ? "O" : "X");
+    return { ok: true, \uC608\uC57D: \uC219\uC81C\uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
+  }
+  function \uC608\uC57D\uC219\uC81C_(\uC9C0\uAE08) {
+    var \uBE48\uB2F5 = { ok: true, \uB0B8\uAC83: [], \uBCF4\uB0BC\uAC83: [], \uCC0D\uC740\uC218: 0 };
+    var sh = ss_().getSheetByName(SHEET.\uC219\uC81C\uC608\uC57D);
+    if (!sh) return \uBE48\uB2F5;
+    var \uB54C = new Date2(Number(\uC9C0\uAE08) || new Date2().getTime());
+    var \uAE00 = \uC608\uC57D\uB54C\uAE00_(\uB54C);
+    var \uC624\uB298 = \uAE00.slice(0, 10), \uC9C0\uAE08\uC2DC\uAC01 = \uAE00.slice(11, 16), \uCC0D\uC744 = \uAE00.slice(0, 16);
+    \uBE48\uB2F5.\uC624\uB298 = \uC624\uB298;
+    var \uACE0\uB978 = [];
+    rows_(SHEET.\uC219\uC81C\uC608\uC57D).forEach(function(x, i) {
+      var n = \uC219\uC81C\uC608\uC57D\uC904_(x, i);
+      if (!n.\uCF2C || n.\uBCF4\uB0B8\uB54C || !n.\uB0A0\uC9DC || !n.\uC2DC\uAC01 || !n.\uB0B4\uC6A9) return;
+      if (n.\uB0A0\uC9DC > \uC624\uB298 || n.\uB0A0\uC9DC === \uC624\uB298 && n.\uC2DC\uAC01 > \uC9C0\uAE08\uC2DC\uAC01) return;
+      \uACE0\uB978.push(n);
+    });
+    if (!\uACE0\uB978.length) return \uBE48\uB2F5;
+    \uACE0\uB978.forEach(function(n) {
+      sh.getRange(n.\uD589, \uC219\uC81C\uC608\uC57D\uCE78_.\uBCF4\uB0B8\uB54C).setNumberFormat("@").setValue(\uCC0D\uC744);
+    });
+    var \uB0B8\uAC83 = [], \uBCF4\uB0BC\uAC83 = [], \uC6F9\uC788\uB098 = false, \uAD6C\uB3C5 = null;
+    \uACE0\uB978.forEach(function(n) {
+      var r;
+      if (n.\uB0A0\uC9DC < \uC624\uB298) r = { ok: false, \uBA54\uC2DC\uC9C0: n.\uB0A0\uC9DC + " \uC5D0 \uB098\uAC14\uC5B4\uC57C \uD588\uB294\uB370 \uADF8\uB0A0 \uBABB \uB3CC\uC558\uC2B5\uB2C8\uB2E4" };
+      else {
+        try {
+          var h = JSON.parse(n.\uB0B4\uC6A9);
+          h.\uBC14\uB010\uC904\uB9CC = true;
+          r = \uC77D\uB294\uB3D9\uC548_(function() {
+            return \uC219\uC81C\uB4F1\uB85D\uC548_(h);
+          });
+        } catch (e) {
+          r = { ok: false, \uBA54\uC2DC\uC9C0: String(e && e.message || e) };
+        }
+      }
+      if (!r || !r.ok) {
+        var \uAE4C\uB2ED = s_(r && r.\uBA54\uC2DC\uC9C0) || "\uC219\uC81C\uB97C \uB0B4\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4";
+        sh.getRange(n.\uD589, \uC219\uC81C\uC608\uC57D\uCE78_.\uBCF4\uB0B8\uB54C).setNumberFormat("@").setValue(\uCC0D\uC744 + " " + \uC219\uC81C\uC608\uC57D\uBABB\uB0C4_ + " \u2014 " + \uAE4C\uB2ED);
+        \uB0B8\uAC83.push({ \uD589: n.\uD589, \uB410\uB098: false, \uC694\uC57D: n.\uC694\uC57D, \uBA54\uC2DC\uC9C0: \uAE4C\uB2ED });
+        return;
+      }
+      \uB0B8\uAC83.push({ \uD589: n.\uD589, \uB410\uB098: true, \uC694\uC57D: n.\uC694\uC57D, \uB300\uC0C1: r.\uB300\uC0C1 || 0 });
+      if (!n.\uC54C\uB9BC\uD568\uAED8) return;
+      var \uC219 = r.\uC219\uC81C || {};
+      var \uC774\uB984\uB4E4 = \uC219\uC81C\uB300\uC0C1_({ \uBC18: "", \uB2E8\uC5B4\uC7A5: s_(\uC219.\uB2E8\uC5B4\uC7A5), \uD559\uC0DD: \uC219.\uD559\uC0DD || "" }, \uC804\uCCB4\uBA85\uB2E8_(), \uAD50\uC7AC\uB9F5_(), \uBC18\uBCC4\uBA85\uB2E8_());
+      if (!\uC774\uB984\uB4E4.length) return;
+      if (!\uAD6C\uB3C5) \uAD6C\uB3C5 = \uAD6C\uB3C5\uBAA8\uC73C\uAE30_(null);
+      var \uAC78\uB7EC = {};
+      \uC774\uB984\uB4E4.forEach(function(x) {
+        \uAC78\uB7EC[x] = 1;
+      });
+      var \uBC1B\uC744 = \uAD6C\uB3C5.filter(function(s) {
+        return \uAC78\uB7EC[s.\uC774\uB984];
+      });
+      if (!\uBC1B\uC744.length) return;
+      if (\uBC1B\uC744.some(function(s) {
+        return s.\uC8FC\uC18C.indexOf("fcm:") !== 0;
+      })) \uC6F9\uC788\uB098 = true;
+      var \uCC45 = s_(\uC219.\uB2E8\uC5B4\uC7A5) + (s_(\uC219.\uCE78) ? " " + s_(\uC219.\uCE78) : "");
+      \uBCF4\uB0BC\uAC83.push({
+        \uD589: n.\uD589,
+        \uC885\uB958: "\uC219\uC81C\uC608\uC57D",
+        \uC81C\uBAA9: "\uC219\uC81C \uB098\uC654\uC5B4\uC694",
+        \uB0B4\uC6A9: \uCC45 + " " + (Number(\uC219.\uC2DC\uC791) || 1) + "~" + (Number(\uC219.\uB05D) || 0) + " \xB7 " + (s_(\uC219.\uC720\uD615) || "\uC2A4\uD3A0\uB9C1"),
+        \uB300\uC0C1: "\uC219\uC81C \uBC1B\uB294 \uC544\uC774",
+        \uAD6C\uB3C5: \uBC1B\uC744
+      });
+    });
+    var \uB2F5 = { ok: true, \uC624\uB298, \uB0B8\uAC83, \uBCF4\uB0BC\uAC83, \uCC0D\uC740\uC218: \uACE0\uB978.length };
     if (\uC6F9\uC788\uB098) {
       \uB2F5.\uACF5\uAC1C\uD0A4 = \uD478\uC2DC\uACF5\uAC1C\uD0A4();
       \uB2F5.\uD478\uC2DC\uBE44\uBC00\uD0A4 = s_(setting_("\uD478\uC2DC\uBE44\uBC00\uD0A4", ""));
@@ -4264,7 +4622,7 @@ function createLegacyEngine(dependencies) {
   function \uBB38\uC7A5\uC9C4\uB3C4(\uC774\uB984, \uB2E8\uC5B4\uC7A5) {
     var b = \uB2E8\uC5B4\uC7A5\uCC3E\uAE30_(\uB2E8\uC5B4\uC7A5);
     if (!b || !\uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(b.\uC885\uB958)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBB38\uC7A5 \uBB36\uC74C\uC744 \uCC3E\uC744 \uC218 \uC5C6\uC5B4\uC694." };
-    var \uC9C4\uB3C4 = 0, \uC624\uB298 = 0, \uC624\uB298\uB0A0 = ymd_(new Date2()), \uC904\uB4E4 = [];
+    var \uC9C4\uB3C4 = 0, \uC624\uB298 = 0, \uC624\uB298\uB0A0 = \uD559\uC2B5\uB0A0_(new Date2()), \uC904\uB4E4 = [];
     try {
       \uC904\uB4E4 = rows_(SHEET.\uBB38\uC7A5\uAE30\uB85D);
     } catch (e) {
@@ -4278,7 +4636,7 @@ function createLegacyEngine(dependencies) {
       if (!m) return;
       var \uCC98\uC74C = Number(m[1]), \uB05D = Number(m[2]);
       if (\uB05D > \uC9C4\uB3C4) \uC9C4\uB3C4 = \uB05D;
-      var \uB0A0 = x[0] instanceof Date2 ? ymd_(x[0]) : s_(x[0]).slice(0, 10);
+      var \uB0A0 = x[0] instanceof Date2 ? \uD559\uC2B5\uB0A0_(x[0]) : s_(x[0]).slice(0, 10);
       if (\uB0A0 === \uC624\uB298\uB0A0 && \uB05D >= \uCC98\uC74C) \uC624\uB298 += \uB05D - \uCC98\uC74C + 1;
     });
     var \uBAA9\uB85D = \uB2E8\uC5B4\uC7A5\uBAA9\uB85D().filter(function(x) {
@@ -4295,6 +4653,7 @@ function createLegacyEngine(dependencies) {
       sh.getRange(1, 1, 1, HEADERS.\uBB38\uC7A5\uAE30\uB85D.length).setValues([HEADERS.\uBB38\uC7A5\uAE30\uB85D]).setFontWeight("bold").setBackground("#EFF3F9");
       sh.setFrozenRows(1);
     }
+    if (\uB9CC\uB4E4\uAE4C) \uAC10\uC2DC\uBA38\uB9AC\uD655\uBCF4_(sh, HEADERS.\uBB38\uC7A5\uAE30\uB85D.indexOf("\uC774\uD0C8\uC218") + 1);
     return sh;
   }
   function \uBB38\uC7A5\uAE30\uB85D\uC800\uC7A5(p) {
@@ -4329,7 +4688,7 @@ function createLegacyEngine(dependencies) {
         \uD2C0\uB9B0.join(" | "),
         \uC720\uD615 === \uBB38\uC7A5\uD615\uC2DD\uC720\uD615 ? \uBB38\uC7A5\uD615\uC2DD\uAD6C\uBD84_ : p.\uC219\uC81C\uC5EC\uBD80 ? "" : "\uC5F0\uC2B5",
         ""
-      ]);
+      ].concat(\uAC10\uC2DC\uAC12_(p)));
       return { ok: true };
     } catch (e) {
       return { ok: false, \uBA54\uC2DC\uC9C0: String(e) };
@@ -4526,13 +4885,35 @@ function createLegacyEngine(dependencies) {
     \uC7AC.getRange(\uC7AC.getLastRow() + 1, 1, 1, 5).setValues([[new Date2(), s_(\uC774\uB984), s_(x[1]), \uB0B8\uB54C, Number(\uBA87) || 1]]);
     return { ok: true, \uC219\uC81C\uBAA9\uB85D: \uC804\uCCB4\uC219\uC81C() };
   }
-  function \uAE30\uB85D\uCC3E\uAE30_(\uB9F5, \uC774\uB984\uC55E, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78) {
+  function \uAE30\uB85D\uCC3E\uAE30_(\uB9F5, \uC774\uB984\uC55E, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uC885\uB958, \uCF54\uB4DC) {
+    if (s_(\uCF54\uB4DC)) {
+      var \uADF8\uC219\uC81C = \uB9F5[\uC644\uB8CC\uC5F4\uC1E0_(\uC774\uB984\uC55E, s_(\uCF54\uB4DC))];
+      if (\uADF8\uC219\uC81C) return \uADF8\uC219\uC81C;
+    }
+    var \uAC08\uB798 = \uC219\uC81C\uAC08\uB798_(\uC885\uB958);
     var \uC774\uB984\uB4E4 = s_(\uCE78) ? [s_(\uCE78) + " " + (Number(\uC2DC\uC791) || 1) + "~" + (Number(\uB05D) || 0)] : \uBC94\uC704\uC774\uB984\uB4E4_(\uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D);
     for (var i = 0; i < \uC774\uB984\uB4E4.length; i++) {
-      var v = \uB9F5[\uC774\uB984\uC55E + \uB2E8\uC5B4\uC7A5 + "|" + \uC774\uB984\uB4E4[i]];
+      var v = \uB9F5[\uC644\uB8CC\uC5F4\uC1E0_(\uC774\uB984\uC55E, "", \uAC08\uB798, \uB2E8\uC5B4\uC7A5, \uC774\uB984\uB4E4[i])];
       if (v) return v;
     }
     return null;
+  }
+  function \uC644\uB8CC\uC5F4\uC1E0_(\uC774\uB984\uC55E, \uCF54\uB4DC, \uAC08\uB798, \uB2E8\uC5B4\uC7A5, \uBC94\uC704) {
+    return \uCF54\uB4DC ? \uC774\uB984\uC55E + "#" + \uCF54\uB4DC : \uC774\uB984\uC55E + \uAC08\uB798 + "|" + \uB2E8\uC5B4\uC7A5 + "|" + \uBC94\uC704;
+  }
+  function \uAE30\uB85D\uAC08\uB798_(\uAD6C\uBD84) {
+    var g = s_(\uAD6C\uBD84);
+    if (g === \uC7AC\uC2DC\uD5D8\uD45C\uC2DC || \uBB34\uD6A8\uC778\uAC00_(g)) return null;
+    if (g === \uBCF4\uCDA9\uD45C\uC2DC) return "\uBCF4\uCDA9";
+    if (g === \uC2DC\uD5D8\uD45C\uC2DC) return "\uC2DC\uD5D8";
+    return "\uC219\uC81C";
+  }
+  function \uC219\uC81C\uAC08\uB798_(\uC885\uB958) {
+    var k = \uC219\uC81C\uC885\uB958_(\uC885\uB958);
+    return k === "\uBCF4\uCDA9" || k === "\uC2DC\uD5D8" ? k : "\uC219\uC81C";
+  }
+  function \uCF54\uB4DC\uCE78_(x) {
+    return s_(x && x.length >= \uC219\uC81C\uCF54\uB4DC\uC5F4 ? x[\uC219\uC81C\uCF54\uB4DC\uC5F4 - 1] : "");
   }
   function \uC219\uC81C\uC885\uB958_(v) {
     var t = s_(v);
@@ -4626,7 +5007,7 @@ function createLegacyEngine(dependencies) {
         if (\uB2E8\uACC4 === "\uC2DC\uD5D8" && \uC0C1.\uC751\uC2DC\uC218 && !\uC0C1.\uB0A8\uC740\uC751\uC2DC) \uB9C9\uD78C\uC0AC\uB78C.push(\uC774\uB984);
         return;
       }
-      var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uC644\uB8CC, \uC774\uB984 + "|", \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, x.length > 11 ? x[11] : "");
+      var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uC644\uB8CC, \uC774\uB984 + "|", \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, x.length > 11 ? x[11] : "", \uC885\uB958, \uCF54\uB4DC\uCE78_(x));
       if (\uD55C\uBC88\uB9CC_(\uC885\uB958)) {
         var \uBCF8\uAC83 = \uD47C\uAC83_(\uB0A0\uB4E4, \uC885\uB958, \uB4F1\uB85D, \uD310\uB2E8\uB0A0, 0);
         if (\uBCF8\uAC83) \uC810\uC218\uB4E4.push(Number(\uBCF8\uAC83.\uC810\uC218) || 0);
@@ -4793,6 +5174,15 @@ function createLegacyEngine(dependencies) {
     var \uD559\uC0DD = \uAD50\uC7AC\uD559\uC0DD_(\uAD50\uC7AC);
     return { ok: true, \uAD50\uC7AC: s_(\uAD50\uC7AC), \uC778\uC6D0: \uD559\uC0DD.length, \uD559\uC0DD };
   }
+  function \uC219\uC81C\uCF54\uB4DC\uB9CC\uB4E4\uAE30_(\uB54C) {
+    var \uAE00 = "abcdefghijklmnopqrstuvwxyz0123456789", \uAF2C\uB9AC = "";
+    for (var i = 0; i < 4; i++) \uAF2C\uB9AC += \uAE00.charAt(Math.floor(Math.random() * \uAE00.length));
+    return "h" + (\uB54C instanceof Date2 ? \uB54C.getTime() : Date2.now()) + \uAF2C\uB9AC;
+  }
+  function \uC219\uC81C\uCF54\uB4DC\uAC12_(v) {
+    var t = s_(v);
+    return /^[0-9A-Za-z]{1,40}$/.test(t) ? t : "";
+  }
   function \uC219\uC81C\uB4F1\uB85D(\uBE44\uBC88, h) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false };
     return \uC77D\uB294\uB3D9\uC548_(function() {
@@ -4814,6 +5204,7 @@ function createLegacyEngine(dependencies) {
       return { ok: false, \uBA54\uC2DC\uC9C0: "\u201C" + \uB2E8\uC5B4\uC7A5 + "\u201D \uC744(\uB97C) \uBC30\uC6B0\uB294 \uD559\uC0DD\uC774 \uC5C6\uC2B5\uB2C8\uB2E4. \uD559\uC0DD \uBA85\uB2E8\uC5D0\uC11C \uAD50\uC7AC\uB97C \uBA3C\uC800 \uC8FC\uC2DC\uAC70\uB098, \uBC1B\uC744 \uD559\uC0DD\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
     }
     var sh = sheet_(SHEET.\uC219\uC81C);
+    var \uC9C0\uAE08 = new Date2();
     var \uC904 = [[
       "",
       \uB2E8\uC5B4\uC7A5,
@@ -4821,7 +5212,7 @@ function createLegacyEngine(dependencies) {
       Number(h.\uB05D) || 0,
       s_(h.\uC720\uD615) || "\uC2A4\uD3A0\uB9C1",
       \uB9C8\uAC10,
-      new Date2(),
+      \uC9C0\uAE08,
       \uACE0\uB978.join(", "),
       \uC885\uB958,
       s_(h.\uC218\uC5C5),
@@ -4838,8 +5229,10 @@ function createLegacyEngine(dependencies) {
       // 외우기분 — 비면 외우기 없이 바로 시험
       "",
       // 학부모숨김
-      \uBB38\uD56D\uC218
+      \uBB38\uD56D\uC218,
       // 문항수 — 비면 범위 전부
+      \uC219\uC81C\uCF54\uB4DC\uB9CC\uB4E4\uAE30_(\uC9C0\uAE08)
+      // 숙제코드 — 줄마다 새로. 숙제수정은 안 건드린다
     ]];
     \uC219\uC81C\uCE78\uD655\uBCF4_(sh);
     var lock = null;
@@ -4852,14 +5245,14 @@ function createLegacyEngine(dependencies) {
     var \uC0C8\uD589;
     try {
       \uC0C8\uD589 = sh.getLastRow() + 1;
-      sh.getRange(\uC0C8\uD589, 1, 1, 19).setValues(\uC904);
+      sh.getRange(\uC0C8\uD589, 1, 1, 20).setValues(\uC904);
     } finally {
       if (lock) try {
         lock.releaseLock();
       } catch (e) {
       }
     }
-    var \uC801\uD78C = sh.getRange(\uC0C8\uD589, 1, 1, 19).getValues()[0];
+    var \uC801\uD78C = sh.getRange(\uC0C8\uD589, 1, 1, 20).getValues()[0];
     var \uB2F5 = { ok: true, \uAC1C\uC218: 1, \uB300\uC0C1: \uACE0\uB978.length || \uAD50\uC7AC\uD559\uC0DD_(\uB2E8\uC5B4\uC7A5).length, \uC219\uC81C: \uC0C8\uC219\uC81C\uC904_(\uC801\uD78C, \uC0C8\uD589) };
     if (!h.\uBC14\uB010\uC904\uB9CC) \uB2F5.\uC219\uC81C\uBAA9\uB85D = \uC804\uCCB4\uC219\uC81C();
     return \uB2F5;
@@ -6543,6 +6936,42 @@ function createLegacyEngine(dependencies) {
     }
     return { ok: true, \uAC1C\uC218: n };
   }
+  var \uD559\uC0DD\uBC88\uD638\uC5F4 = 12;
+  function \uD559\uC0DD\uBC88\uD638\uCE78\uD655\uBCF4_() {
+    var sh = \uD559\uBD80\uBAA8\uCE78\uD655\uBCF4_();
+    if (typeof sh.getMaxColumns === "function" && sh.getMaxColumns() < \uD559\uC0DD\uBC88\uD638\uC5F4) {
+      sh.insertColumnsAfter(sh.getMaxColumns(), \uD559\uC0DD\uBC88\uD638\uC5F4 - sh.getMaxColumns());
+    }
+    var \uCE78 = sh.getRange(1, \uD559\uC0DD\uBC88\uD638\uC5F4);
+    if (s_(\uCE78.getValue()) === "") \uCE78.setValue("\uD559\uC0DD\uBC88\uD638").setFontWeight("bold").setBackground("#EFF3F9");
+    return sh;
+  }
+  function \uD559\uC0DD\uBC88\uD638\uC0C8\uB85C_(\uC4F0\uC778) {
+    for (var i = 0; i < 50; i++) {
+      var hex = String(Utilities.getUuid()).replace(/[^0-9a-fA-F]/g, "").toLowerCase().slice(0, 12);
+      while (hex.length < 12) hex += Math.floor(Math.random() * 16).toString(16);
+      var \uBC88\uD638 = "s_" + hex;
+      if (!\uC4F0\uC778[\uBC88\uD638]) return \uBC88\uD638;
+    }
+    throw new Error("\uD559\uC0DD\uBC88\uD638\uB97C \uB9CC\uB4E4\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694.");
+  }
+  function \uD559\uC0DD\uBC88\uD638\uCC44\uC6B0\uAE30(\uBE44\uBC88) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false };
+    var \uC904\uB4E4 = rows_(SHEET.\uD559\uC0DD), \uC4F0\uC778 = {}, \uBE48 = [];
+    \uC904\uB4E4.forEach(function(x, i) {
+      var \uBC88\uD638 = x.length >= \uD559\uC0DD\uBC88\uD638\uC5F4 ? s_(x[\uD559\uC0DD\uBC88\uD638\uC5F4 - 1]) : "";
+      if (\uBC88\uD638) \uC4F0\uC778[\uBC88\uD638] = 1;
+      else if (s_(x[1])) \uBE48.push(i + 2);
+    });
+    if (!\uBE48.length) return { ok: true, \uAC1C\uC218: 0 };
+    var sh = \uD559\uC0DD\uBC88\uD638\uCE78\uD655\uBCF4_();
+    \uBE48.forEach(function(\uD589) {
+      var \uBC88\uD638 = \uD559\uC0DD\uBC88\uD638\uC0C8\uB85C_(\uC4F0\uC778);
+      \uC4F0\uC778[\uBC88\uD638] = 1;
+      sh.getRange(\uD589, \uD559\uC0DD\uBC88\uD638\uC5F4).setValue(\uBC88\uD638);
+    });
+    return { ok: true, \uAC1C\uC218: \uBE48.length };
+  }
   function \uD559\uBD80\uBAA8\uD55C\uB9C8\uB514(\uBE44\uBC88, \uC774\uB984, \uAE00) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
     \uC774\uB984 = s_(\uC774\uB984);
@@ -6711,6 +7140,10 @@ function createLegacyEngine(dependencies) {
     scheduledNotices(now) {
       \uC77D\uC740\uAC83_ = null;
       return \uC608\uC57D\uC54C\uB9BC_(now);
+    },
+    scheduledHomework(now) {
+      \uC77D\uC740\uAC83_ = null;
+      return \uC608\uC57D\uC219\uC81C_(now);
     },
     dropDeadPushes(addresses) {
       return \uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30_(addresses);
@@ -6881,6 +7314,7 @@ var \uBE44\uBC00\uC5F4 = 6;
 var \uBCF4\uAD00\uC77C\uC218 = 30;
 var \uD558\uB8E8 = 864e5;
 var \uBE44\uBC00\uCE78\uB4E4 = { \uD559\uC0DD: [3, 9] };
+var \uBABB\uACE0\uCE60\uCE78 = { \uD559\uC0DD: ["\uD559\uC0DD\uBC88\uD638"] };
 var \uB0A0\uC9DC\uBA38\uB9AC = /* @__PURE__ */ new Set(["\uC2DC\uAC01", "\uB0A0\uC9DC", "\uB4F1\uB85D\uC2DC\uAC01", "\uB9C8\uAC10\uC77C", "\uCF20\uB54C", "\uB9CC\uB4E0\uB54C", "\uB05D\uB098\uB294\uB0A0", "\uD559\uBD80\uBAA8\uB9C8\uC9C0\uB9C9", "\uC9C0\uC6B4\uB54C"]);
 var \uCDA9\uB3CC = class extends Error {
   constructor(\uBA54\uC2DC\uC9C0) {
@@ -6955,6 +7389,7 @@ function \uCE78\uACE0\uCE58\uAE30(store, { \uD45C, \uD589, \uC5F4, \uC804\uC904,
   if (\uD589 > sheet.getMaxRows()) sheet.maxRows = \uD589;
   if (\uC5F4 > sheet.getMaxColumns()) sheet.maxColumns = \uC5F4;
   const \uBA38\uB9AC = String(sheet.getRange(1, \uC5F4).getValue() ?? "").trim();
+  if (\uBABB\uACE0\uCE60\uCE78[\uD45C]?.includes(\uBA38\uB9AC)) throw new Error("\uC774 \uCE78\uC740 \uACE0\uCE60 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.");
   const \uC804 = sheet.getRange(\uD589, \uC5F4).getValue();
   const \uD6C4 = \uAC12\uB9DE\uCD94\uAE30(\uC804, \uAC12, \uBA38\uB9AC);
   sheet.getRange(\uD589, \uC5F4).setValue(\uD6C4);
@@ -7080,6 +7515,12 @@ async function auxiliary(user, fn, args) {
 var \uB2E4\uC2DC\uBCF4\uB0BC\uCF54\uB4DC = /* @__PURE__ */ new Set(["aborted", "failed-precondition", "unavailable", "deadline-exceeded", "resource-exhausted"]);
 var \uC694\uCCAD\uBC88\uD638\uAF34 = /^[0-9A-Za-z-]{8,80}$/;
 var \uC870\uAC01\uD45C\uB4E4 = ["\uAE30\uB85D", "\uBB38\uC7A5\uAE30\uB85D"];
+var \uACC1\uD45C\uB4E4 = ["\uD3AB"];
+var \uACC1\uBE80\uB2F5 = (answer) => {
+  if (!answer || typeof answer !== "object") return answer;
+  const { \uD3AB, \uC790\uB790\uB098, \uBD80\uD654\uD588\uB098, ...\uB098\uBA38\uC9C0 } = answer;
+  return \uB098\uBA38\uC9C0;
+};
 var \uC870\uAC01\uBAA8\uC744\uC218 = 50;
 var \uC870\uAC01\uACBD\uB85C = (id) => `tables/${id}/appends`;
 var \uC870\uAC01\uBD99\uC774\uAE30 = (table, pieces) => {
@@ -7098,12 +7539,13 @@ var \uC790\uB8CC\uD568\uC218 = { __\uC790\uB8CC\uC77D\uAE30: \uC790\uB8CC\uC77D\
 var \uB2E4\uB9AC\uD568\uC218 = {
   __\uC6D4\uC2DC\uC0C1: (engine) => engine.monthly(),
   __\uC608\uC57D\uC54C\uB9BC: (engine, args) => engine.scheduledNotices(args[0]),
+  __\uC608\uC57D\uC219\uC81C: (engine, args) => engine.scheduledHomework(args[0]),
   __\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30: (engine, args) => engine.dropDeadPushes(args[0]),
   __\uC54C\uB9BC\uAC70\uB9AC: (engine, args) => engine.noticeTargets(args[0], args[1], args[2], args[3]),
   __\uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30: (engine, args) => engine.writeNoticeLog(args[0])
 };
-var \uB2E4\uB9AC\uB9CC = ["__\uC608\uC57D\uC54C\uB9BC", "__\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30", "__\uC54C\uB9BC\uAC70\uB9AC", "__\uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30"];
-var \uC801\uC744\uB2F5 = (fn, answer) => ["__\uC608\uC57D\uC54C\uB9BC", "__\uC54C\uB9BC\uAC70\uB9AC"].includes(fn) && answer && answer.\uD478\uC2DC\uBE44\uBC00\uD0A4 ? { ...answer, \uD478\uC2DC\uBE44\uBC00\uD0A4: "(\uBE8C)" } : answer;
+var \uB2E4\uB9AC\uB9CC = ["__\uC608\uC57D\uC54C\uB9BC", "__\uC608\uC57D\uC219\uC81C", "__\uC8FD\uC740\uAD6C\uB3C5\uC9C0\uC6B0\uAE30", "__\uC54C\uB9BC\uAC70\uB9AC", "__\uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30"];
+var \uC801\uC744\uB2F5 = (fn, answer) => ["__\uC608\uC57D\uC54C\uB9BC", "__\uC608\uC57D\uC219\uC81C", "__\uC54C\uB9BC\uAC70\uB9AC"].includes(fn) && answer && answer.\uD478\uC2DC\uBE44\uBC00\uD0A4 ? { ...answer, \uD478\uC2DC\uBE44\uBC00\uD0A4: "(\uBE8C)" } : answer;
 var \uC790\uB8CC\uD558\uAE30 = (\uC77C, store, args, how) => {
   try {
     return { ok: true, \uC790\uB8CC: pack(\uC77C(store, args[0] ?? {}, how)) };
@@ -7129,12 +7571,12 @@ var FirestoreRepository = class {
     if (!d.exists()) throw new Error("\uC790\uB8CC \uC774\uAD00 \uC900\uBE44\uAC00 \uB05D\uB098\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.");
     return d.data();
   }
-  async load(catalog, reader, { publicOnly = false, fresh = false } = {}) {
+  async load(catalog, reader, { publicOnly = false, fresh = false, also = [] } = {}) {
     const role = this.identity.role;
     const appends = /* @__PURE__ */ new Map();
     const tables = await Promise.all(catalog.tables.map(async (meta) => {
       const isPublic = ["\uD559\uC0DD", "\uC124\uC815", "\uB2E8\uC5B4\uC7A5\uBAA9\uB85D", "\uACF5\uC9C0"].includes(meta.name) || meta.name.startsWith("\uB2E8\uC5B4_");
-      if (publicOnly && !isPublic) return null;
+      if (publicOnly && !isPublic && !also.includes(meta.name)) return null;
       const id = sheetId(meta.name), version = meta.version;
       const fetchData = async (section, expected) => {
         const key = section + "/" + id;
@@ -7207,7 +7649,7 @@ var FirestoreRepository = class {
       throw e;
     }
     Object.assign(this.identity, { role: "student", credentialId: match.id, row: match.row, name: match.name, pin: cleanPin });
-    const store = await this.load(catalog, (ref) => getDoc(ref), { publicOnly: true });
+    const store = await this.load(catalog, (ref) => getDoc(ref), { publicOnly: true, also: \uACC1\uD45C\uB4E4 });
     return jsonResult(createRuntime(store).call("\uB85C\uADF8\uC778", [name, pin]));
   }
   async teacherLogin(pin) {
@@ -7227,6 +7669,11 @@ var FirestoreRepository = class {
       await this.call("\uD559\uBD80\uBAA8\uD1A0\uD070\uCC44\uC6B0\uAE30", [String(pin ?? "").trim()]);
     } catch (e) {
       console.warn("\uD559\uBD80\uBAA8 \uD1A0\uD070 \uCC44\uC6B0\uAE30\uB97C \uB2E4\uC74C\uC73C\uB85C \uBBF8\uB8F9\uB2C8\uB2E4", e);
+    }
+    try {
+      await this.call("\uD559\uC0DD\uBC88\uD638\uCC44\uC6B0\uAE30", [String(pin ?? "").trim()]);
+    } catch (e) {
+      console.warn("\uD559\uC0DD\uBC88\uD638 \uCC44\uC6B0\uAE30\uB97C \uB2E4\uC74C\uC73C\uB85C \uBBF8\uB8F9\uB2C8\uB2E4", e);
     }
     return { ok: true };
   }
@@ -7349,13 +7796,28 @@ var FirestoreRepository = class {
     if (\uC790\uB8CC\uC77C && !result.ok) return result;
     if (!store.deleted.size && !store.getSheets().some((s) => s.dirty)) return jsonResult(result);
     const dirty = store.getSheets().filter((s) => s.dirty);
-    const appendRows = !\uC790\uB8CC\uC77C && !store.deleted.size && dirty.length === 1 && \uC870\uAC01\uD45C\uB4E4.includes(dirty[0].name) ? dirty[0].appendedRows() : null;
+    const \uBD99\uC778\uD45C = !\uC790\uB8CC\uC77C && !store.deleted.size ? dirty.filter((s) => \uC870\uAC01\uD45C\uB4E4.includes(s.name) && s.appendedRows()) : [];
+    let appendRows = \uBD99\uC778\uD45C.length === 1 && dirty.length === 1 ? \uBD99\uC778\uD45C[0].appendedRows() : null;
+    let \uC904\uB2F5 = result;
+    if (\uBD99\uC778\uD45C.length === 1 && dirty.length > 1 && dirty.every((s) => s === \uBD99\uC778\uD45C[0] || \uACC1\uD45C\uB4E4.includes(s.name))) {
+      try {
+        return await this.\uACC1\uC4F0\uAE30(fn, \uBD99\uC778\uD45C[0].name, execute, requestId, started);
+      } catch (error) {
+        if (error?.code !== "permission-denied") {
+          if (\uB2E4\uC2DC\uBCF4\uB0BC\uCF54\uB4DC.has(error?.code)) error.\uB2E4\uC2DC\uBCF4\uB0B4\uB3C4\uB428 = true;
+          throw error;
+        }
+        console.warn("\uACC1\uD45C(" + \uACC1\uD45C\uB4E4.join(",") + ")\uC5D0 \uBABB \uC368\uC11C \uAE30\uB85D\uB9CC \uB0A8\uAE41\uB2C8\uB2E4", error);
+        appendRows = \uBD99\uC778\uD45C[0].appendedRows();
+        \uC904\uB2F5 = \uACC1\uBE80\uB2F5(result);
+      }
+    }
     if (appendRows) {
-      const name = dirty[0].name, pieceId = String(started).padStart(15, "0") + "_" + requestId;
+      const name = \uBD99\uC778\uD45C[0].name, pieceId = String(started).padStart(15, "0") + "_" + requestId;
       return runTransaction(this.db, async (transaction) => {
         const oldReceipt = await transaction.get(this.ref(`journal/${requestId}`));
         if (oldReceipt.exists()) return unpack(oldReceipt.data().result);
-        const answer = jsonResult(result);
+        const answer = jsonResult(\uC904\uB2F5);
         transaction.set(this.ref(`${\uC870\uAC01\uACBD\uB85C(sheetId(name))}/${pieceId}`), { name, rows: pack(appendRows), actor: this.identity.user.uid, at: started });
         transaction.set(this.ref(`journal/${requestId}`), { actor: this.identity.user.uid, fn, result: pack(answer), changes: [name], at: started, \uC870\uAC01: pieceId });
         return answer;
@@ -7431,6 +7893,41 @@ var FirestoreRepository = class {
     }).catch((error) => {
       if (\uB2E4\uC2DC\uBCF4\uB0BC\uCF54\uB4DC.has(error?.code)) error.\uB2E4\uC2DC\uBCF4\uB0B4\uB3C4\uB428 = true;
       throw error;
+    });
+  }
+  // 기록 조각 하나 + 곁표 본체 + 목록 — 한 거래. 목록을 거래로 읽으므로 표마다 버전이 맞는다(곁표가 바뀌면 목록도 바뀐다) — 표는 캐시로 읽어도 된다.
+  // 거래 안에서 엔진을 다시 돌린다: 그 사이 다른 아이가 곁표를 고쳤어도 새 표 위에서 센다.
+  async \uACC1\uC4F0\uAE30(fn, name, execute, requestId, started) {
+    const pieceId = String(started).padStart(15, "0") + "_" + requestId;
+    return runTransaction(this.db, async (transaction) => {
+      const oldReceipt = await transaction.get(this.ref(`journal/${requestId}`));
+      if (oldReceipt.exists()) return unpack(oldReceipt.data().result);
+      const currentCatalog = await this.catalog((ref) => transaction.get(ref));
+      const current = await this.load(currentCatalog, (ref) => getDoc(ref));
+      const answer = jsonResult(execute(current));
+      const rows = current.getSheetByName(name)?.appendedRows();
+      if (current.deleted.size || !rows || current.getSheets().some((s) => s.dirty && s.name !== name && !\uACC1\uD45C\uB4E4.includes(s.name)))
+        throw Object.assign(new Error("\uC790\uB8CC\uAC00 \uBCC0\uACBD\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694."), { code: "aborted" });
+      transaction.set(this.ref(`${\uC870\uAC01\uACBD\uB85C(sheetId(name))}/${pieceId}`), { name, rows: pack(rows), actor: this.identity.user.uid, at: started });
+      const before = new Map(currentCatalog.tables.map((t) => [t.name, t]));
+      const tables = current.getSheets(), nextMetadata = [], changes = [name];
+      for (let position = 0; position < tables.length; position++) {
+        const table = tables[position];
+        if (!table.dirty || table.name === name) {
+          nextMetadata.push(before.get(table.name));
+          continue;
+        }
+        const full = table.export(), payload = pack(publicTable(full));
+        if (new TextEncoder().encode(payload).length > 85e4) throw new Error("\uC790\uB8CC\uAC00 \uCEE4\uC11C \uB098\uB204\uC5B4 \uC800\uC7A5\uD574\uC57C \uD569\uB2C8\uB2E4.");
+        const version = await digest(payload);
+        transaction.set(this.ref(`tables/${sheetId(full.name)}`), { payload, version, name: full.name, public: false });
+        transaction.set(this.ref(`journal/${requestId}/tables/${sheetId(full.name)}`), { payload: pack(full) });
+        nextMetadata.push({ ...tableMetadata(full, position), version });
+        changes.push(full.name);
+      }
+      transaction.set(this.ref("meta/catalog"), { ...currentCatalog, tables: nextMetadata, revision: requestId });
+      transaction.set(this.ref(`journal/${requestId}`), { actor: this.identity.user.uid, fn, result: pack(answer), changes, at: started, \uC870\uAC01: pieceId });
+      return answer;
     });
   }
 };
@@ -7666,6 +8163,27 @@ async function runScheduledNotices({ now = Date.now(), messaging = getMessaging(
 var scheduledNotices = onSchedule({ region, schedule: "*/10 * * * *", timeZone: "Asia/Seoul" }, async () => {
   console.log(JSON.stringify(await runScheduledNotices()));
 });
+async function runScheduledHomework({ now = Date.now(), messaging = getMessaging(), webPush } = {}) {
+  const { dataset, state } = (await db.doc("runtime/config").get()).data() ?? {};
+  if (state !== "active") throw new Error("runtime/config\uAC00 active\uAC00 \uC544\uB2D9\uB2C8\uB2E4.");
+  const repo = new FirestoreRepository(db, dataset, { role: "bridge", user: { uid: "scheduled-homework" } });
+  const \uD560\uC77C = await repo.call("__\uC608\uC57D\uC219\uC81C", [now]);
+  const out = await sendScheduledNotices(\uD560\uC77C, { messaging, webPush, repo });
+  out.\uB0B8\uAC83 = \uD560\uC77C?.\uB0B8\uAC83 ?? [];
+  const \uC904\uB4E4 = noticeLogRows(out, "\uC608\uC57D");
+  if (\uC904\uB4E4.length) {
+    try {
+      await repo.call("__\uC54C\uB9BC\uAE30\uB85D\uC4F0\uAE30", [\uC904\uB4E4]);
+    } catch (e) {
+      out.\uAE30\uB85D\uBABB\uC500 = String(e?.message ?? e);
+    }
+  }
+  for (const j of out.\uC608\uC57D) delete j.\uC904;
+  return out;
+}
+var scheduledHomework = onSchedule({ region, schedule: "*/10 * * * *", timeZone: "Asia/Seoul" }, async () => {
+  console.log(JSON.stringify(await runScheduledHomework()));
+});
 async function sendNowNotice(\uAC12, { messaging = getMessaging(), webPush, repo } = {}) {
   const { \uC81C\uBAA9 = "", \uB0B4\uC6A9 = "", \uB300\uC0C1\uC885\uB958 = "\uC804\uCCB4", \uB300\uC0C1\uAC12 = "" } = \uAC12 ?? {};
   if (!repo) {
@@ -7681,7 +8199,9 @@ export {
   monthlyAward,
   pushAddressOk,
   runMonthlyAward,
+  runScheduledHomework,
   runScheduledNotices,
+  scheduledHomework,
   scheduledNotices,
   sendNowNotice,
   sendPush,

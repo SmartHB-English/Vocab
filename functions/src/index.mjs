@@ -1,4 +1,4 @@
-// Apps Script 보조 창구(푸시 전송 · 그림 파일 · 매월 시상)를 대신한다. 예약 알림(scheduledNotices)도 여기서 돈다. 2026-10-08 Apps Script 배포가 사라져 옮겼다.
+// Apps Script 보조 창구(푸시 전송 · 그림 파일 · 매월 시상)를 대신한다. 예약 알림(scheduledNotices) · 숙제 예약(scheduledHomework)도 여기서 돈다. 2026-10-08 Apps Script 배포가 사라져 옮겼다.
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
@@ -108,6 +108,28 @@ export async function runScheduledNotices({ now = Date.now(), messaging = getMes
 }
 export const scheduledNotices = onSchedule({ region, schedule: '*/10 * * * *', timeZone: 'Asia/Seoul' }, async () => {
   console.log(JSON.stringify(await runScheduledNotices()));
+});
+
+/* 숙제 예약 — 알림 예약과 같은 꼴로 10분마다 숙제예약 표를 본다 (8시로 걸면 8시 0~9분에 나간다).
+   엔진(__예약숙제)이 보낸때를 먼저 찍고(거래) 숙제를 내고, 「알림함께」 면 받을 구독을 돌려준다 — 쏘는 일은 sendScheduledNotices 그대로.
+   scheduledNotices 와 한 함수로 합치지 않는다: 숙제 쪽이 터져도 알림 예약은 제때 나가야 한다 */
+export async function runScheduledHomework({ now = Date.now(), messaging = getMessaging(), webPush } = {}) {
+  const { dataset, state } = (await db.doc('runtime/config').get()).data() ?? {};
+  if (state !== 'active') throw new Error('runtime/config가 active가 아닙니다.');
+  const repo = new FirestoreRepository(db, dataset, { role: 'bridge', user: { uid: 'scheduled-homework' } });
+  const 할일 = await repo.call('__예약숙제', [now]);
+  const out = await sendScheduledNotices(할일, { messaging, webPush, repo });
+  out.낸것 = 할일?.낸것 ?? [];
+  // 「숙제 나왔어요」 알림도 알림기록 표에 — 묶음마다 한 줄 (누가: 예약 · 대상: 숙제 받는 아이)
+  const 줄들 = noticeLogRows(out, '예약');
+  if (줄들.length) {
+    try { await repo.call('__알림기록쓰기', [줄들]); } catch (e) { out.기록못씀 = String(e?.message ?? e); }
+  }
+  for (const j of out.예약) delete j.줄;   // 로그에는 사람별 줄을 안 남긴다
+  return out;
+}
+export const scheduledHomework = onSchedule({ region, schedule: '*/10 * * * *', timeZone: 'Asia/Seoul' }, async () => {
+  console.log(JSON.stringify(await runScheduledHomework()));
 });
 
 /* 알림만 보내기 — 공지 없이, 선생님이 쓴 글을 고른 아이에게만. aux 가 선생님인지 이미 봤다.

@@ -3437,6 +3437,17 @@ var DEMO_예약 = [
   {키:'1', 종류:'안낸아이', 날짜:'', 시각:'20:00', 제목:'오늘 숙제 잊지 마세요', 내용:'오늘 마감인 숙제가 남아 있어요.',
    공지함께:false, 공지끝날:'', 보낸때:'', 켬:true, 대상종류:'전체', 대상값:''}
 ];
+/* 숙제 예약 흉내 — 걸어 둔 것 · 나간 것 · 못 나간 것 하나씩 (선생님 화면이 세 모양을 다 그리게) */
+function DEMO_날_(더할){ var t=new Date(); t.setDate(t.getDate()+(더할||0)); var z=function(n){return n<10?'0'+n:''+n;};
+  return t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate()); }
+var DEMO_숙제예약 = [
+  {키:'h1', 날짜:DEMO_날_(-1), 시각:'08:00', 요약:'교재 배우는 학생 · 중2 5과 단어 1~20 · 스펠링 · 당일',
+   내용:'{}', 알림함께:true, 보낸때:DEMO_날_(-1)+' 08:00', 못냄:'', 켬:true},
+  {키:'h2', 날짜:DEMO_날_(0), 시각:'08:00', 요약:'홍길동, 김영희 · 불규칙 동사 50 1~10 · 3단변화 · 당일',
+   내용:'{}', 알림함께:false, 보낸때:DEMO_날_(0)+' 08:00 못 냄 — “불규칙 동사 50” 을(를) 배우는 학생이 없습니다.', 못냄:'“불규칙 동사 50” 을(를) 배우는 학생이 없습니다.', 켬:true},
+  {키:'h3', 날짜:DEMO_날_(1), 시각:'08:00', 요약:'교재 배우는 학생 · 중2 5과 단어 21~40 · 스펠링 · 당일',
+   내용:'{}', 알림함께:true, 보낸때:'', 못냄:'', 켬:true}
+];
 /* 알림만 보내기 · 받는 사람 고르개 흉내 — 반은 흉내 학생에게 붙여 둔다 */
 var DEMO_알림반 = {'홍길동':'3A', '김영희':'3A', '이철수':'3B', '최아람':'유치'};
 var DEMO_알림기록 = [
@@ -3731,6 +3742,23 @@ var DEMO = {
   },
   예약켜기:function(pw,행,켬){ var n=DEMO_예약[Number(행)-2]; if(n) n.켬=!!켬; return DEMO.예약목록(pw); },
   예약지우기:function(pw,행){ DEMO_예약.splice(Number(행)-2,1); return DEMO.예약목록(pw); },
+  숙제예약목록:function(){ return {ok:true, 오늘:DEMO_날_(0), 예약:DEMO_숙제예약.map(function(n,i){
+    var x={}; for(var k in n) x[k]=n[k]; x.행=i+2; return x; }).reverse()}; },
+  숙제예약저장:function(pw,행,v){
+    v=v||{};
+    if(!(v.시각>='07:00' && v.시각<='21:00')) return {ok:false, 메시지:'숙제 예약은 아침 7시부터 밤 9시 사이에만 걸 수 있습니다.'};
+    if(!v.날짜 || v.날짜<DEMO_날_(0)) return {ok:false, 메시지:'지난 날짜입니다.'};
+    var h=v.내용||{};
+    if(!h.단어장) return {ok:false, 메시지:'단어장을 골라 주세요.'};
+    var 종류=DEMO_종류(h.종류), 고른=(h.학생들||[]).filter(String);
+    DEMO_숙제예약.push({키:String(Date.now()), 날짜:v.날짜, 시각:v.시각,
+      요약:(고른.length?고른.join(', '):'교재 배우는 학생')+' · '+h.단어장+' '+(Number(h.시작)||1)+'~'+(Number(h.끝)||0)+' · '+(h.유형||'스펠링')+' · '+종류+
+        ((종류==='기한'||종류==='시험')?' ('+(h.마감일||'')+')':''),
+      내용:JSON.stringify(h), 알림함께:!!v.알림함께, 보낸때:'', 못냄:'', 켬:true});
+    return DEMO.숙제예약목록(pw);
+  },
+  숙제예약켜기:function(pw,행,켬){ var n=DEMO_숙제예약[Number(행)-2]; if(n) n.켬=!!켬; return DEMO.숙제예약목록(pw); },
+  숙제예약지우기:function(pw,행){ DEMO_숙제예약.splice(Number(행)-2,1); return DEMO.숙제예약목록(pw); },
   알림명단:function(){
     var 켠={}; DEMO_구독.forEach(function(x){ 켠[x.이름]=1; });
     var 반들=[];

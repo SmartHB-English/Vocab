@@ -49,11 +49,11 @@ const privileged = role => role === 'teacher' || role === 'bridge';
 // 선생님 「자료」 탭 — 엔진(Code.gs)을 거치지 않고 표를 바로 고친다. 답은 날짜를 지키려고 pack 한 글로 준다.
 // 하다가 걸리면(그 사이 줄이 바뀜 등) 표를 건드리기 전에 {ok:false} 로 돌아온다 — 그때는 저장하지 않는다.
 const 자료함수 = {__자료읽기:자료읽기, __자료고치기:칸고치기, __자료지우기:줄지우기, __자료되살리기:되살리기, __휴지통비우기:휴지통비우기};
-// bridge(Cloud Functions)만 부르는 엔진 길 — 열린기능_ 에 없다. __예약알림 · __알림거리 는 푸시비밀키를 싣고 오니 journal 에는 빼고 적는다
-const 다리함수 = {__월시상:engine=>engine.monthly(), __예약알림:(engine,args)=>engine.scheduledNotices(args[0]), __죽은구독지우기:(engine,args)=>engine.dropDeadPushes(args[0]),
+// bridge(Cloud Functions)만 부르는 엔진 길 — 열린기능_ 에 없다. __예약알림 · __예약숙제 · __알림거리 는 푸시비밀키를 싣고 오니 journal 에는 빼고 적는다
+const 다리함수 = {__월시상:engine=>engine.monthly(), __예약알림:(engine,args)=>engine.scheduledNotices(args[0]), __예약숙제:(engine,args)=>engine.scheduledHomework(args[0]), __죽은구독지우기:(engine,args)=>engine.dropDeadPushes(args[0]),
   __알림거리:(engine,args)=>engine.noticeTargets(args[0],args[1],args[2],args[3]), __알림기록쓰기:(engine,args)=>engine.writeNoticeLog(args[0])};
-const 다리만 = ['__예약알림','__죽은구독지우기','__알림거리','__알림기록쓰기'];
-const 적을답 = (fn,answer) => ['__예약알림','__알림거리'].includes(fn)&&answer&&answer.푸시비밀키 ? {...answer,푸시비밀키:'(뺌)'} : answer;
+const 다리만 = ['__예약알림','__예약숙제','__죽은구독지우기','__알림거리','__알림기록쓰기'];
+const 적을답 = (fn,answer) => ['__예약알림','__예약숙제','__알림거리'].includes(fn)&&answer&&answer.푸시비밀키 ? {...answer,푸시비밀키:'(뺌)'} : answer;
 const 자료하기 = (일,store,args,how) => { try { return {ok:true,자료:pack(일(store,args[0]??{},how))}; } catch(e) { if(e instanceof Error&&!e.code?.startsWith?.('permission'))return {ok:false,충돌:e.code==='충돌',메시지:e.message}; throw e; } };
 
 export class FirestoreRepository {
