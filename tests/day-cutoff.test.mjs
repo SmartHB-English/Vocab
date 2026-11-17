@@ -220,7 +220,7 @@ test('엔진 — 학습날_ 은 한 곳에서, 마감시는 설정에서 읽는�
   assert.match(code, /function ymd_\(d\) \{\n  return Utilities\.formatDate\(d, Session\.getScriptTimeZone\(\), 'yyyy-MM-dd'\);\n\}/);
   assert.match(code, /function 학습날_\(때\) \{\n  return ymd_\(new Date\(때\.getTime\(\) - 숙제마감시_\(\) \* 3600000\)\);\n\}/);
   assert.equal((code.match(/setting_\('숙제마감시'/g) || []).length, 1, '설정은 한 번 읽는다');
-  assert.equal((code.match(/학습날_\(/g) || []).length, 8, '학습날_ 정의 + 쓰는 자리 일곱');
+  assert.equal((code.match(/학습날_\(/g) || []).length, 9, '학습날_ 정의 + 쓰는 자리 일곱 + 숙제체크(프롬프트 53)');
   assert.doesNotMatch(code, /3600000 \* 8|8 \* 3600000|getHours\(\) < 8/, '8시간을 숫자로 박지 않는다');
 });
 

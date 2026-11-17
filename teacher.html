@@ -2944,6 +2944,18 @@ var DEMO_숙제예약 = [
   {키:'h3', 날짜:DEMO_날_(1), 시각:'08:00', 요약:'교재 배우는 학생 · 중2 5과 단어 21~40 · 스펠링 · 당일',
    내용:'{}', 알림함께:true, 보낸때:'', 못냄:'', 켬:true}
 ];
+/* 숙제 다 냈나 흉내 — 날짜마다 (오늘: 못 받은 아이 여럿 + 예약 1건 · 어제: 다 냄 · 그 밖: 여럿).
+   DEMO_숙제체크표[날짜] 에 넣으면 그 값이 나간다 (화면 찍을 때 쓴다) */
+var DEMO_숙제체크표 = {};
+function DEMO_숙제체크기본_(날){
+  if(날===DEMO_날_(-1)) return {예약수:0, 반들:[
+    {반:'3A', 전체수:6, 못받은:[]}, {반:'3B', 전체수:5, 못받은:[]}, {반:'유치', 전체수:4, 못받은:[]}, {반:'반 없음', 전체수:1, 못받은:[]}]};
+  return {예약수:날===DEMO_날_(0)?1:0, 반들:[
+    {반:'3A', 전체수:6, 못받은:['이철수']},
+    {반:'3B', 전체수:5, 못받은:['박서준','정하윤','강민재']},
+    {반:'유치', 전체수:4, 못받은:[]},
+    {반:'반 없음', 전체수:1, 못받은:['최아람']}]};
+}
 /* 알림만 보내기 · 받는 사람 고르개 흉내 — 반은 흉내 학생에게 붙여 둔다 */
 var DEMO_알림반 = {'홍길동':'3A', '김영희':'3A', '이철수':'3B', '최아람':'유치'};
 var DEMO_알림기록 = [
@@ -3238,6 +3250,10 @@ var DEMO = {
   },
   예약켜기:function(pw,행,켬){ var n=DEMO_예약[Number(행)-2]; if(n) n.켬=!!켬; return DEMO.예약목록(pw); },
   예약지우기:function(pw,행){ DEMO_예약.splice(Number(행)-2,1); return DEMO.예약목록(pw); },
+  숙제체크:function(pw,날짜){
+    var 날=날짜||DEMO_날_(0), 표=DEMO_숙제체크표[날]||DEMO_숙제체크기본_(날);
+    return {ok:true, 날짜:날, 반들:JSON.parse(JSON.stringify(표.반들)), 예약수:표.예약수||0};
+  },
   숙제예약목록:function(){ return {ok:true, 오늘:DEMO_날_(0), 예약:DEMO_숙제예약.map(function(n,i){
     var x={}; for(var k in n) x[k]=n[k]; x.행=i+2; return x; }).reverse()}; },
   숙제예약저장:function(pw,행,v){
@@ -5036,6 +5052,123 @@ function 알림결과글_(k){
 }
 
 /* ================================================================
+   숙제 따로 내주기 — 숙제 탭으로 가서 「고른 학생」 에 그 아이만 골라 둔다.
+   「학생 한 명씩」 탭의 단추와 「숙제 다 냈나」 칸의 이름이 같이 쓴다.
+================================================================ */
+function 숙제따로내주기_(누구){
+  qsa('[data-tab]').forEach(function(y){ y.classList.toggle('on', y.dataset.tab==='hw'); });
+  T.tab='hw'; drawTab();
+  var 됨 = 학생숙제고르기_(누구);
+  toast(됨 ? 누구+' 학생을 골라 두었습니다 — 단어장 · 범위를 고르고 「숙제 등록」 을 누르세요'
+           : 누구+' 학생을 골라 숙제를 내 주세요');
+}
+function 학생숙제고르기_(누구){
+  var r=document.querySelector('input[name=hwTarget][value=some]');
+  if(!r || !누구) return false;
+  r.checked=true; if(r.onchange) r.onchange();
+  var 고름=null;
+  qsa('.hwStu').forEach(function(c){ c.checked=(c.value===누구); if(c.checked) 고름=c; });
+  if(고름 && 고름.onchange) 고름.onchange();
+  var 칸=$('hwBook') || $('hwStuWrap');
+  if(칸 && 칸.scrollIntoView) 칸.scrollIntoView({block:'center'});
+  return !!고름;
+}
+
+/* ================================================================
+   숙제 다 냈나 — 숙제 탭 맨 위. 그날(등록일) 숙제를 하나도 못 받은 아이만 반별로 (숙제체크).
+   예약으로 걸어 둔 것도 받은 것으로 센다. 오늘 수업이 없는 반도 가리지 않는다 — 칩 숫자를 보고 넘기면 된다.
+   T.체크날 '' 은 오늘(서버의 학습날). T.숙제체크 = {요청날, 서명, 때, 답|탈} — 숙제 목록이 바뀌면 다시 센다.
+================================================================ */
+function 날더하기_(ymd, n){
+  var p=String(ymd||'').split('-'), t=new Date(Number(p[0]), Number(p[1])-1, Number(p[2])+n);
+  var z=function(k){ return k<10?'0'+k:''+k; };
+  return t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate());
+}
+function 숙제체크서명_(){
+  var L=(T.data&&T.data.숙제목록)||[], 끝=L[L.length-1]||{};
+  return L.length+':'+(끝.행||'')+':'+(끝.낸때||'');
+}
+function 숙제체크그리기_(){
+  var 칸=$('hwCheck'); if(!칸) return;
+  var 날=T.체크날||'', 서명=숙제체크서명_(), 있는=T.숙제체크;
+  var 같은날 = 있는 && 있는.요청날===날;
+  if(!같은날 || 있는.서명!==서명 || Date.now()-있는.때>60000){
+    if(!같은날) 칸.innerHTML=숙제체크판_(null);
+    var 열쇠=날+'|'+서명;
+    if(T.숙제체크부름!==열쇠){
+      T.숙제체크부름=열쇠;
+      var 받기=function(값){ if(T.숙제체크부름!==열쇠) return; T.숙제체크부름=''; T.숙제체크=값; 숙제체크그리기_(); };
+      api('숙제체크',T.pw,날).then(function(r){
+        if(r&&r.ok){ if(!날) T.체크오늘=r.날짜; 받기({요청날:날, 서명:서명, 때:Date.now(), 답:r}); }
+        else 받기({요청날:날, 서명:서명, 때:Date.now(), 탈:(r&&r.메시지)||'세지 못했습니다'});
+      }).catch(function(){ 받기({요청날:날, 서명:서명, 때:Date.now(), 탈:'세지 못했습니다'}); });
+    }
+    if(!같은날) return;
+  }
+  칸.innerHTML=숙제체크판_(T.숙제체크);
+  qsa('[data-hcday]',칸).forEach(function(b){
+    b.onclick=function(){ T.체크날=b.dataset.hcday; T.체크반=''; 숙제체크그리기_(); };
+  });
+  var 고르개=$('hcDate');
+  if(고르개) 고르개.onchange=function(){ T.체크날 = (this.value && this.value!==T.체크오늘) ? this.value : ''; T.체크반=''; 숙제체크그리기_(); };
+  qsa('[data-hcban]',칸).forEach(function(b){
+    b.onclick=function(){ T.체크반 = (T.체크반===b.dataset.hcban) ? '' : b.dataset.hcban; 숙제체크그리기_(); };
+  });
+  qsa('[data-hcname]',칸).forEach(function(b){
+    b.onclick=function(){ 숙제따로내주기_(b.dataset.hcname); };
+  });
+}
+function 숙제체크판_(값){
+  var 오늘=T.체크오늘||오늘값(), 날=T.체크날||오늘;
+  var 날들=[['그제',날더하기_(오늘,-2)],['어제',날더하기_(오늘,-1)],['오늘','']];
+  var 오른='<span class="row" style="gap:6px;align-items:center">'+
+    날들.map(function(x){
+      var on = (x[1]||'')===(T.체크날||'');
+      return '<button type="button" class="btn line sm" data-hcday="'+x[1]+'" style="width:auto;margin:0;padding:5px 11px'+
+        (on?';background:var(--text);color:var(--card);border-color:var(--text)':'')+'">'+x[0]+'</button>';
+    }).join('')+
+    '<input type="date" id="hcDate" value="'+esc(날)+'" max="'+esc(오늘)+'" style="width:auto;margin:0;padding:4px 8px"></span>';
+  var 몸;
+  if(!값) 몸=빈칸('세는 중…');
+  else if(값.탈) 몸='<div class="sub" style="color:var(--ng)">'+esc(값.탈)+'</div>';
+  else {
+    var r=값.답, 반들=r.반들||[], 고른반=T.체크반||'';
+    if(고른반 && !반들.some(function(b){ return b.반===고른반; })) 고른반=T.체크반='';
+    var 합=0; 반들.forEach(function(b){ 합+=b.못받은.length; });
+    function 칩(키, 글, n, 총){
+      var on=(고른반===키);
+      var 꼴='display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:99px;'+
+        'padding:5px 12px;margin:0 6px 6px 0;background:var(--card);color:var(--text);font-weight:700;cursor:pointer;font-size:13px';
+      if(n) 꼴+=';border-color:#F87171;background:#FEF2F2;color:#B91C1C';
+      else 꼴+=';opacity:.5';
+      if(on) 꼴+=';box-shadow:0 0 0 2px var(--text);opacity:1';
+      return '<button type="button" data-hcban="'+esc(키)+'" style="'+꼴+'">'+esc(글)+
+        (총!==undefined?'<span style="font-weight:500;opacity:.7">'+총+'명 중</span>':'')+
+        '<b style="font-size:15px">'+n+'</b></button>';
+    }
+    var 칩들='<div style="display:flex;flex-wrap:wrap">'+
+      칩('', '전체', 합)+반들.map(function(b){ return 칩(b.반, b.반, b.못받은.length, b.전체수); }).join('')+'</div>';
+    var 보일=반들.filter(function(b){ return (!고른반 || b.반===고른반) && b.못받은.length; });
+    var 목록 = 보일.length
+      ? 보일.map(function(b){
+          return '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px">'+
+            '<b style="min-width:64px">'+esc(b.반)+' <span style="color:#B91C1C">'+b.못받은.length+'명</span></b>'+
+            b.못받은.map(function(n){
+              return '<button type="button" class="btn line sm" data-hcname="'+esc(n)+'" title="이 학생에게 숙제 내기" '+
+                'style="width:auto;margin:0;padding:5px 11px">'+esc(n)+'</button>';
+            }).join('')+'</div>';
+        }).join('')
+      : '<div style="margin-top:8px;font-weight:800;color:var(--ok)">'+
+          (고른반 ? esc(고른반)+' 반은 다 받았습니다' : (날===오늘 ? '오늘은 다 냈습니다' : '이날은 다 냈습니다'))+'</div>';
+    몸 = 칩들 + 목록 +
+      (보일.length ? '<div class="sub" style="font-size:12px;margin-top:8px">이름을 누르면 그 아이에게 바로 숙제를 낼 수 있습니다 · 그날 숙제를 하나도 못 받은 아이만 보입니다</div>' : '')+
+      (r.예약수 ? '<div class="sub" style="font-size:12px;margin-top:6px">⏰ 예약으로 나갈 숙제 '+r.예약수+'건 — 그 숙제를 받을 아이들은 목록에서 뺐습니다</div>' : '');
+  }
+  return 판('숙제 다 냈나 <span class="sub" style="font-weight:600">'+esc(날)+(날===오늘?' (오늘)':'')+' 낸 숙제 기준</span>', 오른,
+    '<div class="panel-b">'+몸+'</div>');
+}
+
+/* ================================================================
    숙제 예약 — 「예약하기」 로 걸어 두면 Cloud Functions(scheduledHomework)가 10분마다 살펴 낸다.
    목록은 T.숙제예약 (처음 그릴 때 · 1분 지나면 다시 불러온다). 못 나간 것(못냄)은 위에 빨갛게 띄운다 —
    아침에 안 나갔는데 모르면 그날 숙제가 통째로 빈다.
@@ -5070,6 +5203,7 @@ function 숙제예약걸기_(꾸러미){
     T.숙제예약=r.예약||[]; T.숙제예약때=Date.now();
     toast('예약을 걸었습니다 — '+날짜+' '+시각+' 에 나갑니다');
     숙제예약그리기_();
+    T.숙제체크=null; 숙제체크그리기_();
   }).catch(function(){ btn.disabled=false; toast('걸지 못했습니다'); });
 }
 function 숙제예약그리기_(){
@@ -5124,7 +5258,7 @@ function 숙제예약그리기_(){
       api('숙제예약켜기',T.pw,Number(x.dataset.hson), !x.dataset.on, x.dataset.key||'').then(function(r){
         if(r&&r.ok){ T.숙제예약=r.예약||[]; T.숙제예약때=Date.now(); }
         else { toast((r&&r.메시지)||'바꾸지 못했습니다'); T.숙제예약=null; }
-        숙제예약그리기_();
+        숙제예약그리기_(); T.숙제체크=null; 숙제체크그리기_();
       }).catch(function(){ toast('바꾸지 못했습니다'); });
     };
   });
@@ -5134,7 +5268,7 @@ function 숙제예약그리기_(){
       api('숙제예약지우기',T.pw,Number(x.dataset.hsdel), x.dataset.key||'').then(function(r){
         if(r&&r.ok){ toast('지웠습니다'); T.숙제예약=r.예약||[]; T.숙제예약때=Date.now(); }
         else { toast((r&&r.메시지)||'지우지 못했습니다'); T.숙제예약=null; }
-        숙제예약그리기_();
+        숙제예약그리기_(); T.숙제체크=null; 숙제체크그리기_();
       }).catch(function(){ toast('지우지 못했습니다'); });
     };
   });
@@ -5711,12 +5845,7 @@ function drawTab(){
       if(!confirm('안 낸 학생 '+명.length+'명에게 알림을 보낼까요?')) return;
       쏘기(this, 명);
     };
-    if($('ppHw')) $('ppHw').onclick=function(){
-      var 누구=T.p고름;
-      qsa('[data-tab]').forEach(function(y){ y.classList.toggle('on', y.dataset.tab==='hw'); });
-      T.tab='hw'; drawTab(); window.scrollTo(0,0);
-      toast(누구+' 학생을 골라 숙제를 내 주세요');
-    };
+    if($('ppHw')) $('ppHw').onclick=function(){ 숙제따로내주기_(T.p고름); };
   }
 
   /* ---------------- 시험 결과 ---------------- */
@@ -6264,6 +6393,7 @@ function drawTab(){
         ? 머리('시험', '학원에서 보는 시험 · 아이는 「시험」 칸에서 <b>한 번만</b> 봅니다 · 점수(평균)는 여기에서 봅니다')
         : 머리('숙제 내주기', '한 줄로 고르고 오른쪽 끝에서 내줍니다 · '+
            (d.합격점||합격점())+'점을 못 넘긴 학생은 아직 안 낸 것으로 둡니다 · 시험은 「시험」 탭에서')+
+      '<div id="hwCheck"></div>'+
 
       판('수업 짜기 <span class="pill note">중·고등</span>',
         '<span class="sub">단계를 묶어서 한 번에 — 아이 화면엔 순서대로 뜨고, 앞엣것을 끝내야 다음이 열립니다</span>',
@@ -8146,6 +8276,7 @@ function 숙제손잡이(d){
     clearTimeout(교재세기시계);
     교재세기시계=setTimeout(function(){
       api('교재대상',T.pw,교재).then(function(r){
+        if(대상값()!=='text') return;            /* 그 사이 「고른 학생」 으로 바뀌었다 (이름을 눌러 골라 둔 때) — 덮어쓰지 않는다 */
         if(!(r&&r.ok)){ 칸.innerHTML='<span style="color:var(--ng)">'+esc((r&&r.메시지)||'세지 못했습니다')+'</span>'; return; }
         if(!r.인원){
           칸.innerHTML='<span style="color:var(--warn);font-weight:700">'+
@@ -8747,6 +8878,7 @@ function 숙제손잡이(d){
     };
   });
   숙제예약그리기_();
+  숙제체크그리기_();
 
   /* 고르기 */
   T.선택숙제 = T.선택숙제 || {};
