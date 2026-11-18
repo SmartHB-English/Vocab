@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const root = new URL('../', import.meta.url);
 /* 원본 하나를 여러 대상의 표시 사이에 박아 넣는다. 짝을 늘리려면 여기에 한 줄 더한다 */
 const pairs = [
-  { source: 'services/api-client.js', targets: ['index.html', 'parent.html', 'sw.js', 'parent-sw.js', 'teacher.html'] },
+  { source: 'services/api-client.js', targets: ['index.html', 'parent.html', 'sw.js', 'parent-sw.js', 'teacher.html', 'check.html'] },   // check.html — 숙제 체크 (원장님 PC)
   { source: 'services/shared-ui.css', targets: ['index.html', 'teacher.html'] },
   { source: 'services/shared-ui.js', targets: ['index.html', 'teacher.html'] },
   { source: 'services/teacher-data.js', targets: ['teacher.html'] },   // 「자료」 탭 — 선생님 화면에만

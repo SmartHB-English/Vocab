@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>숙제 체크</title>
+<style id="mainStyle">
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #f4f5f7; color: #222;
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  }
+  #app { max-width: 480px; margin: 0 auto; padding: 12px; }
+  .top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .date { font-size: 13px; color: #666; }
+  .count { font-size: 18px; font-weight: 700; flex: 1; }
+  .count.alldone { color: #1a9a52; }
+  .bar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  button, select {
+    font: inherit; font-size: 13px; border: 1px solid #ccd; background: #fff;
+    border-radius: 8px; padding: 5px 9px; cursor: pointer; color: inherit;
+  }
+  button:hover { background: #eef; }
+  button.on { background: #2b5cff; color: #fff; border-color: #2b5cff; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+
+  .group { display: flex; flex-direction: column; gap: 6px; }
+  .gHead {
+    display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;
+    font-weight: 800; font-size: 15px; padding: 2px 2px;
+  }
+  .gHead .arrow { width: 14px; color: #888; font-size: 11px; }
+  .gHead .gLeft { margin-left: auto; font-size: 12px; font-weight: 600; color: #ff6b4a; }
+  .gHead .gLeft.ok { color: #1a9a52; }
+
+  .sub { background: #eceef3; border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .prog { display: flex; flex-direction: column; gap: 3px; padding: 2px 2px 4px; }
+  .pTop { display: flex; align-items: center; gap: 6px; }
+  .pTop:empty { display: none; }
+  .addTrack { margin-left: auto; padding: 2px 8px; font-size: 11px; color: #666; background: transparent; border-style: dashed; }
+  .sHead { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding: 3px 4px; border-radius: 8px; }
+  .sHead.turn { background: #fff3c4; }
+  .badge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; flex: none;
+           border: 1px solid #ccd; color: #888; background: #fff; cursor: pointer; }
+  .turn .badge { background: #ffb300; border-color: #ffb300; color: #fff; cursor: default; }
+  .gHead .addTrack { margin-left: 4px; }
+  .gHead .addTrack:first-of-type { margin-left: 8px; }
+  .sName { cursor: pointer; }
+  .sName.noname { color: #aab; font-weight: 400; font-style: italic; }
+  .nameEdit { font: inherit; font-size: 13px; font-weight: 700; color: #2b5cff; width: 110px;
+              border: 1px solid #2b5cff; border-radius: 6px; padding: 2px 6px; }
+  .delSub { padding: 2px 8px; font-size: 11px; color: #c33; border-color: #f0c4c4; background: transparent; }
+  .row { cursor: grab; }
+  .row.dragging { opacity: .35; }
+  .sub.dropOn { outline: 2px dashed #2b5cff; outline-offset: -2px; background: #e8eeff; }
+  .dropHint { text-align: center; font-size: 12px; color: #99a; padding: 10px 0; border: 1px dashed #c8cbd6; border-radius: 8px; }
+  .gProg { background: #e3e9ff; }
+  .range { display: inline-flex; align-items: center; gap: 2px; }
+  .tilde { color: #888; font-size: 12px; }
+  .delTrack { padding: 1px 7px; font-size: 13px; color: #aaa; background: transparent; border: none; margin-left: auto; }
+  .delTrack:hover { color: #c33; background: transparent; }
+  .sName { font-weight: 700; font-size: 13px; color: #2b5cff; margin-right: 2px; }
+  .sHead select { padding: 3px 5px; font-size: 12px; max-width: 150px; }
+  .sHead .step { padding: 3px 8px; font-size: 12px; }
+  .sHead .moved { font-size: 11px; color: #999; }
+  .sHead .nobook { font-size: 12px; color: #888; }
+
+  .row {
+    display: flex; align-items: center; gap: 8px; background: #fff;
+    border: 1px solid #e3e4e8; border-radius: 10px; padding: 5px 8px;
+  }
+  .row:not(.done) { border-left: 4px solid #ff6b4a; }
+  .chk {
+    width: 26px; height: 26px; flex: none; border-radius: 50%; padding: 0;
+    border: 2px solid #bbb; background: #fff; color: transparent; font-weight: 700;
+  }
+  .row.done .chk { background: #1a9a52; border-color: #1a9a52; color: #fff; }
+  .name { width: 62px; flex: none; font-weight: 700; cursor: pointer; user-select: none;
+          overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row.done .name { color: #999; font-weight: 400; }
+  .memo {
+    flex: 1; min-width: 0; font: inherit; font-size: 13px; border: 1px solid transparent;
+    background: #f6f7f9; border-radius: 6px; padding: 5px 7px;
+  }
+  .memo:focus { outline: none; border-color: #2b5cff; background: #fff; }
+  .memo::placeholder { color: #b5b8c0; }
+
+  .empty { text-align: center; color: #888; padding: 30px 0; font-size: 14px; line-height: 1.6; }
+  .editor { display: none; background: #fff; border: 1px solid #e3e4e8; border-radius: 10px; padding: 10px; }
+  .editor.show { display: block; }
+  .editor .help { margin: 0 0 6px; font-size: 12px; color: #666; line-height: 1.6; white-space: pre-line; }
+  .editor textarea { width: 100%; height: 300px; font: inherit; font-size: 14px; padding: 8px;
+                     border: 1px solid #ccd; border-radius: 6px; resize: vertical; }
+  .editor .btns { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; }
+  .msg { font-size: 12px; color: #c33; margin: -4px 0 6px; min-height: 0; }
+  #placeholder { display: none; text-align: center; padding: 40px 12px; color: #666; }
+  #placeholder button { margin-top: 10px; }
+
+  /* ---- 인왕보카로 들이며 더한 것 ---- */
+  .appTag { flex: none; font-size: 10px; font-weight: 700; color: #1a9a52; background: #e7f6ee;
+            border: 1px solid #a9dcbf; border-radius: 6px; padding: 0 5px; line-height: 16px; }
+  .row.byApp .chk { cursor: default; }
+  .row.byApp .name { cursor: default; }
+  .pool { background: #fff6e0; }
+  .poolHead { font-size: 12px; font-weight: 700; color: #8a6d1f; padding: 2px 4px; }
+  .pool .row { border-left: 1px solid #e3e4e8; }
+  .pool .ban { font-size: 11px; color: #999; flex: 1; text-align: right; }
+  .notice { background: #fff; border: 1px solid #e3e4e8; border-radius: 10px; padding: 8px 10px; margin-bottom: 10px;
+            font-size: 12px; line-height: 1.6; }
+  .notice.warn { border-color: #f0c4c4; background: #fff5f5; color: #a33; }
+  .notice.ask { border-color: #ffd27a; background: #fffaf0; }
+  .notice b { font-weight: 700; }
+  .notice .btns { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; }
+  .notice ul { margin: 4px 0 0; padding-left: 18px; }
+  #login { display: block; max-width: 320px; margin: 40px auto; }
+  #login[hidden] { display: none; }
+  #login input[type=password] { width: 100%; font: inherit; font-size: 14px; padding: 7px 9px; border: 1px solid #ccd; border-radius: 6px; }
+  #login label { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #666; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div id="placeholder">
+  체크리스트가 작은 창으로 떠 있어요.<br>
+  <button id="backBtn">여기로 다시 가져오기</button>
+</div>
+
+<div id="app">
+  <div class="editor" id="login">
+    <div class="help">선생님 비밀번호</div>
+    <input id="pw" type="password" placeholder="비밀번호">
+    <label><input type="checkbox" id="auto"> 자동 로그인</label>
+    <div class="btns"><button id="loginBtn" class="on">들어가기</button></div>
+    <div class="msg" id="loginMsg"></div>
+  </div>
+  <div id="main" hidden>
+  <div class="top">
+    <div class="count" id="count"></div>
+    <div class="date" id="date"></div>
+  </div>
+  <div class="bar">
+    <button id="pipBtn">📌 화면 위에 띄우기</button>
+    <select id="groupSel"></select>
+    <button id="leftBtn">안 준 애만</button>
+    <button id="editBtn">명단 편집</button>
+    <button id="bookBtn">교재 편집</button>
+    <button id="importBtn" hidden>이 컴퓨터에 있던 것 올리기</button>
+  </div>
+  <div class="msg" id="msg"></div>
+  <div id="notice"></div>
+
+  <div class="editor" id="editor">
+    <div class="help" id="editorHelp"></div>
+    <textarea id="editBox" spellcheck="false"></textarea>
+    <div class="btns">
+      <button id="cancelBtn">취소</button>
+      <button id="saveBtn" class="on">저장</button>
+    </div>
+  </div>
+
+  <div class="list" id="list"></div>
+  <datalist id="memoList"></datalist>
+  </div>
+</div>
+
+<script>
+/* BEGIN GENERATED services/api-client.js */
+/* Single owner of the legacy HTTP RPC protocol.
+   쓰기 재시도는 Firestore 쪽에서만, 저장소가 「다시 보내도 됨」 표시를 붙인 실패(쓰기 거래가 밀림 · 잠깐 끊김)에만 한다.
+   한 번의 request 동안 요청번호가 같다 — journal 영수증이 있으니 먼저 것이 실은 들어갔어도 두 번 저장되지 않는다.
+   읽기 실패 · 거절({ok:false} 답) · 예전 HTTP 창구는 다시 보내지 않는다. */
+(function (root) {
+  'use strict';
+
+  var legacyEndpoint = 'https://script.google.com/macros/s/AKfycbw1xf6qkK3wQCeGqu2EIdGwwrqbzO0PGauKqoBXQqdQBSmW2YxFK2z_hu2ZSllDn7mg/exec';
+
+  var firestoreReady;
+  function firestore() {
+    if (!firestoreReady) firestoreReady = Promise.resolve().then(function () {
+      if (typeof importScripts === 'function') importScripts('./services/firestore.bundle.js');
+      else return import('./services/firestore.bundle.js');
+    }).then(function () { return root.VocabFirestore; });
+    return firestoreReady;
+  }
+
+  function post(endpoint, fn, args, number, again) {
+    if (endpoint === 'firestore:v1') return firestore().then(function (service) { return service.call(fn, args, {요청번호: number, 다시보냄: !!again}); }).then(function (value) { return {ok:true, 값:value}; });
+    return fetch(endpoint, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: fn, args: args })
+    }).then(function (response) { return response.json(); });
+  }
+
+  function newRequestNumber() {
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12) + Math.random().toString(36).slice(2, 12);
+  }
+
+  // 0.5초 → 1.5초 → 3초, 세 번까지. 다 같이 다시 보내면 또 몰리므로 ±30% 를 섞는다.
+  var retryDelays = [500, 1500, 3000];
+  function retryable(error) { return !!(error && error.다시보내도됨 === true); }
+
+  function request(endpoint, fn, args, failureMessage, number) {
+    var firestore = endpoint === 'firestore:v1';
+    if (firestore && !number) number = newRequestNumber();
+    var tries = 0;
+    function attempt() {
+      return post(endpoint, fn, args, number, tries > 0).then(function (response) {
+        if (response && response.ok) return response.값;
+        throw new Error((response && response.메시지) || failureMessage || '서버가 답하지 않았습니다');
+      }, function (error) {
+        if (!firestore || !retryable(error) || tries >= retryDelays.length) throw error;
+        var wait = Math.round(retryDelays[tries++] * (0.7 + Math.random() * 0.6));
+        return new Promise(function (resolve) { root.setTimeout(resolve, wait); }).then(attempt);
+      });
+    }
+    return attempt();
+  }
+
+  root.VocabApi = { legacyEndpoint: legacyEndpoint, defaultEndpoint: 'firestore:v1', post: post, request: request, newRequestNumber: newRequestNumber, retryDelays: retryDelays };
+})(typeof self !== 'undefined' ? self : globalThis);
+/* END GENERATED services/api-client.js */
+</script>
+<script>
+/* 숙제 체크 — 원장님이 학원 PC 크롬(localStorage)에 들고 쓰시던 것을 인왕보카 서버로 옮겼다 (프롬프트 55).
+   학생 명단은 인왕보카 학생 표에서 읽고(체크자료), 학생은 이름이 아니라 학생번호로 가리킨다.
+   그룹·단계·교재·진도·보기 상태 = 체크설정 한 줄, 그날 체크·메모 = 체크기록 한 줄 (Code.gs).
+   앱으로 숙제가 나간 아이는 저절로 ○ (「앱」) — 손으로 못 끈다. 저장은 1.5초 멈추면 모아서 한 번.
+   KEY 는 이제 「이 컴퓨터에 있던 것 올리기」 가 읽기만 한다 — 지우지 않는다 (돌아갈 데). */
+const KEY = 'hwcheck_v1';
+const app = document.getElementById('app');
+const $ = id => app.querySelector('#' + id);
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+function today() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function fmtDate(s) {
+  const [y, m, d] = s.split('-').map(Number);
+  return `${m}/${d}(${'일월화수목금토'[new Date(y, m - 1, d).getDay()]})`;
+}
+
+// ---------- 데이터 ----------
+// 서버에서 받은 체크설정(그룹·교재·진도·보기)을 화면이 쓰는 꼴로. 학생 명단은 따로(체크자료의 학생들) 붙는다
+function load(d) {
+  if (!d || typeof d !== 'object') d = {};
+  d = { groups: d.groups, books: d.books, view: d.view, 옮김: d.옮김 || null,
+        students: [], day: today(), status: {}, history: {} };
+  if (!Array.isArray(d.groups)) {
+    d.groups = [{ id: 'g0', name: '', subs: [{ id: 'u0', name: '', ids: [], book: null, lesson: 0, moved: null }] }];
+  }
+  if (!Array.isArray(d.books)) d.books = [];
+  if (!d.view) d.view = { group: 'all', folded: {} };
+  if (!d.view.folded) d.view.folded = {};
+  // 진도를 교재 여러 개(tracks)로 바꾼 버전으로 옮기기
+  d.groups.forEach(g => g.subs.forEach(s => {
+    if (!Array.isArray(s.tracks)) {
+      s.tracks = [{ book: s.book || null, lesson: s.lesson || 0, moved: s.moved || null, ts: 0 }];
+      delete s.book; delete s.lesson; delete s.moved;
+    }
+  }));
+  // 큰 그룹 진도 + 레슨 범위(end)
+  d.groups.forEach(g => {
+    if (!Array.isArray(g.tracks)) g.tracks = [];
+    [g, ...g.subs].forEach(o => o.tracks.forEach(t => { if (t.end == null || t.end < t.lesson) t.end = t.lesson; }));
+  });
+  return d;
+}
+let data = load(null);
+let onlyLeft = false;
+let editMode = null;
+
+// ---------- 서버 ----------
+const 창구 = VocabApi.defaultEndpoint;
+const 부르기 = (fn, ...args) => VocabApi.request(창구, fn, args, '서버가 답하지 않았어요');
+const 자동열쇠 = 'hb_auto';                 // teacher.html 과 같은 자동 로그인 기억
+let 비번 = '';
+let 앱 = new Set();                          // 오늘 앱으로 숙제를 받은 아이 (학생번호)
+let 고친때 = 0;                              // 들고 있는 체크설정이 서버에서 언제 고친 것인지
+let 보낸설정글 = null, 보낸기록글 = null;      // 서버에 있는 것과 같은 글 — 다르면 저장할 것이 있다
+let 설정막힘 = '';                           // 체크설정이 JSON 으로 안 읽혔다 — 덮어쓰지 않는다
+let 충돌 = null;                             // 다른 곳에서 먼저 고친 체크설정 { 설정, 고친때 }
+let 읽기까닭 = [];
+let saveTimer = null, saving = false, saveAgain = false;
+const 모으는초 = 1500;                       // 1.5초 멈추면 그때 한 번 쓴다
+
+const 설정글 = () => JSON.stringify({ groups: data.groups, books: data.books, view: data.view, 옮김: data.옮김 || null });
+function 기록글() {
+  const out = {};
+  Object.keys(data.status).forEach(id => {
+    const x = data.status[id];
+    if (x && (x.done || (x.memo || '').trim())) out[id] = { 줬나: !!x.done, 메모: x.memo || '' };
+  });
+  return JSON.stringify(out);
+}
+const 기록에서 = r => {
+  const out = {};
+  Object.keys(r || {}).forEach(id => { const x = r[id] || {}; out[id] = { done: !!x.줬나, memo: String(x.메모 || '') }; });
+  return out;
+};
+
+// 화면에는 바로 반영하고, 서버에는 모아서 쓴다
+function save() { clearTimeout(saveTimer); saveTimer = setTimeout(flush, 모으는초); }
+async function flush() {
+  clearTimeout(saveTimer); saveTimer = null;
+  if (!비번) return;
+  if (saving) { saveAgain = true; return; }
+  saving = true;
+  try {
+    const day = data.day, rec = 기록글(), set = 설정글();
+    if (rec !== 보낸기록글) {
+      const r = await 부르기('체크기록저장', 비번, day, JSON.parse(rec));
+      if (r && r.ok) { if (day === data.day) 보낸기록글 = rec; }
+      else showMsg('체크를 저장하지 못했어요: ' + ((r && r.메시지) || ''));
+    }
+    if (set !== 보낸설정글 && !설정막힘 && !충돌) {
+      const r = await 부르기('체크설정저장', 비번, JSON.parse(set), 고친때, false);
+      if (r && r.ok) { 고친때 = r.고친때; 보낸설정글 = set; }
+      else if (r && r.새것있음) { 충돌 = { 설정: r.설정, 고친때: r.고친때 }; renderNotice(); }
+      else showMsg('그룹·진도를 저장하지 못했어요: ' + ((r && r.메시지) || ''));
+    }
+  } catch (e) {
+    showMsg('저장이 안 됐어요 — 10초 뒤 다시 해 볼게요');
+    setTimeout(save, 10000);
+  } finally {
+    saving = false;
+    if (saveAgain) { saveAgain = false; save(); }
+  }
+}
+const 저장할것있나 = () => !!saveTimer || saving || 기록글() !== 보낸기록글 || (!설정막힘 && !충돌 && 설정글() !== 보낸설정글);
+
+// 체크자료 한 번에 — 처음 · 날이 바뀔 때 · 1분마다. 손대고 있는 것(아직 안 보낸 것)은 덮지 않는다
+async function 불러오기() {
+  const r = await 부르기('체크자료', 비번, data.day);
+  if (!r || !r.ok) { showMsg((r && r.메시지) || '자료를 못 불러왔어요'); return false; }
+  if (r.날짜 !== data.day) return false;
+  data.students = r.학생들.map(x => ({ id: x.번호, name: x.이름, ban: x.반 }));
+  앱 = new Set(r.앱받은);
+  읽기까닭 = [r.설정까닭, r.오늘까닭].concat(r.지난기록.map(x => x.까닭)).filter(Boolean);
+  if (보낸설정글 === null || (설정글() === 보낸설정글 && r.고친때 > 고친때)) {
+    const 새 = load(r.설정);
+    data.groups = 새.groups; data.books = 새.books; data.view = 새.view; data.옮김 = 새.옮김;
+    고친때 = r.고친때; 설정막힘 = r.설정까닭 || '';
+    보낸설정글 = 설정글();
+  }
+  if (보낸기록글 === null || 기록글() === 보낸기록글) {
+    data.status = 기록에서(r.오늘);
+    보낸기록글 = 기록글();
+  }
+  data.history = {};
+  r.지난기록.forEach(x => { data.history[x.날짜] = 기록에서(x.기록); });
+  if (data.students.length) 명단맞추기(data.groups, data.students.map(s => s.id));
+  renderNotice();
+  return true;
+}
+let msgTimer;
+function showMsg(t) { $('msg').textContent = t; clearTimeout(msgTimer); msgTimer = setTimeout(() => $('msg').textContent = '', 4000); }
+
+function rollover() {
+  const t = today();
+  if (data.day === t) return false;
+  if (비번) flush();                       // 어제 것을 먼저 보낸다 (보낼 때 날짜를 붙들고 간다)
+  if (Object.keys(data.status).length) data.history[data.day] = data.status;
+  Object.keys(data.history).sort().reverse().slice(30).forEach(d => delete data.history[d]);
+  data.status = {};
+  data.day = t;
+  보낸기록글 = 기록글();
+  if (비번) 불러오기().then(ok => { if (ok && !editMode) render(); }).catch(() => {});
+  return true;
+}
+
+const studentById = id => data.students.find(s => s.id === id);
+const st = id => data.status[id] || (data.status[id] = { done: false, memo: '' });
+const isDone = id => 줬나(data.status, 앱, id);
+const bookById = id => data.books.find(b => b.id === id);
+
+function lastMemo(id) {
+  for (const d of Object.keys(data.history).sort().reverse()) {
+    const s = data.history[d][id];
+    if (s && s.memo) return { day: d, memo: s.memo };
+  }
+  return null;
+}
+
+function visibleGroups() {
+  return data.view.group === 'all' ? data.groups : data.groups.filter(g => g.id === data.view.group);
+}
+function idsOfGroup(g) { return g.subs.flatMap(s => s.ids); }
+
+// ---------- 진도 ----------
+// t = 교재 하나의 진도 { book, lesson(시작), end(끝), moved, ts }
+// 다음 ▶ / ◀ 은 범위 크기만큼 통째로 움직임 (3~5 → 6~8)
+// ts는 '다음 ▶'을 누른 시각. 교재가 여러 개면 ts가 가장 오래된 쪽이 오늘 차례
+function newTrack(ts) { return { book: null, lesson: 0, end: 0, moved: null, ts: ts || 0 }; }
+function step(t, dir) {
+  if (!data.books.length) return;
+  let bi = data.books.findIndex(b => b.id === t.book);
+  if (bi < 0) { t.book = data.books[0].id; t.lesson = 0; t.end = 0; }
+  else {
+    const book = data.books[bi];
+    // 책 끝에서 범위가 잘려도 원래 크기(span)는 기억해 둠
+    const size = Math.max(1, t.span || (t.end - t.lesson + 1));
+    let s;
+    if (dir > 0) {
+      s = t.end + 1;
+      if (s >= book.lessons.length) {
+        if (bi + 1 >= data.books.length) { showMsg('목록의 마지막 교재, 마지막 레슨이에요.'); return; }
+        t.book = data.books[bi + 1].id; s = 0;
+        showMsg(`${book.name} 끝! ${data.books[bi + 1].name}(으)로 넘어갔어요.`);
+      }
+    } else {
+      s = t.lesson - size;
+      if (s < 0) {
+        if (t.lesson === 0 && bi > 0) {
+          t.book = data.books[bi - 1].id;
+          s = Math.max(0, data.books[bi - 1].lessons.length - size);
+        } else s = 0;
+      }
+    }
+    const len = bookById(t.book).lessons.length;
+    t.lesson = s;
+    t.end = Math.min(s + size - 1, len - 1);
+  }
+  t.moved = today();
+  if (dir > 0) t.ts = Date.now();
+  save(); render();
+}
+function turnIndex(sub) {
+  if (sub.tracks.length < 2) return -1;
+  let best = 0;
+  sub.tracks.forEach((t, i) => { if ((t.ts || 0) < (sub.tracks[best].ts || 0)) best = i; });
+  return best;
+}
+
+// ---------- 화면 ----------
+function updateCount() {
+  const ids = visibleGroups().flatMap(idsOfGroup);
+  const left = ids.filter(id => !isDone(id)).length;
+  const c = $('count');
+  c.classList.toggle('alldone', ids.length > 0 && left === 0);
+  c.textContent = !ids.length ? '숙제 체크' : left === 0 ? '다 줬음 👍' : `안 준 학생 ${left}명`;
+  $('date').textContent = fmtDate(data.day) + ` · ${ids.length}명`;
+  app.querySelectorAll('.gLeft').forEach(e => {
+    const g = data.groups.find(x => x.id === e.dataset.g);
+    const n = idsOfGroup(g).filter(id => !isDone(id)).length;
+    e.textContent = n ? `${n}명 남음` : '완료';
+    e.classList.toggle('ok', !n);
+  });
+}
+
+function updateDatalist() {
+  const set = new Set();
+  Object.values(data.status).forEach(s => s.memo && set.add(s.memo));
+  Object.keys(data.history).sort().reverse().slice(0, 7).forEach(d =>
+    Object.values(data.history[d]).forEach(s => s.memo && set.add(s.memo)));
+  const dl = $('memoList');
+  dl.innerHTML = '';
+  [...set].slice(0, 40).forEach(m => { const o = el('option'); o.value = m; dl.append(o); });
+}
+
+function renderGroupSel() {
+  const sel = $('groupSel');
+  sel.innerHTML = '';
+  const named = data.groups.filter(g => g.name);
+  sel.style.display = named.length > 1 ? '' : 'none';
+  const all = el('option', null, '전체 그룹'); all.value = 'all'; sel.append(all);
+  data.groups.forEach(g => { const o = el('option', null, g.name || '(이름 없음)'); o.value = g.id; sel.append(o); });
+  if (!data.groups.some(g => g.id === data.view.group)) data.view.group = 'all';
+  sel.value = data.view.group;
+}
+
+const MAX_TRACKS = 4;
+
+// 단계 이름: 누르면 그 자리에서 고치기
+function subNameEl(sub, g) {
+  const named = g.subs.length > 1 || sub.name;
+  const span = el('span', 'sName' + (sub.name ? '' : ' noname'), sub.name || (named ? '단계 이름' : ''));
+  if (!g.name && !sub.name && g.subs.length < 2) return span;
+  span.title = '눌러서 이름 바꾸기';
+  span.onclick = () => {
+    const inp = el('input', 'nameEdit');
+    inp.value = sub.name;
+    inp.placeholder = '단계 이름';
+    let done = false;
+    const finish = ok => {
+      if (done) return; done = true;
+      if (ok) { sub.name = inp.value.trim(); save(); }
+      render();
+    };
+    inp.onkeydown = e => { if (e.key === 'Enter') finish(true); if (e.key === 'Escape') finish(false); };
+    inp.onblur = () => finish(true);
+    span.replaceWith(inp);
+    inp.focus(); inp.select();
+  };
+  return span;
+}
+
+// 학생을 다른 단계로 옮기기 (beforeId 앞에 끼워 넣음, 없으면 맨 뒤)
+function moveStudent(id, toSub, beforeId) {
+  data.groups.forEach(g => g.subs.forEach(s => { s.ids = s.ids.filter(x => x !== id); }));
+  const i = beforeId ? toSub.ids.indexOf(beforeId) : -1;
+  if (i >= 0) toSub.ids.splice(i, 0, id); else toSub.ids.push(id);
+  save(); render();
+}
+let dragId = null;
+function addTrackBtn(obj, label) {
+  const add = el('button', 'addTrack', label);
+  add.title = '이 그룹이 나가는 교재 추가 (격일이면 오늘/다음번이 자동으로 번갈아 표시)';
+  add.onclick = e => { e.stopPropagation(); obj.tracks.push(newTrack(Date.now())); save(); render(); };
+  return add;
+}
+
+// isGroup: 큰 그룹 진도 (제목 줄에 이미 이름·추가 버튼이 있음)
+function progressBar(sub, isGroup, g) {
+  const box = el('div', 'prog');
+  const head = el('div', 'pTop');
+  if (!isGroup && g) {
+    head.append(subNameEl(sub, g));
+    if (!sub.ids.some(studentById) && g.subs.length > 1) {
+      const del = el('button', 'delSub', '단계 삭제');
+      del.onclick = () => { g.subs.splice(g.subs.indexOf(sub), 1); save(); render(); };
+      head.append(del);
+    }
+  }
+  box.append(head);
+  if (!data.books.length) { if (!isGroup) head.append(el('span', 'nobook', '교재 편집에서 교재를 넣으면 진도를 적을 수 있어요')); return box; }
+
+  if (!isGroup && sub.tracks.length < MAX_TRACKS) head.append(addTrackBtn(sub, '+ 교재'));
+
+  const turn = turnIndex(sub);
+  sub.tracks.forEach((t, i) => {
+    const line = el('div', 'sHead' + (i === turn ? ' turn' : ''));
+
+    if (turn >= 0) {
+      const badge = el('span', 'badge', i === turn ? '오늘' : '다음번');
+      if (i !== turn) {
+        badge.title = '눌러서 이 교재를 오늘 차례로';
+        badge.onclick = () => { t.ts = Math.min(...sub.tracks.map(x => x.ts || 0)) - 1; save(); render(); };
+      }
+      line.append(badge);
+    }
+
+    const bSel = el('select');
+    const none = el('option', null, '교재 선택'); none.value = ''; bSel.append(none);
+    data.books.forEach(b => { const o = el('option', null, b.name); o.value = b.id; bSel.append(o); });
+    const book = bookById(t.book);
+    bSel.value = book ? book.id : '';
+    bSel.onchange = () => { t.book = bSel.value || null; t.lesson = 0; t.end = Math.max(0, (t.span || 1) - 1); t.moved = today(); save(); render(); };
+    line.append(bSel);
+
+    if (book) {
+      const last = Math.max(0, book.lessons.length - 1);
+      if (t.lesson > last) t.lesson = last;
+      if (t.end > last) t.end = last;
+      if (t.end < t.lesson) t.end = t.lesson;
+
+      const range = el('span', 'range');
+      const sSel = el('select');
+      book.lessons.forEach((l, j) => { const o = el('option', null, l); o.value = j; sSel.append(o); });
+      sSel.value = t.lesson;
+      sSel.title = '시작';
+      sSel.onchange = () => {
+        const size = Math.max(1, t.span || (t.end - t.lesson + 1));
+        t.lesson = +sSel.value;
+        t.end = Math.min(t.lesson + size - 1, last);   // 범위 크기는 유지
+        t.moved = today(); save(); render();
+      };
+      const eSel = el('select');
+      book.lessons.forEach((l, j) => { if (j >= t.lesson) { const o = el('option', null, l); o.value = j; eSel.append(o); } });
+      eSel.value = t.end;
+      eSel.title = '끝 (하나만 나가면 시작과 같게)';
+      eSel.onchange = () => { t.end = +eSel.value; t.span = t.end - t.lesson + 1; t.moved = today(); save(); render(); };
+      range.append(sSel, el('span', 'tilde', '~'), eSel);
+
+      const prev = el('button', 'step', '◀'); prev.title = '이전 범위로 (차례는 안 바뀜)'; prev.onclick = () => step(t, -1);
+      const next = el('button', 'step', '다음 ▶'); next.title = '다음 범위로'; next.onclick = () => step(t, 1);
+      line.append(range, prev, next);
+      if (t.moved) line.append(el('span', 'moved', fmtDate(t.moved)));
+    }
+
+    if (isGroup || sub.tracks.length > 1) {
+      const del = el('button', 'delTrack', '×');
+      del.title = '이 교재 빼기';
+      del.onclick = () => { sub.tracks.splice(i, 1); save(); render(); };
+      line.append(del);
+    }
+    box.append(line);
+  });
+  return box;
+}
+
+function studentRow(id, list) {
+  const s = studentById(id);
+  const status = st(id);
+  const byApp = 앱.has(id);
+  const row = el('div', 'row' + (isDone(id) ? ' done' : '') + (byApp ? ' byApp' : ''));
+  row.dataset.id = id;
+  row.draggable = true;
+  row.ondragstart = e => {
+    if (e.target.tagName === 'INPUT') { e.preventDefault(); return; }
+    dragId = id;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+    setTimeout(() => row.classList.add('dragging'), 0);
+  };
+  row.ondragend = () => { dragId = null; row.classList.remove('dragging'); app.querySelectorAll('.dropOn').forEach(x => x.classList.remove('dropOn')); };
+  const chk = el('button', 'chk', '✓'); chk.title = byApp ? '앱으로 숙제가 나갔어요 (끌 수 없어요)' : '줬음 / 취소';
+  const name = el('span', 'name', s.name); name.title = s.name;
+  const memo = el('input', 'memo');
+  memo.setAttribute('list', 'memoList');
+  memo.value = status.memo || '';
+  const lm = lastMemo(id);
+  memo.placeholder = lm ? `지난번 ${fmtDate(lm.day)}: ${lm.memo}` : '숙제 내용 (안 적어도 됨)';
+
+  const toggle = () => { if (!손으로뒤집기(data.status, 앱, id)) return; save(); render(); };
+  chk.onclick = toggle; name.onclick = toggle;
+  memo.oninput = () => {
+    status.memo = memo.value;
+    if (memo.value.trim() && !status.done) { status.done = true; row.classList.add('done'); }
+    else if (!memo.value.trim() && !isDone(id)) row.classList.remove('done');
+    save(); updateCount();
+  };
+  memo.onblur = () => { updateDatalist(); if (onlyLeft && status.done) render(); };
+  memo.onkeydown = e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const inputs = [...list.querySelectorAll('.memo')];
+    const next = inputs[inputs.indexOf(memo) + 1];
+    next ? next.focus() : memo.blur();
+  };
+  row.append(chk, name);
+  if (byApp) { const tag = el('span', 'appTag', '앱'); tag.title = '오늘 앱으로 단어 숙제가 나갔어요'; row.append(tag); }
+  row.append(memo);
+  return row;
+}
+
+function render() {
+  renderGroupSel();
+  const list = $('list');
+  list.innerHTML = '';
+  $('leftBtn').classList.toggle('on', onlyLeft);
+
+  if (editMode === 'names') list.append(poolBox());
+  else if (!data.groups.some(g => g.subs.some(s => s.ids.some(studentById)))) {
+    const e = el('div', 'empty');
+    e.innerHTML = data.students.length
+      ? '아직 단계에 넣은 학생이 없어요.<br>위의 <b>명단 편집</b>을 눌러 인왕보카 학생을 끌어다 넣어 주세요.'
+      : '인왕보카 학생 명단이 비었어요.';
+    list.append(e);
+    updateCount();
+    return;
+  }
+
+  visibleGroups().forEach(g => {
+    const gBox = el('div', 'group');
+    const folded = !!data.view.folded[g.id];
+    if (g.name) {
+      const head = el('div', 'gHead');
+      head.append(el('span', 'arrow', folded ? '▶' : '▼'), el('span', null, g.name));
+      const addSub = el('button', 'addTrack', '+ 단계');
+      addSub.title = '이 반 안에 단계 칸 추가';
+      addSub.onclick = e => {
+        e.stopPropagation();
+        g.subs.forEach(s => { if (!s.name && g.subs.length === 1) s.name = '1단계'; });
+        g.subs.push({ id: uid('u'), name: `${g.subs.length + 1}단계`, ids: [], tracks: [newTrack()] });
+        data.view.folded[g.id] = false;
+        save(); render();
+      };
+      head.append(addSub);
+      if (data.books.length && g.tracks.length < MAX_TRACKS) head.append(addTrackBtn(g, '+ 반 전체 교재'));
+      const left = el('span', 'gLeft'); left.dataset.g = g.id; head.append(left);
+      head.onclick = () => { data.view.folded[g.id] = !folded; save(); render(); };
+      gBox.append(head);
+    }
+    if (!(g.name && folded)) {
+      if (g.name && g.tracks.length && data.books.length) {
+        const gp = el('div', 'sub gProg');
+        gp.append(progressBar(g, true));
+        gBox.append(gp);
+      }
+      g.subs.forEach(sub => {
+        const ids = sub.ids.filter(id => studentById(id) && (!onlyLeft || !isDone(id)));
+        if (onlyLeft && !ids.length) return;
+        const sBox = el('div', 'sub');
+        if (sub.name || data.books.length || g.subs.length > 1) sBox.append(progressBar(sub, false, g));
+        ids.forEach(id => sBox.append(studentRow(id, list)));
+        if (!sub.ids.some(studentById)) sBox.append(el('div', 'dropHint', '학생 줄을 끌어다 여기에 놓으세요'));
+        sBox.ondragover = e => { if (!dragId) return; e.preventDefault(); sBox.classList.add('dropOn'); };
+        sBox.ondragleave = e => { if (!sBox.contains(e.relatedTarget)) sBox.classList.remove('dropOn'); };
+        sBox.ondrop = e => {
+          e.preventDefault();
+          const id = dragId || e.dataTransfer.getData('text/plain');
+          if (!id) return;
+          const target = e.target.closest('.row');
+          const before = target && target.dataset.id !== id ? target.dataset.id : null;
+          moveStudent(id, sub, before);
+        };
+        gBox.append(sBox);
+      });
+    }
+    list.append(gBox);
+  });
+
+  if (!list.querySelector('.row') && !list.querySelector('.gHead') && onlyLeft) {
+    list.append(el('div', 'empty', '숙제 다 줬어요.'));
+  }
+  updateCount();
+  updateDatalist();
+}
+
+// ---------- 아직 어느 단계에도 없는 아이 (명단 편집 때만) ----------
+// 인왕보카에 새로 들어온 아이는 여기 저절로 나타난다. 끌어서 단계에 넣고, 단계에서 여기로 끌면 뺀다
+function removeStudent(id) {
+  data.groups.forEach(g => g.subs.forEach(s => { s.ids = s.ids.filter(x => x !== id); }));
+  save(); render();
+}
+function poolBox() {
+  const placed = new Set(data.groups.flatMap(idsOfGroup));
+  const kids = data.students.filter(s => !placed.has(s.id))
+    .sort((a, b) => (a.ban || '힣').localeCompare(b.ban || '힣') || a.name.localeCompare(b.name));
+  const box = el('div', 'sub pool');
+  box.append(el('div', 'poolHead', `아직 어느 단계에도 없는 아이 ${kids.length}명 — 끌어다 단계에 놓으세요`));
+  kids.forEach(s => {
+    const row = el('div', 'row');
+    row.dataset.id = s.id;
+    row.draggable = true;
+    row.ondragstart = e => {
+      dragId = s.id;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', s.id);
+      setTimeout(() => row.classList.add('dragging'), 0);
+    };
+    row.ondragend = () => { dragId = null; row.classList.remove('dragging'); app.querySelectorAll('.dropOn').forEach(x => x.classList.remove('dropOn')); };
+    row.append(el('span', 'name', s.name), el('span', 'ban', s.ban || '반 없음'));
+    row.querySelector('.name').title = s.name;
+    box.append(row);
+  });
+  if (!kids.length) box.append(el('div', 'dropHint', '모두 단계에 들어 있어요. 빼려면 학생 줄을 여기로 끌어 오세요'));
+  box.ondragover = e => { if (!dragId) return; e.preventDefault(); box.classList.add('dropOn'); };
+  box.ondragleave = e => { if (!box.contains(e.relatedTarget)) box.classList.remove('dropOn'); };
+  box.ondrop = e => {
+    e.preventDefault();
+    const id = dragId || e.dataTransfer.getData('text/plain');
+    if (id && placed.has(id)) removeStudent(id);
+  };
+  return box;
+}
+
+// ---------- 그룹 편집 (텍스트) — # 과 ## 만. 학생은 끌어서 넣는다 ----------
+function groupsToText() {
+  const out = [];
+  const gs = [...data.groups].sort((a, b) => (a.name ? 1 : 0) - (b.name ? 1 : 0));
+  gs.forEach(g => {
+    if (g.name) out.push('# ' + g.name);
+    const subs = [...g.subs].sort((a, b) => (a.name ? 1 : 0) - (b.name ? 1 : 0));
+    subs.forEach(s => { if (s.name) out.push('## ' + s.name); });
+    out.push('');
+  });
+  return out.join('\n').trim();
+}
+
+function textToGroups(text) {
+  const oldGroups = data.groups.map(g => ({ ...g, used: false, subs: g.subs.map(s => ({ ...s, used: false })) }));
+  const groups = [];
+  let G = null, S = null, 이름줄 = 0;
+
+  const newGroup = name => {
+    const old = oldGroups.find(o => !o.used && o.name === name);
+    if (old) old.used = true;
+    const g = { id: old ? old.id : uid('g'), name, subs: [], tracks: old ? old.tracks.map(t => ({ ...t })) : [], _old: old };
+    groups.push(g);
+    return g;
+  };
+  const newSub = (g, name) => {
+    const old = g._old && g._old.subs.find(o => !o.used && o.name === name);
+    if (old) old.used = true;
+    const s = old ? { id: old.id, name, ids: old.ids.slice(), tracks: old.tracks.map(t => ({ ...t })) }
+                  : { id: uid('u'), name, ids: [], tracks: [newTrack()] };
+    g.subs.push(s);
+    return s;
+  };
+
+  text.split('\n').map(x => x.trim()).filter(Boolean).forEach(line => {
+    if (line.startsWith('##')) {
+      if (!G) G = newGroup('');
+      S = newSub(G, line.replace(/^#+/, '').trim());
+    } else if (line.startsWith('#')) {
+      G = newGroup(line.replace(/^#+/, '').trim());
+      S = null;
+    } else 이름줄++;                       // 이름 줄은 안 받는다 — 학생은 인왕보카 명단에서 끌어 온다
+  });
+  // ## 가 없는 그룹은 이름 없는 단계 하나 — 전에 그 자리에 있던 아이들은 그대로
+  groups.forEach(g => { if (!g.subs.length) newSub(g, ''); delete g._old; });
+  // 맨 위 이름 없는 그룹(# 없이 쓰던 것)은 글에 줄이 없다 — 아이가 들어 있으면 남긴다
+  const 이름없던 = oldGroups.find(o => !o.used && !o.name && o.subs.some(s => s.ids.length));
+  if (이름없던) groups.unshift({ id: 이름없던.id, name: '', tracks: 이름없던.tracks, subs: 이름없던.subs.map(({ used, ...s }) => s) });
+  data.groups = groups.length ? groups : [{ id: uid('g'), name: '', subs: [{ id: uid('u'), name: '', ids: [], tracks: [newTrack()] }], tracks: [] }];
+  if (이름줄) showMsg(`이름 줄 ${이름줄}개는 넣지 않았어요 — 학생은 아래 노란 칸에서 끌어다 넣어 주세요.`);
+}
+
+// ---------- 교재 편집 (텍스트) ----------
+function booksToText() {
+  return data.books.map(b => '# ' + b.name + '\n' + b.lessons.join('\n')).join('\n\n');
+}
+function textToBooks(text) {
+  const books = [];
+  let cur = null;
+  text.split('\n').map(x => x.trim()).filter(Boolean).forEach(line => {
+    if (line.startsWith('#')) {
+      const name = line.replace(/^#+/, '').trim();
+      const old = data.books.find(b => b.name === name && !books.includes(b));
+      cur = { id: old ? old.id : uid('b'), name, lessons: [] };
+      books.push(cur);
+    } else if (cur) cur.lessons.push(line);
+  });
+  books.forEach(b => {
+    if (b.lessons.length === 1 && /^\d+$/.test(b.lessons[0])) {
+      const n = Math.min(200, +b.lessons[0]);
+      b.lessons = Array.from({ length: n }, (_, i) => `Lesson ${i + 1}`);
+    }
+    if (!b.lessons.length) b.lessons = ['Lesson 1'];
+  });
+  data.books = books;
+  // 지워진 교재를 쓰던 그룹은 비워 둠
+  data.groups.forEach(g => [g, ...g.subs].forEach(s => s.tracks.forEach(t => { if (t.book && !bookById(t.book)) { t.book = null; t.lesson = 0; t.end = 0; } })));
+}
+
+const HELP = {
+  names: `큰 그룹은 #, 단계 그룹은 ##로 시작해요. 학생 이름은 여기 적지 않아요 —
+아래 노란 칸(인왕보카 학생)에서 끌어다 단계에 놓으세요.
+예)
+# 월수금 4시
+## 1단계
+## 2단계`,
+  books: `교재는 #으로 시작하고, 아래에 레슨을 한 줄씩 순서대로 적어요.
+레슨 수만 숫자로 적으면 Lesson 1~N이 자동으로 만들어져요.
+목록 순서대로 교재가 이어져요 (한 교재 끝나면 다음 교재로).
+예)
+# 해법 Grammar 1
+Unit 1 be동사
+Unit 2 일반동사
+# 리딩튜터 1
+12`
+};
+
+function openEditor(mode) {
+  editMode = mode;
+  $('editorHelp').textContent = HELP[mode];
+  $('editBox').value = mode === 'names' ? groupsToText() : booksToText();
+  $('editBox').style.height = mode === 'names' ? '140px' : '';
+  $('editor').classList.add('show');
+  $('list').style.display = mode === 'names' ? '' : 'none';   // 명단 편집은 아래 목록에서 끌어 넣는다
+  $('editBtn').classList.toggle('on', mode === 'names');
+  if (mode === 'names') render(); else $('editBox').focus();
+}
+function closeEditor() { editMode = null; $('editor').classList.remove('show'); $('list').style.display = ''; $('editBtn').classList.remove('on'); }
+
+$('editBtn').onclick = () => { if (editMode === 'names') { closeEditor(); render(); } else openEditor('names'); };
+$('bookBtn').onclick = () => openEditor('books');
+$('cancelBtn').onclick = () => { closeEditor(); render(); };
+$('saveBtn').onclick = () => {
+  if (editMode === 'names') textToGroups($('editBox').value);
+  else textToBooks($('editBox').value);
+  save(); closeEditor(); render();
+};
+
+$('leftBtn').onclick = () => { onlyLeft = !onlyLeft; render(); };
+$('groupSel').onchange = () => { data.view.group = $('groupSel').value; save(); render(); };
+
+// ---------- 항상 위에 뜨는 작은 창 ----------
+let pipWin = null;
+$('pipBtn').onclick = async () => {
+  if (pipWin) { pipWin.close(); return; }
+  if (!('documentPictureInPicture' in window)) {
+    showMsg('이 브라우저는 화면 위 띄우기를 지원 안 해요. 최신 크롬에서 열어 주세요.');
+    return;
+  }
+  try { pipWin = await documentPictureInPicture.requestWindow({ width: 380, height: 620 }); }
+  catch (e) { showMsg('창을 못 띄웠어요: ' + e.message); return; }
+  const style = pipWin.document.createElement('style');
+  style.textContent = document.getElementById('mainStyle').textContent;
+  pipWin.document.head.append(style);
+  pipWin.document.title = '숙제 체크';
+  pipWin.document.body.append(app);
+  $('pipBtn').textContent = '📌 창 닫기';
+  document.getElementById('placeholder').style.display = 'block';
+  pipWin.addEventListener('pagehide', () => {
+    document.body.append(app);
+    $('pipBtn').textContent = '📌 화면 위에 띄우기';
+    document.getElementById('placeholder').style.display = 'none';
+    pipWin = null;
+  });
+};
+document.getElementById('backBtn').onclick = () => { if (pipWin) pipWin.close(); };
+
+// ---------- 알림 칸 — 읽지 못한 자료 · 다른 곳에서 고침 · 옮기며 못 찾은 이름 ----------
+function renderNotice() {
+  const box = $('notice');
+  box.innerHTML = '';
+  const add = (cls, html, btns) => {
+    const d = el('div', 'notice ' + cls);
+    d.innerHTML = html;
+    if (btns && btns.length) { const b = el('div', 'btns'); btns.forEach(x => b.append(x)); d.append(b); }
+    box.append(d);
+  };
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  if (읽기까닭.length) {
+    const 새로 = 설정막힘 ? el('button', null, '비우고 새로 시작') : null;
+    if (새로) 새로.onclick = async () => {
+      const r = await 부르기('체크설정저장', 비번, JSON.parse(설정글()), 고친때, true);
+      if (r && r.ok) { 고친때 = r.고친때; 보낸설정글 = 설정글(); 설정막힘 = ''; 읽기까닭 = 읽기까닭.filter(x => !/^체크설정/.test(x)); renderNotice(); }
+    };
+    add('warn', '<b>서버 자료 일부를 읽지 못했어요.</b>' + (설정막힘 ? ' 그룹·진도는 덮어쓰지 않고 멈춰 뒀어요.' : '') +
+      '<ul>' + 읽기까닭.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>', 새로 ? [새로] : []);
+  }
+  if (충돌) {
+    const 받기 = el('button', null, '그것 불러오기'), 덮기 = el('button', 'on', '내 것으로 덮어쓰기');
+    받기.onclick = () => {
+      const 새 = load(충돌.설정);
+      data.groups = 새.groups; data.books = 새.books; data.view = 새.view; data.옮김 = 새.옮김;
+      if (data.students.length) 명단맞추기(data.groups, data.students.map(s => s.id));
+      고친때 = 충돌.고친때; 보낸설정글 = 설정글(); 충돌 = null; renderNotice(); render();
+    };
+    덮기.onclick = async () => {
+      const set = 설정글();
+      const r = await 부르기('체크설정저장', 비번, JSON.parse(set), 고친때, true);
+      if (r && r.ok) { 고친때 = r.고친때; 보낸설정글 = set; 충돌 = null; renderNotice(); }
+      else showMsg('덮어쓰지 못했어요: ' + ((r && r.메시지) || ''));
+    };
+    add('ask', '<b>다른 곳(다른 컴퓨터)에서 그룹·진도를 먼저 고쳤어요.</b><br>어느 것을 쓸까요?', [받기, 덮기]);
+  }
+  const 옮김 = data.옮김;
+  if (옮김 && 옮김.못찾은 && 옮김.못찾은.length && !옮김.확인) {
+    const ok = el('button', null, '확인했어요');
+    ok.onclick = () => { data.옮김 = { ...옮김, 확인: true }; save(); renderNotice(); };
+    add('warn', `<b>인왕보카 명단에서 못 찾은 이름 ${옮김.못찾은.length}명 — 올리지 않았어요.</b><br>` +
+      '학생 명단의 이름과 맞춘 뒤 명단 편집에서 끌어다 넣어 주세요.<ul>' +
+      옮김.못찾은.map(x => '<li>' + esc(x.이름) + (x.자리 ? ' <span style="color:#999">(' + esc(x.자리) + ')</span>' : '') +
+        (x.까닭 ? ' — ' + esc(x.까닭) : '') + '</li>').join('') + '</ul>', [ok]);
+  }
+  // 올리기 단추 — 이 컴퓨터에 옛 자료가 있고 아직 한 번도 안 올렸을 때만
+  $('importBtn').hidden = !(옛자료() && !(data.옮김 && data.옮김.때));
+}
+
+// ---------- 이 컴퓨터에 있던 것 올리기 (localStorage hwcheck_v1 → 서버). 옛 자료는 지우지 않는다 ----------
+function 옛자료() {
+  try { const d = JSON.parse(localStorage.getItem(KEY)); return d && typeof d === 'object' && (Array.isArray(d.groups) || Array.isArray(d.students)) ? d : null; }
+  catch (e) { return null; }
+}
+$('importBtn').onclick = async () => {
+  const old = 옛자료();
+  if (!old || (data.옮김 && data.옮김.때)) return;
+  const r = 옛자료옮기기(old, data.students.map(s => ({ 번호: s.id, 이름: s.name })));
+  const 새 = load(r.설정);
+  data.groups = 새.groups; data.books = 새.books; data.view = 새.view;
+  data.옮김 = { 때: Date.now(), 못찾은: r.못찾은, 확인: false };
+  const set = 설정글();
+  try {
+    const w = await 부르기('체크설정저장', 비번, JSON.parse(set), 고친때, true);
+    if (!w || !w.ok) { showMsg('올리지 못했어요: ' + ((w && w.메시지) || '')); data.옮김 = null; return; }
+    고친때 = w.고친때; 보낸설정글 = set; 충돌 = null;
+    showMsg(`올렸어요 — ${r.옮긴수}명` + (r.못찾은.length ? `, 못 찾은 이름 ${r.못찾은.length}명은 위에 적어 뒀어요.` : '.'));
+  } catch (e) { showMsg('올리지 못했어요: ' + e.message); data.옮김 = null; return; }
+  renderNotice(); render();
+};
+
+/* ==== 체크 셈 시작 — 화면(DOM)을 안 쓰는 셈. tests/hw-check.test.mjs 가 떼어서 돌린다 ==== */
+// 인왕보카에서 빠진 아이(번호가 명단에 없음)는 단계에서도 뺀다. 뺀 수를 돌려준다
+function 명단맞추기(groups, 번호들) {
+  const 있음 = new Set(번호들);
+  let 뺀 = 0;
+  groups.forEach(g => g.subs.forEach(s => {
+    const 남 = s.ids.filter((id, i) => 있음.has(id) && s.ids.indexOf(id) === i);
+    뺀 += s.ids.length - 남.length;
+    s.ids = 남;
+  }));
+  return 뺀;
+}
+// ○ = 앱으로 나갔거나(저절로) 손으로 눌렀거나
+function 줬나(status, 앱, id) { return 앱.has(id) || !!(status[id] && status[id].done); }
+// 손으로 누르기 — 앱으로 켜진 ○ 는 사실이니 끄지 못한다(아무 일도 없다). 바뀌었으면 참
+function 손으로뒤집기(status, 앱, id) {
+  if (앱.has(id)) return false;
+  const x = status[id] || (status[id] = { done: false, memo: '' });
+  x.done = !x.done;
+  return true;
+}
+// 옛 자료(이 컴퓨터 localStorage) → 서버 체크설정. 학생은 이름으로 인왕보카 아이를 찾아 학생번호로 바꾼다.
+// 못 찾은 이름(같은 이름이 둘인 것도)은 올리지 않고 못찾은 에 담는다 — 조용히 버리지 않는다
+function 옛자료옮기기(old, 학생들) {
+  const 빈칸뺌 = t => String(t || '').replace(/\s/g, '');
+  const 찾기 = 이름 => {
+    let 맞음 = 학생들.filter(x => x.이름 === 이름);
+    if (!맞음.length) 맞음 = 학생들.filter(x => 빈칸뺌(x.이름) === 빈칸뺌(이름));
+    if (맞음.length === 1) return { 번호: 맞음[0].번호 };
+    return { 까닭: 맞음.length ? `인왕보카에 「${이름}」 이 ${맞음.length}명이에요` : '' };
+  };
+  const 옛학생 = Array.isArray(old.students) ? old.students : [];
+  const 옛이름 = id => { const s = 옛학생.find(x => x.id === id); return s ? String(s.name || '').trim() : ''; };
+  let groups = Array.isArray(old.groups) ? old.groups
+    : [{ id: 'g0', name: '', subs: [{ id: 'u0', name: '', ids: 옛학생.map(s => s.id), book: old.book, lesson: old.lesson, moved: old.moved }] }];
+  groups = JSON.parse(JSON.stringify(groups));
+  const 못찾은 = [], 넣은 = new Set();
+  groups.forEach(g => (g.subs || []).forEach(s => {
+    const 자리 = [g.name, s.name].filter(Boolean).join(' › ');
+    s.ids = (s.ids || []).map(id => {
+      const 이름 = 옛이름(id);
+      if (!이름) return null;
+      const r = 찾기(이름);
+      if (!r.번호) { 못찾은.push({ 이름, 자리, 까닭: r.까닭 }); return null; }
+      if (넣은.has(r.번호)) return null;         // 같은 아이가 두 자리에 — 처음 자리만
+      넣은.add(r.번호);
+      return r.번호;
+    }).filter(Boolean);
+  }));
+  // 옛 자료에 학생으로는 있는데 어느 단계에도 없던 이름도 알려 준다
+  const 단계에있던 = new Set(groups.flatMap(g => (g.subs || []).flatMap(s => s.ids)));
+  return {
+    설정: { groups, books: Array.isArray(old.books) ? old.books : [], view: old.view || { group: 'all', folded: {} } },
+    못찾은, 옮긴수: 단계에있던.size
+  };
+}
+/* ==== 체크 셈 끝 ==== */
+
+// ---------- 들어가기 — teacher.html 과 같은 길 (선생님로그인) ----------
+async function 들어가기(pw, 기억할까) {
+  $('loginMsg').textContent = '확인 중…';
+  try {
+    const r = await 부르기('선생님로그인', pw);
+    if (!r || !r.ok) {
+      $('loginMsg').textContent = '비밀번호가 다릅니다.';
+      try { const a = JSON.parse(localStorage.getItem(자동열쇠) || 'null'); if (a && a.역할 === '선생님') localStorage.removeItem(자동열쇠); } catch (e) {}
+      return;
+    }
+    if (기억할까) { try { localStorage.setItem(자동열쇠, JSON.stringify({ 역할: '선생님', 비번: pw })); } catch (e) {} }
+    비번 = pw;
+    data.day = today();
+    if (!(await 불러오기())) { $('loginMsg').textContent = '자료를 못 불러왔어요. 새로고침해 주세요.'; 비번 = ''; return; }
+    $('login').hidden = true; $('main').hidden = false;
+    $('loginMsg').textContent = '';
+    render();
+  } catch (e) { $('loginMsg').textContent = '들어가지 못했어요. ' + e.message; }
+}
+$('loginBtn').onclick = () => 들어가기($('pw').value.trim(), $('auto').checked);
+$('pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+
+// 1분마다 — 앱으로 나간 숙제(저절로 ○) · 다른 곳에서 고친 것을 받아 온다. 손대는 중이면 건너뛴다
+setInterval(() => {
+  if (!비번 || editMode || dragId || 저장할것있나()) return;
+  const 지금 = (pipWin ? pipWin.document : document).activeElement;
+  if (지금 && /^(INPUT|SELECT|TEXTAREA)$/.test(지금.tagName)) return;
+  불러오기().then(ok => { if (ok && !editMode && !dragId) render(); }).catch(() => {});
+}, 60000);
+// 창을 닫거나 숨길 때 못 보낸 것을 바로 보낸다
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && saveTimer) flush(); });
+window.addEventListener('pagehide', () => { if (saveTimer) flush(); });
+setInterval(() => { if (rollover() && !editMode) render(); }, 30000);
+
+(() => {
+  let a = null;
+  try { a = JSON.parse(localStorage.getItem(자동열쇠) || 'null'); } catch (e) {}
+  if (a && a.역할 === '선생님' && a.비번) { $('auto').checked = true; 들어가기(a.비번, true); }
+})();
+</script>
+</body>
+</html>
