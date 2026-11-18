@@ -15,7 +15,9 @@
   .date { font-size: 13px; color: #666; }
   .count { font-size: 18px; font-weight: 700; flex: 1; }
   .count.alldone { color: #1a9a52; }
-  .bar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .bar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+  .readAt { font-size: 11px; color: #888; }
+  button:disabled { opacity: .6; cursor: default; }
   button, select {
     font: inherit; font-size: 13px; border: 1px solid #ccd; background: #fff;
     border-radius: 8px; padding: 5px 9px; cursor: pointer; color: inherit;
@@ -146,6 +148,8 @@
     <select id="groupSel"></select>
     <button id="leftBtn">안 준 애만</button>
     <button id="editBtn">명단 편집</button>
+    <button id="reloadBtn">↻ 새로 불러오기</button>
+    <span class="readAt" id="readAt"></span>
     <button id="importBtn" hidden>이 컴퓨터에 있던 것 올리기</button>
     <button id="pasteBtn" hidden>붙여넣어 올리기</button>
   </div>
@@ -339,7 +343,9 @@ async function flush() {
 }
 const 저장할것있나 = () => !!saveTimer || saving || 기록글() !== 보낸기록글 || (!설정막힘 && !충돌 && 설정글() !== 보낸설정글);
 
-// 체크자료 한 번에 — 처음 · 날이 바뀔 때 · 1분마다. 손대고 있는 것(아직 안 보낸 것)은 덮지 않는다
+// 체크자료 한 번에 — 처음 · 날이 바뀔 때 · 「새로 불러오기」 를 누를 때만. 저절로 되풀이해 읽지 않는다 (docs/서버사용량.md).
+// 손대고 있는 것(아직 안 보낸 것)은 덮지 않는다
+let 읽은때 = null, 불러오는중 = false;
 async function 불러오기() {
   const r = await 부르기('체크자료', 비번, data.day);
   if (!r || !r.ok) { showMsg((r && r.메시지) || '자료를 못 불러왔어요'); return false; }
@@ -362,8 +368,27 @@ async function 불러오기() {
   data.history = {};
   r.지난기록.forEach(x => { data.history[x.날짜] = 기록에서(x.기록); });
   if (data.students.length) 명단맞추기(data.groups, data.students.map(s => s.id));
+  읽은때 = new Date();
   renderNotice();
   return true;
+}
+// 「↻ 새로 불러오기」 — 한 번 누르면 한 번 읽는다. 읽는 동안은 단추를 잠가 두 번 읽지 않는다
+function 불러오기단추() {
+  const b = $('reloadBtn'), t = $('readAt');
+  b.disabled = 불러오는중;
+  b.textContent = 불러오는중 ? '불러오는 중…' : '↻ 새로 불러오기';
+  t.textContent = 읽은때 ? String(읽은때.getHours()).padStart(2, '0') + ':' + String(읽은때.getMinutes()).padStart(2, '0') + ' 기준' : '';
+}
+async function 새로불러오기() {
+  if (!비번 || 불러오는중) return false;
+  if (editMode || dragId) { showMsg('편집을 끝내고 눌러 주세요'); return false; }
+  불러오는중 = true; 불러오기단추();
+  try {
+    const ok = await 불러오기();
+    if (ok && !editMode && !dragId) render();
+    return ok;
+  } catch (e) { showMsg('자료를 못 불러왔어요: ' + e.message); return false; }
+  finally { 불러오는중 = false; 불러오기단추(); }
 }
 let msgTimer;
 function showMsg(t, ms) { $('msg').textContent = t; clearTimeout(msgTimer); msgTimer = setTimeout(() => $('msg').textContent = '', ms || 4000); }
@@ -643,6 +668,7 @@ function render() {
   const list = $('list');
   list.innerHTML = '';
   $('leftBtn').classList.toggle('on', onlyLeft);
+  불러오기단추();
 
   if (editMode === 'names') list.append(poolBox());
   // 아무것도 안 짠 처음에만 빈 화면 — 그룹을 만들어 뒀으면 아이가 없어도 그룹을 그린다 (만든 게 사라진 것처럼 보이지 않게)
@@ -836,6 +862,7 @@ $('saveBtn').onclick = () => {
 };
 
 $('leftBtn').onclick = () => { onlyLeft = !onlyLeft; render(); };
+$('reloadBtn').onclick = () => { 새로불러오기(); };
 $('groupSel').onchange = () => { data.view.group = $('groupSel').value; save(); render(); };
 
 // ---------- 항상 위에 뜨는 작은 창 ----------
@@ -1149,7 +1176,7 @@ async function 들어가기(pw, 기억할까) {
     if (기억할까) { try { localStorage.setItem(자동열쇠, JSON.stringify({ 역할: '선생님', 비번: pw })); } catch (e) {} }
     비번 = pw;
     data.day = today();
-    // 학생번호 — 번호가 빈 아이에게만 붙인다 (채울 아이가 없으면 아무것도 안 쓴다). 들어올 때 한 번만 (1분마다 읽을 때는 안 부른다).
+    // 학생번호 — 번호가 빈 아이에게만 붙인다 (채울 아이가 없으면 아무것도 안 쓴다). 들어올 때 한 번만 (새로 불러올 때는 안 부른다).
     // 안 돼도 화면은 뜬다 — 까닭은 알림 칸에 남긴다
     번호채움탈 = '';
     try {
@@ -1165,13 +1192,7 @@ async function 들어가기(pw, 기억할까) {
 $('loginBtn').onclick = () => 들어가기($('pw').value.trim(), $('auto').checked);
 $('pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
 
-// 1분마다 — 앱으로 나간 숙제(저절로 ○) · 다른 곳에서 고친 것을 받아 온다. 손대는 중이면 건너뛴다
-setInterval(() => {
-  if (!비번 || editMode || dragId || 저장할것있나()) return;
-  const 지금 = (pipWin ? pipWin.document : document).activeElement;
-  if (지금 && /^(INPUT|SELECT|TEXTAREA)$/.test(지금.tagName)) return;
-  불러오기().then(ok => { if (ok && !editMode && !dragId) render(); }).catch(() => {});
-}, 60000);
+// 저절로 되풀이해 읽지 않는다 — 앱으로 나간 숙제(저절로 ○)는 「↻ 새로 불러오기」 로 받아 온다 (프롬프트 58)
 // 창을 닫거나 숨길 때 못 보낸 것을 바로 보낸다
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && saveTimer) flush(); });
 window.addEventListener('pagehide', () => { if (saveTimer) flush(); });

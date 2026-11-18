@@ -409,14 +409,15 @@ test('57-3. 학생번호채우기 는 채울 게 없으면 아무것도 안 쓴�
   assert.equal(e.call('학생번호채우기', '0000').ok, false, '선생님 비번을 거친다');
 });
 
-test('57 — 들어올 때 한 번 학생번호채우기 를 부른다 (check.html · teacher.html). 1분마다 읽을 때는 안 부른다', () => {
+test('57 — 들어올 때 한 번 학생번호채우기 를 부른다 (check.html · teacher.html). 새로 불러올 때는 안 부른다', () => {
   assert.equal(check.split("'학생번호채우기'").length - 1, 1, 'check.html 에서 한 군데');
   const 들어가기 = check.slice(check.indexOf('async function 들어가기('), check.indexOf("$('loginBtn').onclick"));
   assert.ok(들어가기.indexOf("부르기('학생번호채우기', pw)") > -1);
   assert.ok(들어가기.indexOf("부르기('학생번호채우기', pw)") < 들어가기.indexOf('await 불러오기()'), '채운 뒤에 읽는다');
   assert.match(들어가기, /catch \(e\) \{ 번호채움탈 = e\.message \|\| String\(e\); \}/, '안 돼도 화면은 뜬다 — 까닭만 남긴다');
-  const 일분 = check.slice(check.indexOf('// 1분마다'), check.indexOf('// 창을 닫거나'));
-  assert.doesNotMatch(일분, /학생번호채우기|들어가기/);
+  const 새로 = check.slice(check.indexOf('async function 새로불러오기('), check.indexOf('let msgTimer;'));
+  assert.ok(새로.length > 0);
+  assert.doesNotMatch(새로, /학생번호채우기|들어가기/, '새로 불러올 때는 번호를 안 붙인다');
   assert.match(check, /번호가 없어 아직 못 쓰는 아이 \$\{번호없음\.length\}명:/);
   const teacher = read('../teacher.html');
   const t = teacher.slice(teacher.indexOf('function 선생님들어가기_('), teacher.indexOf("$('tPw').addEventListener"));
@@ -436,4 +437,70 @@ test('57-5 · 6. 그룹 편집 — 이름 줄은 버리고 그 줄들을 돌려�
   assert.match(check, /'이름은 여기서 안 받습니다\. 아래 목록에서 끌어다 넣으세요\. 무시한 줄: ' \+ 읽음\.무시한\.join\(', '\)/);
   assert.match(check, /학생 이름은 여기서 안 받아요 \(적으면 무시돼요\)/);
   assert.doesNotMatch(check, /그 아래 이름을 한 줄에 한 명씩/);
+});
+
+
+/* ---------- 프롬프트 58 — 저절로 되풀이해 읽지 않는다. 사람이 누를 때만 읽는다 ---------- */
+test('58 — check.html 에 저절로 도는 서버 읽기가 없다', () => {
+  const 되풀이 = check.split('setInterval(').slice(1).map(x => x.slice(0, x.search(/\}, \d+\);/)));
+  assert.ok(되풀이.length >= 1);
+  되풀이.forEach(b => assert.doesNotMatch(b, /불러오기|부르기|체크자료/, 'setInterval 안에서 서버를 안 읽는다: ' + b));
+  assert.doesNotMatch(check, /60000/, '1분 시계가 없다');
+  // 날짜 넘기기(30초)는 날이 바뀔 때만 읽는다 — 그 전에 돌아간다
+  const 넘기기 = check.slice(check.indexOf('function rollover() {'), check.indexOf('const studentById'));
+  assert.ok(넘기기.indexOf('if (data.day === t) return false;') > -1);
+  assert.ok(넘기기.indexOf('if (data.day === t) return false;') < 넘기기.indexOf('불러오기()'));
+  // 체크자료는 불러오기 한 곳에서만 부른다
+  assert.equal(check.split("부르기('체크자료'").length - 1, 1);
+});
+
+function 새로불러오기판(자리) {
+  const 몸 = check.slice(check.indexOf('// 「↻ 새로 불러오기」'), check.indexOf('let msgTimer;'));
+  return new Function('자리', `
+    let 읽은때 = null, 불러오는중 = false, editMode = null, dragId = null, 비번 = '1234';
+    const 단추 = { disabled: false, textContent: '' }, 때칸 = { textContent: '' };
+    const $ = id => id === 'reloadBtn' ? 단추 : 때칸;
+    const showMsg = t => 자리.말.push(t);
+    const render = () => { 자리.그림++; };
+    async function 불러오기() { 자리.읽음++; await 자리.기다림; 읽은때 = new Date(2026, 10, 18, 10, 32); return true; }
+    ${몸}
+    return { 새로불러오기, 단추, 때칸, 편집: v => { editMode = v; } };`)(자리);
+}
+
+test('58 — 새로고침 단추: 누르면 한 번 읽고, 읽는 동안 또 눌러도 두 번 안 읽는다', async () => {
+  let 풀기; const 자리 = { 읽음: 0, 그림: 0, 말: [], 기다림: new Promise(r => { 풀기 = r; }) };
+  const 판 = 새로불러오기판(자리);
+  const 첫 = 판.새로불러오기();
+  assert.equal(판.단추.disabled, true, '읽는 동안 잠근다');
+  assert.equal(판.단추.textContent, '불러오는 중…');
+  assert.equal(await 판.새로불러오기(), false, '또 누르면 그냥 돌아간다');
+  assert.equal(await 판.새로불러오기(), false);
+  assert.equal(자리.읽음, 1, '두 번 안 읽는다');
+  풀기();
+  assert.equal(await 첫, true);
+  assert.equal(자리.그림, 1, '다시 그린다');
+  assert.equal(판.단추.disabled, false);
+  assert.equal(판.단추.textContent, '↻ 새로 불러오기');
+  assert.equal(판.때칸.textContent, '10:32 기준', '언제 기준인지 보인다');
+  await 판.새로불러오기();
+  assert.equal(자리.읽음, 2, '다시 누르면 또 한 번');
+  판.편집('names');
+  assert.equal(await 판.새로불러오기(), false, '명단 편집 중에는 안 읽는다');
+  assert.equal(자리.읽음, 2);
+});
+
+test('58 — 처음 들어올 때는 한 번 읽고, 단추가 화면에 있다', () => {
+  const 들어가기 = check.slice(check.indexOf('async function 들어가기('), check.indexOf("$('loginBtn').onclick"));
+  assert.equal(들어가기.split('불러오기()').length - 1, 1);
+  assert.match(check, /<button id="reloadBtn">↻ 새로 불러오기<\/button>/);
+  assert.match(check, /<span class="readAt" id="readAt"><\/span>/);
+  assert.match(check, /\$\('reloadBtn'\)\.onclick = \(\) => \{ 새로불러오기\(\); \};/);
+  assert.match(check.slice(check.indexOf('function render() {'), check.indexOf('function render() {') + 300), /불러오기단추\(\);/, '그릴 때마다 「언제 기준」 을 맞춘다');
+});
+
+test('58 — 저장(디바운스 · 창 닫을 때 보내기)은 그대로 돈다', () => {
+  assert.match(check, /function save\(\) \{ clearTimeout\(saveTimer\); saveTimer = setTimeout\(flush, 모으는초\); \}/);
+  assert.match(check, /document\.addEventListener\('visibilitychange', \(\) => \{ if \(document\.visibilityState === 'hidden' && saveTimer\) flush\(\); \}\);/);
+  assert.match(check, /window\.addEventListener\('pagehide', \(\) => \{ if \(saveTimer\) flush\(\); \}\);/);
+  assert.ok(existsSync(new URL('../docs/서버사용량.md', import.meta.url)), '서버 사용량 문서');
 });
