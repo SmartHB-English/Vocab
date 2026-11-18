@@ -3841,14 +3841,32 @@ function 숙제예약요약_(h) {
           종류 + (종류 === '기한' || 종류 === '시험' ? ' (' + s_(h.마감일) + ')' : '')].join(' · ');
 }
 
-/** 선생님 화면 — 숙제 예약 전부 (새것부터) */
+/**
+ * 선생님 화면 — 숙제 예약 전부 (새것부터).
+ *   줄마다 받는이들(지금 기준으로 받을 아이 — 숙제받을아이_) · 교재로(학생을 안 고르고 교재로 냈나)를 더 싣는다.
+ *   이미 나간 줄(보낸때가 찍힘)은 그때 누가 받았는지 모르니 받는이들을 비운다. 저장된 요약 칸은 그대로 둔다.
+ */
 function 숙제예약목록(비번) {
   if (!선생님확인_(비번)) return { ok: false, 메시지: '비밀번호가 다릅니다.' };
-  var 줄들 = [];
-  try { 줄들 = rows_(SHEET.숙제예약); } catch (e) { 줄들 = []; }    // 아직 표가 없으면 빈 목록 — 처음 저장할 때 만든다
-  var out = 줄들.map(숙제예약줄_).filter(function (n) { return n.날짜 && n.내용; });
-  out.reverse();
-  return { ok: true, 예약: out, 오늘: ymd_(new Date()) };
+  return 읽는동안_(function () {
+    var 줄들 = [];
+    try { 줄들 = rows_(SHEET.숙제예약); } catch (e) { 줄들 = []; }    // 아직 표가 없으면 빈 목록 — 처음 저장할 때 만든다
+    var out = 줄들.map(숙제예약줄_).filter(function (n) { return n.날짜 && n.내용; });
+    var 전체 = null;
+    out.forEach(function (n) {
+      var h = null;
+      try { h = JSON.parse(n.내용); } catch (e) { h = null; }
+      n.받는이들 = [];
+      n.교재로 = false;
+      if (!h || typeof h !== 'object') return;
+      if (전체 === null) 전체 = 전체명단_();
+      var 받을 = 숙제받을아이_(h, 전체);
+      n.교재로 = !받을.고른.length;
+      if (!n.보낸때) n.받는이들 = 받을.대상.slice();     // 이미 나간 줄 — 그때 누가 받았는지 모른다
+    });
+    out.reverse();
+    return { ok: true, 예약: out, 오늘: ymd_(new Date()) };
+  });
 }
 
 /** 새로 넣거나(행이 비면) 고친다. 다 따져 본 뒤에 쓴다 — 하나라도 틀리면 아무것도 안 바뀐다 */

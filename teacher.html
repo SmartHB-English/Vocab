@@ -2531,6 +2531,17 @@ html[data-theme] body:not(.hb0) .mascot-slot.onbar{transition:left .5s var(--eas
 .tgcount{margin-top:8px;font-size:13px}
 .nscount{font-weight:600;color:var(--sub);margin-left:4px}
 .nlog summary{cursor:pointer;font-weight:700;font-size:13px;padding:10px 14px}
+/* 걸어 둔 숙제 예약 — 아직 안 나간 줄은 눌러 받는 아이를 펼친다 (나간 줄은 눌리지 않는다) */
+.tb tr.hsopen{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s}
+.tb tr.hsopen:hover td{background:var(--primary-soft)}
+.tb tr.hsopen:active td{background:var(--primary-soft);filter:brightness(.97)}
+.tb tr.hsopen:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+.hscount{font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap}
+.hsarrow{display:inline-block;margin-left:4px;font-size:11px;color:var(--sub);transition:transform .15s}
+tr.hsopen.on .hsarrow{transform:rotate(90deg)}
+.tb tr.hskids td{background:var(--primary-soft);padding-top:8px;padding-bottom:10px}
+.hsnames{font-size:13px;line-height:1.7;word-break:keep-all}
+.hsnote{margin-top:4px;font-size:12px;color:var(--sub)}
 /* 「자료」 탭 (services/teacher-data.js) — 넓은 화면은 표 그대로, 폰은 줄마다 카드 */
 body.desk .tmain > div > .jrroot,.tmain > div > .jrroot{animation:none}
 /* 설치 안내 — 이미 설치해서 열었으면 안 보인다 */
@@ -2938,11 +2949,15 @@ function DEMO_날_(더할){ var t=new Date(); t.setDate(t.getDate()+(더할||0))
   return t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate()); }
 var DEMO_숙제예약 = [
   {키:'h1', 날짜:DEMO_날_(-1), 시각:'08:00', 요약:'교재 배우는 학생 · 중2 5과 단어 1~20 · 스펠링 · 당일',
-   내용:'{}', 알림함께:true, 보낸때:DEMO_날_(-1)+' 08:00', 못냄:'', 켬:true},
+   내용:'{}', 알림함께:true, 보낸때:DEMO_날_(-1)+' 08:00', 못냄:'', 켬:true, 받는이들:[], 교재로:true},
   {키:'h2', 날짜:DEMO_날_(0), 시각:'08:00', 요약:'홍길동, 김영희 · 불규칙 동사 50 1~10 · 3단변화 · 당일',
-   내용:'{}', 알림함께:false, 보낸때:DEMO_날_(0)+' 08:00 못 냄 — “불규칙 동사 50” 을(를) 배우는 학생이 없습니다.', 못냄:'“불규칙 동사 50” 을(를) 배우는 학생이 없습니다.', 켬:true},
+   내용:'{}', 알림함께:false, 보낸때:DEMO_날_(0)+' 08:00 못 냄 — “불규칙 동사 50” 을(를) 배우는 학생이 없습니다.', 못냄:'“불규칙 동사 50” 을(를) 배우는 학생이 없습니다.', 켬:true, 받는이들:[], 교재로:false},
   {키:'h3', 날짜:DEMO_날_(1), 시각:'08:00', 요약:'교재 배우는 학생 · 중2 5과 단어 21~40 · 스펠링 · 당일',
-   내용:'{}', 알림함께:true, 보낸때:'', 못냄:'', 켬:true}
+   내용:'{}', 알림함께:true, 보낸때:'', 못냄:'', 켬:true, 교재로:true,
+   받는이들:['홍길동','김영희','이철수','최아람','박서준','정하윤','강민재']},
+  {키:'h4', 날짜:DEMO_날_(1), 시각:'15:00', 요약:'김지훈, 박하늘 외 2명 · 1000-2 71~80 · 스펠링 · 당일',
+   내용:'{}', 알림함께:false, 보낸때:'', 못냄:'', 켬:true, 교재로:false,
+   받는이들:['김지훈','박하늘','이서연','최도윤']}
 ];
 /* 숙제 다 냈나 흉내 — 날짜마다 (오늘: 못 받은 아이 여럿 + 예약 1건 · 어제: 다 냄 · 그 밖: 여럿).
    DEMO_숙제체크표[날짜] 에 넣으면 그 값이 나간다 (화면 찍을 때 쓴다) */
@@ -3266,7 +3281,8 @@ var DEMO = {
     DEMO_숙제예약.push({키:String(Date.now()), 날짜:v.날짜, 시각:v.시각,
       요약:(고른.length?고른.join(', '):'교재 배우는 학생')+' · '+h.단어장+' '+(Number(h.시작)||1)+'~'+(Number(h.끝)||0)+' · '+(h.유형||'스펠링')+' · '+종류+
         ((종류==='기한'||종류==='시험')?' ('+(h.마감일||'')+')':''),
-      내용:JSON.stringify(h), 알림함께:!!v.알림함께, 보낸때:'', 못냄:'', 켬:true});
+      내용:JSON.stringify(h), 알림함께:!!v.알림함께, 보낸때:'', 못냄:'', 켬:true,
+      받는이들:고른.length?고른.slice():Object.keys(DEMO_알림반), 교재로:!고른.length});
     return DEMO.숙제예약목록(pw);
   },
   숙제예약켜기:function(pw,행,켬){ var n=DEMO_숙제예약[Number(행)-2]; if(n) n.켬=!!켬; return DEMO.숙제예약목록(pw); },
@@ -5235,24 +5251,42 @@ function 숙제예약그리기_(){
           '아래 목록에서 지우면 이 알림도 사라집니다.</div></div>'
     : '';
   if(!목록.length){ 칸.innerHTML=빈칸('걸어 둔 숙제 예약이 없습니다. 위에서 「예약하기」 를 고르고 걸어 보세요.'); return; }
+  /* 아직 안 나간 줄 — 요약 뒤에 「· n명」, 누르면 받는 아이 이름을 다 펼친다 (T.숙제예약펼침 — 이 화면을 보는 동안만).
+     이름은 엔진이 지금 기준으로 센 받는이들 (저장된 요약 칸은 그대로 둔다). 나간 줄은 그때 누가 받았는지 모르니 안 펼친다 */
+  var 펼침=T.숙제예약펼침||(T.숙제예약펼침={});
+  function 펼키(n){ return n.키||('행'+n.행); }
   칸.innerHTML = '<table class="tb"><thead><tr><th>언제</th><th>숙제</th><th>알림</th><th>나간 때</th><th></th></tr></thead><tbody>'+
     목록.map(function(n){
       var 나감 = !!n.보낸때 && !n.못냄;
       var 회색 = 나감 || !n.켬;
-      return '<tr'+(회색?' class="offrow"':'')+(n.못냄?' style="background:#FEF2F2"':'')+'>'+
+      var 열림 = !n.보낸때, 받는 = n.받는이들||[], 폄 = 열림 && !!펼침[펼키(n)];
+      var 줄 = '<tr'+(회색||열림?' class="'+[회색?'offrow':'', 열림?'hsopen':'', 폄?'on':''].filter(String).join(' ')+'"':'')+
+          (열림?' data-hsopen="'+esc(펼키(n))+'" tabindex="0" role="button" aria-expanded="'+(폄?'true':'false')+'"':'')+
+          (n.못냄?' style="background:#FEF2F2"':'')+'>'+
         '<td class="nw">'+esc(n.날짜)+' '+esc(n.시각)+(n.켬?'':' <span class="pill off">꺼 둠</span>')+'</td>'+
-        '<td>'+esc(n.요약)+'</td>'+
+        '<td>'+esc(n.요약)+(열림?' <span class="hscount">· '+받는.length+'명</span><span class="hsarrow" aria-hidden="true">▸</span>':'')+'</td>'+
         '<td class="nw muted">'+(n.알림함께?'함께 보냄':'안 보냄')+'</td>'+
         '<td class="nw">'+(n.못냄
           ? '<span class="pill fail">못 나감</span><div style="color:#B91C1C;font-weight:700;margin-top:3px;white-space:normal">'+esc(n.못냄)+'</div>'
-          : (n.보낸때 ? '<span class="muted">'+esc(n.보낸때)+' 나감</span>' : (n.날짜<오늘?'<span class="pill off">지남</span>':'<span class="muted">아직</span>')))+'</td>'+
+          : (n.보낸때 ? '<span class="muted">나갔습니다 · '+esc(n.보낸때)+'</span>' : (n.날짜<오늘?'<span class="pill off">지남</span>':'<span class="muted">아직</span>')))+'</td>'+
         '<td class="nw w"><span class="row" style="gap:6px">'+
           (n.보낸때 ? '' : '<button class="btn line sm" style="width:auto;padding:6px 11px;margin:0" '+
             'data-hson="'+n.행+'" data-key="'+esc(n.키)+'" data-on="'+(n.켬?'1':'')+'">'+(n.켬?'끄기':'켜기')+'</button>')+
           '<button class="btn line sm" style="width:auto;padding:6px 11px;margin:0;color:var(--ng)" '+
             'data-hsdel="'+n.행+'" data-key="'+esc(n.키)+'">지우기</button>'+
         '</span></td></tr>';
+      if(폄) 줄 += '<tr class="hskids"><td></td><td colspan="4">'+
+        (받는.length ? '<div class="hsnames">'+받는.map(esc).join(', ')+'</div>'
+                     : '<div class="hsnames muted">지금은 받을 아이가 없습니다.</div>')+
+        (n.교재로 ? '<div class="hsnote">지금 기준입니다 — 나갈 때 교재가 바뀌면 달라집니다</div>' : '')+
+        '</td></tr>';
+      return 줄;
     }).join('')+'</tbody></table>';
+  qsa('[data-hsopen]', 칸).forEach(function(x){
+    function 뒤집기(){ var k=x.dataset.hsopen; if(펼침[k]) delete 펼침[k]; else 펼침[k]=1; 숙제예약그리기_(); }
+    x.onclick=function(ev){ if(ev.target.closest && ev.target.closest('button')) return; 뒤집기(); };
+    x.onkeydown=function(ev){ if(ev.target!==x) return; if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); 뒤집기(); } };
+  });
   qsa('[data-hson]', 칸).forEach(function(x){
     x.onclick=function(){
       api('숙제예약켜기',T.pw,Number(x.dataset.hson), !x.dataset.on, x.dataset.key||'').then(function(r){

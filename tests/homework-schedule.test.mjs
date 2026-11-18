@@ -321,3 +321,78 @@ test('선생님 화면 — 지금 내기/예약하기, 7~21시만, 0~9분 안내
   assert.match(teacher, /예약한 숙제 '\+못\.length\+'건이 나가지 못했습니다/);
   assert.match(teacher, /<span class="pill fail">못 나감<\/span>/);
 });
+
+/* ---------------- 프롬프트 54 — 걸어 둔 예약에 누가 받는지 ---------------- */
+test('54-1. 학생을 골라 낸 예약은 고른 이름들이 그대로 나온다', () => {
+  const e = 엔진(판());
+  걸기(e, { 내용: 꾸러미({ 학생들: ['박철수', '홍길동'] }) });
+  const [n] = e.call('숙제예약목록', 비번).예약;
+  assert.deepEqual(n.받는이들, ['박철수', '홍길동']);
+  assert.equal(n.교재로, false);
+});
+
+test('54-2. 교재로 낸 예약은 그 교재를 배우는 아이들이 나오고 교재로 가 참이다', () => {
+  const e = 엔진(판());
+  걸기(e);
+  const [n] = e.call('숙제예약목록', 비번).예약;
+  assert.deepEqual(n.받는이들, ['홍길동', '김영희']);
+  assert.equal(n.교재로, true);
+  /* 숙제받을아이_ 를 그대로 쓴다 — 대상 펼치는 계산을 새로 쓰지 않는다 */
+  const 몸 = code.slice(code.indexOf('function 숙제예약목록('), code.indexOf('function 숙제예약저장('));
+  assert.match(몸, /숙제받을아이_\(h, 전체\)/);
+  assert.doesNotMatch(몸, /교재학생_|이름들풀기_/);
+});
+
+test('54-3. 그 교재를 배우는 아이가 바뀌면 받는이들도 바뀐다', () => {
+  const e = 엔진(판());
+  걸기(e);
+  e.store.getSheetByName('학생').getRange(4, 8).setValue('교재A');    // 박철수가 교재A 로
+  e.store.getSheetByName('학생').getRange(2, 8).setValue('교재B');    // 홍길동은 교재B 로
+  assert.deepEqual(e.call('숙제예약목록', 비번).예약[0].받는이들, ['김영희', '박철수']);
+});
+
+test('54-4. 이미 나간 줄은 받는이들이 비어 있다 (못 나간 줄도)', () => {
+  const e = 엔진(판());
+  걸기(e); 걸기(e, { 날짜: '2026-11-21' }); 걸기(e, { 내용: 꾸러미({ 단어장: '지운책' }) });
+  e.돌기('2026-11-20T08:00:00');
+  const [못, 남음, 나감] = e.call('숙제예약목록', 비번).예약;
+  assert.ok(나감.보낸때 && !나감.못냄);
+  assert.deepEqual(나감.받는이들, [], '그때 누가 받았는지 모른다 — 지금 기준으로 세지 않는다');
+  assert.ok(못.못냄);
+  assert.deepEqual(못.받는이들, []);
+  assert.deepEqual(남음.받는이들, ['홍길동', '김영희'], '아직 안 나간 줄은 그대로');
+});
+
+test('54-5. 저장된 요약 칸은 안 바뀐다', () => {
+  const e = 엔진(판());
+  걸기(e); 걸기(e, { 내용: 꾸러미({ 학생들: ['홍길동', '김영희', '박철수'] }) });
+  const 전 = [예약칸(e.store, 2, 4), 예약칸(e.store, 3, 4)];
+  e.store.getSheetByName('학생').getRange(4, 8).setValue('교재A');
+  const 목록 = e.call('숙제예약목록', 비번).예약;
+  assert.deepEqual([예약칸(e.store, 2, 4), 예약칸(e.store, 3, 4)], 전);
+  assert.deepEqual(목록.map(n => n.요약).reverse(), 전, '목록의 요약도 표에 적힌 그대로');
+  assert.match(전[1], /홍길동, 김영희 외 1명/);
+});
+
+test('54-6. 받을 아이가 아무도 없으면 빈 목록이 나온다 (터지지 않는다)', () => {
+  const e = 엔진(판());
+  걸기(e, { 내용: 꾸러미({ 단어장: '아무도안배움' }) });
+  걸기(e, { 내용: 꾸러미({ 단어장: '아무도안배움', 학생들: ['없는아이'] }) });
+  const r = e.call('숙제예약목록', 비번);
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.예약.map(n => [n.받는이들, n.교재로]), [[[], true], [[], true]]);
+  /* 내용 칸이 깨진 줄도 터지지 않는다 */
+  e.store.getSheetByName('숙제예약').getRange(2, 5).setValue('{깨짐');
+  assert.deepEqual(e.call('숙제예약목록', 비번).예약.map(n => n.받는이들), [[], []]);
+});
+
+test('54-7. 선생님 화면 — 사람 수 · 누르면 펼침 · 교재로는 「지금 기준」 · 나간 줄은 안 눌린다', () => {
+  const 몸 = teacher.slice(teacher.indexOf('function 숙제예약그리기_(){'), teacher.indexOf('/* 안 낸 숙제를'));
+  assert.match(몸, /<span class="hscount">· '\+받는\.length\+'명<\/span>/);
+  assert.match(몸, /var 열림 = !n\.보낸때/, '나간 줄(보낸때 찍힘)은 펼치지 않는다');
+  assert.match(몸, /받는\.map\(esc\)\.join\(', '\)/, '이름을 줄이지 않는다');
+  assert.doesNotMatch(몸, /외 '\s*\+/, '「외 n명」 으로 줄이지 않는다');
+  assert.match(몸, /지금 기준입니다 — 나갈 때 교재가 바뀌면 달라집니다/);
+  assert.doesNotMatch(몸, /localStorage|sessionStorage/, '펼친 상태는 저장하지 않는다');
+  assert.match(teacher, /\.tb tr\.hsopen\{cursor:pointer/);
+});
