@@ -261,7 +261,7 @@ test('화면 — 같은 로그인 길 · 1.5초 모아 저장 · 앱 번들에 �
   assert.match(check, /안 준 애만/);
   assert.doesNotMatch(appBuild, /check\.html/, '아이들 앱 번들(FILES)에 넣지 않는다');
   /* 그룹 편집은 # · ## 만 — 이름 줄은 안 받는다 */
-  assert.match(check, /\} else 이름줄\+\+;/);
+  assert.match(check, /else 무시한\.push\(line\);/);
   assert.match(check, /아직 어느 단계에도 없는 아이/);
   /* 그룹은 반이 아니다 — 반으로 묶지 않는다 */
   assert.doesNotMatch(check.slice(check.indexOf('function render()'), check.indexOf('// ---------- 아직 어느')), /\.ban/);
@@ -379,4 +379,61 @@ test('56 — 옛 숙제체크.html 에는 내보내기만 더했다 (자료는 �
   assert.match(붙인, /navigator\.clipboard\.writeText\(글\)/);
   assert.match(붙인, /execCommand\('copy'\)/, '클립보드가 막히면 글상자에서 고른다');
   assert.doesNotMatch(붙인, /localStorage\.(setItem|removeItem|clear)/);
+});
+
+/* ---------------- 프롬프트 57 — 학생번호가 안 붙으면 아이가 조용히 사라졌다 ---------------- */
+test('57-1 · 2 · 4. 번호 없는 아이는 번호없음 으로 이름을 준다 — 학생번호채우기 뒤에는 비고, 학생 목록에 나온다', () => {
+  const e = 엔진();
+  const 전 = e.자료();
+  assert.deepEqual(전.번호없음, ['새친구'], '번호가 없어 빠진 아이 — 조용히 빼지 않는다');
+  assert.ok(!전.학생들.some(x => x.이름 === '새친구'), '체크자료는 여전히 번호로 묶는다 (번호 없는 아이는 안 싣는다)');
+  assert.deepEqual(e.call('학생번호채우기', 비번), { ok: true, 개수: 1 });
+  const 후 = e.자료();
+  assert.deepEqual(후.번호없음, []);
+  const 새 = 후.학생들.find(x => x.이름 === '새친구');
+  assert.match(새.번호, /^s_[0-9a-f]{12}$/);
+  assert.equal(새.반, '');
+  /* 이름이 빈 줄은 아이가 아니다 */
+  e.store.getSheetByName('학생').appendRow(['3A', '', '1234', '', '', '', '', '교재A', '', '', '', '']);
+  assert.deepEqual(e.자료().번호없음, []);
+});
+
+test('57-3. 학생번호채우기 는 채울 게 없으면 아무것도 안 쓴다', () => {
+  const e = 엔진();
+  e.call('학생번호채우기', 비번);
+  for (const sh of e.store.getSheets()) sh.dirty = false;
+  const 전 = JSON.stringify(e.store.getSheetByName('학생').export());
+  assert.deepEqual(e.call('학생번호채우기', 비번), { ok: true, 개수: 0 });
+  assert.ok(!e.store.getSheets().some(sh => sh.dirty), '어느 표도 안 건드린다 (저장소가 거래를 열지 않는다)');
+  assert.equal(JSON.stringify(e.store.getSheetByName('학생').export()), 전);
+  assert.equal(e.call('학생번호채우기', '0000').ok, false, '선생님 비번을 거친다');
+});
+
+test('57 — 들어올 때 한 번 학생번호채우기 를 부른다 (check.html · teacher.html). 1분마다 읽을 때는 안 부른다', () => {
+  assert.equal(check.split("'학생번호채우기'").length - 1, 1, 'check.html 에서 한 군데');
+  const 들어가기 = check.slice(check.indexOf('async function 들어가기('), check.indexOf("$('loginBtn').onclick"));
+  assert.ok(들어가기.indexOf("부르기('학생번호채우기', pw)") > -1);
+  assert.ok(들어가기.indexOf("부르기('학생번호채우기', pw)") < 들어가기.indexOf('await 불러오기()'), '채운 뒤에 읽는다');
+  assert.match(들어가기, /catch \(e\) \{ 번호채움탈 = e\.message \|\| String\(e\); \}/, '안 돼도 화면은 뜬다 — 까닭만 남긴다');
+  const 일분 = check.slice(check.indexOf('// 1분마다'), check.indexOf('// 창을 닫거나'));
+  assert.doesNotMatch(일분, /학생번호채우기|들어가기/);
+  assert.match(check, /번호가 없어 아직 못 쓰는 아이 \$\{번호없음\.length\}명:/);
+  const teacher = read('../teacher.html');
+  const t = teacher.slice(teacher.indexOf('function 선생님들어가기_('), teacher.indexOf("$('tPw').addEventListener"));
+  assert.ok(t.indexOf("api('학생번호채우기',pw)") > -1 && t.indexOf("api('학생번호채우기',pw)") < t.indexOf('loadTeacher();'), 'teacher.html 도 채운 뒤에 읽는다');
+  assert.match(t, /\.catch\(function\(e\)\{ console\.warn\('학생번호를 붙이지 못했습니다', e\); \}\)\.then\(function\(\)\{/);
+});
+
+test('57-5 · 6. 그룹 편집 — 이름 줄은 버리고 그 줄들을 돌려준다. # · ## 만 있는 글은 그대로', () => {
+  const 그룹글읽기 = new Function(check.slice(check.indexOf('function 그룹글읽기('), check.indexOf('/* ==== 체크 셈 끝 ==== */')) + '\nreturn 그룹글읽기;')();
+  assert.deepEqual(그룹글읽기('# 월수금 4시\n## 1단계\n조윤채\n## 2단계\n  홍길동  \n\n# 화목'), {
+    줄들: [{ 단계: false, 이름: '월수금 4시' }, { 단계: true, 이름: '1단계' }, { 단계: true, 이름: '2단계' }, { 단계: false, 이름: '화목' }],
+    무시한: ['조윤채', '홍길동'] });
+  assert.deepEqual(그룹글읽기('# 월수금 4시\n## 1단계\n## 2단계\n\n# 화목 5시'), {
+    줄들: [{ 단계: false, 이름: '월수금 4시' }, { 단계: true, 이름: '1단계' }, { 단계: true, 이름: '2단계' }, { 단계: false, 이름: '화목 5시' }],
+    무시한: [] });
+  /* 화면 — 무시한 줄을 말해 준다 · 도움말이 이름을 받는 것처럼 읽히지 않는다 */
+  assert.match(check, /'이름은 여기서 안 받습니다\. 아래 목록에서 끌어다 넣으세요\. 무시한 줄: ' \+ 읽음\.무시한\.join\(', '\)/);
+  assert.match(check, /학생 이름은 여기서 안 받아요 \(적으면 무시돼요\)/);
+  assert.doesNotMatch(check, /그 아래 이름을 한 줄에 한 명씩/);
 });

@@ -4538,8 +4538,12 @@ function 선생님들어가기_(pw, 기억할까){
     document.body.classList.add('desk');
     document.querySelector('#s-teacher .top').classList.add('hide');
     setTheme('high');
-    loadTeacher();
-    자료휴지통정리_();   /* 30일 지난 휴지통 줄 비우기 — 비울 게 없으면 저장하지 않는다 */
+    /* 학생번호 — 번호가 빈 아이에게만 붙인다 (채울 아이가 없으면 아무것도 안 쓴다). 들어올 때 한 번, 그 뒤에 자료를 읽는다.
+       안 돼도 화면은 그대로 뜬다 (프롬프트 57) */
+    return api('학생번호채우기',pw).catch(function(e){ console.warn('학생번호를 붙이지 못했습니다', e); }).then(function(){
+      loadTeacher();
+      자료휴지통정리_();   /* 30일 지난 휴지통 줄 비우기 — 비울 게 없으면 저장하지 않는다 */
+    });
   }).catch(function(e){ $('tMsg').textContent='들어가지 못했습니다. '+e; });
 }
 $('tPw').addEventListener('keydown',function(e){ if(e.key==='Enter') $('btnTLogin').click(); });
