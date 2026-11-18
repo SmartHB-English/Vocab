@@ -2,7 +2,7 @@
 // 학생은 학생번호로 가리킨다. 앱으로 숙제가 나간 아이는 저절로 ○ (숙제체크 의 못 받은 아이를 뺀 나머지) — 손으로 못 끈다.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { TableStore } from '../services/table-store.mjs';
 import { createRuntime } from '../services/legacy-runtime.mjs';
 import { pack, unpack, publicTable } from '../services/store-codec.mjs';
@@ -16,7 +16,7 @@ const 서울 = t => new Date(t + '+09:00').getTime();
 
 /* check.html 의 「체크 셈」 — 화면(DOM)을 안 쓰는 셈만 떼어서 돌린다 */
 const 셈 = new Function(check.slice(check.indexOf('/* ==== 체크 셈 시작'), check.indexOf('/* ==== 체크 셈 끝 ==== */')) +
-  '\nreturn { 명단맞추기, 줬나, 손으로뒤집기, 옛자료옮기기 };')();
+  '\nreturn { 명단맞추기, 줬나, 손으로뒤집기, 옛자료옮기기, 레슨들, 레슨이름, 범위맞추기, 다음범위, 진도로, 붙인글읽기 };')();
 
 /** 3A: 홍길동(교재A) · 김영희(교재A) · 이철수(교재B) / 3B: 박철수(교재B) / 번호 없는 새 아이: 새친구 */
 function 엔진(처음 = '2026-11-18T15:00:00') {
@@ -238,8 +238,8 @@ test('옮기기 — 옛 자료의 이름을 학생번호로. 못 찾은 이름�
   const r = 셈.옛자료옮기기(old, 학생들);
   assert.equal(JSON.stringify(old), 전, '옛 자료는 건드리지 않는다');
   assert.deepEqual(r.설정.groups[0].subs.map(s => s.ids), [['s_hong'], ['s_kim']], '띄어쓰기만 다른 이름은 찾는다');
-  assert.deepEqual(r.설정.groups[0].subs[0].tracks, old.groups[0].subs[0].tracks, '진도는 그대로');
-  assert.deepEqual(r.설정.books, old.books);
+  assert.equal(r.설정.groups[0].subs[0].tracks[0].옛교재, '해법 Grammar 1 · U4 ~ U5', '단어장 목록이 없으면 옛 교재로 남긴다 (56)');
+  assert.equal(r.설정.books, undefined, '손으로 적은 교재는 올리지 않는다 (56)');
   assert.deepEqual(r.못찾은, [{ 이름: '없는아이', 자리: '월수금 › 1단계', 까닭: '' },
                              { 이름: '이하나', 자리: '월수금 › 2단계', 까닭: '인왕보카에 「이하나」 이 2명이에요' }]);
   assert.equal(r.옮긴수, 2);
@@ -265,4 +265,118 @@ test('화면 — 같은 로그인 길 · 1.5초 모아 저장 · 앱 번들에 �
   assert.match(check, /아직 어느 단계에도 없는 아이/);
   /* 그룹은 반이 아니다 — 반으로 묶지 않는다 */
   assert.doesNotMatch(check.slice(check.indexOf('function render()'), check.indexOf('// ---------- 아직 어느')), /\.ban/);
+});
+
+/* ---------------- 프롬프트 56 — 교재 = 인왕보카 단어장 · 진도는 단어 번호 범위 ---------------- */
+const 책 = (이름, 레슨묶음, 단어수) => ({ 이름, 레슨묶음, 단어수 });
+
+test('56-1. 체크자료가 단어장 목록(이름 · 레슨묶음 · 단어 수)을 준다 — 레슨묶음이 비면 기본레슨', () => {
+  const e = 엔진();
+  const 목록 = e.store.getSheetByName('단어장목록');
+  목록.appendRow(['600-1', '단어', '단어_600_1', '', 10, '']);
+  목록.appendRow(['중2 필수', '단어', '단어_중2', '', '', '']);
+  const 단어 = (이름, n) => { const sh = e.store.insertSheet(이름); sh.appendRow(['번호', '영어', '뜻']); for (let i = 1; i <= n; i++) sh.appendRow([i, 'w' + i, '뜻' + i]); };
+  단어('단어_600_1', 95); 단어('단어_중2', 23);
+  assert.deepEqual(e.자료().단어장들, [{ 이름: '600-1', 레슨묶음: 10, 단어수: 95 }, { 이름: '중2 필수', 레슨묶음: 10, 단어수: 23 }]);
+  assert.match(code, /단어장목록\(\)\.forEach\(function \(b\) \{ 단어장들\.push\(\{ 이름: b\.이름, 레슨묶음: b\.레슨, 단어수: b\.개수 \}\); \}\);/,
+    '엔진의 단어장목록(레슨크기_ = 기본레슨) 을 그대로 쓴다');
+});
+
+test('56-2 · 3 · 4. 레슨 5 는 41~50 · 레슨묶음이 비면 10 · 단어 수를 넘으면 끝에서 자른다', () => {
+  const ls = 셈.레슨들(책('600-1', 10, 95));
+  assert.equal(셈.레슨이름(ls[4]), '레슨 5 (41~50)');
+  assert.deepEqual(ls.at(-1), { 번호: 10, 시작: 91, 끝: 95 }, '마지막 레슨은 단어 수에서 잘린다');
+  assert.deepEqual(셈.레슨들(책('빈 묶음', '', 25)).map(셈.레슨이름), ['레슨 1 (1~10)', '레슨 2 (11~20)', '레슨 3 (21~25)']);
+  assert.deepEqual(셈.레슨들(책('8개씩', 8, 20)).map(l => [l.시작, l.끝]), [[1, 8], [9, 16], [17, 20]]);
+  assert.deepEqual(셈.범위맞추기(책('600-1', 10, 95), 91, 100), { 시작: 91, 끝: 95 });
+  assert.deepEqual(셈.범위맞추기(책('600-1', 10, 95), 120, 130), { 시작: 95, 끝: 95 });
+  assert.deepEqual(셈.진도로({ 단어장: '600-1', 시작: 81, 끝: 120, ts: 3 }, [], [책('600-1', 10, 95)]).진도,
+    { 단어장: '600-1', 시작: 81, 끝: 95, 옮긴날: null, ts: 3 }, '담긴 진도도 읽을 때 잘린다');
+});
+
+test('56-5 · 6. 다음 ▶ 은 범위 크기만큼 · 끝에서는 멈추고 알려 준다 · 다음 단어장으로 안 넘어간다', () => {
+  const b = 책('600-1', 10, 95);
+  assert.deepEqual(셈.다음범위(b, { 시작: 41, 끝: 50 }, 1).범위, { 시작: 51, 끝: 60 });
+  assert.deepEqual(셈.다음범위(b, { 시작: 41, 끝: 60 }, 1).범위, { 시작: 61, 끝: 80 }, '두 레슨씩이면 두 레슨씩');
+  assert.deepEqual(셈.다음범위(b, { 시작: 81, 끝: 90 }, 1).범위, { 시작: 91, 끝: 95 }, '끝에서 잘린다');
+  const 끝 = 셈.다음범위(b, { 시작: 91, 끝: 95 }, 1);
+  assert.equal(끝.범위, undefined, '끝에서는 안 움직인다');
+  assert.equal(끝.말, '「600-1」 끝이에요 (95번까지). 다음에 할 단어장을 골라 주세요.');
+  assert.deepEqual(셈.다음범위(b, { 시작: 41, 끝: 50 }, -1).범위, { 시작: 31, 끝: 40 });
+  assert.equal(셈.다음범위(b, { 시작: 1, 끝: 10 }, -1).말, '「600-1」 맨 앞이에요.');
+  /* 화면 — step 은 다음범위 만 쓰고 단어장을 바꾸지 않는다. 손으로 적는 교재 · 교재 편집은 없다 */
+  const step = check.slice(check.indexOf('function step(t, dir) {'), check.indexOf('function turnIndex(sub) {'));
+  assert.doesNotMatch(step, /t\.단어장 =/, '다음 단어장으로 저절로 넘기지 않는다');
+  assert.match(step, /다음범위\(bookByName\(t\.단어장\), t, dir\)/);
+  assert.doesNotMatch(check, /bookBtn|교재 편집|textToBooks|booksToText|data\.books/);
+  assert.doesNotMatch(check.slice(check.indexOf('const 설정글'), check.indexOf('function 기록글')), /books/, '설정에 교재 목록을 담지 않는다');
+});
+
+test('56-7 · 8. 옛 자료 환산 — 레슨 0~0 · 묶음 10 → 1~10. 단어장에 없는 교재는 「못 찾음」 으로', () => {
+  const 목록 = [책('600-1', 10, 95), 책('리딩튜터 1', 8, 60)];
+  const 옛책 = [{ id: 'b1', name: '600-1', lessons: ['L1', 'L2', 'L3', 'L4', 'L5'] }, { id: 'b2', name: '리딩튜터 1', lessons: [] },
+               { id: 'b3', name: '해법 Grammar 1', lessons: ['Unit 1 be동사', 'Unit 2 일반동사', 'Unit 3'] }];
+  assert.deepEqual(셈.진도로({ book: 'b1', lesson: 0, end: 0, moved: '2026-11-17', ts: 5 }, 옛책, 목록).진도,
+    { 단어장: '600-1', 시작: 1, 끝: 10, 옮긴날: '2026-11-17', ts: 5 });
+  assert.deepEqual(셈.진도로({ book: 'b1', lesson: 4, end: 5 }, 옛책, 목록).진도, { 단어장: '600-1', 시작: 41, 끝: 60, 옮긴날: null, ts: 0 });
+  assert.deepEqual(셈.진도로({ book: 'b2', lesson: 2 }, 옛책, 목록).진도, { 단어장: '리딩튜터 1', 시작: 17, 끝: 24, 옮긴날: null, ts: 0 }, '레슨묶음 8 · end 없음');
+  const 없음 = 셈.진도로({ book: 'b3', lesson: 0, end: 1 }, 옛책, 목록);
+  assert.equal(없음.못찾은교재, '해법 Grammar 1');
+  assert.equal(없음.진도.옛교재, '해법 Grammar 1 · Unit 1 be동사 ~ Unit 2 일반동사', '진도 줄에 옛 교재로 남긴다');
+  assert.equal(없음.진도.단어장, '');
+  /* 옮기기 전체 */
+  const old = {
+    students: [{ id: 's1', name: '홍길동' }, { id: 's2', name: '없는아이' }],
+    books: 옛책,
+    groups: [{ id: 'g1', name: '월수금', tracks: [{ book: 'b2', lesson: 0, end: 1, ts: 0 }],
+               subs: [{ id: 'u1', name: '1단계', ids: ['s1', 's2'], tracks: [{ book: 'b1', lesson: 2, end: 2, ts: 9 }, { book: 'b3', lesson: 0, end: 0, ts: 1 }] },
+                      { id: 'u2', name: '2단계', ids: [], tracks: [{ book: 'b3', lesson: 1, end: 1, ts: 0 }] }] }],
+  };
+  const r = 셈.옛자료옮기기(old, [{ 번호: 's_hong', 이름: '홍길동' }], 목록);
+  assert.deepEqual(r.설정.groups[0].tracks, [{ 단어장: '리딩튜터 1', 시작: 1, 끝: 16, 옮긴날: null, ts: 0 }]);
+  assert.deepEqual(r.설정.groups[0].subs[0].tracks.map(t => [t.단어장, t.시작, t.끝, t.ts]), [['600-1', 21, 30, 9], ['', 0, 0, 1]]);
+  assert.deepEqual(r.못찾은교재, [{ 교재: '해법 Grammar 1', 자리: '월수금 › 1단계, 월수금 › 2단계' }]);
+  assert.deepEqual(r.못찾은.map(x => x.이름), ['없는아이']);
+  /* 화면이 둘 다 보여 준다 */
+  assert.match(check, /이 교재는 단어장에 없습니다/);
+  assert.match(check, /인왕보카 명단에서 못 찾은 이름/);
+});
+
+test('56-9. 붙여넣은 글이 JSON 이 아니면 까닭을 돌려준다', () => {
+  assert.equal(셈.붙인글읽기('').까닭, '붙여넣은 글이 없어요.');
+  assert.match(셈.붙인글읽기('hwcheck 자료').까닭, /^JSON 이 아니에요 — .+\(글이 \{ 로 시작해야 해요/);
+  assert.match(셈.붙인글읽기('{"students":[{"id":"s1"').까닭, /^JSON 이 아니에요 — .+글이 잘렸을 수 있어요/);
+  assert.match(셈.붙인글읽기('[1,2]').까닭, /\{ … \} 꼴이어야/);
+  assert.match(셈.붙인글읽기('{"a":1}').까닭, /학생\(students\)도 그룹\(groups\)도 없어요/);
+  const 좋음 = 셈.붙인글읽기('  {"students":[],"groups":[]}\n');
+  assert.equal(좋음.까닭, undefined);
+  assert.deepEqual(좋음.자료, { students: [], groups: [] });
+  assert.match(check, /if \(r\.까닭\) \{ \$\('pasteMsg'\)\.textContent = r\.까닭; return; \}/);
+  assert.match(check, /\$\('pasteBtn'\)\.hidden = !!\(data\.옮김 && data\.옮김\.때\)/, '한 번 올리면 숨긴다');
+});
+
+test('56-10. 격일 차례(「오늘」·「다음번」)가 그대로 돈다', () => {
+  const turnIndex = new Function(check.slice(check.indexOf('function turnIndex(sub) {'), check.indexOf('// ---------- 화면 ----------')) + '\nreturn turnIndex;')();
+  const b = 책('600-1', 10, 95);
+  const sub = { tracks: [{ 단어장: '600-1', 시작: 1, 끝: 10, ts: 100 }, { 단어장: '리딩', 시작: 1, 끝: 8, ts: 50 }] };
+  assert.equal(turnIndex(sub), 1, 'ts 가 오래된 쪽이 오늘');
+  /* 오늘 차례를 다음 ▶ — step 과 같이 범위를 옮기고 ts 를 지금으로 */
+  const 오늘것 = sub.tracks[1];
+  Object.assign(오늘것, 셈.다음범위(책('리딩', 8, 60), 오늘것, 1).범위, { ts: 200 });
+  assert.deepEqual([오늘것.시작, 오늘것.끝], [9, 16]);
+  assert.equal(turnIndex(sub), 0, '다음번이 오늘이 된다');
+  Object.assign(sub.tracks[0], 셈.다음범위(b, sub.tracks[0], 1).범위, { ts: 300 });
+  assert.equal(turnIndex(sub), 1);
+  assert.equal(turnIndex({ tracks: [sub.tracks[0]] }), -1, '하나뿐이면 차례가 없다');
+  assert.match(check, /el\('span', 'badge', i === turn \? '오늘' : '다음번'\)/);
+  assert.match(check, /if \(dir > 0\) t\.ts = Date\.now\(\);/);
+});
+
+test('56 — 옛 숙제체크.html 에는 내보내기만 더했다 (자료는 읽기만)', { skip: !existsSync(new URL('../숙제체크.html', import.meta.url)) && '숙제체크.html 은 저장소에 커밋되지 않은 원장님 파일' }, () => {
+  const old = read('../숙제체크.html');
+  assert.match(old, /<button id="exportBtn">내보내기<\/button>/);
+  const 붙인 = old.slice(old.indexOf('// ---------- 내보내기'));
+  assert.match(붙인, /navigator\.clipboard\.writeText\(글\)/);
+  assert.match(붙인, /execCommand\('copy'\)/, '클립보드가 막히면 글상자에서 고른다');
+  assert.doesNotMatch(붙인, /localStorage\.(setItem|removeItem|clear)/);
 });
