@@ -4186,6 +4186,32 @@ function toast(msg){
 }
 
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+/* 섞인 숙제(교재 두세 개) — 숙제 줄에 조각들(h.섞음 = [{단어장, 시작, 끝, 칸}, …])이 실려 온다. 옛 숙제는 없다 */
+function 섞인숙제_(h){ return !!(h && h.섞음 && h.섞음.length > 1); }
+/* 단어장 목록에서 이 숙제의 종류를 찾을 이름 — 섞였으면 첫 교재 (섞기는 같은 종류끼리만이라 하나다) */
+function 숙제첫책_(h){ return 섞인숙제_(h) ? h.섞음[0].단어장 : (h && h.단어장); }
+/* 섞인 숙제의 단어 모으기 — 조각마다 받은 단어(받은것들[i])에 그 조각의 구분·범위를 「먼저」 적용하고 나서 합친다
+   (다 합친 뒤에 자르면 엉뚱한 단어가 나간다). 영어 철자가 같으면 앞 조각 것만 남긴다 — 같은 단어장의 두 범위도 마찬가지.
+   차례는 조각 차례 그대로 돌려준다 (섞는 것은 아이 화면이 한다). 돌려주는 것 = { 단어:[…], 겹침: 뺀 개수 } */
+function 섞인단어모으기_(조각들, 받은것들){
+  var 본 = {}, 모음 = [], 겹침 = 0;
+  (조각들||[]).forEach(function(c, i){
+    var w = (받은것들 && 받은것들[i]) || [];
+    var 칸 = c.칸 || (w.some(function(x){ return x && x.칸; }) ? '단어' : '');   /* 과 단어장은 구분 안에서 번호를 본다 */
+    if(칸) w = w.filter(function(x){ return (x.칸||'단어') === 칸; });
+    var a = Math.max(1, Number(c.시작)||1), b = Math.min(w.length, Number(c.끝)||w.length);
+    if(a > b){ var t = a; a = b; b = t; }
+    w.slice(a-1, b).forEach(function(x){
+      var k = String((x && x.en) || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      if(!k) return;
+      if(본[k]){ 겹침++; return; }
+      본[k] = 1;
+      var y = {}; for(var p in x) y[p] = x[p];
+      모음.push(y);
+    });
+  });
+  return { 단어: 모음, 겹침: 겹침 };
+}
 /* 문항 수 — 범위 안에서 몇 개만 낸다. 섞은 뒤 앞에서 그만큼 자른다.
    비었거나 0 이하이거나 범위보다 크면 자르지 않는다 (= 범위 전부) */
 function 문항자르기_(목록, 수){
@@ -4946,6 +4972,68 @@ function 과묶음_(목록) {
     (g.칸[어디] = g.칸[어디] || []).push({ 이름: b.이름, 개수: Number(b.개수) || 0 });
   });
   return 과들;
+}
+/* ---------- 교재 섞기 — 한 숙제(시험)에 단어장을 셋까지 ----------
+   칸을 새로 만들지 않고 지금 칸에 「|」 로 이어 담는다.
+     단어장 600-1|중3 · 시작번호 41|1 · 끝번호 50|20 · 칸 | (과 단어장이면 구분, 아니면 빈칸)
+   「|」 가 없으면 옛 숙제 그대로다 (조각 하나). 기록에는 「600-1+중3」 · 「41~50, 1~20」 으로 남는다.
+   섞는 건 같은 종류끼리만 — 문장 단어장은 채점이 달라(문장기록) 아예 못 섞는다 */
+var 섞기최대_ = 3;
+function 섞인숙제인가_(단어장글) { return String(단어장글 === null || 단어장글 === undefined ? '' : 단어장글).indexOf('|') > -1; }
+/* 숙제 한 줄 → [{단어장, 시작, 끝, 칸}, …] · | 가 없으면 길이 1.
+   조각 수가 서로 안 맞으면(단어장 둘, 시작 하나) 첫 조각만 쓰고 로그를 남긴다 — 조용히 터지지 않는다 */
+function 범위들_(단어장글, 시작글, 끝글, 칸글) {
+  function 글(v) { return v === null || v === undefined ? '' : String(v).trim(); }
+  if (!섞인숙제인가_(단어장글)) {
+    return [{ 단어장: 글(단어장글), 시작: Number(시작글) || 1, 끝: Number(끝글) || 0, 칸: 글(칸글) }];
+  }
+  var 책 = 글(단어장글).split('|').map(글), 시 = 글(시작글).split('|'), 끝 = 글(끝글).split('|');
+  var 칸 = 글(칸글) === '' ? 책.map(function () { return ''; }) : 글(칸글).split('|');
+  if (시.length !== 책.length || 끝.length !== 책.length || 칸.length !== 책.length) {
+    try { console.log('범위들_: 조각 수가 안 맞아 첫 조각만 씁니다 — ' + [단어장글, 시작글, 끝글, 칸글].map(글).join(' / ')); } catch (e) {}
+    return [{ 단어장: 책[0], 시작: Number(시[0]) || 1, 끝: Number(끝[0]) || 0, 칸: 글(칸[0]) }];
+  }
+  return 책.map(function (b, i) { return { 단어장: b, 시작: Number(시[i]) || 1, 끝: Number(끝[i]) || 0, 칸: 글(칸[i]) }; });
+}
+/* 기록에 남는 글 — 단어장 「600-1+중3」 · 범위 「41~50, 1~20」 (과 단어장은 「본문 1~12」 처럼 구분이 붙는다) */
+function 단어장표시_(조각들) { return (조각들 || []).map(function (c) { return c.단어장; }).join('+'); }
+function 범위표시_(조각들) {
+  return (조각들 || []).map(function (c) { return (c.칸 ? c.칸 + ' ' : '') + c.시작 + '~' + c.끝; }).join(', ');
+}
+/* 섞어도 되는 무리 — 과 · 문장 · 그 밖(단어·본문·문법·3단변화는 유형이 달라 서로도 안 섞는다) */
+function 섞기종류_(종류) {
+  var k = String(종류 || '').trim();
+  if (k === '과') return '과 단어장';
+  if (k === '문장') return '문장 단어장';
+  var 어디 = 어디로_(k);
+  return 어디 === '단어' ? '단어장' : 어디 + ' 단어장';
+}
+/* 고른 교재들([{단어장, 칸}]) 을 같이 낼 수 있나 — 안 되면 그 까닭, 되면 '' . 목록은 단어장목록 ({이름, 종류}) */
+function 섞기막힘_(고른, 목록) {
+  고른 = 고른 || [];
+  if (고른.length < 2) return '';
+  if (고른.length > 섞기최대_) return '교재는 ' + 섞기최대_ + '개까지 섞을 수 있습니다.';
+  var 종류들 = [], 없는 = '';
+  고른.forEach(function (c) {
+    var b = null;
+    (목록 || []).forEach(function (x) { if (x && x.이름 === c.단어장) b = x; });
+    if (!b && !없는) 없는 = c.단어장;
+    종류들.push(b ? String(b.종류 || '').trim() : '');
+  });
+  if (없는) return '“' + 없는 + '” 단어장을 찾을 수 없습니다.';
+  if (종류들.some(function (k) { return k === '문장'; })) return '문장 단어장은 채점이 달라 다른 교재와 섞을 수 없습니다.';
+  var 첫 = 섞기종류_(종류들[0]);
+  for (var i = 1; i < 종류들.length; i++) {
+    var 이 = 섞기종류_(종류들[i]);
+    if (이 !== 첫) return '종류가 달라 같이 낼 수 없습니다 (' + 첫 + ' / ' + 이 + ')';
+  }
+  if (첫 === '과 단어장') {
+    for (var j = 1; j < 고른.length; j++) {
+      var a = String(고른[0].칸 || '단어'), z = String(고른[j].칸 || '단어');
+      if (a !== z) return '구분이 달라 같이 낼 수 없습니다 (' + a + ' / ' + z + ')';
+    }
+  }
+  return '';
 }
 /* ==== 수업 짜기 공용 끝 ==== */
 
@@ -6556,7 +6644,7 @@ function 유치길그리기_(){
       '<div class="knode' + (끝났나 ? ' done' : '') + (이제 ? ' now' : '') + '" style="margin-left:' + 밀기 + 'px">' +
         (이제 ? '<div class="kgo">' + (한것.length ? '이어서!' : '시작!') + '</div>' : '') +
         (이제 ? '<div class="halo">' + 공 + '</div>' : 공) +
-        '<div class="nm">' + esc(학생범위글_(h.단어장, h.시작, h.끝)) + '</div>' +
+        '<div class="nm">' + esc(숙제범위글_(h)) + '</div>' +
         점세개 +
       '</div>';
   }).join('');
@@ -6574,15 +6662,16 @@ function 유치열기_(h){
   /* 조금 전에 받은 단어장이면 다시 안 받는다 — 그림이 붙은 단어장은 꽤 무겁다 */
   var 받기 = (S.단어장 === h.단어장 && (S.단어 || []).length)
     ? Promise.resolve(S.단어)
-    : (toast('준비하고 있어요…'), api('단어가져오기', h.단어장));
+    : (toast('준비하고 있어요…'), 숙제단어받기_(h));
   받기.then(function(w){
     if(표 !== 숙제열기표_) return;
     S.단어 = w || []; S.단어장 = h.단어장;
-    var a = Math.max(1, Number(h.시작) || 1);
-    var b = Math.min(S.단어.length, Number(h.끝) || S.단어.length);
+    var 섞 = 섞인숙제_(h);                       /* 섞인 숙제는 이미 범위를 잘라 합친 것 — 통째로 */
+    var a = 섞 ? 1 : Math.max(1, Number(h.시작) || 1);
+    var b = 섞 ? S.단어.length : Math.min(S.단어.length, Number(h.끝) || S.단어.length);
     var 목록 = S.단어.slice(a - 1, b);
     if(목록.length < 2){ toast('단어가 모자라요'); return; }
-    S.범위 = a + '~' + b;
+    S.범위 = 섞 ? h.범위 : a + '~' + b;
     S.모드 = 'kid';
     유치판 = { 숙제: h, 원목록: 목록.slice(), 단계: '', idx: 0, 맞은수: 0,
                오답: [], 시작: Date.now(), 상태: 'ask' };
@@ -6728,7 +6817,7 @@ function 유치끝_(){
   var 초 = Math.round((Date.now() - P.시작) / 1000);
   var 별 = 점수 >= 90 ? 3 : (점수 >= 60 ? 2 : 1);
 
-  $('kEndT').textContent = 학생범위글_(S.단어장, P.숙제.시작, P.숙제.끝) + ' 다 했어요!';
+  $('kEndT').textContent = 숙제범위글_(P.숙제) + ' 다 했어요!';
   $('kStars').innerHTML = [0, 1, 2].map(function(i){
     var 큼 = (i === 1);
     return '<svg width="' + (큼 ? 76 : 58) + '" height="' + (큼 ? 76 : 58) + '" viewBox="0 0 24 24" aria-hidden="true">' +
@@ -6973,7 +7062,7 @@ function 그리기_시험목록_(){
       시 = 안본것.some(function(h){ return 시험분_(h) > 0; });
 
   function 카드(h){
-    var 이름 = h.단어장 + ' ' + 학생범위글_(h.단어장, h.시작, h.끝);
+    var 이름 = h.단어장 + ' ' + 숙제범위글_(h);
     var 외 = 외우기분_(h), 시 = 시험분_(h);            /* 그 시험의 시간 */
     var 끝났나 = !!h.완료;
     return '<button class="excard' + (끝났나 ? ' done' : '') + '" data-ex="' +
@@ -7022,14 +7111,14 @@ function 시험열기_(h){
   if($('selBook')) $('selBook').value = h.단어장;
   S.종류 = '';
   var 후보 = ((시작정보 && 시작정보.단어장목록) || []).concat(내책들());
-  후보.forEach(function(x){ if(x.이름 === h.단어장) S.종류 = x.종류 || ''; });
+  후보.forEach(function(x){ if(x.이름 === 숙제첫책_(h)) S.종류 = x.종류 || ''; });
   모드박스();
   toast('시험을 준비하고 있어요…');
-  api('단어가져오기', h.단어장).then(function(w){
+  숙제단어받기_(h).then(function(w){
     if(표 !== 숙제열기표_) return;
     S.단어 = w || []; S.단어장 = h.단어장;
     과단어받기_(w, h.칸); 모드박스();             /* 과 시험은 적힌 구분으로 */
-    $('inFrom').value = h.시작; $('inTo').value = h.끝 || S.단어.length;
+    숙제범위칸_(h);
     drawQuick();
     var 방법 = 유형모드_(h.유형);
     시험판 = { 방법: 방법, 단계: '외우기' };
@@ -7209,12 +7298,33 @@ function 학생범위글_(단어장, a, b){
   var i = 책칸_(단어장, 내책들());
   return 레슨글_(i.묶음, i.총, a, b, false);
 }
+/* 숙제 한 줄의 범위 글 — 섞인 숙제는 「41~50, 1~20」 그대로 (레슨으로 못 바꾼다) */
+function 숙제범위글_(h){ return 섞인숙제_(h) ? h.범위 : 학생범위글_(h.단어장, h.시작, h.끝); }
+/* 지금 섞인 숙제를 푸는 중인가 — 그 숙제의 단어를 들고 있을 때만 (혼자 연습으로 넘어갔으면 아니다) */
+function 섞인풀이중_(){ return 섞인숙제_(S.현재숙제) && S.단어장 === S.현재숙제.단어장; }
+/* 숙제 단어 받기 — 옛 숙제는 그 단어장 통째로 받고 범위는 부르는 쪽이 자른다(지금 그대로).
+   섞인 숙제는 조각(교재)마다 따로 받아 범위를 먼저 자르고 합친다 — 겹친 철자는 앞 교재 것 하나.
+   교재별로 묶이지 않게 완전히 섞은 뒤 번호(no)를 1부터 다시 매긴다. 문항수는 지금처럼 startQuiz 가 여기서 뽑는다 */
+function 숙제단어받기_(h){
+  if(!섞인숙제_(h)) return api('단어가져오기', h.단어장);
+  return Promise.all(h.섞음.map(function(c){ return api('단어가져오기', c.단어장); })).then(function(다){
+    var 합 = shuffle(섞인단어모으기_(h.섞음, 다).단어);
+    합.forEach(function(w, i){ w.no = i + 1; });
+    return 합;
+  });
+}
+/* 범위 칸 — 옛 숙제는 적힌 시작·끝, 섞인 숙제는 합친 것 전부(1 ~ 합친 수) */
+function 숙제범위칸_(h){
+  $('inFrom').value = 섞인숙제_(h) ? 1 : h.시작;
+  $('inTo').value = 섞인숙제_(h) ? S.단어.length : (h.끝 || S.단어.length);
+}
 /* "11~20" 꼴로 들고 다니는 S.범위 를 풀어 준다 */
 function 범위쪼개_(글){
   var m = String(글 || '').split('~');
   return { a: Number(m[0]) || 1, b: Number(m[1]) || Number(m[0]) || 0 };
 }
 function 지금범위글_(){
+  if(섞인풀이중_()) return S.현재숙제.범위;         /* 섞인 숙제 — 「41~50, 1~20」 */
   var r = 범위쪼개_(S.범위);
   return 학생범위글_(S.단어장, r.a, r.b);
 }
@@ -7355,7 +7465,7 @@ function 자동알림(){
     out.push({ 종류:'다시', 색:'warn',
       제목: 다시.length+'개는 다시 풀어야 해요',
       글: 다시.map(function(h){
-        return h.단어장+' '+학생범위글_(h.단어장,h.시작,h.끝)+' · '+(Number(h.점수)||0)+'점';
+        return h.단어장+' '+숙제범위글_(h)+' · '+(Number(h.점수)||0)+'점';
       }).join('\n') + '\n'+합격점()+'점을 넘겨야 숙제로 인정돼요.' });
   }
 
@@ -7370,7 +7480,7 @@ function 자동알림(){
     out.push({ 종류:'새것', 색:'',
       제목: '새 숙제가 '+새것.length+'개 나왔어요',
       글: 새것.slice(0,3).map(function(h){
-        return h.단어장+' '+학생범위글_(h.단어장,h.시작,h.끝)+' · '+h.유형;
+        return h.단어장+' '+숙제범위글_(h)+' · '+h.유형;
       }).join('\n') + (새것.length>3 ? '\n외 '+(새것.length-3)+'개' : '') });
   }
 
@@ -7381,7 +7491,7 @@ function 자동알림(){
     out.push({ 종류:'오늘', 색:'',
       제목: '오늘까지 끝낼 숙제 '+오늘것.length+'개',
       글: 오늘것.slice(0,3).map(function(h){
-        return h.단어장+' '+학생범위글_(h.단어장,h.시작,h.끝);
+        return h.단어장+' '+숙제범위글_(h);
       }).join('\n') });
   }
 
@@ -7706,7 +7816,7 @@ function drawHw(){
     if(d>1) return d+'일 남음';
     return '기한 없음';
   }
-  function 이름(h){ return esc(h.단어장)+(h.칸 ? ' '+esc(h.칸) : '')+' '+esc(학생범위글_(h.단어장, h.시작, h.끝)); }
+  function 이름(h){ return esc(h.단어장)+(h.칸 && !섞인숙제_(h) ? ' '+esc(h.칸) : '')+' '+esc(숙제범위글_(h)); }
   var 전체=낱개.length, 낸수=낸것.length;
   /* 시안 — 유형마다 글자 표식과 색 (Ab · 3 · 4 · A_ · __) */
   function 표식(h){
@@ -7834,13 +7944,13 @@ function drawHw(){
       if($('selBook')) $('selBook').value=h.단어장;
       S.종류='';
       var 후보=((시작정보&&시작정보.단어장목록)||[]).concat(내책들());
-      후보.forEach(function(x){ if(x.이름===h.단어장) S.종류=x.종류||''; });
+      후보.forEach(function(x){ if(x.이름===숙제첫책_(h)) S.종류=x.종류||''; });
       모드박스();
-      api('단어가져오기',h.단어장).then(function(w){
+      숙제단어받기_(h).then(function(w){
         if(표 !== 숙제열기표_) return;              // 그 사이 다시 눌렀다 — 이건 버린다
         S.단어=w||[]; S.단어장=h.단어장;
         과단어받기_(w, h.칸); 모드박스(); 그리기_구분줄();   /* 과 숙제는 숙제에 적힌 구분으로 들어간다 */
-        $('inFrom').value=h.시작; $('inTo').value=h.끝||S.단어.length;
+        숙제범위칸_(h);
         drawQuick();
         var m = 유형모드_(h.유형);
         if(m==='verb'){ startVerb(); return; }
@@ -7995,6 +8105,8 @@ function 기록범위(r){
   /* 과 단어장은 「본문 1~12」 처럼 구분을 붙인다 — 같은 과의 단어 1~12 와 섞이지 않게.
      서버가 숙제와 기록을 이을 때도 이 글로 찾는다 (칸이 빈 옛 숙제는 예전 그대로) */
   var 앞 = S.종류==='과' ? 지금칸_()+' ' : '';
+  /* 섞인 숙제 — 숙제에 적힌 범위 글 그대로(「41~50, 1~20」 · 과는 「본문 1~12, 본문 3~5」). 구분은 이미 붙어 있다 */
+  if(S.현재숙제 && !S.재시험 && 섞인숙제_(S.현재숙제)) return S.현재숙제.범위;
   if(S.현재숙제 && !S.재시험){
     var h=S.현재숙제;
     return 앞+(Number(h.시작)||1)+'~'+(Number(h.끝)||r.b);
@@ -8120,7 +8232,7 @@ function renderBook(){
     : B.목록;
 
   $('wbName').innerHTML = esc(S.단어장) +
-    '<small>' + esc(학생범위글_(S.단어장, 범위쪼개_(B.범위).a, 범위쪼개_(B.범위).b)) + ' · 모두 ' + B.목록.length + '개' +
+    '<small>' + esc(섞인풀이중_() ? S.현재숙제.범위 : 학생범위글_(S.단어장, 범위쪼개_(B.범위).a, 범위쪼개_(B.범위).b)) + ' · 모두 ' + B.목록.length + '개' +
     (별.length ? ' · 별표 ' + 별.length + '개' : '') + '</small>';
   $('wbCnt').textContent = 볼것.length + '개';
 
@@ -8162,7 +8274,7 @@ function renderBook(){
       else {
         var 별2 = 별표읽기_();
         $('wbName').innerHTML = esc(S.단어장) +
-          '<small>' + esc(학생범위글_(S.단어장, 범위쪼개_(B.범위).a, 범위쪼개_(B.범위).b)) + ' · 모두 ' + B.목록.length + '개' +
+          '<small>' + esc(섞인풀이중_() ? S.현재숙제.범위 : 학생범위글_(S.단어장, 범위쪼개_(B.범위).a, 범위쪼개_(B.범위).b)) + ' · 모두 ' + B.목록.length + '개' +
           (별2.length ? ' · 별표 ' + 별2.length + '개' : '') + '</small>';
       }
     };
@@ -8589,24 +8701,24 @@ function 다시연습유형_(h){
   }).sort(function(a, b){ return (b.순서||0) - (a.순서||0); })[0];
   if(앞것) return 앞것.유형;
   var k = h.칸 || '';
-  if(!k){ var 종 = ''; 내책들().forEach(function(b){ if(b.이름===h.단어장) 종 = b.종류||''; }); k = 어디로_(종); }
+  if(!k){ var 종 = ''; 내책들().forEach(function(b){ if(b.이름===숙제첫책_(h)) 종 = b.종류||''; }); k = 어디로_(종); }
   return (k==='본문' || k==='문법') ? '빈칸 채우기' : '첫 글자';
 }
 function 다시연습시작_(h){
   var 표 = ++숙제열기표_;
   S.종류 = '';
-  ((시작정보&&시작정보.단어장목록)||[]).concat(내책들()).forEach(function(x){ if(x.이름===h.단어장) S.종류 = x.종류||''; });
+  ((시작정보&&시작정보.단어장목록)||[]).concat(내책들()).forEach(function(x){ if(x.이름===숙제첫책_(h)) S.종류 = x.종류||''; });
   /* 숙제 목록엔 틀린 단어가 다섯 개까지만 온다 (기록 칸의 짧은 쪽). 더 있으면 그 한 줄의 메모만 가져온다 */
   var 자리 = h.마지막자리;
   var 전문p = (Number(h.마지막틀린더) > 0 && 자리)
     ? api('틀린전문', (S.학생&&S.학생.이름)||'', 자리.시트, 자리.줄, 자리.키).catch(function(){ return null; })
     : Promise.resolve(null);
-  Promise.all([api('단어가져오기', h.단어장), 전문p]).then(function(둘){
+  Promise.all([숙제단어받기_(h), 전문p]).then(function(둘){
     var w = 둘[0], 전문 = 둘[1];
     if(표 !== 숙제열기표_) return;
     S.단어 = w||[]; S.단어장 = h.단어장;
     과단어받기_(w, h.칸); 모드박스();
-    var a = Math.max(1, Number(h.시작)||1), b = Math.min(S.단어.length, Number(h.끝)||S.단어.length);
+    var a = 섞인숙제_(h) ? 1 : Math.max(1, Number(h.시작)||1), b = 섞인숙제_(h) ? S.단어.length : Math.min(S.단어.length, Number(h.끝)||S.단어.length);
     var 범위 = S.단어.slice(a-1, b), 틀 = {};
     ((전문 && 전문.ok) ? 전문.틀린 : (h.마지막틀린||[])).forEach(function(x){ 틀[norm(x)] = 1; });
     /* 그 시험에서 틀린 것만 — 5개보다 적으면 범위에서 더 뽑아 10개를 채운다 */

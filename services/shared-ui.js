@@ -977,6 +977,32 @@ function toast(msg){
 }
 
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+/* 섞인 숙제(교재 두세 개) — 숙제 줄에 조각들(h.섞음 = [{단어장, 시작, 끝, 칸}, …])이 실려 온다. 옛 숙제는 없다 */
+function 섞인숙제_(h){ return !!(h && h.섞음 && h.섞음.length > 1); }
+/* 단어장 목록에서 이 숙제의 종류를 찾을 이름 — 섞였으면 첫 교재 (섞기는 같은 종류끼리만이라 하나다) */
+function 숙제첫책_(h){ return 섞인숙제_(h) ? h.섞음[0].단어장 : (h && h.단어장); }
+/* 섞인 숙제의 단어 모으기 — 조각마다 받은 단어(받은것들[i])에 그 조각의 구분·범위를 「먼저」 적용하고 나서 합친다
+   (다 합친 뒤에 자르면 엉뚱한 단어가 나간다). 영어 철자가 같으면 앞 조각 것만 남긴다 — 같은 단어장의 두 범위도 마찬가지.
+   차례는 조각 차례 그대로 돌려준다 (섞는 것은 아이 화면이 한다). 돌려주는 것 = { 단어:[…], 겹침: 뺀 개수 } */
+function 섞인단어모으기_(조각들, 받은것들){
+  var 본 = {}, 모음 = [], 겹침 = 0;
+  (조각들||[]).forEach(function(c, i){
+    var w = (받은것들 && 받은것들[i]) || [];
+    var 칸 = c.칸 || (w.some(function(x){ return x && x.칸; }) ? '단어' : '');   /* 과 단어장은 구분 안에서 번호를 본다 */
+    if(칸) w = w.filter(function(x){ return (x.칸||'단어') === 칸; });
+    var a = Math.max(1, Number(c.시작)||1), b = Math.min(w.length, Number(c.끝)||w.length);
+    if(a > b){ var t = a; a = b; b = t; }
+    w.slice(a-1, b).forEach(function(x){
+      var k = String((x && x.en) || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      if(!k) return;
+      if(본[k]){ 겹침++; return; }
+      본[k] = 1;
+      var y = {}; for(var p in x) y[p] = x[p];
+      모음.push(y);
+    });
+  });
+  return { 단어: 모음, 겹침: 겹침 };
+}
 /* 문항 수 — 범위 안에서 몇 개만 낸다. 섞은 뒤 앞에서 그만큼 자른다.
    비었거나 0 이하이거나 범위보다 크면 자르지 않는다 (= 범위 전부) */
 function 문항자르기_(목록, 수){
@@ -1737,6 +1763,68 @@ function 과묶음_(목록) {
     (g.칸[어디] = g.칸[어디] || []).push({ 이름: b.이름, 개수: Number(b.개수) || 0 });
   });
   return 과들;
+}
+/* ---------- 교재 섞기 — 한 숙제(시험)에 단어장을 셋까지 ----------
+   칸을 새로 만들지 않고 지금 칸에 「|」 로 이어 담는다.
+     단어장 600-1|중3 · 시작번호 41|1 · 끝번호 50|20 · 칸 | (과 단어장이면 구분, 아니면 빈칸)
+   「|」 가 없으면 옛 숙제 그대로다 (조각 하나). 기록에는 「600-1+중3」 · 「41~50, 1~20」 으로 남는다.
+   섞는 건 같은 종류끼리만 — 문장 단어장은 채점이 달라(문장기록) 아예 못 섞는다 */
+var 섞기최대_ = 3;
+function 섞인숙제인가_(단어장글) { return String(단어장글 === null || 단어장글 === undefined ? '' : 단어장글).indexOf('|') > -1; }
+/* 숙제 한 줄 → [{단어장, 시작, 끝, 칸}, …] · | 가 없으면 길이 1.
+   조각 수가 서로 안 맞으면(단어장 둘, 시작 하나) 첫 조각만 쓰고 로그를 남긴다 — 조용히 터지지 않는다 */
+function 범위들_(단어장글, 시작글, 끝글, 칸글) {
+  function 글(v) { return v === null || v === undefined ? '' : String(v).trim(); }
+  if (!섞인숙제인가_(단어장글)) {
+    return [{ 단어장: 글(단어장글), 시작: Number(시작글) || 1, 끝: Number(끝글) || 0, 칸: 글(칸글) }];
+  }
+  var 책 = 글(단어장글).split('|').map(글), 시 = 글(시작글).split('|'), 끝 = 글(끝글).split('|');
+  var 칸 = 글(칸글) === '' ? 책.map(function () { return ''; }) : 글(칸글).split('|');
+  if (시.length !== 책.length || 끝.length !== 책.length || 칸.length !== 책.length) {
+    try { console.log('범위들_: 조각 수가 안 맞아 첫 조각만 씁니다 — ' + [단어장글, 시작글, 끝글, 칸글].map(글).join(' / ')); } catch (e) {}
+    return [{ 단어장: 책[0], 시작: Number(시[0]) || 1, 끝: Number(끝[0]) || 0, 칸: 글(칸[0]) }];
+  }
+  return 책.map(function (b, i) { return { 단어장: b, 시작: Number(시[i]) || 1, 끝: Number(끝[i]) || 0, 칸: 글(칸[i]) }; });
+}
+/* 기록에 남는 글 — 단어장 「600-1+중3」 · 범위 「41~50, 1~20」 (과 단어장은 「본문 1~12」 처럼 구분이 붙는다) */
+function 단어장표시_(조각들) { return (조각들 || []).map(function (c) { return c.단어장; }).join('+'); }
+function 범위표시_(조각들) {
+  return (조각들 || []).map(function (c) { return (c.칸 ? c.칸 + ' ' : '') + c.시작 + '~' + c.끝; }).join(', ');
+}
+/* 섞어도 되는 무리 — 과 · 문장 · 그 밖(단어·본문·문법·3단변화는 유형이 달라 서로도 안 섞는다) */
+function 섞기종류_(종류) {
+  var k = String(종류 || '').trim();
+  if (k === '과') return '과 단어장';
+  if (k === '문장') return '문장 단어장';
+  var 어디 = 어디로_(k);
+  return 어디 === '단어' ? '단어장' : 어디 + ' 단어장';
+}
+/* 고른 교재들([{단어장, 칸}]) 을 같이 낼 수 있나 — 안 되면 그 까닭, 되면 '' . 목록은 단어장목록 ({이름, 종류}) */
+function 섞기막힘_(고른, 목록) {
+  고른 = 고른 || [];
+  if (고른.length < 2) return '';
+  if (고른.length > 섞기최대_) return '교재는 ' + 섞기최대_ + '개까지 섞을 수 있습니다.';
+  var 종류들 = [], 없는 = '';
+  고른.forEach(function (c) {
+    var b = null;
+    (목록 || []).forEach(function (x) { if (x && x.이름 === c.단어장) b = x; });
+    if (!b && !없는) 없는 = c.단어장;
+    종류들.push(b ? String(b.종류 || '').trim() : '');
+  });
+  if (없는) return '“' + 없는 + '” 단어장을 찾을 수 없습니다.';
+  if (종류들.some(function (k) { return k === '문장'; })) return '문장 단어장은 채점이 달라 다른 교재와 섞을 수 없습니다.';
+  var 첫 = 섞기종류_(종류들[0]);
+  for (var i = 1; i < 종류들.length; i++) {
+    var 이 = 섞기종류_(종류들[i]);
+    if (이 !== 첫) return '종류가 달라 같이 낼 수 없습니다 (' + 첫 + ' / ' + 이 + ')';
+  }
+  if (첫 === '과 단어장') {
+    for (var j = 1; j < 고른.length; j++) {
+      var a = String(고른[0].칸 || '단어'), z = String(고른[j].칸 || '단어');
+      if (a !== z) return '구분이 달라 같이 낼 수 없습니다 (' + a + ' / ' + z + ')';
+    }
+  }
+  return '';
 }
 /* ==== 수업 짜기 공용 끝 ==== */
 
