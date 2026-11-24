@@ -51,8 +51,9 @@ const privileged = role => role === 'teacher' || role === 'bridge';
 const 자료함수 = {__자료읽기:자료읽기, __자료고치기:칸고치기, __자료지우기:줄지우기, __자료되살리기:되살리기, __휴지통비우기:휴지통비우기};
 // bridge(Cloud Functions)만 부르는 엔진 길 — 열린기능_ 에 없다. __예약알림 · __예약숙제 · __알림거리 는 푸시비밀키를 싣고 오니 journal 에는 빼고 적는다
 const 다리함수 = {__월시상:engine=>engine.monthly(), __예약알림:(engine,args)=>engine.scheduledNotices(args[0]), __예약숙제:(engine,args)=>engine.scheduledHomework(args[0]), __죽은구독지우기:(engine,args)=>engine.dropDeadPushes(args[0]),
-  __알림거리:(engine,args)=>engine.noticeTargets(args[0],args[1],args[2],args[3]), __알림기록쓰기:(engine,args)=>engine.writeNoticeLog(args[0])};
-const 다리만 = ['__예약알림','__예약숙제','__죽은구독지우기','__알림거리','__알림기록쓰기'];
+  __알림거리:(engine,args)=>engine.noticeTargets(args[0],args[1],args[2],args[3]), __알림기록쓰기:(engine,args)=>engine.writeNoticeLog(args[0]),
+  __비서:(engine,args)=>engine.assistant(String(args[0]??''),Array.isArray(args[1])?args[1]:[])};
+const 다리만 = ['__예약알림','__예약숙제','__죽은구독지우기','__알림거리','__알림기록쓰기','__비서'];
 const 적을답 = (fn,answer) => ['__예약알림','__예약숙제','__알림거리'].includes(fn)&&answer&&answer.푸시비밀키 ? {...answer,푸시비밀키:'(뺌)'} : answer;
 const 자료하기 = (일,store,args,how) => { try { return {ok:true,자료:pack(일(store,args[0]??{},how))}; } catch(e) { if(e instanceof Error&&!e.code?.startsWith?.('permission'))return {ok:false,충돌:e.code==='충돌',메시지:e.message}; throw e; } };
 

@@ -459,7 +459,9 @@ function createLegacyEngine(dependencies) {
     \uC54C\uB9BC\uC608\uC57D: "\uC54C\uB9BC\uC608\uC57D",
     \uC54C\uB9BC\uAE30\uB85D: "\uC54C\uB9BC\uAE30\uB85D",
     \uC219\uC81C\uC608\uC57D: "\uC219\uC81C\uC608\uC57D",
-    \uD3AB: "\uD3AB"
+    \uD3AB: "\uD3AB",
+    \uCCB4\uD06C\uC124\uC815: "\uCCB4\uD06C\uC124\uC815",
+    \uCCB4\uD06C\uAE30\uB85D: "\uCCB4\uD06C\uAE30\uB85D"
   };
   var \uD2C0\uB9B0\uB2E8\uC5B4\uC5F4 = 14;
   var \uAD6C\uBD84\uC5F4 = 15;
@@ -613,8 +615,10 @@ function createLegacyEngine(dependencies) {
     ],
     \uC54C\uB9BC\uC608\uC57D: ["\uB9CC\uB4E0\uB54C", "\uC885\uB958", "\uB0A0\uC9DC", "\uC2DC\uAC01", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uACF5\uC9C0\uD568\uAED8", "\uACF5\uC9C0\uB05D\uB0A0", "\uBCF4\uB0B8\uB54C", "\uCF2C", "\uB300\uC0C1\uC885\uB958", "\uB300\uC0C1\uAC12"],
     \uC54C\uB9BC\uAE30\uB85D: ["\uBCF4\uB0B8\uB54C", "\uB204\uAC00", "\uB300\uC0C1", "\uC81C\uBAA9", "\uB0B4\uC6A9", "\uBCF4\uB0C4", "\uC2E4\uD328"],
-    \uC219\uC81C\uC608\uC57D: ["\uB9CC\uB4E0\uB54C", "\uB0A0\uC9DC", "\uC2DC\uAC01", "\uC694\uC57D", "\uB0B4\uC6A9", "\uC54C\uB9BC\uD568\uAED8", "\uBCF4\uB0B8\uB54C", "\uCF2C"],
-    \uD3AB: ["\uC774\uB984", "\uC54C\uC885\uB958", "\uD3AB\uC885\uB958", "\uC219\uC81C\uC218", "\uD638\uAC10\uB3C4", "\uBA39\uC774", "\uBD80\uD654\uD55C\uB0A0", "\uB3C4\uAC10"]
+    \uC219\uC81C\uC608\uC57D: ["\uB9CC\uB4E0\uB54C", "\uB0A0\uC9DC", "\uC2DC\uAC01", "\uC694\uC57D", "\uB0B4\uC6A9", "\uC54C\uB9BC\uD568\uAED8", "\uBCF4\uB0B8\uB54C", "\uCF2C", "\uBB36\uC74C"],
+    \uD3AB: ["\uC774\uB984", "\uC54C\uC885\uB958", "\uD3AB\uC885\uB958", "\uC219\uC81C\uC218", "\uD638\uAC10\uB3C4", "\uBA39\uC774", "\uBD80\uD654\uD55C\uB0A0", "\uB3C4\uAC10"],
+    \uCCB4\uD06C\uC124\uC815: ["\uACE0\uCE5C\uB54C", "\uB0B4\uC6A9"],
+    \uCCB4\uD06C\uAE30\uB85D: ["\uB0A0\uC9DC", "\uB0B4\uC6A9"]
   };
   var \uC0C8\uC8FC\uC18C = "https://smarthb-english.github.io/Vocab/";
   function doGet(e) {
@@ -662,6 +666,10 @@ function createLegacyEngine(dependencies) {
     \uD559\uBD80\uBAA8\uBBF8\uB9AC\uBCF4\uAE30,
     \uD2C0\uB9B0\uC804\uBB38,
     \uC219\uC81C\uB4F1\uB85D,
+    \uC219\uC81C\uCCB4\uD06C,
+    \uCCB4\uD06C\uC790\uB8CC,
+    \uCCB4\uD06C\uC124\uC815\uC800\uC7A5,
+    \uCCB4\uD06C\uAE30\uB85D\uC800\uC7A5,
     \uC218\uC5C5\uAFB8\uB7EC\uBBF8\uBAA9\uB85D,
     \uC218\uC5C5\uB0B4\uC8FC\uAE30,
     \uC218\uC5C5\uD2C0\uBAA9\uB85D,
@@ -720,6 +728,8 @@ function createLegacyEngine(dependencies) {
     \uC219\uC81C\uC608\uC57D\uC800\uC7A5,
     \uC219\uC81C\uC608\uC57D\uC9C0\uC6B0\uAE30,
     \uC219\uC81C\uC608\uC57D\uCF1C\uAE30,
+    \uB2E4\uC74C\uC219\uC81C\uBF51\uAE30,
+    \uC9C4\uB3C4\uC219\uC81C\uB0B4\uAE30,
     \uC54C\uB9BC\uBA85\uB2E8,
     \uC54C\uB9BC\uAE30\uB85D\uBAA9\uB85D,
     \uD569\uACA9\uC810\uC800\uC7A5,
@@ -2235,13 +2245,16 @@ function createLegacyEngine(dependencies) {
       if (\uAE30\uC900\uB2EC !== ym) return;
       if (\uC2DC\uC791\uC77C && \uB9C8\uAC10 && \uB9C8\uAC10 < \uC2DC\uC791\uC77C) return;
       if (\uC219\uC81C\uC885\uB958_(x[8]) === "\uBCF4\uCDA9" || \uC219\uC81C\uC885\uB958_(x[8]) === "\uC2DC\uD5D8") return;
+      var \uCC45\uCE78 = \uC219\uC81C\uCC45\uCE78_(x);
       \uC219\uC81C.push({
         \uBC18: s_(x[0]),
-        \uB2E8\uC5B4\uC7A5: s_(x[1]),
-        \uBC94\uC704: (Number(x[2]) || 1) + "~" + (Number(x[3]) || 0),
-        \uC2DC\uC791: Number(x[2]) || 1,
-        \uB05D: Number(x[3]) || 0,
-        \uCE78: s_(x.length > 11 ? x[11] : ""),
+        \uB2E8\uC5B4\uC7A5: \uCC45\uCE78.\uB2E8\uC5B4\uC7A5,
+        \uBC94\uC704: \uCC45\uCE78.\uC11E\uC74C ? \uCC45\uCE78.\uBC94\uC704 : (Number(x[2]) || 1) + "~" + (Number(x[3]) || 0),
+        \uC2DC\uC791: \uCC45\uCE78.\uC2DC\uC791,
+        \uB05D: \uCC45\uCE78.\uB05D,
+        \uC11E\uC74C: \uCC45\uCE78.\uC11E\uC74C,
+        \uB300\uC0C1\uCC45: \uCC45\uCE78.\uB300\uC0C1\uCC45,
+        \uCE78: \uCC45\uCE78.\uCE78,
         // 과 숙제의 구분 — 기록 범위가 「본문 1~12」 꼴이다
         \uCF54\uB4DC: \uCF54\uB4DC\uCE78_(x),
         \uD559\uC0DD: s_(x[7]),
@@ -2257,11 +2270,11 @@ function createLegacyEngine(dependencies) {
     \uC804\uCCB4.forEach(function(\uC774\uB984) {
       var \uB0B8\uAC83 = \uC131\uC801\uB9F5[\uC774\uB984] && \uC131\uC801\uB9F5[\uC774\uB984].\uB0B8\uAC83 || {};
       var \uB0B4\uC219\uC81C = \uC219\uC81C\uB4E4.filter(function(h) {
-        return \uB0B4\uC219\uC81C\uC778\uAC00_(h, \uC774\uB984, \uAD50\uC7AC\uB9F5, \uBC18\uD559\uC0DD);
+        return \uB0B4\uC219\uC81C\uC778\uAC00_(h.\uC11E\uC74C ? { \uBC18: h.\uBC18, \uB2E8\uC5B4\uC7A5: h.\uB300\uC0C1\uCC45, \uD559\uC0DD: h.\uD559\uC0DD } : h, \uC774\uB984, \uAD50\uC7AC\uB9F5, \uBC18\uD559\uC0DD);
       });
       var \uB0B8\uC218 = 0, \uC548\uD55C\uC218 = 0;
       \uB0B4\uC219\uC81C.forEach(function(h) {
-        var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uB0B8\uAC83, "", h.\uB2E8\uC5B4\uC7A5, h.\uC2DC\uC791, h.\uB05D, h.\uCE78, h.\uC885\uB958, h.\uCF54\uB4DC);
+        var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uB0B8\uAC83, "", h.\uB2E8\uC5B4\uC7A5, h.\uC2DC\uC791, h.\uB05D, h.\uCE78, h.\uC885\uB958, h.\uCF54\uB4DC, h.\uC11E\uC74C ? h.\uBC94\uC704 : "");
         var \uD310\uB2E8\uB0A0 = h.\uB9C8\uAC10 || h.\uB4F1\uB85D || "";
         if (\uB0B8\uAC83_(\uB0A0\uB4E4, h.\uC885\uB958, h.\uB4F1\uB85D, \uD310\uB2E8\uB0A0)) \uB0B8\uC218++;
         if (!\uD47C\uAC83_(\uB0A0\uB4E4, h.\uC885\uB958, h.\uB4F1\uB85D, \uD310\uB2E8\uB0A0, 0)) \uC548\uD55C\uC218++;
@@ -2614,18 +2627,19 @@ function createLegacyEngine(dependencies) {
     var \uB05D\uB0B8\uAC83 = \uC644\uB8CC\uC810\uC218\uB4E4_(\uC774\uB984);
     var out = [];
     r.forEach(function(x) {
-      var \uC904 = { \uBC18: s_(x[0]), \uB2E8\uC5B4\uC7A5: s_(x[1]), \uD559\uC0DD: s_(x[7]) };
+      var \uCC45\uCE78 = \uC219\uC81C\uCC45\uCE78_(x);
+      var \uC904 = { \uBC18: s_(x[0]), \uB2E8\uC5B4\uC7A5: \uCC45\uCE78.\uB300\uC0C1\uCC45, \uD559\uC0DD: s_(x[7]) };
       if (!\uB0B4\uC219\uC81C\uC778\uAC00_(\uC904, \uC774\uB984, \uAD50\uC7AC\uB9F5, \uBC18\uD559\uC0DD)) return;
       var \uB300\uC0C1 = s_(x[7]);
       var \uB9C8\uAC10 = x[5] instanceof Date2 ? ymd_(x[5]) : s_(x[5]);
       if (\uB9C8\uAC10 && \uB9C8\uAC10 < (\uBD80\uD130 === void 0 ? today : \uBD80\uD130)) return;
-      var \uB2E8\uC5B4\uC7A5 = s_(x[1]);
-      var \uC2DC\uC791 = Number(x[2]) || 1, \uB05D = Number(x[3]) || 0;
+      var \uB2E8\uC5B4\uC7A5 = \uCC45\uCE78.\uB2E8\uC5B4\uC7A5;
+      var \uC2DC\uC791 = \uCC45\uCE78.\uC2DC\uC791, \uB05D = \uCC45\uCE78.\uB05D;
       var \uC885\uB958 = s_(x[8]) ? \uC219\uC81C\uC885\uB958_(x[8]) : \uB9C8\uAC10 === today ? "\uB2F9\uC77C" : "\uAE30\uD55C";
       var \uB4F1\uB85D = x[6] instanceof Date2 ? ymd_(x[6]) : "";
-      var \uCE78 = s_(x.length > 11 ? x[11] : "");
+      var \uCE78 = \uCC45\uCE78.\uCE78;
       var \uCF54\uB4DC = \uCF54\uB4DC\uCE78_(x);
-      var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uB05D\uB0B8\uAC83, "", \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uC885\uB958, \uCF54\uB4DC);
+      var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uB05D\uB0B8\uAC83, "", \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uC885\uB958, \uCF54\uB4DC, \uCC45\uCE78.\uBC94\uC704);
       var \uD310\uB2E8\uB0A0 = \uB9C8\uAC10 || today;
       var \uAE30\uB85D = \uB0B8\uAC83_(\uB0A0\uB4E4, \uC885\uB958, \uB4F1\uB85D, \uD310\uB2E8\uB0A0);
       var \uC644\uB8CC = !!\uAE30\uB85D;
@@ -2637,12 +2651,12 @@ function createLegacyEngine(dependencies) {
           \uB2E8\uACC4,
           x.length > 14 ? x[14] : "",
           x.length > 15 ? x[15] : "",
-          \uC751\uC2DC\uB4E4_(\uC751\uC2DC, \uC774\uB984, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uB0B8\uB54C0),
+          \uC751\uC2DC\uB4E4_(\uC751\uC2DC, \uC774\uB984, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uB0B8\uB54C0, \uCC45\uCE78.\uBC94\uC704),
           \uB354\uC900\uD45C[s_(\uC774\uB984) + "|" + \uB0B8\uB54C0]
         );
         \uC644\uB8CC = \uB2E8\uC0C1.\uC644\uB8CC;
       }
-      out.push({
+      var \uC219 = {
         \uB2E8\uC5B4\uC7A5,
         \uC2DC\uC791,
         \uB05D,
@@ -2661,7 +2675,7 @@ function createLegacyEngine(dependencies) {
         /* 그 숙제로 낸 기록에 같이 적을 코드 — 아이 앱이 결과저장에 실어 보낸다 (연습 · 오답 재시험은 안 싣는다) */
         \uCF54\uB4DC,
         \uAC1C\uBCC4: !!\uB300\uC0C1,
-        \uC0C9: \uC0C9\uB9F5[\uB2E8\uC5B4\uC7A5] || "",
+        \uC0C9: \uC0C9\uB9F5[\uCC45\uCE78.\uC0C9\uCC45] || "",
         \uC885\uB958,
         \uC644\uB8CC,
         \uC810\uC218: \uC2DC\uB3C4 ? \uC2DC\uB3C4.\uC810\uC218 : null,
@@ -2681,7 +2695,12 @@ function createLegacyEngine(dependencies) {
         \uB9C8\uC9C0\uB9C9\uD2C0\uB9B0: \uB2E8\uC0C1 && \uB2E8\uC0C1.\uB9C8\uC9C0\uB9C9\uD2C0\uB9B0 ? \uB2E8\uC0C1.\uB9C8\uC9C0\uB9C9\uD2C0\uB9B0 : [],
         \uB9C8\uC9C0\uB9C9\uD2C0\uB9B0\uB354: \uB2E8\uC0C1 ? \uB2E8\uC0C1.\uB9C8\uC9C0\uB9C9\uD2C0\uB9B0\uB354 || 0 : 0,
         \uB9C8\uC9C0\uB9C9\uC790\uB9AC: \uB2E8\uC0C1 ? \uB2E8\uC0C1.\uB9C8\uC9C0\uB9C9\uC790\uB9AC || null : null
-      });
+      };
+      if (\uCC45\uCE78.\uC11E\uC74C) {
+        \uC219.\uC11E\uC74C = \uCC45\uCE78.\uC11E\uC74C;
+        \uC219.\uBC94\uC704 = \uCC45\uCE78.\uBC94\uC704;
+      }
+      out.push(\uC219);
     });
     out.sort(function(a, b) {
       var \uC21C = { "\uB2F9\uC77C": 0, "\uBCF4\uCDA9": 1, "\uAE30\uD55C": 2 };
@@ -3419,8 +3438,12 @@ function createLegacyEngine(dependencies) {
     if (\uBC18) return ((\uBC18\uD559\uC0DD || {})[\uBC18] || []).slice();
     var \uCC45 = s_(h && h.\uB2E8\uC5B4\uC7A5);
     if (!\uCC45) return \uC804\uCCB4.slice();
+    var \uCC45\uB4E4 = \uCC45.split("|").map(s_);
     var \uBC1B\uC740\uC0AC\uB78C = \uC804\uCCB4.filter(function(n) {
-      return ((\uAD50\uC7AC\uB9F5 || {})[n] || []).indexOf(\uCC45) > -1;
+      var \uB0B4\uAC83 = (\uAD50\uC7AC\uB9F5 || {})[n] || [];
+      return \uCC45\uB4E4.some(function(b) {
+        return \uB0B4\uAC83.indexOf(b) > -1;
+      });
     });
     return \uBC1B\uC740\uC0AC\uB78C;
   }
@@ -3447,7 +3470,10 @@ function createLegacyEngine(dependencies) {
     if (\uBC18) return ((\uBC18\uD559\uC0DD || {})[\uBC18] || []).indexOf(s_(\uC774\uB984)) > -1;
     var \uCC45 = s_(h && h.\uB2E8\uC5B4\uC7A5);
     if (!\uCC45) return true;
-    return ((\uAD50\uC7AC\uB9F5 || {})[s_(\uC774\uB984)] || []).indexOf(\uCC45) > -1;
+    var \uB0B4\uAC83 = (\uAD50\uC7AC\uB9F5 || {})[s_(\uC774\uB984)] || [];
+    return \uCC45.split("|").some(function(b) {
+      return \uB0B4\uAC83.indexOf(s_(b)) > -1;
+    });
   }
   function \uBC18\uBCC4\uBA85\uB2E8_() {
     var \uBC18\uD559\uC0DD = {};
@@ -3556,6 +3582,7 @@ function createLegacyEngine(dependencies) {
     rows_(SHEET.\uC219\uC81C).forEach(function(x) {
       var \uB2E8\uC5B4\uC7A5 = s_(x[1]);
       if (!\uB2E8\uC5B4\uC7A5) return;
+      var \uCC45\uCE78 = \uC219\uC81C\uCC45\uCE78_(x);
       var \uBC94\uC704 = (Number(x[2]) || 1) + "~" + (Number(x[3]) || 0);
       var \uB9C8\uAC10 = x[5] instanceof Date2 ? ymd_(x[5]) : s_(x[5]);
       var \uB4F1\uB85D = x[6] instanceof Date2 ? ymd_(x[6]) : "";
@@ -3564,14 +3591,14 @@ function createLegacyEngine(dependencies) {
       var \uB0A0 = \uB9C8\uAC10 || \uB4F1\uB85D;
       if (!\uB0A0) return;
       var \uB300\uC0C1\uB4E4 = \uC219\uC81C\uB300\uC0C1_(
-        { \uBC18: s_(x[0]), \uB2E8\uC5B4\uC7A5, \uD559\uC0DD: s_(x[7]) },
+        { \uBC18: s_(x[0]), \uB2E8\uC5B4\uC7A5: \uCC45\uCE78.\uB300\uC0C1\uCC45, \uD559\uC0DD: s_(x[7]) },
         \uC804\uCCB4,
         \uAD50\uC7AC\uB9F5,
         \uBC18\uD559\uC0DD
       );
       var \uC544\uC9C1 = \uB0A0 > today;
       \uB300\uC0C1\uB4E4.forEach(function(\uC774\uB984) {
-        var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uC644\uB8CC, \uC774\uB984 + "|", \uB2E8\uC5B4\uC7A5, Number(x[2]) || 1, Number(x[3]) || 0, x.length > 11 ? x[11] : "", \uC885\uB958, \uCF54\uB4DC\uCE78_(x));
+        var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uC644\uB8CC, \uC774\uB984 + "|", \uCC45\uCE78.\uB2E8\uC5B4\uC7A5, \uCC45\uCE78.\uC2DC\uC791, \uCC45\uCE78.\uB05D, \uCC45\uCE78.\uCE78, \uC885\uB958, \uCF54\uB4DC\uCE78_(x), \uCC45\uCE78.\uBC94\uC704);
         var key = \uC774\uB984;
         if (\uC544\uC9C1) {
           if (\uB2F9\uC77C\uCE58\uAE30_(\uC885\uB958)) return;
@@ -4225,7 +4252,7 @@ function createLegacyEngine(dependencies) {
     }
     return \uB2F5;
   }
-  var \uC219\uC81C\uC608\uC57D\uCE78_ = { \uB9CC\uB4E0\uB54C: 1, \uB0A0\uC9DC: 2, \uC2DC\uAC01: 3, \uC694\uC57D: 4, \uB0B4\uC6A9: 5, \uC54C\uB9BC\uD568\uAED8: 6, \uBCF4\uB0B8\uB54C: 7, \uCF2C: 8 };
+  var \uC219\uC81C\uC608\uC57D\uCE78_ = { \uB9CC\uB4E0\uB54C: 1, \uB0A0\uC9DC: 2, \uC2DC\uAC01: 3, \uC694\uC57D: 4, \uB0B4\uC6A9: 5, \uC54C\uB9BC\uD568\uAED8: 6, \uBCF4\uB0B8\uB54C: 7, \uCF2C: 8, \uBB36\uC74C: 9 };
   var \uC219\uC81C\uC608\uC57D\uBABB\uB0C4_ = "\uBABB \uB0C4";
   function \uC219\uC81C\uC608\uC57D\uC2DC\uD2B8_() {
     return \uBA38\uB9AC\uB9DE\uCD98\uC2DC\uD2B8_(SHEET.\uC219\uC81C\uC608\uC57D, HEADERS.\uC219\uC81C\uC608\uC57D, { 4: 320, 5: 360, 7: 260 });
@@ -4249,6 +4276,7 @@ function createLegacyEngine(dependencies) {
       \uBCF4\uB0B8\uB54C,
       \uBABB\uB0C4: \uBABB > -1 ? s_(\uBCF4\uB0B8\uB54C.slice(\uBABB + \uC219\uC81C\uC608\uC57D\uBABB\uB0C4_.length)).replace(/^[—:\-\s]+/, "") || "\uAE4C\uB2ED \uBAA8\uB984" : "",
       \uCF2C: s_(\uCE78("\uCF2C")) !== "X",
+      \uBB36\uC74C: s_(\uCE78("\uBB36\uC74C")),
       \uB9CC\uB4E0\uB0A0: \uB54C ? ymd_(\uB54C) : ""
     };
   }
@@ -4285,6 +4313,11 @@ function createLegacyEngine(dependencies) {
     var \uB204\uAD6C = \uACE0\uB978.length ? \uACE0\uB978.length > 2 ? \uACE0\uB978.slice(0, 2).join(", ") + " \uC678 " + (\uACE0\uB978.length - 2) + "\uBA85" : \uACE0\uB978.join(", ") : "\uAD50\uC7AC \uBC30\uC6B0\uB294 \uD559\uC0DD";
     var \uCC45 = (s_(h.\uB2E8\uC5B4\uC7A5) || s_(h.\uAD50\uC7AC)) + (s_(h.\uCE78) ? " " + s_(h.\uCE78) : "");
     var \uBC94\uC704 = (Number(h.\uC2DC\uC791) || 1) + "~" + (Number(h.\uB05D) || 0);
+    if (\uC11E\uC778\uC219\uC81C\uC778\uAC00_(s_(h.\uB2E8\uC5B4\uC7A5) || s_(h.\uAD50\uC7AC))) {
+      var \uC870\uAC01 = \uBC94\uC704\uB4E4_(s_(h.\uB2E8\uC5B4\uC7A5) || s_(h.\uAD50\uC7AC), h.\uC2DC\uC791, h.\uB05D, h.\uCE78);
+      \uCC45 = \uB2E8\uC5B4\uC7A5\uD45C\uC2DC_(\uC870\uAC01);
+      \uBC94\uC704 = \uBC94\uC704\uD45C\uC2DC_(\uC870\uAC01);
+    }
     var \uC885\uB958 = \uC219\uC81C\uC885\uB958_(h.\uC885\uB958);
     return [
       \uB204\uAD6C,
@@ -4295,38 +4328,67 @@ function createLegacyEngine(dependencies) {
   }
   function \uC219\uC81C\uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
-    var \uC904\uB4E4 = [];
-    try {
-      \uC904\uB4E4 = rows_(SHEET.\uC219\uC81C\uC608\uC57D);
-    } catch (e) {
-      \uC904\uB4E4 = [];
-    }
-    var out = \uC904\uB4E4.map(\uC219\uC81C\uC608\uC57D\uC904_).filter(function(n) {
-      return n.\uB0A0\uC9DC && n.\uB0B4\uC6A9;
+    return \uC77D\uB294\uB3D9\uC548_(function() {
+      var \uC904\uB4E4 = [];
+      try {
+        \uC904\uB4E4 = rows_(SHEET.\uC219\uC81C\uC608\uC57D);
+      } catch (e) {
+        \uC904\uB4E4 = [];
+      }
+      var out = \uC904\uB4E4.map(\uC219\uC81C\uC608\uC57D\uC904_).filter(function(n) {
+        return n.\uB0A0\uC9DC && n.\uB0B4\uC6A9;
+      });
+      var \uC804\uCCB4 = null;
+      out.forEach(function(n) {
+        var h = null;
+        try {
+          h = JSON.parse(n.\uB0B4\uC6A9);
+        } catch (e) {
+          h = null;
+        }
+        n.\uBC1B\uB294\uC774\uB4E4 = [];
+        n.\uAD50\uC7AC\uB85C = false;
+        if (!h || typeof h !== "object") return;
+        if (\uC804\uCCB4 === null) \uC804\uCCB4 = \uC804\uCCB4\uBA85\uB2E8_();
+        var \uBC1B\uC744 = \uC219\uC81C\uBC1B\uC744\uC544\uC774_(h, \uC804\uCCB4);
+        n.\uAD50\uC7AC\uB85C = !\uBC1B\uC744.\uACE0\uB978.length;
+        if (!n.\uBCF4\uB0B8\uB54C) n.\uBC1B\uB294\uC774\uB4E4 = \uBC1B\uC744.\uB300\uC0C1.slice();
+      });
+      out.reverse();
+      return { ok: true, \uC608\uC57D: out, \uC624\uB298: ymd_(new Date2()) };
     });
-    out.reverse();
-    return { ok: true, \uC608\uC57D: out, \uC624\uB298: ymd_(new Date2()) };
+  }
+  function \uC219\uC81C\uC608\uC57D\uB530\uC9C0\uAE30_(\uAC12) {
+    \uAC12 = \uAC12 || {};
+    var \uB0A0\uC9DC = s_(\uAC12.\uB0A0\uC9DC);
+    if (!\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB0A0\uC9DC)) return { \uBA54\uC2DC\uC9C0: "\uC219\uC81C\uAC00 \uB098\uAC08 \uB0A0\uC9DC\uB97C \uACE8\uB77C \uC8FC\uC138\uC694." };
+    if (\uB0A0\uC9DC < ymd_(new Date2())) return { \uBA54\uC2DC\uC9C0: "\uC9C0\uB09C \uB0A0\uC9DC\uC785\uB2C8\uB2E4." };
+    var \uC2DC\uAC01 = \uC608\uC57D\uC2DC\uAC01\uC815\uB9AC_(\uAC12.\uC2DC\uAC01);
+    if (!\uC2DC\uAC01) return { \uBA54\uC2DC\uC9C0: "\uC2DC\uAC01 \uBAA8\uC591\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. (\uC608: 08:00)" };
+    if (!\uC608\uC57D\uC2DC\uAC01\uB418\uB098_(\uC2DC\uAC01)) return { \uBA54\uC2DC\uC9C0: "\uC219\uC81C \uC608\uC57D\uC740 \uC544\uCE68 7\uC2DC\uBD80\uD130 \uBC24 9\uC2DC \uC0AC\uC774\uC5D0\uB9CC \uAC78 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
+    var \uB0B4\uC6A9 = \uC219\uC81C\uC608\uC57D\uB0B4\uC6A9_(\uAC12.\uB0B4\uC6A9, \uB0A0\uC9DC);
+    if (!\uB0B4\uC6A9.h) return { \uBA54\uC2DC\uC9C0: \uB0B4\uC6A9.\uBA54\uC2DC\uC9C0 };
+    return { \uC904: [\uB0A0\uC9DC, \uC2DC\uAC01, \uC219\uC81C\uC608\uC57D\uC694\uC57D_(\uB0B4\uC6A9.h), JSON.stringify(\uB0B4\uC6A9.h), \uAC12.\uC54C\uB9BC\uD568\uAED8 ? "O" : ""] };
+  }
+  function \uC219\uC81C\uC608\uC57D\uB123\uAE30_(\uC904, \uBB36\uC74C) {
+    var sh = \uC219\uC81C\uC608\uC57D\uC2DC\uD2B8_();
+    sh.appendRow([new Date2()].concat(\uC904, ["", "", s_(\uBB36\uC74C)]));
+    var \uC0C8 = sh.getLastRow();
+    sh.getRange(\uC0C8, 1).setNumberFormat("yyyy-MM-dd HH:mm");
+    sh.getRange(\uC0C8, \uC219\uC81C\uC608\uC57D\uCE78_.\uB0A0\uC9DC, 1, 2).setNumberFormat("@");
+    return \uC0C8;
   }
   function \uC219\uC81C\uC608\uC57D\uC800\uC7A5(\uBE44\uBC88, \uD589, \uAC12) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
     \uAC12 = \uAC12 || {};
-    var \uB0A0\uC9DC = s_(\uAC12.\uB0A0\uC9DC);
-    if (!\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB0A0\uC9DC)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC219\uC81C\uAC00 \uB098\uAC08 \uB0A0\uC9DC\uB97C \uACE8\uB77C \uC8FC\uC138\uC694." };
-    if (\uB0A0\uC9DC < ymd_(new Date2())) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC9C0\uB09C \uB0A0\uC9DC\uC785\uB2C8\uB2E4." };
-    var \uC2DC\uAC01 = \uC608\uC57D\uC2DC\uAC01\uC815\uB9AC_(\uAC12.\uC2DC\uAC01);
-    if (!\uC2DC\uAC01) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC2DC\uAC01 \uBAA8\uC591\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. (\uC608: 08:00)" };
-    if (!\uC608\uC57D\uC2DC\uAC01\uB418\uB098_(\uC2DC\uAC01)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC219\uC81C \uC608\uC57D\uC740 \uC544\uCE68 7\uC2DC\uBD80\uD130 \uBC24 9\uC2DC \uC0AC\uC774\uC5D0\uB9CC \uAC78 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
-    var \uB0B4\uC6A9 = \uC219\uC81C\uC608\uC57D\uB0B4\uC6A9_(\uAC12.\uB0B4\uC6A9, \uB0A0\uC9DC);
-    if (!\uB0B4\uC6A9.h) return { ok: false, \uBA54\uC2DC\uC9C0: \uB0B4\uC6A9.\uBA54\uC2DC\uC9C0 };
-    var \uC904 = [\uB0A0\uC9DC, \uC2DC\uAC01, \uC219\uC81C\uC608\uC57D\uC694\uC57D_(\uB0B4\uC6A9.h), JSON.stringify(\uB0B4\uC6A9.h), \uAC12.\uC54C\uB9BC\uD568\uAED8 ? "O" : ""];
-    var sh = \uC219\uC81C\uC608\uC57D\uC2DC\uD2B8_();
+    var \uB530\uC9D0 = \uC219\uC81C\uC608\uC57D\uB530\uC9C0\uAE30_(\uAC12);
+    if (!\uB530\uC9D0.\uC904) return { ok: false, \uBA54\uC2DC\uC9C0: \uB530\uC9D0.\uBA54\uC2DC\uC9C0 };
+    var \uC904 = \uB530\uC9D0.\uC904, \uB0A0\uC9DC = \uC904[0], \uC2DC\uAC01 = \uC904[1];
     if (!s_(\uD589)) {
-      sh.appendRow([new Date2()].concat(\uC904, ["", ""]));
-      var \uC0C8 = sh.getLastRow();
-      sh.getRange(\uC0C8, 1).setNumberFormat("yyyy-MM-dd HH:mm");
-      sh.getRange(\uC0C8, \uC219\uC81C\uC608\uC57D\uCE78_.\uB0A0\uC9DC, 1, 2).setNumberFormat("@");
+      \uC219\uC81C\uC608\uC57D\uB123\uAE30_(\uC904, "");
       return { ok: true, \uC608\uC57D: \uC219\uC81C\uC608\uC57D\uBAA9\uB85D(\uBE44\uBC88).\uC608\uC57D };
     }
+    var sh = \uC219\uC81C\uC608\uC57D\uC2DC\uD2B8_();
     var n = \uC608\uC57D\uC904\uD655\uC778_(sh, \uD589, \uAC12.\uD0A4);
     if (!n) return { ok: false, \uBA54\uC2DC\uC9C0: "\uADF8 \uC0AC\uC774 \uC608\uC57D\uC774 \uBC14\uB00C\uC5C8\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C \uBD88\uB7EC\uC640 \uC8FC\uC138\uC694." };
     var \uC804 = \uC219\uC81C\uC608\uC57D\uC904_(sh.getRange(n, 1, 1, HEADERS.\uC219\uC81C\uC608\uC57D.length).getValues()[0], n - 2);
@@ -4394,7 +4456,13 @@ function createLegacyEngine(dependencies) {
       \uB0B8\uAC83.push({ \uD589: n.\uD589, \uB410\uB098: true, \uC694\uC57D: n.\uC694\uC57D, \uB300\uC0C1: r.\uB300\uC0C1 || 0 });
       if (!n.\uC54C\uB9BC\uD568\uAED8) return;
       var \uC219 = r.\uC219\uC81C || {};
-      var \uC774\uB984\uB4E4 = \uC219\uC81C\uB300\uC0C1_({ \uBC18: "", \uB2E8\uC5B4\uC7A5: s_(\uC219.\uB2E8\uC5B4\uC7A5), \uD559\uC0DD: \uC219.\uD559\uC0DD || "" }, \uC804\uCCB4\uBA85\uB2E8_(), \uAD50\uC7AC\uB9F5_(), \uBC18\uBCC4\uBA85\uB2E8_());
+      var \uC774\uB984\uB4E4 = \uC219\uC81C\uB300\uC0C1_({
+        \uBC18: "",
+        \uB2E8\uC5B4\uC7A5: \uC219.\uC11E\uC74C ? \uC219.\uC11E\uC74C.map(function(c) {
+          return c.\uB2E8\uC5B4\uC7A5;
+        }).join("|") : s_(\uC219.\uB2E8\uC5B4\uC7A5),
+        \uD559\uC0DD: \uC219.\uD559\uC0DD || ""
+      }, \uC804\uCCB4\uBA85\uB2E8_(), \uAD50\uC7AC\uB9F5_(), \uBC18\uBCC4\uBA85\uB2E8_());
       if (!\uC774\uB984\uB4E4.length) return;
       if (!\uAD6C\uB3C5) \uAD6C\uB3C5 = \uAD6C\uB3C5\uBAA8\uC73C\uAE30_(null);
       var \uAC78\uB7EC = {};
@@ -4424,6 +4492,275 @@ function createLegacyEngine(dependencies) {
       \uB2F5.\uD478\uC2DC\uBE44\uBC00\uD0A4 = s_(setting_("\uD478\uC2DC\uBE44\uBC00\uD0A4", ""));
     }
     return \uB2F5;
+  }
+  var \uC9C4\uB3C4\uBC94\uC704\uAF34_ = /^(\d+)\s*~\s*(\d+)$/;
+  var \uC9C4\uB3C4\uB05D\uB0B8\uD69F\uC218_ = 2;
+  function \uC9C4\uB3C4\uBABB\uC138\uB294\uAE4C\uB2ED_(\uC885\uB958) {
+    if (\uACFC\uC7A5_(\uC885\uB958)) return "\u300C\uACFC\u300D \uB2E8\uC5B4\uC7A5\uC774\uB77C \uC544\uC9C1 \uC548 \uB3FC\uC694";
+    if (\uBB38\uC7A5\uC5F0\uC2B5\uC7A5_(\uC885\uB958)) return "\uBB38\uC7A5 \uB2E8\uC5B4\uC7A5\uC774\uB77C \uC544\uC9C1 \uC548 \uB3FC\uC694";
+    return "";
+  }
+  function \uB2E8\uC5B4\uC9C4\uB3C4\uD45C_(\uC774\uB984\uB4E4) {
+    var \uBCFC = {};
+    \uC774\uB984\uB4E4.forEach(function(n) {
+      \uBCFC[n] = 1;
+    });
+    var \uD1B5\uACFC\uC810\uB4E4 = {};
+    var \uC219\uC81C\uC904\uB4E4 = [];
+    try {
+      \uC219\uC81C\uC904\uB4E4 = \uC77D\uAE30\uCE90\uC2DC_(SHEET.\uC219\uC81C);
+    } catch (e) {
+      \uC219\uC81C\uC904\uB4E4 = [];
+    }
+    \uC219\uC81C\uC904\uB4E4.forEach(function(x) {
+      var \uCF54\uB4DC = s_(x.length > 19 ? x[19] : "");
+      var \uD1B5\uACFC = s_(x.length > 14 ? x[14] : "");
+      if (\uCF54\uB4DC && \uD1B5\uACFC !== "" && isFinite(Number(\uD1B5\uACFC))) \uD1B5\uACFC\uC810\uB4E4[\uCF54\uB4DC] = Number(\uD1B5\uACFC);
+    });
+    var \uAE30\uBCF8\uCEF7 = \uD569\uACA9\uC810_();
+    var \uD45C = {};
+    [SHEET.\uAE30\uB85D, SHEET.\uAE30\uB85D\uBCF4\uAD00].forEach(function(name) {
+      var \uC904\uB4E4 = [];
+      try {
+        \uC904\uB4E4 = \uC77D\uAE30\uCE90\uC2DC_(name);
+      } catch (e) {
+        return;
+      }
+      \uC904\uB4E4.forEach(function(x) {
+        var \uC774\uB984 = s_(x[2]);
+        if (!\uBCFC[\uC774\uB984]) return;
+        if (!x[12] || s_(x[12]) === "") return;
+        var \uAC08\uB798 = \uAE30\uB85D\uAC08\uB798_(x[14]);
+        if (!\uAC08\uB798 || \uAC08\uB798 === "\uC2DC\uD5D8") return;
+        var m = \uC9C4\uB3C4\uBC94\uC704\uAF34_.exec(s_(x[4]));
+        if (!m) return;
+        var \uC2DC\uC791 = Number(m[1]), \uB05D = Number(m[2]);
+        if (!(\uC2DC\uC791 >= 1 && \uB05D >= \uC2DC\uC791)) return;
+        var \uC810 = Number(x[8]) || 0;
+        var \uCF54\uB4DC = s_(x.length > 19 ? x[19] : "");
+        var \uCEF7 = \uCF54\uB4DC && Object.prototype.hasOwnProperty.call(\uD1B5\uACFC\uC810\uB4E4, \uCF54\uB4DC) ? \uD1B5\uACFC\uC810\uB4E4[\uCF54\uB4DC] : \uAE30\uBCF8\uCEF7;
+        var \uCC45 = \uD45C[\uC774\uB984 + "|" + s_(x[3])] = \uD45C[\uC774\uB984 + "|" + s_(x[3])] || {};
+        var \uCE78 = \uCC45[\uC2DC\uC791 + "~" + \uB05D] = \uCC45[\uC2DC\uC791 + "~" + \uB05D] || { \uC2DC\uC791, \uB05D, \uCD5C\uACE0: 0, \uD69F\uC218: 0, \uD1B5\uACFC: false, \uCEF7: \uAE30\uBCF8\uCEF7 };
+        \uCE78.\uD69F\uC218 += 1;
+        if (\uC810 > \uCE78.\uCD5C\uACE0) \uCE78.\uCD5C\uACE0 = \uC810;
+        if (\uC810 >= \uCEF7) \uCE78.\uD1B5\uACFC = true;
+        else if (!\uCE78.\uD1B5\uACFC) \uCE78.\uCEF7 = \uCEF7;
+      });
+    });
+    return \uD45C;
+  }
+  function \uB2E8\uC5B4\uC9C4\uB3C4_(\uC7A5\uBD80) {
+    var \uBC94\uC704\uB4E4 = Object.keys(\uC7A5\uBD80 || {}).map(function(k) {
+      return \uC7A5\uBD80[k];
+    });
+    var \uC9C4\uB3C4 = 0, \uC9C0\uB09C = null, \uB36E\uC778 = {};
+    \uBC94\uC704\uB4E4.forEach(function(r) {
+      r.\uB05D\uB0C4 = r.\uD1B5\uACFC || r.\uD69F\uC218 >= \uC9C4\uB3C4\uB05D\uB0B8\uD69F\uC218_;
+      if (!r.\uB05D\uB0C4) return;
+      for (var i = r.\uC2DC\uC791; i <= r.\uB05D; i++) \uB36E\uC778[i] = 1;
+      if (r.\uB05D > \uC9C4\uB3C4 || r.\uB05D === \uC9C4\uB3C4 && \uC9C0\uB09C && r.\uC2DC\uC791 > \uC9C0\uB09C.\uC2DC\uC791) {
+        \uC9C4\uB3C4 = r.\uB05D;
+        \uC9C0\uB09C = r;
+      }
+    });
+    var \uB9C9\uD78C = null;
+    \uBC94\uC704\uB4E4.forEach(function(r) {
+      if (r.\uB05D\uB0C4) return;
+      var \uB2E4\uB36E\uC784 = true;
+      for (var i = r.\uC2DC\uC791; i <= r.\uB05D; i++) if (!\uB36E\uC778[i]) {
+        \uB2E4\uB36E\uC784 = false;
+        break;
+      }
+      if (\uB2E4\uB36E\uC784) return;
+      if (!\uB9C9\uD78C || r.\uC2DC\uC791 < \uB9C9\uD78C.\uC2DC\uC791 || r.\uC2DC\uC791 === \uB9C9\uD78C.\uC2DC\uC791 && r.\uB05D < \uB9C9\uD78C.\uB05D) \uB9C9\uD78C = r;
+    });
+    return { \uC9C4\uB3C4, \uB9C9\uD78C, \uC9C0\uB09C, \uCC98\uC74C: !\uBC94\uC704\uB4E4.length };
+  }
+  function \uB2E4\uC74C\uC219\uC81C\uBF51\uAE30(\uBE44\uBC88, \uC774\uB984\uB4E4) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    return \uC77D\uB294\uB3D9\uC548_(function() {
+      var \uACE0\uB978 = \uC774\uB984\uB4E4\uD480\uAE30_(\uC774\uB984\uB4E4);
+      var \uBA85\uB2E8 = {};
+      \uC77D\uAE30\uCE90\uC2DC_(SHEET.\uD559\uC0DD).forEach(function(r) {
+        var n = s_(r[1]);
+        if (n && !\uBA85\uB2E8[n]) \uBA85\uB2E8[n] = \uC904\uAD50\uC7AC_(r);
+      });
+      var \uCC45\uB4E4 = {};
+      \uC77D\uAE30\uCE90\uC2DC_(SHEET.\uB2E8\uC5B4\uC7A5\uBAA9\uB85D).forEach(function(x) {
+        var \uC774\uB984 = s_(x[0]);
+        if (!\uC774\uB984 || \uCC45\uB4E4[\uC774\uB984]) return;
+        var \uCE78 = x.length > 6 ? s_(x[6]) : "";
+        \uCC45\uB4E4[\uC774\uB984] = { \uC885\uB958: s_(x[1]), \uC2DC\uD2B8: s_(x[2]), \uD558\uB8E8\uBAAB: \uCE78 ? \uD558\uB8E8\uBAAB_(\uCE78) : \uB808\uC2A8\uD06C\uAE30_(x.length > 4 ? x[4] : "") };
+      });
+      var \uC7A5\uBD80\uB4E4 = \uB2E8\uC5B4\uC9C4\uB3C4\uD45C_(\uACE0\uB978.filter(function(n) {
+        return \uBA85\uB2E8[n];
+      }));
+      var \uC904\uB4E4 = \uACE0\uB978.map(function(\uC774\uB984) {
+        var \uC904 = { \uC774\uB984, \uB2E8\uC5B4\uC7A5: "", \uC2DC\uC791: 0, \uB05D: 0, \uC9C4\uB3C4: 0, \uAE4C\uB2ED: "", \uB0BC\uAE4C: false };
+        if (!\uBA85\uB2E8[\uC774\uB984]) {
+          \uC904.\uAE4C\uB2ED = "\uBA85\uB2E8\uC5D0 \uC5C6\uB294 \uC774\uB984\uC774\uC5D0\uC694";
+          return \uC904;
+        }
+        var \uAD50\uC7AC = \uBA85\uB2E8[\uC774\uB984];
+        if (!\uAD50\uC7AC.length) {
+          \uC904.\uAE4C\uB2ED = "\uAD50\uC7AC\uAC00 \uC548 \uC801\uD600 \uC788\uC5B4\uC694";
+          return \uC904;
+        }
+        \uC904.\uB2E8\uC5B4\uC7A5 = \uAD50\uC7AC[0];
+        var \uB367 = \uAD50\uC7AC.length > 1 ? " (\uAD50\uC7AC\uAC00 \uC5EC\uB7FF\uC774\uB77C \uCCAB \uAC83 \u300C" + \uAD50\uC7AC[0] + "\u300D \uB9CC)" : "";
+        var \uCC45 = \uCC45\uB4E4[\uC904.\uB2E8\uC5B4\uC7A5];
+        if (!\uCC45) {
+          \uC904.\uAE4C\uB2ED = "\uAD50\uC7AC\uB97C \uB2E8\uC5B4\uC7A5\uC5D0\uC11C \uBABB \uCC3E\uC558\uC5B4\uC694" + \uB367;
+          return \uC904;
+        }
+        var \uBABB = \uC9C4\uB3C4\uBABB\uC138\uB294\uAE4C\uB2ED_(\uCC45.\uC885\uB958);
+        if (\uBABB) {
+          \uC904.\uAE4C\uB2ED = \uBABB + \uB367;
+          return \uC904;
+        }
+        var \uB2E8\uC5B4\uC2DC\uD2B8 = \uCC45.\uC2DC\uD2B8 ? ss_().getSheetByName(\uCC45.\uC2DC\uD2B8) : null;
+        var \uC218 = \uB2E8\uC5B4\uC2DC\uD2B8 ? Math.max(0, \uB2E8\uC5B4\uC2DC\uD2B8.getLastRow() - 1) : 0;
+        var \uC148 = \uB2E8\uC5B4\uC9C4\uB3C4_(\uC7A5\uBD80\uB4E4[\uC774\uB984 + "|" + \uC904.\uB2E8\uC5B4\uC7A5]);
+        \uC904.\uC9C4\uB3C4 = \uC148.\uC9C4\uB3C4;
+        if (!\uC218) {
+          \uC904.\uAE4C\uB2ED = "\uB2E8\uC5B4\uC7A5\uC5D0 \uB2E8\uC5B4\uAC00 \uC5C6\uC5B4\uC694" + \uB367;
+          return \uC904;
+        }
+        if (\uC148.\uB9C9\uD78C) {
+          \uC904.\uC2DC\uC791 = \uC148.\uB9C9\uD78C.\uC2DC\uC791;
+          \uC904.\uB05D = Math.min(\uC218, \uC148.\uB9C9\uD78C.\uB05D);
+          \uC904.\uAE4C\uB2ED = \uC148.\uB9C9\uD78C.\uCEF7 + "\uC810 \uBABB \uB118\uC74C \u2014 \uB2E4\uC2DC";
+        } else {
+          \uC904.\uC2DC\uC791 = \uC148.\uC9C4\uB3C4 + 1;
+          \uC904.\uB05D = Math.min(\uC218, \uC904.\uC2DC\uC791 + \uCC45.\uD558\uB8E8\uBAAB - 1);
+          \uC904.\uAE4C\uB2ED = \uC148.\uC9C0\uB09C ? "\uC9C0\uB09C\uBC88 " + \uC148.\uC9C0\uB09C.\uC2DC\uC791 + "~" + \uC148.\uC9C0\uB09C.\uB05D + (\uC148.\uC9C0\uB09C.\uD1B5\uACFC ? " \uD1B5\uACFC" : " \uB450 \uBC88 \uBD10\uC11C \uB118\uC5B4\uAC10") : "\uCC98\uC74C";
+        }
+        if (\uC904.\uC2DC\uC791 > \uC218) {
+          \uC904.\uC2DC\uC791 = 0;
+          \uC904.\uB05D = 0;
+          \uC904.\uAE4C\uB2ED = "\uB05D\uAE4C\uC9C0 \uB2E4 \uD588\uC5B4\uC694" + \uB367;
+          return \uC904;
+        }
+        \uC904.\uAE4C\uB2ED += \uB367;
+        \uC904.\uB0BC\uAE4C = true;
+        return \uC904;
+      });
+      return { ok: true, \uC904\uB4E4, \uC77D\uC740\uB54C: \uC608\uC57D\uB54C\uAE00_(new Date2()).slice(0, 16) };
+    });
+  }
+  function \uBB36\uC74C\uB9CC\uB4E4\uAE30_() {
+    var \uAE00 = "abcdefghijklmnopqrstuvwxyz0123456789", \uAF2C\uB9AC = "";
+    for (var i = 0; i < 6; i++) \uAF2C\uB9AC += \uAE00.charAt(Math.floor(Math.random() * \uAE00.length));
+    return "g" + \uAF2C\uB9AC;
+  }
+  function \uC9C4\uB3C4\uC219\uC81C\uB0B4\uAE30(\uBE44\uBC88, \uC904\uB4E4, \uACF5\uD1B5, \uC2DC\uD5D8) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    \uC904\uB4E4 = Object.prototype.toString.call(\uC904\uB4E4) === "[object Array]" ? \uC904\uB4E4 : [];
+    \uACF5\uD1B5 = \uACF5\uD1B5 && typeof \uACF5\uD1B5 === "object" ? \uACF5\uD1B5 : {};
+    if (!\uC904\uB4E4.length) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB0BC \uC904\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." };
+    if (\uBB38\uD56D\uC218\uAC12_(\uACF5\uD1B5.\uBB38\uD56D\uC218) === null) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBB38\uD56D \uC218\uB294 1\uC5D0\uC11C 200 \uC0AC\uC774\uB85C \uB123\uC5B4 \uC8FC\uC138\uC694." };
+    var \uC2DC\uD5D8\uBA85\uB2E8 = {}, \uC2DC\uD5D8\uAC78\uAE4C = !!(\uC2DC\uD5D8 && typeof \uC2DC\uD5D8 === "object" && \uC774\uB984\uB4E4\uD480\uAE30_(\uC2DC\uD5D8.\uC774\uB984\uB4E4).length);
+    if (\uC2DC\uD5D8\uAC78\uAE4C) {
+      var \uD2C0\uB9BC = \uC219\uC81C\uC608\uC57D\uB530\uC9C0\uAE30_({
+        \uB0A0\uC9DC: \uC2DC\uD5D8.\uB0A0\uC9DC,
+        \uC2DC\uAC01: \uC2DC\uD5D8.\uC2DC\uAC01,
+        \uB0B4\uC6A9: \uC9C4\uB3C4\uC2DC\uD5D8\uAFB8\uB7EC\uBBF8_(\uACF5\uD1B5, { \uC774\uB984: "", \uB2E8\uC5B4\uC7A5: "\uD655\uC778", \uC2DC\uC791: 1, \uB05D: 1 }, \uC2DC\uD5D8)
+      });
+      if (!\uD2C0\uB9BC.\uC904) return { ok: false, \uBA54\uC2DC\uC9C0: "\uC2DC\uD5D8 \uC608\uC57D: " + \uD2C0\uB9BC.\uBA54\uC2DC\uC9C0 };
+      \uC774\uB984\uB4E4\uD480\uAE30_(\uC2DC\uD5D8.\uC774\uB984\uB4E4).forEach(function(n) {
+        \uC2DC\uD5D8\uBA85\uB2E8[n] = 1;
+      });
+    }
+    var \uB0B8\uC218 = 0, \uC2DC\uD5D8\uC218 = 0, \uBABB\uB0B8 = [], \uBB36\uC74C = \uC2DC\uD5D8\uAC78\uAE4C ? \uBB36\uC74C\uB9CC\uB4E4\uAE30_() : "";
+    var \uBA85\uB2E8 = \uC804\uCCB4\uBA85\uB2E8_(), \uBCF8 = {};
+    \uC904\uB4E4.forEach(function(\uC904) {
+      \uC904 = \uC904 || {};
+      var \uC774\uB984 = s_(\uC904.\uC774\uB984);
+      var \uAE4C\uB2ED = "";
+      try {
+        \uAE4C\uB2ED = \uC9C4\uB3C4\uC904\uB530\uC9C0\uAE30_(\uC904, \uBA85\uB2E8, \uBCF8);
+        if (!\uAE4C\uB2ED) {
+          \uBCF8[\uC774\uB984] = 1;
+          var h = {};
+          Object.keys(\uACF5\uD1B5).forEach(function(k) {
+            h[k] = \uACF5\uD1B5[k];
+          });
+          h.\uB2E8\uC5B4\uC7A5 = s_(\uC904.\uB2E8\uC5B4\uC7A5);
+          h.\uAD50\uC7AC = "";
+          h.\uC2DC\uC791 = Number(\uC904.\uC2DC\uC791);
+          h.\uB05D = Number(\uC904.\uB05D);
+          h.\uD559\uC0DD\uB4E4 = [\uC774\uB984];
+          h.\uD559\uC0DD = "";
+          h.\uCE78 = "";
+          h.\uBC14\uB010\uC904\uB9CC = true;
+          var r = \uC219\uC81C\uB4F1\uB85D\uC548_(h);
+          if (!r || !r.ok) \uAE4C\uB2ED = s_(r && r.\uBA54\uC2DC\uC9C0) || "\uC219\uC81C\uB97C \uB0B4\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4";
+        }
+      } catch (e) {
+        \uAE4C\uB2ED = String(e && e.message || e);
+      }
+      if (\uAE4C\uB2ED) {
+        \uBABB\uB0B8.push({ \uC774\uB984, \uAE4C\uB2ED });
+        return;
+      }
+      \uB0B8\uC218 += 1;
+      if (!\uC2DC\uD5D8\uBA85\uB2E8[\uC774\uB984]) return;
+      delete \uC2DC\uD5D8\uBA85\uB2E8[\uC774\uB984];
+      try {
+        var \uC608 = \uC219\uC81C\uC608\uC57D\uB530\uC9C0\uAE30_({
+          \uB0A0\uC9DC: \uC2DC\uD5D8.\uB0A0\uC9DC,
+          \uC2DC\uAC01: \uC2DC\uD5D8.\uC2DC\uAC01,
+          \uC54C\uB9BC\uD568\uAED8: \uC2DC\uD5D8.\uC54C\uB9BC\uD568\uAED8,
+          \uB0B4\uC6A9: \uC9C4\uB3C4\uC2DC\uD5D8\uAFB8\uB7EC\uBBF8_(\uACF5\uD1B5, \uC904, \uC2DC\uD5D8)
+        });
+        if (!\uC608.\uC904) {
+          \uBABB\uB0B8.push({ \uC774\uB984, \uAE4C\uB2ED: "\uC2DC\uD5D8 \uC608\uC57D: " + \uC608.\uBA54\uC2DC\uC9C0 });
+          return;
+        }
+        \uC219\uC81C\uC608\uC57D\uB123\uAE30_(\uC608.\uC904, \uBB36\uC74C);
+        \uC2DC\uD5D8\uC218 += 1;
+      } catch (e2) {
+        \uBABB\uB0B8.push({ \uC774\uB984, \uAE4C\uB2ED: "\uC2DC\uD5D8 \uC608\uC57D: " + String(e2 && e2.message || e2) });
+      }
+    });
+    Object.keys(\uC2DC\uD5D8\uBA85\uB2E8).forEach(function(n) {
+      if (!\uBABB\uB0B8.some(function(x) {
+        return x.\uC774\uB984 === n;
+      })) \uBABB\uB0B8.push({ \uC774\uB984: n, \uAE4C\uB2ED: "\uC2DC\uD5D8 \uC608\uC57D: \uC219\uC81C \uC904\uC774 \uC5C6\uC5B4\uC694" });
+    });
+    return { ok: true, \uB0B8\uC218, \uC2DC\uD5D8\uC218, \uBB36\uC74C: \uC2DC\uD5D8\uC218 ? \uBB36\uC74C : "", \uBABB\uB0B8 };
+  }
+  function \uC9C4\uB3C4\uC904\uB530\uC9C0\uAE30_(\uC904, \uBA85\uB2E8, \uBCF8) {
+    var \uC774\uB984 = s_(\uC904.\uC774\uB984);
+    if (!\uC774\uB984) return "\uC774\uB984\uC774 \uBE44\uC5C8\uC5B4\uC694";
+    if (\uBA85\uB2E8.indexOf(\uC774\uB984) < 0) return "\uBA85\uB2E8\uC5D0 \uC5C6\uB294 \uC774\uB984\uC774\uC5D0\uC694";
+    if (\uBCF8[\uC774\uB984]) return "\uAC19\uC740 \uC544\uC774\uAC00 \uB450 \uBC88 \uB4E4\uC5B4 \uC788\uC5B4\uC694";
+    var \uB2E8\uC5B4\uC7A5 = s_(\uC904.\uB2E8\uC5B4\uC7A5);
+    if (!\uB2E8\uC5B4\uC7A5) return "\uAD50\uC7AC\uAC00 \uC548 \uC801\uD600 \uC788\uC5B4\uC694";
+    if (\uC11E\uC778\uC219\uC81C\uC778\uAC00_(\uB2E8\uC5B4\uC7A5)) return "\uAD50\uC7AC\uB294 \uD558\uB098\uB9CC \uC801\uC5B4 \uC8FC\uC138\uC694";
+    var b = \uB2E8\uC5B4\uC7A5\uCC3E\uAE30_(\uB2E8\uC5B4\uC7A5);
+    if (!b) return "\uAD50\uC7AC\uB97C \uB2E8\uC5B4\uC7A5\uC5D0\uC11C \uBABB \uCC3E\uC558\uC5B4\uC694";
+    var \uBABB = \uC9C4\uB3C4\uBABB\uC138\uB294\uAE4C\uB2ED_(b.\uC885\uB958);
+    if (\uBABB) return \uBABB;
+    var \uC2DC\uC791 = Number(\uC904.\uC2DC\uC791), \uB05D = Number(\uC904.\uB05D);
+    if (!(Math.round(\uC2DC\uC791) === \uC2DC\uC791 && Math.round(\uB05D) === \uB05D && \uC2DC\uC791 >= 1 && \uB05D >= \uC2DC\uC791)) return "\uBC94\uC704\uAC00 \uB9DE\uC9C0 \uC54A\uC544\uC694";
+    return "";
+  }
+  function \uC9C4\uB3C4\uC2DC\uD5D8\uAFB8\uB7EC\uBBF8_(\uACF5\uD1B5, \uC904, \uC2DC\uD5D8) {
+    var h = {};
+    Object.keys(\uACF5\uD1B5 || {}).forEach(function(k) {
+      h[k] = \uACF5\uD1B5[k];
+    });
+    h.\uB2E8\uC5B4\uC7A5 = s_(\uC904.\uB2E8\uC5B4\uC7A5);
+    h.\uAD50\uC7AC = "";
+    h.\uC2DC\uC791 = Number(\uC904.\uC2DC\uC791);
+    h.\uB05D = Number(\uC904.\uB05D);
+    h.\uD559\uC0DD\uB4E4 = s_(\uC904.\uC774\uB984) ? [s_(\uC904.\uC774\uB984)] : [];
+    h.\uD559\uC0DD = "";
+    h.\uCE78 = "";
+    h.\uC885\uB958 = "\uC2DC\uD5D8";
+    h.\uB9C8\uAC10\uC77C = s_(\uC2DC\uD5D8.\uB0A0\uC9DC);
+    return h;
   }
   var \uC54C\uB9BC\uB300\uC0C1\uC885\uB958_ = ["\uC804\uCCB4", "\uBC18", "\uC544\uC774"];
   var \uC54C\uB9BC\uAE30\uB85D\uCD5C\uB300_ = 200;
@@ -4821,8 +5158,8 @@ function createLegacyEngine(dependencies) {
     });
     return \uD45C;
   }
-  function \uC751\uC2DC\uB4E4_(\uD45C, \uC774\uB984, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uB0B8\uB54C) {
-    var \uC774\uB984\uB4E4 = s_(\uCE78) ? [s_(\uCE78) + " " + (Number(\uC2DC\uC791) || 1) + "~" + (Number(\uB05D) || 0)] : \uBC94\uC704\uC774\uB984\uB4E4_(\uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D);
+  function \uC751\uC2DC\uB4E4_(\uD45C, \uC774\uB984, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uB0B8\uB54C, \uBC94\uC704\uAE00) {
+    var \uC774\uB984\uB4E4 = s_(\uBC94\uC704\uAE00) ? [s_(\uBC94\uC704\uAE00)] : s_(\uCE78) ? [s_(\uCE78) + " " + (Number(\uC2DC\uC791) || 1) + "~" + (Number(\uB05D) || 0)] : \uBC94\uC704\uC774\uB984\uB4E4_(\uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D);
     var out = [];
     \uC774\uB984\uB4E4.forEach(function(n) {
       (\uD45C[s_(\uC774\uB984) + "|" + s_(\uB2E8\uC5B4\uC7A5) + "|" + n] || []).forEach(function(a) {
@@ -4885,13 +5222,13 @@ function createLegacyEngine(dependencies) {
     \uC7AC.getRange(\uC7AC.getLastRow() + 1, 1, 1, 5).setValues([[new Date2(), s_(\uC774\uB984), s_(x[1]), \uB0B8\uB54C, Number(\uBA87) || 1]]);
     return { ok: true, \uC219\uC81C\uBAA9\uB85D: \uC804\uCCB4\uC219\uC81C() };
   }
-  function \uAE30\uB85D\uCC3E\uAE30_(\uB9F5, \uC774\uB984\uC55E, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uC885\uB958, \uCF54\uB4DC) {
+  function \uAE30\uB85D\uCC3E\uAE30_(\uB9F5, \uC774\uB984\uC55E, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCE78, \uC885\uB958, \uCF54\uB4DC, \uBC94\uC704\uAE00) {
     if (s_(\uCF54\uB4DC)) {
       var \uADF8\uC219\uC81C = \uB9F5[\uC644\uB8CC\uC5F4\uC1E0_(\uC774\uB984\uC55E, s_(\uCF54\uB4DC))];
       if (\uADF8\uC219\uC81C) return \uADF8\uC219\uC81C;
     }
     var \uAC08\uB798 = \uC219\uC81C\uAC08\uB798_(\uC885\uB958);
-    var \uC774\uB984\uB4E4 = s_(\uCE78) ? [s_(\uCE78) + " " + (Number(\uC2DC\uC791) || 1) + "~" + (Number(\uB05D) || 0)] : \uBC94\uC704\uC774\uB984\uB4E4_(\uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D);
+    var \uC774\uB984\uB4E4 = s_(\uBC94\uC704\uAE00) ? [s_(\uBC94\uC704\uAE00)] : s_(\uCE78) ? [s_(\uCE78) + " " + (Number(\uC2DC\uC791) || 1) + "~" + (Number(\uB05D) || 0)] : \uBC94\uC704\uC774\uB984\uB4E4_(\uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D);
     for (var i = 0; i < \uC774\uB984\uB4E4.length; i++) {
       var v = \uB9F5[\uC644\uB8CC\uC5F4\uC1E0_(\uC774\uB984\uC55E, "", \uAC08\uB798, \uB2E8\uC5B4\uC7A5, \uC774\uB984\uB4E4[i])];
       if (v) return v;
@@ -4914,6 +5251,69 @@ function createLegacyEngine(dependencies) {
   }
   function \uCF54\uB4DC\uCE78_(x) {
     return s_(x && x.length >= \uC219\uC81C\uCF54\uB4DC\uC5F4 ? x[\uC219\uC81C\uCF54\uB4DC\uC5F4 - 1] : "");
+  }
+  function \uC219\uC81C\uCC45\uCE78_(x) {
+    var \uC870\uAC01 = \uBC94\uC704\uB4E4_(x[1], x[2], x[3], x.length > 11 ? x[11] : "");
+    var \uCCAB = \uC870\uAC01[0];
+    if (\uC870\uAC01.length < 2) {
+      return { \uB2E8\uC5B4\uC7A5: \uCCAB.\uB2E8\uC5B4\uC7A5, \uC2DC\uC791: \uCCAB.\uC2DC\uC791, \uB05D: \uCCAB.\uB05D, \uCE78: \uCCAB.\uCE78, \uB300\uC0C1\uCC45: \uCCAB.\uB2E8\uC5B4\uC7A5, \uC0C9\uCC45: \uCCAB.\uB2E8\uC5B4\uC7A5, \uC11E\uC74C: null, \uBC94\uC704: "" };
+    }
+    return {
+      \uB2E8\uC5B4\uC7A5: \uB2E8\uC5B4\uC7A5\uD45C\uC2DC_(\uC870\uAC01),
+      \uC2DC\uC791: \uCCAB.\uC2DC\uC791,
+      \uB05D: \uCCAB.\uB05D,
+      \uCE78: \uCCAB.\uCE78,
+      \uC11E\uC74C: \uC870\uAC01,
+      \uBC94\uC704: \uBC94\uC704\uD45C\uC2DC_(\uC870\uAC01),
+      \uB300\uC0C1\uCC45: \uC870\uAC01.map(function(c) {
+        return c.\uB2E8\uC5B4\uC7A5;
+      }).join("|"),
+      \uC0C9\uCC45: \uCCAB.\uB2E8\uC5B4\uC7A5
+    };
+  }
+  function \uC11E\uAE30\uAC12_(h) {
+    var \uAE00 = s_(h && h.\uB2E8\uC5B4\uC7A5) || s_(h && h.\uAD50\uC7AC);
+    if (!\uC11E\uC778\uC219\uC81C\uC778\uAC00_(\uAE00)) return null;
+    var \uCC45 = \uAE00.split("|").map(s_), \uC2DC = s_(h.\uC2DC\uC791).split("|"), \uB05D = s_(h.\uB05D).split("|");
+    var \uCE78 = s_(h.\uCE78) === "" ? \uCC45.map(function() {
+      return "";
+    }) : s_(h.\uCE78).split("|");
+    if (\uCC45.length > \uC11E\uAE30\uCD5C\uB300_) return { ok: false, \uBA54\uC2DC\uC9C0: "\uAD50\uC7AC\uB294 " + \uC11E\uAE30\uCD5C\uB300_ + "\uAC1C\uAE4C\uC9C0 \uC11E\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4." };
+    if (\uCC45.some(function(b) {
+      return !b;
+    })) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB2E8\uC5B4\uC7A5\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
+    if (\uC2DC.length !== \uCC45.length || \uB05D.length !== \uCC45.length || \uCE78.length !== \uCC45.length) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: "\uAD50\uC7AC\uB9C8\uB2E4 \uC2DC\uC791 \xB7 \uB05D \uBC88\uD638\uB97C \uB123\uC5B4 \uC8FC\uC138\uC694." };
+    }
+    var \uBAA9\uB85D = \uB2E8\uC5B4\uC7A5\uBAA9\uB85D();
+    var \uACE0\uB978 = \uCC45.map(function(b, i) {
+      return { \uB2E8\uC5B4\uC7A5: b, \uCE78: s_(\uCE78[i]) };
+    });
+    var \uB9C9\uD798 = \uC11E\uAE30\uB9C9\uD798_(\uACE0\uB978, \uBAA9\uB85D);
+    if (\uB9C9\uD798) return { ok: false, \uBA54\uC2DC\uC9C0: \uB9C9\uD798 };
+    var \uACFC = \uC11E\uAE30\uC885\uB958_((\uBAA9\uB85D.filter(function(x) {
+      return x.\uC774\uB984 === \uCC45[0];
+    })[0] || {}).\uC885\uB958) === "\uACFC \uB2E8\uC5B4\uC7A5";
+    var \uC2DC\uB4E4 = [], \uB05D\uB4E4 = [];
+    \uCC45.forEach(function(b, i) {
+      var a = Number(\uC2DC[i]) || 1, z = Number(\uB05D[i]) || 0;
+      if (z && z < a) {
+        var t = a;
+        a = z;
+        z = t;
+      }
+      \uC2DC\uB4E4.push(a);
+      \uB05D\uB4E4.push(z);
+    });
+    return {
+      ok: true,
+      \uB2E8\uC5B4\uC7A5: \uCC45.join("|"),
+      \uC2DC\uC791: \uC2DC\uB4E4.join("|"),
+      \uB05D: \uB05D\uB4E4.join("|"),
+      \uCE78: \uACE0\uB978.map(function(c) {
+        return \uACFC ? c.\uCE78 || "\uB2E8\uC5B4" : "";
+      }).join("|")
+    };
   }
   function \uC219\uC81C\uC885\uB958_(v) {
     var t = s_(v);
@@ -4967,14 +5367,15 @@ function createLegacyEngine(dependencies) {
     var today = \uB9E5.today, \uC0C9\uB9F5 = \uB9E5.\uC0C9\uB9F5, \uC804\uCCB4 = \uB9E5.\uC804\uCCB4, \uBC18\uD559\uC0DD = \uB9E5.\uBC18\uD559\uC0DD;
     var \uC751\uC2DC = \uB9E5.\uC751\uC2DC, \uB354\uC900\uD45C = \uB9E5.\uB354\uC900\uD45C, \uC644\uB8CC = \uB9E5.\uC644\uB8CC;
     var \uB9C8\uAC10 = x[5] instanceof Date2 ? ymd_(x[5]) : s_(x[5]);
-    var \uBC18 = s_(x[0]), \uB2E8\uC5B4\uC7A5 = s_(x[1]);
-    var \uC2DC\uC791 = Number(x[2]) || 1, \uB05D = Number(x[3]) || 0;
+    var \uCC45\uCE78 = \uC219\uC81C\uCC45\uCE78_(x);
+    var \uBC18 = s_(x[0]), \uB2E8\uC5B4\uC7A5 = \uCC45\uCE78.\uB2E8\uC5B4\uC7A5;
+    var \uC2DC\uC791 = \uCC45\uCE78.\uC2DC\uC791, \uB05D = \uCC45\uCE78.\uB05D;
     var \uB300\uC0C1\uD559\uC0DD = s_(x[7]);
     var \uC885\uB958 = s_(x[8]) ? \uC219\uC81C\uC885\uB958_(x[8]) : \uB9C8\uAC10 === today ? "\uB2F9\uC77C" : "\uAE30\uD55C";
     var \uB4F1\uB85D = x[6] instanceof Date2 ? ymd_(x[6]) : "";
     var \uBC94\uC704 = \uC2DC\uC791 + "~" + \uB05D;
     var \uB300\uC0C1\uB4E4 = \uC219\uC81C\uB300\uC0C1_(
-      { \uBC18, \uB2E8\uC5B4\uC7A5, \uD559\uC0DD: \uB300\uC0C1\uD559\uC0DD },
+      { \uBC18, \uB2E8\uC5B4\uC7A5: \uCC45\uCE78.\uB300\uC0C1\uCC45, \uD559\uC0DD: \uB300\uC0C1\uD559\uC0DD },
       \uC804\uCCB4,
       \uAD50\uC7AC\uB9F5\uC804\uCCB4_,
       \uBC18\uD559\uC0DD
@@ -4995,7 +5396,7 @@ function createLegacyEngine(dependencies) {
           \uB2E8\uACC4,
           x.length > 14 ? x[14] : "",
           x.length > 15 ? x[15] : "",
-          \uC751\uC2DC\uB4E4_(\uC751\uC2DC, \uC774\uB984, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, x.length > 11 ? x[11] : "", \uB0B8\uB54C),
+          \uC751\uC2DC\uB4E4_(\uC751\uC2DC, \uC774\uB984, \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCC45\uCE78.\uCE78, \uB0B8\uB54C, \uCC45\uCE78.\uBC94\uC704),
           \uB354\uC900\uD45C[\uC774\uB984 + "|" + \uB0B8\uB54C]
         );
         if (\uC0C1.\uC644\uB8CC) {
@@ -5007,7 +5408,7 @@ function createLegacyEngine(dependencies) {
         if (\uB2E8\uACC4 === "\uC2DC\uD5D8" && \uC0C1.\uC751\uC2DC\uC218 && !\uC0C1.\uB0A8\uC740\uC751\uC2DC) \uB9C9\uD78C\uC0AC\uB78C.push(\uC774\uB984);
         return;
       }
-      var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uC644\uB8CC, \uC774\uB984 + "|", \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, x.length > 11 ? x[11] : "", \uC885\uB958, \uCF54\uB4DC\uCE78_(x));
+      var \uB0A0\uB4E4 = \uAE30\uB85D\uCC3E\uAE30_(\uC644\uB8CC, \uC774\uB984 + "|", \uB2E8\uC5B4\uC7A5, \uC2DC\uC791, \uB05D, \uCC45\uCE78.\uCE78, \uC885\uB958, \uCF54\uB4DC\uCE78_(x), \uCC45\uCE78.\uBC94\uC704);
       if (\uD55C\uBC88\uB9CC_(\uC885\uB958)) {
         var \uBCF8\uAC83 = \uD47C\uAC83_(\uB0A0\uB4E4, \uC885\uB958, \uB4F1\uB85D, \uD310\uB2E8\uB0A0, 0);
         if (\uBCF8\uAC83) \uC810\uC218\uB4E4.push(Number(\uBCF8\uAC83.\uC810\uC218) || 0);
@@ -5027,7 +5428,7 @@ function createLegacyEngine(dependencies) {
       \uC720\uD615: s_(x[4]) || "\uC2A4\uD3A0\uB9C1",
       \uB9C8\uAC10\uC77C: \uB9C8\uAC10,
       \uD559\uC0DD: \uB300\uC0C1\uD559\uC0DD,
-      \uC0C9: \uC0C9\uB9F5[\uB2E8\uC5B4\uC7A5] || "",
+      \uC0C9: \uC0C9\uB9F5[\uCC45\uCE78.\uC0C9\uCC45] || "",
       \uC885\uB958,
       \uC9C0\uB0A8: !!(\uB9C8\uAC10 && \uB9C8\uAC10 < today),
       \uB300\uC0C1\uC218: \uB300\uC0C1\uB4E4.length,
@@ -5038,7 +5439,7 @@ function createLegacyEngine(dependencies) {
       \uD569\uACA9\uC810: \uD569\uACA9\uCEF7_(\uC885\uB958),
       \uC218\uC5C5: s_(x.length > 9 ? x[9] : ""),
       \uC21C\uC11C: Number(x.length > 10 ? x[10] : 0) || 0,
-      \uCE78: s_(x.length > 11 ? x[11] : ""),
+      \uCE78: \uCC45\uCE78.\uCE78,
       \uC81C\uD55C\uC2DC\uAC04: \uC219\uC81C\uC2DC\uAC04_(x, \uC885\uB958).\uC81C\uD55C\uC2DC\uAC04,
       \uC678\uC6B0\uAE30\uBD84: \uC219\uC81C\uC2DC\uAC04_(x, \uC885\uB958).\uC678\uC6B0\uAE30\uBD84,
       \uB0B8\uB54C: x[6] instanceof Date2 ? x[6].getTime() : 0,
@@ -5051,6 +5452,10 @@ function createLegacyEngine(dependencies) {
       \uD559\uBD80\uBAA8\uC228\uAE40: (x.length > 17 ? s_(x[17]) : "") === "1",
       \uB4F1\uB85D\uC77C: \uB4F1\uB85D
     };
+    if (\uCC45\uCE78.\uC11E\uC74C) {
+      \uC904.\uC11E\uC74C = \uCC45\uCE78.\uC11E\uC74C;
+      \uC904.\uBC94\uC704 = \uCC45\uCE78.\uBC94\uC704;
+    }
     if (\uD55C\uBC88\uB9CC_(\uC885\uB958)) \uC904.\uD3C9\uADE0 = \uC810\uC218\uB4E4.length ? Math.round(\uC810\uC218\uB4E4.reduce(function(a, b) {
       return a + b;
     }, 0) / \uC810\uC218\uB4E4.length) : null;
@@ -5112,7 +5517,7 @@ function createLegacyEngine(dependencies) {
         h.\uC9C0\uB0A8 ? "\uB9C8\uAC10 \uC9C0\uB0A8" : \uB2F9\uC77C\uCE58\uAE30_(h.\uC885\uB958) ? "\uC624\uB298\uAE4C\uC9C0" : "\uC9C4\uD589 \uC911",
         h.\uBC18,
         h.\uB2E8\uC5B4\uC7A5,
-        h.\uC2DC\uC791 + "~" + h.\uB05D + "\uBC88",
+        (h.\uBC94\uC704 || h.\uC2DC\uC791 + "~" + h.\uB05D) + "\uBC88",
         h.\uC720\uD615,
         h.\uC885\uB958,
         h.\uB9C8\uAC10\uC77C || "",
@@ -5161,11 +5566,15 @@ function createLegacyEngine(dependencies) {
   function \uAD50\uC7AC\uD559\uC0DD_(\uAD50\uC7AC) {
     var t = s_(\uAD50\uC7AC);
     if (!t) return [];
+    var \uCC45\uB4E4 = t.split("|").map(s_);
     var out = [];
     \uC77D\uAE30\uCE90\uC2DC_(SHEET.\uD559\uC0DD).forEach(function(r) {
       var \uC774\uB984 = s_(r[1]);
       if (!\uC774\uB984) return;
-      if (\uC904\uAD50\uC7AC_(r).indexOf(t) > -1) out.push(\uC774\uB984);
+      var \uB0B4\uAC83 = \uC904\uAD50\uC7AC_(r);
+      if (\uCC45\uB4E4.some(function(b) {
+        return \uB0B4\uAC83.indexOf(b) > -1;
+      })) out.push(\uC774\uB984);
     });
     return out;
   }
@@ -5183,6 +5592,254 @@ function createLegacyEngine(dependencies) {
     var t = s_(v);
     return /^[0-9A-Za-z]{1,40}$/.test(t) ? t : "";
   }
+  function \uC219\uC81C\uBC1B\uC744\uC544\uC774_(h, \uC804\uCCB4) {
+    var \uB2E8\uC5B4\uC7A5 = s_(h && h.\uB2E8\uC5B4\uC7A5) || s_(h && h.\uAD50\uC7AC);
+    var \uACE0\uB978 = \uC774\uB984\uB4E4\uD480\uAE30_(h && h.\uD559\uC0DD\uB4E4 && h.\uD559\uC0DD\uB4E4.length ? h.\uD559\uC0DD\uB4E4 : h && h.\uD559\uC0DD).filter(function(n) {
+      return \uC804\uCCB4.indexOf(n) > -1;
+    });
+    return { \uB2E8\uC5B4\uC7A5, \uACE0\uB978, \uB300\uC0C1: \uACE0\uB978.length ? \uACE0\uB978 : \uAD50\uC7AC\uD559\uC0DD_(\uB2E8\uC5B4\uC7A5) };
+  }
+  var \uBC18\uC5C6\uC74C\uAE00_ = "\uBC18 \uC5C6\uC74C";
+  function \uC219\uC81C\uCCB4\uD06C(\uBE44\uBC88, \uB0A0\uC9DC) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var \uB0A0 = s_(\uB0A0\uC9DC) || \uD559\uC2B5\uB0A0_(new Date2());
+    if (!\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB0A0)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB0A0\uC9DC \uBAA8\uC591\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." };
+    return \uC77D\uB294\uB3D9\uC548_(function() {
+      var \uC804\uCCB4 = \uC804\uCCB4\uBA85\uB2E8_(), \uAD50\uC7AC\uB9F5 = \uAD50\uC7AC\uB9F5_(), \uBC18\uD559\uC0DD = \uBC18\uBCC4\uBA85\uB2E8_();
+      var \uBC1B\uC740 = {};
+      function \uB123\uAE30(n) {
+        \uBC1B\uC740[n] = 1;
+      }
+      var \uC219\uC81C\uC904\uB4E4 = [];
+      try {
+        \uC219\uC81C\uC904\uB4E4 = rows_(SHEET.\uC219\uC81C);
+      } catch (e) {
+        \uC219\uC81C\uC904\uB4E4 = [];
+      }
+      \uC219\uC81C\uC904\uB4E4.forEach(function(x) {
+        if (!(x[6] instanceof Date2) || ymd_(x[6]) !== \uB0A0) return;
+        if (\uC219\uC81C\uC885\uB958_(x[8]) === "\uC2DC\uD5D8") return;
+        \uC219\uC81C\uB300\uC0C1_({ \uBC18: s_(x[0]), \uB2E8\uC5B4\uC7A5: s_(x[1]), \uD559\uC0DD: s_(x[7]) }, \uC804\uCCB4, \uAD50\uC7AC\uB9F5, \uBC18\uD559\uC0DD).forEach(\uB123\uAE30);
+      });
+      var \uC608\uC57D\uC218 = 0, \uC608\uC57D\uC904\uB4E4 = [];
+      if (ss_().getSheetByName(SHEET.\uC219\uC81C\uC608\uC57D)) {
+        try {
+          \uC608\uC57D\uC904\uB4E4 = rows_(SHEET.\uC219\uC81C\uC608\uC57D);
+        } catch (e) {
+          \uC608\uC57D\uC904\uB4E4 = [];
+        }
+      }
+      \uC608\uC57D\uC904\uB4E4.forEach(function(x, i) {
+        var n = \uC219\uC81C\uC608\uC57D\uC904_(x, i);
+        if (!n.\uCF2C || n.\uBCF4\uB0B8\uB54C || n.\uB0A0\uC9DC !== \uB0A0 || !n.\uB0B4\uC6A9) return;
+        var h = null;
+        try {
+          h = JSON.parse(n.\uB0B4\uC6A9);
+        } catch (e) {
+          h = null;
+        }
+        if (!h || \uC219\uC81C\uC885\uB958_(h.\uC885\uB958) === "\uC2DC\uD5D8") return;
+        \uC608\uC57D\uC218++;
+        \uC219\uC81C\uBC1B\uC744\uC544\uC774_(h, \uC804\uCCB4).\uB300\uC0C1.forEach(\uB123\uAE30);
+      });
+      var \uBC18\uD45C = {}, \uBC18\uCC28\uB840 = [], \uBCF8 = {};
+      \uC77D\uAE30\uCE90\uC2DC_(SHEET.\uD559\uC0DD).forEach(function(x) {
+        var \uC774\uB984 = s_(x[1]);
+        if (!\uC774\uB984 || \uBCF8[\uC774\uB984]) return;
+        \uBCF8[\uC774\uB984] = 1;
+        var \uBC18 = s_(x[0]) || \uBC18\uC5C6\uC74C\uAE00_;
+        if (!\uBC18\uD45C[\uBC18]) {
+          \uBC18\uD45C[\uBC18] = { \uBC18, \uC804\uCCB4\uC218: 0, \uBABB\uBC1B\uC740: [] };
+          \uBC18\uCC28\uB840.push(\uBC18);
+        }
+        \uBC18\uD45C[\uBC18].\uC804\uCCB4\uC218++;
+        if (!\uBC1B\uC740[\uC774\uB984]) \uBC18\uD45C[\uBC18].\uBABB\uBC1B\uC740.push(\uC774\uB984);
+      });
+      \uBC18\uCC28\uB840.sort(function(a, b) {
+        if (a === \uBC18\uC5C6\uC74C\uAE00_) return 1;
+        if (b === \uBC18\uC5C6\uC74C\uAE00_) return -1;
+        return a < b ? -1 : a > b ? 1 : 0;
+      });
+      return { ok: true, \uB0A0\uC9DC: \uB0A0, \uBC18\uB4E4: \uBC18\uCC28\uB840.map(function(k) {
+        return \uBC18\uD45C[k];
+      }), \uC608\uC57D\uC218 };
+    });
+  }
+  var \uCCB4\uD06C\uAE30\uB85D\uB0A0\uC218_ = 30;
+  var \uCCB4\uD06C\uAE00\uCD5C\uB300_ = 45e3;
+  function \uCCB4\uD06C\uC124\uC815\uC2DC\uD2B8_() {
+    return \uBA38\uB9AC\uB9DE\uCD98\uC2DC\uD2B8_(SHEET.\uCCB4\uD06C\uC124\uC815, HEADERS.\uCCB4\uD06C\uC124\uC815, { 1: 150, 2: 600 });
+  }
+  function \uCCB4\uD06C\uAE30\uB85D\uC2DC\uD2B8_() {
+    return \uBA38\uB9AC\uB9DE\uCD98\uC2DC\uD2B8_(SHEET.\uCCB4\uD06C\uAE30\uB85D, HEADERS.\uCCB4\uD06C\uAE30\uB85D, { 1: 100, 2: 600 });
+  }
+  function \uCCB4\uD06C\uC904\uB4E4_(\uC774\uB984) {
+    if (!ss_().getSheetByName(\uC774\uB984)) return [];
+    try {
+      return rows_(\uC774\uB984);
+    } catch (e) {
+      return [];
+    }
+  }
+  function \uCCB4\uD06C\uAE00\uC4F0\uAE30_(v) {
+    var \uAE00;
+    if (typeof v === "string") {
+      var \uC77D\uD798 = \uCCB4\uD06C\uAE00\uC77D\uAE30_(v);
+      if (\uC77D\uD798.\uAE4C\uB2ED) throw new Error("\uB0B4\uC6A9\uC774 JSON \uC73C\uB85C \uC77D\uD788\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4 \u2014 " + \uC77D\uD798.\uAE4C\uB2ED);
+      if (!\uC77D\uD798.\uAC12) throw new Error("\uB0B4\uC6A9\uC774 \uBE44\uC5C8\uC2B5\uB2C8\uB2E4.");
+      \uAE00 = v;
+    } else if (v && typeof v === "object" && Object.prototype.toString.call(v) !== "[object Array]") {
+      \uAE00 = JSON.stringify(v);
+    } else {
+      throw new Error("\uB0B4\uC6A9\uC774 \uBE44\uC5C8\uC2B5\uB2C8\uB2E4.");
+    }
+    if (\uAE00.length > \uCCB4\uD06C\uAE00\uCD5C\uB300_) throw new Error("\uB0B4\uC6A9\uC774 \uB108\uBB34 \uAE41\uB2C8\uB2E4 (" + \uAE00.length + "\uC790). \uAD50\uC7AC\uB098 \uADF8\uB8F9\uC744 \uC904\uC5EC \uC8FC\uC138\uC694.");
+    return \uAE00;
+  }
+  function \uCCB4\uD06C\uAE00\uC77D\uAE30_(v) {
+    if (v === "" || v === null || v === void 0) return { \uAC12: null, \uAE4C\uB2ED: "" };
+    if (typeof v !== "string") return { \uAC12: null, \uAE4C\uB2ED: "\uAE00\uC774 \uC544\uB2CC \uAC83\uC774 \uB4E4\uC5B4 \uC788\uC2B5\uB2C8\uB2E4 (" + Object.prototype.toString.call(v).slice(8, -1) + ")" };
+    var t = v.trim();
+    if (!t) return { \uAC12: null, \uAE4C\uB2ED: "" };
+    var \uAC12;
+    try {
+      \uAC12 = JSON.parse(t);
+    } catch (e) {
+      return { \uAC12: null, \uAE4C\uB2ED: "JSON \uC73C\uB85C \uC77D\uD788\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4: " + (t.length > 40 ? t.slice(0, 40) + "\u2026" : t) };
+    }
+    if (!\uAC12 || typeof \uAC12 !== "object" || Object.prototype.toString.call(\uAC12) === "[object Array]") {
+      return { \uAC12: null, \uAE4C\uB2ED: "JSON \uAC1D\uCCB4\uAC00 \uC544\uB2D9\uB2C8\uB2E4: " + (t.length > 40 ? t.slice(0, 40) + "\u2026" : t) };
+    }
+    return { \uAC12, \uAE4C\uB2ED: "" };
+  }
+  function \uCCB4\uD06C\uB0A0\uC9DC_(v) {
+    return v instanceof Date2 ? ymd_(v) : s_(v);
+  }
+  function \uCCB4\uD06C\uB54C_(v) {
+    return v instanceof Date2 ? v.getTime() : Number(v) || 0;
+  }
+  function \uCCB4\uD06C\uC124\uC815\uC77D\uAE30_() {
+    var \uC904\uB4E4 = \uCCB4\uD06C\uC904\uB4E4_(SHEET.\uCCB4\uD06C\uC124\uC815);
+    if (!\uC904\uB4E4.length) return { \uD589: 0, \uC124\uC815: null, \uACE0\uCE5C\uB54C: 0, \uAE4C\uB2ED: "" };
+    var r = \uCCB4\uD06C\uAE00\uC77D\uAE30_(\uC904\uB4E4[0][1]);
+    return { \uD589: 2, \uC124\uC815: r.\uAC12, \uACE0\uCE5C\uB54C: \uCCB4\uD06C\uB54C_(\uC904\uB4E4[0][0]), \uAE4C\uB2ED: r.\uAE4C\uB2ED ? "\uCCB4\uD06C\uC124\uC815 2\uD589 \u2014 " + r.\uAE4C\uB2ED : "" };
+  }
+  function \uCCB4\uD06C\uC790\uB8CC(\uBE44\uBC88, \uB0A0\uC9DC) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var \uB0A0 = s_(\uB0A0\uC9DC) || ymd_(new Date2());
+    if (!\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB0A0)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB0A0\uC9DC \uBAA8\uC591\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." };
+    return \uC77D\uB294\uB3D9\uC548_(function() {
+      var \uD559\uC0DD\uB4E4 = [], \uBC88\uD638\uB4E4 = {}, \uC774\uB984\uBC88\uD638 = {}, \uBC88\uD638\uC5C6\uC74C = [];
+      \uC77D\uAE30\uCE90\uC2DC_(SHEET.\uD559\uC0DD).forEach(function(x) {
+        var \uC774\uB984 = s_(x[1]), \uBC88\uD638 = x.length >= \uD559\uC0DD\uBC88\uD638\uC5F4 ? s_(x[\uD559\uC0DD\uBC88\uD638\uC5F4 - 1]) : "";
+        if (\uC774\uB984 && !\uBC88\uD638 && \uBC88\uD638\uC5C6\uC74C.indexOf(\uC774\uB984) < 0) \uBC88\uD638\uC5C6\uC74C.push(\uC774\uB984);
+        if (!\uC774\uB984 || !\uBC88\uD638 || \uBC88\uD638\uB4E4[\uBC88\uD638]) return;
+        \uBC88\uD638\uB4E4[\uBC88\uD638] = 1;
+        \uD559\uC0DD\uB4E4.push({ \uBC88\uD638, \uC774\uB984, \uBC18: s_(x[0]) });
+        if (!\uC774\uB984\uBC88\uD638[\uC774\uB984]) \uC774\uB984\uBC88\uD638[\uC774\uB984] = \uBC88\uD638;
+      });
+      var \uBABB\uBC1B\uC740 = {};
+      var \uCCB4\uD06C = \uC219\uC81C\uCCB4\uD06C(\uBE44\uBC88, \uB0A0);
+      if (!\uCCB4\uD06C || !\uCCB4\uD06C.ok) return { ok: false, \uBA54\uC2DC\uC9C0: \uCCB4\uD06C && \uCCB4\uD06C.\uBA54\uC2DC\uC9C0 || "\uC219\uC81C \uB0B8 \uAC83\uC744 \uC138\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4." };
+      \uCCB4\uD06C.\uBC18\uB4E4.forEach(function(b) {
+        b.\uBABB\uBC1B\uC740.forEach(function(n) {
+          \uBABB\uBC1B\uC740[n] = 1;
+        });
+      });
+      var \uC571\uBC1B\uC740 = [];
+      \uD559\uC0DD\uB4E4.forEach(function(x) {
+        if (!\uBABB\uBC1B\uC740[x.\uC774\uB984] && \uC774\uB984\uBC88\uD638[x.\uC774\uB984] === x.\uBC88\uD638) \uC571\uBC1B\uC740.push(x.\uBC88\uD638);
+      });
+      var \uC124\uC815 = \uCCB4\uD06C\uC124\uC815\uC77D\uAE30_();
+      var \uC624\uB298 = null, \uC624\uB298\uAE4C\uB2ED = "", \uC9C0\uB09C\uAE30\uB85D = [];
+      \uCCB4\uD06C\uC904\uB4E4_(SHEET.\uCCB4\uD06C\uAE30\uB85D).forEach(function(x, i) {
+        var d = \uCCB4\uD06C\uB0A0\uC9DC_(x[0]);
+        if (!d) return;
+        var r = \uCCB4\uD06C\uAE00\uC77D\uAE30_(x[1]);
+        var \uAE4C\uB2ED = r.\uAE4C\uB2ED ? "\uCCB4\uD06C\uAE30\uB85D " + (i + 2) + "\uD589(" + d + ") \u2014 " + r.\uAE4C\uB2ED : "";
+        if (d === \uB0A0) {
+          \uC624\uB298 = r.\uAC12;
+          \uC624\uB298\uAE4C\uB2ED = \uAE4C\uB2ED;
+        } else if (d < \uB0A0) \uC9C0\uB09C\uAE30\uB85D.push({ \uB0A0\uC9DC: d, \uAE30\uB85D: r.\uAC12 || {}, \uAE4C\uB2ED });
+      });
+      \uC9C0\uB09C\uAE30\uB85D.sort(function(a, b) {
+        return a.\uB0A0\uC9DC < b.\uB0A0\uC9DC ? 1 : a.\uB0A0\uC9DC > b.\uB0A0\uC9DC ? -1 : 0;
+      });
+      var \uB2E8\uC5B4\uC7A5\uB4E4 = [];
+      if (ss_().getSheetByName(SHEET.\uB2E8\uC5B4\uC7A5\uBAA9\uB85D)) {
+        \uB2E8\uC5B4\uC7A5\uBAA9\uB85D().forEach(function(b) {
+          \uB2E8\uC5B4\uC7A5\uB4E4.push({ \uC774\uB984: b.\uC774\uB984, \uB808\uC2A8\uBB36\uC74C: b.\uB808\uC2A8, \uB2E8\uC5B4\uC218: b.\uAC1C\uC218 });
+        });
+      }
+      return {
+        ok: true,
+        \uB0A0\uC9DC: \uB0A0,
+        \uC124\uC815: \uC124\uC815.\uC124\uC815,
+        \uACE0\uCE5C\uB54C: \uC124\uC815.\uACE0\uCE5C\uB54C,
+        \uC124\uC815\uAE4C\uB2ED: \uC124\uC815.\uAE4C\uB2ED,
+        \uC624\uB298: \uC624\uB298 || {},
+        \uC624\uB298\uAE4C\uB2ED,
+        \uC9C0\uB09C\uAE30\uB85D: \uC9C0\uB09C\uAE30\uB85D.slice(0, \uCCB4\uD06C\uAE30\uB85D\uB0A0\uC218_),
+        \uD559\uC0DD\uB4E4,
+        \uBC88\uD638\uC5C6\uC74C,
+        \uC571\uBC1B\uC740,
+        \uB2E8\uC5B4\uC7A5\uB4E4
+      };
+    });
+  }
+  function \uCCB4\uD06C\uC124\uC815\uC800\uC7A5(\uBE44\uBC88, \uB0B4\uC6A9, \uC54C\uB358\uB54C, \uB36E\uC5B4\uC4F0\uAE30) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var \uAE00;
+    try {
+      \uAE00 = \uCCB4\uD06C\uAE00\uC4F0\uAE30_(\uB0B4\uC6A9);
+    } catch (e) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: e.message };
+    }
+    var \uC9C0\uAE08 = \uCCB4\uD06C\uC124\uC815\uC77D\uAE30_();
+    if (!\uB36E\uC5B4\uC4F0\uAE30 && \uC9C0\uAE08.\uD589 && \uC9C0\uAE08.\uACE0\uCE5C\uB54C > (Number(\uC54C\uB358\uB54C) || 0)) {
+      return { ok: false, \uC0C8\uAC83\uC788\uC74C: true, \uBA54\uC2DC\uC9C0: "\uB2E4\uB978 \uACF3\uC5D0\uC11C \uBA3C\uC800 \uACE0\uCCE4\uC2B5\uB2C8\uB2E4.", \uACE0\uCE5C\uB54C: \uC9C0\uAE08.\uACE0\uCE5C\uB54C, \uC124\uC815: \uC9C0\uAE08.\uC124\uC815, \uC124\uC815\uAE4C\uB2ED: \uC9C0\uAE08.\uAE4C\uB2ED };
+    }
+    var sh = \uCCB4\uD06C\uC124\uC815\uC2DC\uD2B8_();
+    var \uB54C = new Date2();
+    if (\uB54C.getTime() <= \uC9C0\uAE08.\uACE0\uCE5C\uB54C) \uB54C = new Date2(\uC9C0\uAE08.\uACE0\uCE5C\uB54C + 1);
+    sh.getRange(2, 1).setNumberFormat("yyyy-MM-dd HH:mm:ss");
+    sh.getRange(2, 1, 1, 2).setValues([[\uB54C, \uAE00]]);
+    return { ok: true, \uACE0\uCE5C\uB54C: \uB54C.getTime() };
+  }
+  function \uCCB4\uD06C\uAE30\uB85D\uC800\uC7A5(\uBE44\uBC88, \uB0A0\uC9DC, \uB0B4\uC6A9) {
+    if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBE44\uBC00\uBC88\uD638\uAC00 \uB2E4\uB985\uB2C8\uB2E4." };
+    var \uB0A0 = s_(\uB0A0\uC9DC);
+    if (!\uC608\uC57D\uB0A0\uC9DC\uAF34_(\uB0A0)) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB0A0\uC9DC \uBAA8\uC591\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." };
+    var \uAE00;
+    try {
+      \uAE00 = \uCCB4\uD06C\uAE00\uC4F0\uAE30_(\uB0B4\uC6A9);
+    } catch (e) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: e.message };
+    }
+    var sh = \uCCB4\uD06C\uAE30\uB85D\uC2DC\uD2B8_();
+    var \uC904\uB4E4 = \uCCB4\uD06C\uC904\uB4E4_(SHEET.\uCCB4\uD06C\uAE30\uB85D);
+    var \uADF8\uB0A0 = new Date2(Number(\uB0A0.slice(0, 4)), Number(\uB0A0.slice(5, 7)) - 1, Number(\uB0A0.slice(8, 10)) - \uCCB4\uD06C\uAE30\uB85D\uB0A0\uC218_, 12);
+    var \uB05D = ymd_(\uADF8\uB0A0);
+    var \uD589 = 0, \uC9C0\uC6B8 = [];
+    \uC904\uB4E4.forEach(function(x, i) {
+      var d = \uCCB4\uD06C\uB0A0\uC9DC_(x[0]);
+      if (d === \uB0A0 && !\uD589) \uD589 = i + 2;
+      else if (!d || d < \uB05D || d === \uB0A0) \uC9C0\uC6B8.push(i + 2);
+    });
+    if (\uD589) {
+      sh.getRange(\uD589, 1).setNumberFormat("@");
+      sh.getRange(\uD589, 1, 1, 2).setValues([[\uB0A0, \uAE00]]);
+    } else {
+      sh.appendRow([\uB0A0, \uAE00]);
+      sh.getRange(sh.getLastRow(), 1).setNumberFormat("@").setValue(\uB0A0);
+    }
+    \uC9C0\uC6B8.sort(function(a, b) {
+      return b - a;
+    }).forEach(function(n) {
+      sh.deleteRow(n);
+    });
+    return { ok: true, \uB0A0\uC9DC: \uB0A0, \uC9C0\uC6B4\uC218: \uC9C0\uC6B8.length };
+  }
   function \uC219\uC81C\uB4F1\uB85D(\uBE44\uBC88, h) {
     if (!\uC120\uC0DD\uB2D8\uD655\uC778_(\uBE44\uBC88)) return { ok: false };
     return \uC77D\uB294\uB3D9\uC548_(function() {
@@ -5196,20 +5853,21 @@ function createLegacyEngine(dependencies) {
     if (!\uB2E8\uC5B4\uC7A5) return { ok: false, \uBA54\uC2DC\uC9C0: "\uB2E8\uC5B4\uC7A5\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
     var \uBB38\uD56D\uC218 = \uBB38\uD56D\uC218\uAC12_(h.\uBB38\uD56D\uC218);
     if (\uBB38\uD56D\uC218 === null) return { ok: false, \uBA54\uC2DC\uC9C0: "\uBB38\uD56D \uC218\uB294 1\uC5D0\uC11C 200 \uC0AC\uC774\uB85C \uB123\uC5B4 \uC8FC\uC138\uC694." };
-    var \uC804\uCCB4 = \uC804\uCCB4\uBA85\uB2E8_();
-    var \uACE0\uB978 = \uC774\uB984\uB4E4\uD480\uAE30_(h.\uD559\uC0DD\uB4E4 && h.\uD559\uC0DD\uB4E4.length ? h.\uD559\uC0DD\uB4E4 : h.\uD559\uC0DD).filter(function(n) {
-      return \uC804\uCCB4.indexOf(n) > -1;
-    });
-    if (!\uACE0\uB978.length && !\uAD50\uC7AC\uD559\uC0DD_(\uB2E8\uC5B4\uC7A5).length) {
-      return { ok: false, \uBA54\uC2DC\uC9C0: "\u201C" + \uB2E8\uC5B4\uC7A5 + "\u201D \uC744(\uB97C) \uBC30\uC6B0\uB294 \uD559\uC0DD\uC774 \uC5C6\uC2B5\uB2C8\uB2E4. \uD559\uC0DD \uBA85\uB2E8\uC5D0\uC11C \uAD50\uC7AC\uB97C \uBA3C\uC800 \uC8FC\uC2DC\uAC70\uB098, \uBC1B\uC744 \uD559\uC0DD\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
+    var \uC11E = \uC11E\uAE30\uAC12_(h);
+    if (\uC11E && !\uC11E.ok) return \uC11E;
+    var \uBC1B\uC744 = \uC219\uC81C\uBC1B\uC744\uC544\uC774_(h, \uC804\uCCB4\uBA85\uB2E8_());
+    var \uACE0\uB978 = \uBC1B\uC744.\uACE0\uB978;
+    if (!\uBC1B\uC744.\uB300\uC0C1.length) {
+      return { ok: false, \uBA54\uC2DC\uC9C0: "\u201C" + (\uC11E ? \uB2E8\uC5B4\uC7A5.split("|").join(", ") : \uB2E8\uC5B4\uC7A5) + "\u201D \uC744(\uB97C) \uBC30\uC6B0\uB294 \uD559\uC0DD\uC774 \uC5C6\uC2B5\uB2C8\uB2E4. \uD559\uC0DD \uBA85\uB2E8\uC5D0\uC11C \uAD50\uC7AC\uB97C \uBA3C\uC800 \uC8FC\uC2DC\uAC70\uB098, \uBC1B\uC744 \uD559\uC0DD\uC744 \uACE8\uB77C \uC8FC\uC138\uC694." };
     }
     var sh = sheet_(SHEET.\uC219\uC81C);
     var \uC9C0\uAE08 = new Date2();
     var \uC904 = [[
       "",
-      \uB2E8\uC5B4\uC7A5,
-      Number(h.\uC2DC\uC791) || 1,
-      Number(h.\uB05D) || 0,
+      \uC11E ? \uC11E.\uB2E8\uC5B4\uC7A5 : \uB2E8\uC5B4\uC7A5,
+      \uC11E ? \uC11E.\uC2DC\uC791 : Number(h.\uC2DC\uC791) || 1,
+      \uC11E ? \uC11E.\uB05D : Number(h.\uB05D) || 0,
+      // 섞인 숙제는 「|」 로 이어 담는다
       s_(h.\uC720\uD615) || "\uC2A4\uD3A0\uB9C1",
       \uB9C8\uAC10,
       \uC9C0\uAE08,
@@ -5217,7 +5875,7 @@ function createLegacyEngine(dependencies) {
       \uC885\uB958,
       s_(h.\uC218\uC5C5),
       Number(h.\uC21C\uC11C) || 0,
-      s_(h.\uCE78),
+      \uC11E ? \uC11E.\uCE78 : s_(h.\uCE78),
       // 칸 — 과 단어장의 구분 (옛 단어장은 빈칸)
       Number(h.\uC81C\uD55C\uC2DC\uAC04) > 0 ? Math.round(Number(h.\uC81C\uD55C\uC2DC\uAC04)) : "",
       // 제한시간(분) — 비면 제한 없음
@@ -5253,7 +5911,7 @@ function createLegacyEngine(dependencies) {
       }
     }
     var \uC801\uD78C = sh.getRange(\uC0C8\uD589, 1, 1, 20).getValues()[0];
-    var \uB2F5 = { ok: true, \uAC1C\uC218: 1, \uB300\uC0C1: \uACE0\uB978.length || \uAD50\uC7AC\uD559\uC0DD_(\uB2E8\uC5B4\uC7A5).length, \uC219\uC81C: \uC0C8\uC219\uC81C\uC904_(\uC801\uD78C, \uC0C8\uD589) };
+    var \uB2F5 = { ok: true, \uAC1C\uC218: 1, \uB300\uC0C1: \uBC1B\uC744.\uB300\uC0C1.length, \uC219\uC81C: \uC0C8\uC219\uC81C\uC904_(\uC801\uD78C, \uC0C8\uD589) };
     if (!h.\uBC14\uB010\uC904\uB9CC) \uB2F5.\uC219\uC81C\uBAA9\uB85D = \uC804\uCCB4\uC219\uC81C();
     return \uB2F5;
   }
@@ -5744,6 +6402,79 @@ function createLegacyEngine(dependencies) {
       (g.\uCE78[\uC5B4\uB514] = g.\uCE78[\uC5B4\uB514] || []).push({ \uC774\uB984: b.\uC774\uB984, \uAC1C\uC218: Number(b.\uAC1C\uC218) || 0 });
     });
     return \uACFC\uB4E4;
+  }
+  var \uC11E\uAE30\uCD5C\uB300_ = 3;
+  function \uC11E\uC778\uC219\uC81C\uC778\uAC00_(\uB2E8\uC5B4\uC7A5\uAE00) {
+    return String(\uB2E8\uC5B4\uC7A5\uAE00 === null || \uB2E8\uC5B4\uC7A5\uAE00 === void 0 ? "" : \uB2E8\uC5B4\uC7A5\uAE00).indexOf("|") > -1;
+  }
+  function \uBC94\uC704\uB4E4_(\uB2E8\uC5B4\uC7A5\uAE00, \uC2DC\uC791\uAE00, \uB05D\uAE00, \uCE78\uAE00) {
+    function \uAE00(v) {
+      return v === null || v === void 0 ? "" : String(v).trim();
+    }
+    if (!\uC11E\uC778\uC219\uC81C\uC778\uAC00_(\uB2E8\uC5B4\uC7A5\uAE00)) {
+      return [{ \uB2E8\uC5B4\uC7A5: \uAE00(\uB2E8\uC5B4\uC7A5\uAE00), \uC2DC\uC791: Number(\uC2DC\uC791\uAE00) || 1, \uB05D: Number(\uB05D\uAE00) || 0, \uCE78: \uAE00(\uCE78\uAE00) }];
+    }
+    var \uCC45 = \uAE00(\uB2E8\uC5B4\uC7A5\uAE00).split("|").map(\uAE00), \uC2DC = \uAE00(\uC2DC\uC791\uAE00).split("|"), \uB05D = \uAE00(\uB05D\uAE00).split("|");
+    var \uCE78 = \uAE00(\uCE78\uAE00) === "" ? \uCC45.map(function() {
+      return "";
+    }) : \uAE00(\uCE78\uAE00).split("|");
+    if (\uC2DC.length !== \uCC45.length || \uB05D.length !== \uCC45.length || \uCE78.length !== \uCC45.length) {
+      try {
+        console.log("\uBC94\uC704\uB4E4_: \uC870\uAC01 \uC218\uAC00 \uC548 \uB9DE\uC544 \uCCAB \uC870\uAC01\uB9CC \uC501\uB2C8\uB2E4 \u2014 " + [\uB2E8\uC5B4\uC7A5\uAE00, \uC2DC\uC791\uAE00, \uB05D\uAE00, \uCE78\uAE00].map(\uAE00).join(" / "));
+      } catch (e) {
+      }
+      return [{ \uB2E8\uC5B4\uC7A5: \uCC45[0], \uC2DC\uC791: Number(\uC2DC[0]) || 1, \uB05D: Number(\uB05D[0]) || 0, \uCE78: \uAE00(\uCE78[0]) }];
+    }
+    return \uCC45.map(function(b, i) {
+      return { \uB2E8\uC5B4\uC7A5: b, \uC2DC\uC791: Number(\uC2DC[i]) || 1, \uB05D: Number(\uB05D[i]) || 0, \uCE78: \uAE00(\uCE78[i]) };
+    });
+  }
+  function \uB2E8\uC5B4\uC7A5\uD45C\uC2DC_(\uC870\uAC01\uB4E4) {
+    return (\uC870\uAC01\uB4E4 || []).map(function(c) {
+      return c.\uB2E8\uC5B4\uC7A5;
+    }).join("+");
+  }
+  function \uBC94\uC704\uD45C\uC2DC_(\uC870\uAC01\uB4E4) {
+    return (\uC870\uAC01\uB4E4 || []).map(function(c) {
+      return (c.\uCE78 ? c.\uCE78 + " " : "") + c.\uC2DC\uC791 + "~" + c.\uB05D;
+    }).join(", ");
+  }
+  function \uC11E\uAE30\uC885\uB958_(\uC885\uB958) {
+    var k = String(\uC885\uB958 || "").trim();
+    if (k === "\uACFC") return "\uACFC \uB2E8\uC5B4\uC7A5";
+    if (k === "\uBB38\uC7A5") return "\uBB38\uC7A5 \uB2E8\uC5B4\uC7A5";
+    var \uC5B4\uB514 = \uC5B4\uB514\uB85C_(k);
+    return \uC5B4\uB514 === "\uB2E8\uC5B4" ? "\uB2E8\uC5B4\uC7A5" : \uC5B4\uB514 + " \uB2E8\uC5B4\uC7A5";
+  }
+  function \uC11E\uAE30\uB9C9\uD798_(\uACE0\uB978, \uBAA9\uB85D) {
+    \uACE0\uB978 = \uACE0\uB978 || [];
+    if (\uACE0\uB978.length < 2) return "";
+    if (\uACE0\uB978.length > \uC11E\uAE30\uCD5C\uB300_) return "\uAD50\uC7AC\uB294 " + \uC11E\uAE30\uCD5C\uB300_ + "\uAC1C\uAE4C\uC9C0 \uC11E\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4.";
+    var \uC885\uB958\uB4E4 = [], \uC5C6\uB294 = "";
+    \uACE0\uB978.forEach(function(c) {
+      var b = null;
+      (\uBAA9\uB85D || []).forEach(function(x) {
+        if (x && x.\uC774\uB984 === c.\uB2E8\uC5B4\uC7A5) b = x;
+      });
+      if (!b && !\uC5C6\uB294) \uC5C6\uB294 = c.\uB2E8\uC5B4\uC7A5;
+      \uC885\uB958\uB4E4.push(b ? String(b.\uC885\uB958 || "").trim() : "");
+    });
+    if (\uC5C6\uB294) return "\u201C" + \uC5C6\uB294 + "\u201D \uB2E8\uC5B4\uC7A5\uC744 \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.";
+    if (\uC885\uB958\uB4E4.some(function(k) {
+      return k === "\uBB38\uC7A5";
+    })) return "\uBB38\uC7A5 \uB2E8\uC5B4\uC7A5\uC740 \uCC44\uC810\uC774 \uB2EC\uB77C \uB2E4\uB978 \uAD50\uC7AC\uC640 \uC11E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.";
+    var \uCCAB = \uC11E\uAE30\uC885\uB958_(\uC885\uB958\uB4E4[0]);
+    for (var i = 1; i < \uC885\uB958\uB4E4.length; i++) {
+      var \uC774 = \uC11E\uAE30\uC885\uB958_(\uC885\uB958\uB4E4[i]);
+      if (\uC774 !== \uCCAB) return "\uC885\uB958\uAC00 \uB2EC\uB77C \uAC19\uC774 \uB0BC \uC218 \uC5C6\uC2B5\uB2C8\uB2E4 (" + \uCCAB + " / " + \uC774 + ")";
+    }
+    if (\uCCAB === "\uACFC \uB2E8\uC5B4\uC7A5") {
+      for (var j = 1; j < \uACE0\uB978.length; j++) {
+        var a = String(\uACE0\uB978[0].\uCE78 || "\uB2E8\uC5B4"), z = String(\uACE0\uB978[j].\uCE78 || "\uB2E8\uC5B4");
+        if (a !== z) return "\uAD6C\uBD84\uC774 \uB2EC\uB77C \uAC19\uC774 \uB0BC \uC218 \uC5C6\uC2B5\uB2C8\uB2E4 (" + a + " / " + z + ")";
+      }
+    }
+    return "";
   }
   function \uC218\uC5C5\uAFB8\uB7EC\uBBF8\uBAA9\uB85D() {
     return \uCC98\uC74C\uC218\uC5C5\uD2C0_.map(function(t) {
@@ -6292,10 +7023,23 @@ function createLegacyEngine(dependencies) {
       \uC2DC\uC791 = \uB05D;
       \uB05D = t;
     }
+    var \uCC45 = s_(h.\uB2E8\uC5B4\uC7A5) || s_(\uAE30\uC874[1]);
+    if (\uC11E\uC778\uC219\uC81C\uC778\uAC00_(\uAE30\uC874[1]) && h.\uB2E8\uC5B4\uC7A5 === void 0 && h.\uC2DC\uC791 === void 0 && h.\uB05D === void 0) {
+      \uCC45 = s_(\uAE30\uC874[1]);
+      \uC2DC\uC791 = \uAE30\uC874[2];
+      \uB05D = \uAE30\uC874[3];
+    } else if (\uC11E\uC778\uC219\uC81C\uC778\uAC00_(\uCC45)) {
+      var \uC11E = \uC11E\uAE30\uAC12_({ \uB2E8\uC5B4\uC7A5: \uCC45, \uC2DC\uC791: h.\uC2DC\uC791, \uB05D: h.\uB05D, \uCE78: h.\uCE78 !== void 0 ? h.\uCE78 : sh.getRange(n, 12).getValue() });
+      if (!\uC11E.ok) return \uC11E;
+      \uCC45 = \uC11E.\uB2E8\uC5B4\uC7A5;
+      \uC2DC\uC791 = \uC11E.\uC2DC\uC791;
+      \uB05D = \uC11E.\uB05D;
+      sh.getRange(n, 12).setValue(\uC11E.\uCE78);
+    }
     sh.getRange(n, 1, 1, 9).setValues([[
       "",
       // 반은 더 이상 쓰지 않는다
-      s_(h.\uB2E8\uC5B4\uC7A5) || s_(\uAE30\uC874[1]),
+      \uCC45,
       \uC2DC\uC791,
       \uB05D,
       s_(h.\uC720\uD615) || "\uC2A4\uD3A0\uB9C1",
@@ -7017,7 +7761,7 @@ function createLegacyEngine(dependencies) {
         return !!(h.\uB0B8\uB54C && \uC228\uAE40[h.\uB0B8\uB54C]);
       };
       function \uC81C\uBAA9(h) {
-        return h.\uB2E8\uC5B4\uC7A5 + (h.\uCE78 ? " " + h.\uCE78 : "") + " " + h.\uC2DC\uC791 + "~" + h.\uB05D;
+        return h.\uC11E\uC74C ? h.\uB2E8\uC5B4\uC7A5 + " " + h.\uBC94\uC704 : h.\uB2E8\uC5B4\uC7A5 + (h.\uCE78 ? " " + h.\uCE78 : "") + " " + h.\uC2DC\uC791 + "~" + h.\uB05D;
       }
       var \uC8FC\uC804\uCCB4 = \uC804\uBD80.filter(function(h) {
         return \uC219\uC81C\uC778\uAC00_(h) && !\uAC10\uCDA4(h) && (h.\uB9C8\uAC10\uC77C || h.\uB4F1\uB85D\uC77C || "") >= \uC6D4\uC694\uC77C;
@@ -7043,8 +7787,8 @@ function createLegacyEngine(dependencies) {
       }).map(function(h) {
         return {
           \uB0A0\uC9DC: h.\uB9C8\uAC10\uC77C ? \uC9E7\uC740\uB0A0(h.\uB9C8\uAC10\uC77C) : "",
-          \uB2E8\uC5B4\uC7A5: h.\uB2E8\uC5B4\uC7A5 + (h.\uCE78 ? " " + h.\uCE78 : ""),
-          \uBC94\uC704: h.\uC2DC\uC791 + "~" + h.\uB05D,
+          \uB2E8\uC5B4\uC7A5: h.\uC11E\uC74C ? h.\uB2E8\uC5B4\uC7A5 : h.\uB2E8\uC5B4\uC7A5 + (h.\uCE78 ? " " + h.\uCE78 : ""),
+          \uBC94\uC704: h.\uC11E\uC74C ? h.\uBC94\uC704 : h.\uC2DC\uC791 + "~" + h.\uB05D,
           \uC720\uD615: \uC720\uD615\uC54C\uB9F9\uC774_(h.\uC720\uD615),
           \uC810\uC218: null,
           \uBD24\uB098: false,
