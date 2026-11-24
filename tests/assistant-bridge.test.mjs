@@ -1,6 +1,7 @@
 // 비서 문 — 원장님 컴퓨터의 비서(work/비서)가 서비스 계정 키(bridge 자격)로 정해 둔 선생님 기능만 부른다.
 // 비번은 밖에서 넣지 않는다. 엔진 안에서 설정 표의 선생님비밀번호를 그대로 쓴다 — 답에도 journal 에도 안 나간다.
-// 열리는 것: 선생님기본 · 선생님기록 · 체크자료 · 숙제예약목록 · 다음숙제뽑기 · 진도숙제내기 · 명단가져오기 · 교재일괄(교재 칸만) · 해법단어장넣기(「해법 」 단어장만). 그 밖은 막힌다.
+// 열리는 것: 선생님기본 · 선생님기록 · 체크자료 · 숙제예약목록 · 다음숙제뽑기 · 진도숙제내기 · 명단가져오기 · 교재일괄(교재 칸만) · 해법단어장넣기(「해법 」 단어장만)
+//          + 저장소 쪽 옛숙제정리 · 숙제예약정리(미리보기 → 확인값 → 휴지통). 이름 목록은 services/assistant-names.mjs 한 곳. 그 밖은 막힌다.
 // bridge 만 연다 — 앱 · 브라우저(선생님 · 학생 · 아무나)로는 못 연다.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -16,10 +17,12 @@ const 흉내 = new URL('./helpers/fake-firestore.mjs', import.meta.url).href;
 register('data:text/javascript,' + encodeURIComponent(
   `export async function resolve(s, c, n) { return s === 'firebase/firestore' ? { url: ${JSON.stringify(흉내)}, shortCircuit: true } : n(s, c); }`));
 const { FirestoreRepository, digest } = await import('../services/firestore-repository.mjs');
+const { 비서엔진기능, 비서표기능 } = await import('../services/assistant-names.mjs');
+const { 비서표함수, 옛숙제정리, 숙제예약정리 } = await import('../services/assistant-tables.mjs');
 
 const 일반 = x => JSON.parse(JSON.stringify(x));
 const 비번 = 'S3cret-9871';
-const 열린것 = ['선생님기본', '선생님기록', '체크자료', '숙제예약목록', '다음숙제뽑기', '진도숙제내기', '명단가져오기', '교재일괄', '해법단어장넣기'];
+const 열린것 = 비서엔진기능;
 const 머리숙제 = ['반', '단어장', '시작번호', '끝번호', '유형', '마감일', '등록시각', '학생', '숙제종류',
   '수업', '순서', '칸', '제한시간', '단계', '통과점수', '재응시', '외우기분', '학부모숨김', '문항수', '숙제코드'];
 const 머리기록 = ['시각', '반', '이름', '단어장', '범위', '유형', '문항수', '정답수', '점수', '게임점수', '최고콤보', '소요초',
@@ -73,8 +76,11 @@ test('엔진 — 열린 아홉은 전부 열린기능_ 에 있고 첫 칸이 비
     assert.match(code, new RegExp(`  ${fn}: ${fn},`), fn + ' 은 열린기능_ 에');
     assert.match(code, new RegExp(`function ${fn}\\(비번[,)]`), fn + ' 의 첫 칸은 비번');
   }
+  assert.deepEqual(열린것, ['선생님기본', '선생님기록', '체크자료', '숙제예약목록', '다음숙제뽑기', '진도숙제내기', '명단가져오기', '교재일괄', '해법단어장넣기']);
   const 만들기 = readFileSync(new URL('../scripts/build-legacy.mjs', import.meta.url), 'utf8');
-  assert.ok(만들기.includes("[" + 열린것.map(x => `'${x}'`).join(', ') + "]"), '목록은 build-legacy 한 곳에');
+  assert.ok(만들기.includes('${JSON.stringify(비서엔진기능)}.includes(name)'), 'build-legacy 는 assistant-names 의 목록을 박는다');
+  const 엔진 = readFileSync(new URL('../services/legacy-engine.generated.mjs', import.meta.url), 'utf8');
+  assert.ok(엔진.includes(JSON.stringify(열린것) + '.includes(name)'), '엔진에 박힌 목록이 같다');
 });
 
 /* ---------------- 해법 단어장 · 한 아이 숙제 두 줄 ---------------- */
@@ -204,4 +210,125 @@ test('__비서 는 bridge 만 — 선생님 · 아무나 는 못 연다', async 
   assert.equal((await 선생님.call('__비서', ['다음숙제뽑기', [['홍길동']]])).ok, false);
   const 아무나 = new FirestoreRepository(db, 't', { user: { uid: 'anon-uid-abc', getIdToken: async () => '' } });
   assert.equal((await 아무나.call('__비서', ['다음숙제뽑기', [['홍길동']]])).ok, false);
+});
+
+/* ---------------- 옛 숙제 · 숙제 예약 정리 — 저장소 쪽, 휴지통으로 ---------------- */
+const 날전 = 일 => new Date(Date.now() - 일 * 86400000);
+function 숙제판() {
+  const store = 판();
+  const 숙 = store.getSheetByName('숙제');
+  const 줄 = (책, 마감) => { const r = Array(20).fill(''); r[1] = 책; r[2] = 1; r[3] = 10; r[4] = '스펠링'; r[5] = 마감; r[6] = 날전(50); r[7] = '홍길동'; r[8] = '당일'; return r; };
+  숙.appendRow(줄('교재A', 날전(40)));
+  숙.appendRow(줄('교재A', 날전(10)));
+  숙.appendRow(줄('교재A', ''));
+  숙.appendRow(줄('교재A', 날전(41)));
+  숙.appendRow(줄('교재A', '언젠가'));
+  const 기록 = store.getSheetByName('기록');
+  const r = Array(20).fill(''); r[0] = 날전(40); r[2] = '홍길동'; r[3] = '교재A'; r[4] = '1~10'; r[8] = 100;
+  기록.appendRow(r);
+  const 예 = store.insertSheet('숙제예약');
+  예.appendRow(['만든때', '날짜', '시각', '요약', '내용', '알림함께', '보낸때', '켬', '묶음']);
+  예.appendRow([날전(5), '2026-11-20', '15:00', '홍길동 교재A', '{}', '', 날전(4), 'O', 'b1']);
+  예.appendRow([날전(1), '2099-01-01', '15:00', '김영희 교재A', '{}', '', '', 'O', 'b2']);
+  예.appendRow([날전(1), '2099-01-02', '15:00', '홍길동 교재A', '{}', '', '못 냄 — 까닭', 'O', 'b3']);
+  return store;
+}
+
+test('옛숙제정리 · 숙제예약정리 는 비서 이름 목록 한 곳에 있다', () => {
+  assert.deepEqual(Object.keys(비서표함수), 비서표기능);
+  assert.ok(!비서엔진기능.some(n => 비서표기능.includes(n)), '엔진 쪽과 겹치지 않는다');
+});
+
+test('옛숙제정리 — 마감이 30일 넘게 지난 날짜 줄만 고른다 (빈칸 · 날짜 아닌 것 · 10일 전은 빼고)', () => {
+  const r = 일반(옛숙제정리(숙제판(), [30, false]));
+  assert.equal(r.ok, true);
+  assert.equal(r.개수, 2);
+  assert.deepEqual(r.줄들.map(j => j.행), [2, 5]);
+  assert.equal(r.줄들[0].범위, '1~10');
+  assert.equal(r.줄들[0].학생, '홍길동');
+  assert.match(r.확인값, /^[0-9a-f]{16}$/);
+  assert.equal(일반(옛숙제정리(숙제판(), [])).개수, 2, '일수 기본값 30');
+});
+
+test('숙제예약정리 — 보낸것 은 보낸때 찬 줄만, 전부 는 다', () => {
+  const store = 숙제판();
+  const 보낸 = 일반(숙제예약정리(store, ['보낸것', false]));
+  assert.deepEqual(보낸.줄들.map(j => j.묶음), ['b1', 'b3']);
+  const 전부 = 일반(숙제예약정리(숙제판(), ['전부', false]));
+  assert.deepEqual(전부.줄들.map(j => j.묶음), ['b1', 'b2', 'b3']);
+  assert.equal(일반(숙제예약정리(숙제판(), ['아무거나', false])).ok, false);
+  const 지움 = 일반(숙제예약정리(store, ['보낸것', true, 보낸.확인값]));
+  assert.deepEqual([지움.ok, 지움.개수], [true, 2]);
+  assert.equal(store.getSheetByName('숙제예약').getLastRow(), 2);
+  assert.equal(store.getSheetByName('휴지통').getLastRow(), 3);
+});
+
+test('정리 — 301줄이면 안 지운다', () => {
+  const store = 판();
+  const 숙 = store.getSheetByName('숙제');
+  for (let i = 0; i < 301; i++) { const r = Array(20).fill(''); r[1] = '교재A'; r[2] = 1; r[3] = 2; r[5] = 날전(60); 숙.appendRow(r); }
+  const 봄 = 일반(옛숙제정리(store, [30, false]));
+  assert.equal(봄.ok, false);
+  assert.match(봄.메시지, /너무 많아요/);
+  const 지움 = 일반(옛숙제정리(store, [30, true, 'x']));
+  assert.equal(지움.ok, false);
+  assert.equal(숙.getLastRow(), 302);
+  assert.equal(store.getSheetByName('휴지통'), null);
+});
+
+test('__비서 옛숙제정리 — 미리보기 뒤 숙제가 늘면 안 지우고, 확인값이 맞으면 휴지통으로 · 되살리기 · 기록은 그대로', async () => {
+  const db = await 저장소판(숙제판());
+  const 비서 = new FirestoreRepository(db, 't', { role: 'bridge', user: { uid: 'assistant' } });
+  const 기록수 = () => 표(db, '기록').cells ? Object.keys(표(db, '기록').cells).filter(k => k.endsWith(':1')).length : 0;
+  const 기록전 = 기록수();
+  const 봄 = await 비서.call('__비서', ['옛숙제정리', [30, false]]);
+  assert.deepEqual([봄.ok, 봄.개수], [true, 2]);
+  assert.equal(표(db, '숙제').cells['2:6'] !== undefined, true);
+
+  /* 그 사이 숙제가 하나 더 나갔다 — 위에 끼면 줄이 밀린다 */
+  const 낸 = await 비서.call('__비서', ['진도숙제내기', [[{ 이름: '김영희', 단어장: '교재A', 시작: 1, 끝: 10 }], { 유형: '스펠링', 종류: '당일' }]]);
+  assert.equal(낸.낸수, 1);
+  const 바뀜 = await 비서.call('__비서', ['옛숙제정리', [30, true, 봄.확인값]]);
+  assert.equal(바뀜.ok, false);
+  assert.match(바뀜.메시지, /그 사이 숙제 표가 바뀌었어요/);
+  const 숙제수 = () => { const c = 표(db, '숙제').cells; return Math.max(...Object.keys(c).filter(k => c[k].value !== '' && c[k].value != null).map(k => Number(k.split(':')[0]))); };
+  assert.equal(숙제수(), 7, '하나도 안 지웠다');
+
+  const 다시 = await 비서.call('__비서', ['옛숙제정리', [30, false]]);
+  const 지움 = await 비서.call('__비서', ['옛숙제정리', [30, true, 다시.확인값]]);
+  assert.deepEqual([지움.ok, 지움.개수], [true, 2]);
+  assert.equal(숙제수(), 5);
+  const 통 = 표(db, '휴지통').cells;
+  assert.equal(통['2:2'].value, '숙제');
+  assert.equal(통['2:8'].value, '비서');
+  assert.equal(통['3:8'].value, '비서');
+  assert.equal(통['4:1'], undefined, '휴지통에 두 줄');
+  assert.equal(기록수(), 기록전, '기록 표는 그대로');
+  const journal = [...db.docs.entries()].filter(([k]) => /\/journal\/[^/]+$/.test(k)).map(([, v]) => v).filter(v => v.fn === '__비서' && v.누가 === '비서');
+  assert.equal(journal.length, 1);
+  assert.equal(journal[0].표, '숙제');
+  assert.match(journal[0].result, /교재A/, 'journal 에 지운 줄');
+
+  const 선생님 = new FirestoreRepository(db, 't', { user: { uid: 'teacher-uid-abc', getIdToken: async () => '' } });
+  assert.deepEqual(await 선생님.call('선생님로그인', [비번]), { ok: true });
+  const 살림 = await 선생님.call('__자료되살리기', [{ 번호들: 지움.지운.map(j => j.번호) }]);
+  assert.equal(살림.ok, true);
+  assert.equal(숙제수(), 7);
+  assert.equal(표(db, '숙제').cells['2:2'].value, '교재A');
+  assert.ok(표(db, '숙제').cells['2:6'].value, '마감일이 돌아왔다');
+});
+
+test('옛숙제정리 · 숙제예약정리 는 선생님 · 학생 · 아무나 로는 못 부른다', async () => {
+  const db = await 저장소판(숙제판());
+  const 선생님 = new FirestoreRepository(db, 't', { user: { uid: 'teacher-uid-abc', getIdToken: async () => '' } });
+  assert.deepEqual(await 선생님.call('선생님로그인', [비번]), { ok: true });
+  const 학생 = new FirestoreRepository(db, 't', { user: { uid: 'student-uid-abc', getIdToken: async () => '' } });
+  assert.equal((await 학생.call('로그인', ['홍길동', '1111'])).ok, true);
+  const 아무나 = new FirestoreRepository(db, 't', { user: { uid: 'anon-uid-abc', getIdToken: async () => '' } });
+  for (const 누구 of [선생님, 학생, 아무나]) {
+    for (const [fn, a] of [['옛숙제정리', [30, false]], ['숙제예약정리', ['전부', false]]]) {
+      assert.equal((await 누구.call('__비서', [fn, a])).ok, false);
+      await assert.rejects(() => 누구.call(fn, a), /쓸 수 없는 기능/);
+    }
+  }
 });

@@ -78,7 +78,9 @@ export function 값맞추기(옛값, 새값, 머리 = '') {
   return 글;
 }
 
-function 표찾기(store, 이름) {
+/* 더열표 — 「자료」 탭 목록에는 없지만 부르는 쪽이 정해 둔 표 (비서의 숙제예약 정리 — assistant-tables.mjs) */
+function 표찾기(store, 이름, 더열표 = []) {
+  if (더열표.includes(이름) && store.getSheetByName(이름)) return store.getSheetByName(이름);
   if (!고칠수있나(store, 이름)) throw new Error('고칠 수 없는 표예요: ' + 이름);
   return store.getSheetByName(이름);
 }
@@ -109,8 +111,8 @@ function 휴지통(store) {
 }
 
 /* 줄 지우기 — 하나라도 그 사이 바뀌었으면 하나도 안 지운다. 지운 줄은 휴지통 표로 */
-export function 줄지우기(store, { 표, 줄들 } = {}, { 지금 = Date.now(), 누가 = '선생님', 번호 } = {}) {
-  const sheet = 표찾기(store, 표);
+export function 줄지우기(store, { 표, 줄들 } = {}, { 지금 = Date.now(), 누가 = '선생님', 번호, 더열표 = [] } = {}) {
+  const sheet = 표찾기(store, 표, 더열표);
   if (!Array.isArray(줄들) || !줄들.length) throw new Error('지울 줄을 골라 주세요.');
   const 행들 = 줄들.map(j => j.행);
   if (!행들.every(행맞나) || new Set(행들).size !== 행들.length) throw new Error('지울 줄이 맞지 않아요.');

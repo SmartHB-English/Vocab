@@ -5,6 +5,7 @@ import { createRuntime } from './legacy-runtime.mjs';
 import { pack, unpack, publicTable, tableMetadata, sheetId } from './store-codec.mjs';
 import { createDatasetDocuments } from './dataset-model.mjs';
 import { 휴지통이름, 휴지통공개, 자료읽기, 칸고치기, 줄지우기, 되살리기, 휴지통비우기 } from './table-edit.mjs';
+import { 비서표함수 } from './assistant-tables.mjs';
 
 export const digest = async text => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))), b => b.toString(16).padStart(2, '0')).join('');
 const jsonResult = result => result === undefined ? undefined : JSON.parse(JSON.stringify(result));
@@ -55,6 +56,10 @@ const 다리함수 = {__월시상:engine=>engine.monthly(), __예약알림:(engi
   __비서:(engine,args)=>engine.assistant(String(args[0]??''),Array.isArray(args[1])?args[1]:[])};
 const 다리만 = ['__예약알림','__예약숙제','__죽은구독지우기','__알림거리','__알림기록쓰기','__비서'];
 const 적을답 = (fn,answer) => ['__예약알림','__예약숙제','__알림거리'].includes(fn)&&answer&&answer.푸시비밀키 ? {...answer,푸시비밀키:'(뺌)'} : answer;
+// 비서 문 가운데 표를 치우는 둘(옛숙제정리 · 숙제예약정리)은 엔진으로 안 보내고 여기서 줄지우기(휴지통) 길로 — 저장은 __자료지우기 와 같다.
+// 이름 목록은 services/assistant-names.mjs 한 곳. 답은 그대로 준다 (날짜는 글로 바꿔 둔다)
+const 비서표하기 = (일,store,args,how) => { try { return 일(store,Array.isArray(args[1])?args[1]:[],how); } catch(e) { if(e instanceof Error&&!e.code?.startsWith?.('permission'))return {ok:false,충돌:e.code==='충돌',메시지:e.message}; throw e; } };
+const 비서표이름 = {옛숙제정리:'숙제',숙제예약정리:'숙제예약'};
 const 자료하기 = (일,store,args,how) => { try { return {ok:true,자료:pack(일(store,args[0]??{},how))}; } catch(e) { if(e instanceof Error&&!e.code?.startsWith?.('permission'))return {ok:false,충돌:e.code==='충돌',메시지:e.message}; throw e; } };
 
 export class FirestoreRepository {
@@ -197,11 +202,12 @@ export class FirestoreRepository {
     if (fn === '학부모보기') {
       if (!await this.parentLogin(args[0])) return {ok:false,메시지:'링크가 맞지 않습니다. 선생님께 문의해 주세요.'};
     }
-    const 자료일 = 자료함수[fn];
-    if (자료일 && this.identity.role !== 'teacher') return {ok:false,메시지:'선생님만 할 수 있어요.'};
+    const 비서표 = fn === '__비서' && Object.prototype.hasOwnProperty.call(비서표함수,String(args[0]??'')) ? String(args[0]) : '';
+    const 자료일 = 자료함수[fn] || (비서표 ? 비서표함수[비서표] : null);
+    if (자료함수[fn] && this.identity.role !== 'teacher') return {ok:false,메시지:'선생님만 할 수 있어요.'};
     if (fn === '__조각합치기' && !privileged(this.identity.role)) return {ok:false,메시지:'선생님만 할 수 있어요.'};
     if (다리만.includes(fn) && this.identity.role !== 'bridge') return {ok:false,메시지:'예약 알림 함수만 부를 수 있어요.'};
-    const 누가 = '선생님 · '+String(this.identity.user?.uid??'').slice(0,6);
+    const 누가 = 비서표 ? '비서' : '선생님 · '+String(this.identity.user?.uid??'').slice(0,6);
     const publicOnly = ['시작정보','푸시공개키','공지가져오기'].includes(fn) && !this.identity.role;
     // 다시 보낸 것이면 먼저 영수증부터 — 먼저 것이 들어갔는데 다시 계획하면 「이미 봤습니다」 처럼 다른 답이 나온다
     if (다시보냄 && this.identity.user) {
@@ -227,6 +233,7 @@ export class FirestoreRepository {
     const execute = current => {
       let index = 0;
       const uuid = () => { const i=index++; return ids[i] ?? (ids[i]=randomId()); };
+      if (비서표) return 비서표하기(자료일,current,args,{지금:started,번호:uuid});
       if (자료일) return 자료하기(자료일,current,args,{지금:started,누가,번호:uuid});
       if (fn === '__조각합치기') {
         let 합친 = 0;
@@ -319,7 +326,7 @@ export class FirestoreRepository {
         }
       }
       // 「자료」 탭의 고치기·지우기·되살리기는 누가 · 어느 표 를 따로 적는다 — 바꾸기 전과 후는 result 안에 (전 · 후 · 지운 줄 · 되살린 줄)
-      transaction.set(this.ref(`journal/${requestId}`),{actor:this.identity.user.uid,fn,result:pack(적을답(fn,answer)),changes,at:started,...(자료일?{누가,표:String(args[0]?.표??휴지통이름)}:{})});
+      transaction.set(this.ref(`journal/${requestId}`),{actor:this.identity.user.uid,fn,result:pack(적을답(fn,answer)),changes,at:started,...(자료일?{누가,표:비서표?비서표이름[비서표]:String(args[0]?.표??휴지통이름)}:{})});
       this.cache.clear();
       if(fn==='학부모보기'&&!args[1]&&answer?.ok)this.parentCache={token:this.identity.token,revision:currentCatalog.revision,until:started+60000,value:answer};
       return answer;
