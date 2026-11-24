@@ -1,6 +1,6 @@
 // 비서 문 — 원장님 컴퓨터의 비서(work/비서)가 서비스 계정 키(bridge 자격)로 정해 둔 선생님 기능만 부른다.
 // 비번은 밖에서 넣지 않는다. 엔진 안에서 설정 표의 선생님비밀번호를 그대로 쓴다 — 답에도 journal 에도 안 나간다.
-// 열리는 것: 선생님기본 · 선생님기록 · 체크자료 · 숙제예약목록 · 다음숙제뽑기 · 진도숙제내기 · 명단가져오기 · 교재일괄(교재 칸만). 그 밖은 막힌다.
+// 열리는 것: 선생님기본 · 선생님기록 · 체크자료 · 숙제예약목록 · 다음숙제뽑기 · 진도숙제내기 · 명단가져오기 · 교재일괄(교재 칸만) · 해법단어장넣기(「해법 」 단어장만). 그 밖은 막힌다.
 // bridge 만 연다 — 앱 · 브라우저(선생님 · 학생 · 아무나)로는 못 연다.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -19,7 +19,7 @@ const { FirestoreRepository, digest } = await import('../services/firestore-repo
 
 const 일반 = x => JSON.parse(JSON.stringify(x));
 const 비번 = 'S3cret-9871';
-const 열린것 = ['선생님기본', '선생님기록', '체크자료', '숙제예약목록', '다음숙제뽑기', '진도숙제내기', '명단가져오기', '교재일괄'];
+const 열린것 = ['선생님기본', '선생님기록', '체크자료', '숙제예약목록', '다음숙제뽑기', '진도숙제내기', '명단가져오기', '교재일괄', '해법단어장넣기'];
 const 머리숙제 = ['반', '단어장', '시작번호', '끝번호', '유형', '마감일', '등록시각', '학생', '숙제종류',
   '수업', '순서', '칸', '제한시간', '단계', '통과점수', '재응시', '외우기분', '학부모숨김', '문항수', '숙제코드'];
 const 머리기록 = ['시각', '반', '이름', '단어장', '범위', '유형', '문항수', '정답수', '점수', '게임점수', '최고콤보', '소요초',
@@ -67,7 +67,7 @@ test('엔진 — 목록 밖의 기능은 막힌다 (설정 · 학생 고치기 �
   }
 });
 
-test('엔진 — 열린 여덟은 전부 열린기능_ 에 있고 첫 칸이 비번이다', () => {
+test('엔진 — 열린 아홉은 전부 열린기능_ 에 있고 첫 칸이 비번이다', () => {
   const code = readFileSync(new URL('./fixtures/legacy/Code.gs', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
   for (const fn of 열린것) {
     assert.match(code, new RegExp(`  ${fn}: ${fn},`), fn + ' 은 열린기능_ 에');
@@ -75,6 +75,100 @@ test('엔진 — 열린 여덟은 전부 열린기능_ 에 있고 첫 칸이 비
   }
   const 만들기 = readFileSync(new URL('../scripts/build-legacy.mjs', import.meta.url), 'utf8');
   assert.ok(만들기.includes("[" + 열린것.map(x => `'${x}'`).join(', ') + "]"), '목록은 build-legacy 한 곳에');
+});
+
+/* ---------------- 해법 단어장 · 한 아이 숙제 두 줄 ---------------- */
+const 목록줄 = (store, 이름) => {
+  const sh = store.getSheetByName('단어장목록');
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues().filter(x => x[0] === 이름);
+};
+const 학생교재 = store => { const sh = store.getSheetByName('학생'); return sh.getRange(2, 8, sh.getLastRow() - 1, 1).getValues().map(x => x[0]); };
+const 본문 = n => Array.from({ length: n }, (_, i) => `h${i + 1} | 해${i + 1}`).join('\n');
+
+test('엔진 — 해법단어장넣기 는 새로 만들고, 다시 넣으면 통째로 바뀐다', () => {
+  const store = 판();
+  const 엔 = createRuntime(store);
+  const 새 = 일반(엔.assistant('해법단어장넣기', ['해법 I2_30_2', 본문(6), 6]));
+  assert.deepEqual(새, { ok: true, 개수: 6, 새로만듦: true });
+  assert.ok(일반(엔.call('시작정보', [])).단어장목록.some(b => b.이름 === '해법 I2_30_2' && b.개수 === 6), '단어장목록에 생긴다');
+  const 줄 = 목록줄(store, '해법 I2_30_2');
+  assert.equal(줄.length, 1);
+  assert.equal(줄[0][1], '');
+  assert.equal(Number(줄[0][4]), 6, '레슨 묶음');
+  assert.equal(엔.call('단어가져오기', ['해법 I2_30_2']).length, 6);
+  const 다시 = 일반(엔.assistant('해법단어장넣기', ['해법 I2_30_2', 'x1 | 엑스1\nx2 | 엑스2\nx3 | 엑스3']));
+  assert.deepEqual(다시, { ok: true, 개수: 3, 새로만듦: false });
+  const 단어 = 일반(엔.call('단어가져오기', ['해법 I2_30_2']));
+  assert.deepEqual(단어.map(w => [w.no, w.en]), [[1, 'x1'], [2, 'x2'], [3, 'x3']], '덧붙지 않고 바뀐다');
+  assert.equal(목록줄(store, '해법 I2_30_2').length, 1);
+  assert.equal(Number(목록줄(store, '해법 I2_30_2')[0][4]), 6, '레슨크기를 안 주면 그대로');
+  assert.deepEqual(학생교재(store), ['교재A', '교재A'], '아이 교재 칸은 그대로');
+});
+
+test('엔진 — 해법단어장넣기 는 「해법 」 아닌 이름 · 과 단어장을 거절한다', () => {
+  const store = 판();
+  const 목록 = store.getSheetByName('단어장목록');
+  목록.appendRow(['1000-2', '', 'w1000', '', '', '', '', '']);
+  const w = store.insertSheet('w1000'); w.appendRow(['번호', '영어', '뜻']); w.appendRow([1, 'apple', '사과']);
+  목록.appendRow(['해법 과책', '과', 'w과', '', '', '', '', '']);
+  store.insertSheet('w과').appendRow(['번호', '구분', '영어', '뜻·해석', '비고']);
+  const 엔 = createRuntime(store);
+  for (const 이름 of ['1000-2', '교재A', '해법', '해법I2', '']) {
+    const r = 일반(엔.assistant('해법단어장넣기', [이름, 본문(3)]));
+    assert.equal(r.ok, false, 이름 + ' 은 거절');
+    assert.match(r.메시지, /해법 /);
+  }
+  assert.deepEqual(일반(엔.call('단어가져오기', ['1000-2'])).map(x => x.en), ['apple'], '원래 단어장 그대로');
+  assert.equal(엔.call('단어가져오기', ['교재A']).length, 40);
+  const 과 = 일반(엔.assistant('해법단어장넣기', ['해법 과책', 본문(3)]));
+  assert.equal(과.ok, false);
+  assert.equal(목록줄(store, '해법 과책')[0][1], '과');
+  assert.equal(일반(엔.assistant('해법단어장넣기', ['해법 I2', 본문(3), 0])).ok, false, '레슨크기가 틀리면 아무것도 안 넣는다');
+  assert.equal(목록줄(store, '해법 I2').length, 0);
+});
+
+test('엔진 — 진도숙제내기: 한 아이에 해법 한 줄 + 학년 한 줄, 같은 교재 두 줄은 막고 시험은 하나만', () => {
+  const store = 판();
+  const 엔 = createRuntime(store);
+  assert.equal(일반(엔.assistant('해법단어장넣기', ['해법 I2_30_2', 본문(12), 6])).ok, true);
+  const 낸 = 일반(엔.assistant('진도숙제내기', [[
+    { 이름: '홍길동', 단어장: '해법 I2_30_2', 시작: 1, 끝: 6 },
+    { 이름: '홍길동', 단어장: '교재A', 시작: 1, 끝: 9 },
+    { 이름: '홍길동', 단어장: '교재A', 시작: 10, 끝: 18 },
+    { 이름: '김영희', 단어장: '교재A', 시작: 1, 끝: 9 }
+  ], { 유형: '스펠링', 종류: '당일' }, { 이름들: ['홍길동'], 날짜: '2099-01-05', 시각: '15:00' }]));
+  assert.equal(낸.ok, true);
+  assert.equal(낸.낸수, 3);
+  assert.equal(낸.시험수, 1);
+  assert.deepEqual(낸.못낸, [{ 이름: '홍길동', 까닭: '같은 아이 같은 교재가 두 번 들어 있어요' }]);
+  assert.deepEqual(숙제줄들(store).map(x => [x[1], x[2], x[3], x[7]]),
+    [['해법 I2_30_2', 1, 6, '홍길동'], ['교재A', 1, 9, '홍길동'], ['교재A', 1, 9, '김영희']]);
+  const 예약 = 일반(엔.assistant('숙제예약목록', []));
+  assert.equal(예약.예약.length, 1, '시험 예약은 아이당 하나');
+  assert.equal(JSON.parse(예약.예약[0].내용).단어장, '해법 I2_30_2', '시험은 그 아이 첫 줄에 건다');
+});
+
+test('엔진 — 해법 숙제를 받은 아이가 단어를 받고, 해법 기록이 학년 진도를 흐리지 않는다', () => {
+  const store = 판();
+  const 엔 = createRuntime(store);
+  assert.equal(일반(엔.assistant('해법단어장넣기', ['해법 I2_30_2', 본문(6)])).ok, true);
+  const 낸 = 일반(엔.assistant('진도숙제내기', [[
+    { 이름: '홍길동', 단어장: '해법 I2_30_2', 시작: 1, 끝: 6 },
+    { 이름: '홍길동', 단어장: '교재A', 시작: 1, 끝: 9 }
+  ], { 유형: '스펠링', 종류: '당일' }]));
+  assert.equal(낸.낸수, 2);
+  const 숙 = 일반(엔.call('숙제가져오기', ['홍길동']));
+  const 목 = Array.isArray(숙) ? 숙 : (숙.숙제 || 숙.숙제들 || []);
+  assert.ok(목.some(h => h.단어장 === '해법 I2_30_2'), '해법 숙제가 아이에게 보인다');
+  const 단어 = 일반(엔.call('단어가져오기', ['해법 I2_30_2', '', 1, 6]));
+  assert.equal(단어.length, 6, '볼 수 있는 단어장에 없어도 받는다');
+  const 기록 = store.getSheetByName('기록');
+  const 줄 = (책, 범위) => { const r = Array(20).fill(''); r[0] = new Date(Date.now() - 3600e3); r[2] = '홍길동'; r[3] = 책; r[4] = 범위;
+    r[5] = '스펠링'; r[6] = 9; r[7] = 9; r[8] = 100; r[12] = 'O'; return r; };
+  기록.appendRow(줄('해법 I2_30_2', '1~6'));
+  기록.appendRow(줄('교재A', '1~9'));
+  const 뽑 = 일반(createRuntime(store).assistant('다음숙제뽑기', [['홍길동']]));
+  assert.deepEqual(뽑.줄들.map(x => [x.단어장, x.시작, x.끝]), [['교재A', 10, 19]]);
 });
 
 /* ---------------- 저장소 쪽 — bridge 만 ---------------- */

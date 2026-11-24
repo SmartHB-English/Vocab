@@ -9,17 +9,21 @@ const 볼파일 = ['index.html', 'teacher.html', 'parent.html', 'sw.js', 'parent
   'capacitor.config.json', 'app/app-boot.js', 'tests/fixtures/legacy/Code.gs'];
 // 이미 설치한 기기의 것을 옮겨 오려고 일부러 남긴 옛 이름 — 이 상수 줄만 「해법」 이 있어도 된다
 const 옛이름줄 = /^var 옛(칸이름|열쇠앞|그림폴더이름) = '[^']*';\r?$/;
+// 비서만 부르는 수업 책 단어장 넣기(엔진) — 아이 · 선생님 화면에 안 보인다. 이 이름들과 머리글 상수 줄만 봐준다
+const 비서이름 = /해법단어장(넣기|머리_)/g;
+const 비서머리줄 = /^var 해법단어장머리_ = '해법 ';\r?$/;
+const 남는줄 = 줄 => 줄.replace(비서이름, '').includes('해법') && !비서머리줄.test(줄);
 
 test('보이는 글에 「해법」 이 한 번도 안 나온다 (옛 이름 상수 줄만 빼고)', () => {
   for (const 파일 of 볼파일) {
-    const 남은 = 읽기(파일).split('\n').filter(줄 => 줄.includes('해법') && !옛이름줄.test(줄));
+    const 남은 = 읽기(파일).split('\n').filter(줄 => 남는줄(줄) && !옛이름줄.test(줄));
     assert.deepEqual(남은, [], 파일);
   }
 });
 
 test('옛 이름 상수는 서비스워커 둘 · 학부모 화면 · 엔진에 하나씩만', () => {
   for (const [파일, 수] of [['sw.js', 1], ['parent-sw.js', 1], ['parent.html', 1], ['tests/fixtures/legacy/Code.gs', 1], ['index.html', 0]]) {
-    assert.equal(읽기(파일).split('\n').filter(줄 => 줄.includes('해법')).length, 수, 파일);
+    assert.equal(읽기(파일).split('\n').filter(남는줄).length, 수, 파일);
   }
 });
 
