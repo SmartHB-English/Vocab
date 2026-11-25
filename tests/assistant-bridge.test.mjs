@@ -177,6 +177,121 @@ test('엔진 — 해법 숙제를 받은 아이가 단어를 받고, 해법 기�
   assert.deepEqual(뽑.줄들.map(x => [x.단어장, x.시작, x.끝]), [['교재A', 10, 19]]);
 });
 
+/* ---------------- 진도숙제내기 넷째 인자 예약 — 바로 안 내고 숙제예약 표에 아이마다 한 줄 (프롬프트 63) ---------------- */
+const 서울 = t => new Date(t + '+09:00').getTime();
+function 시계판(처음 = '2026-11-25T10:00:00') {
+  const store = 판();
+  store.getSheetByName('학생').appendRow(['', '박철수', '3333', '', '', '', '', '교재A']);
+  let 시계 = 서울(처음);
+  const 엔 = createRuntime(store, { now: () => 시계 });
+  return { store, 엔, 비서: (fn, a) => 일반(엔.assistant(fn, a)), 때: t => { 시계 = 서울(t); } };
+}
+const 예약줄들 = store => {
+  const sh = store.getSheetByName('숙제예약');
+  const n = sh ? sh.getLastRow() - 1 : 0;
+  return n > 0 ? sh.getRange(2, 1, n, 9).getValues() : [];
+};
+const 세줄 = [
+  { 이름: '홍길동', 단어장: '교재A', 시작: 1, 끝: 10 },
+  { 이름: '김영희', 단어장: '교재A', 시작: 11, 끝: 20 },
+  { 이름: '박철수', 단어장: '교재A', 시작: 21, 끝: 30 }
+];
+const 공통값 = { 유형: '스펠링', 종류: '당일' };
+
+test('예약 — 비었거나 안 주면 지금처럼 바로 나가고 예약 표는 그대로', () => {
+  for (const 예약 of [undefined, null, {}]) {
+    const e = 시계판();
+    const 낸 = e.비서('진도숙제내기', [세줄.slice(0, 1), 공통값, null, 예약]);
+    assert.deepEqual([낸.ok, 낸.낸수, 낸.예약수], [true, 1, undefined], String(예약));
+    assert.equal(숙제줄들(e.store).length, 1);
+    assert.equal(예약줄들(e.store).length, 0);
+  }
+});
+
+test('예약 — 오늘 17:00 세 아이: 숙제 표는 그대로, 예약 표에 세 줄 · 한 묶음 · 내용이 아이마다 맞다', () => {
+  const e = 시계판();
+  const 낸 = e.비서('진도숙제내기', [세줄, 공통값, null, { 날짜: '2026-11-25', 시각: '17:00', 알림함께: true }]);
+  assert.equal(낸.ok, true);
+  assert.deepEqual([낸.낸수, 낸.예약수, 낸.못낸], [0, 3, []]);
+  assert.match(낸.묶음, /^g[a-z0-9]{6}$/);
+  assert.equal(숙제줄들(e.store).length, 0, '바로 나가지 않는다');
+  const 줄 = 예약줄들(e.store);
+  assert.equal(줄.length, 3);
+  assert.deepEqual(줄.map(x => [x[1], x[2], x[5], x[6], x[8]]), Array(3).fill(['2026-11-25', '17:00', 'O', '', 낸.묶음]));
+  assert.deepEqual(줄.map(x => { const h = JSON.parse(x[4]); return [h.단어장, h.시작, h.끝, h.학생들, h.유형, h.종류, h.마감일]; }), [
+    ['교재A', 1, 10, ['홍길동'], '스펠링', '당일', ''],
+    ['교재A', 11, 20, ['김영희'], '스펠링', '당일', ''],
+    ['교재A', 21, 30, ['박철수'], '스펠링', '당일', '']
+  ]);
+  assert.ok(줄.every(x => !('바뀐줄만' in JSON.parse(x[4]))));
+  const 목록 = e.비서('숙제예약목록', []).예약;
+  assert.deepEqual(목록.map(n => n.받는이들).reverse(), [['홍길동'], ['김영희'], ['박철수']]);
+});
+
+test('예약 — 지난 날짜 · 22:00 은 하나도 안 건다', () => {
+  for (const [날짜, 시각] of [['2026-11-24', '17:00'], ['2026-11-25', '22:00'], ['', '17:00'], ['2026-11-25', '']]) {
+    const e = 시계판();
+    const 낸 = e.비서('진도숙제내기', [세줄, 공통값, null, { 날짜, 시각 }]);
+    assert.equal(낸.ok, false, 날짜 + ' ' + 시각);
+    assert.match(낸.메시지, /^숙제 예약: /);
+    assert.equal(예약줄들(e.store).length, 0);
+    assert.equal(숙제줄들(e.store).length, 0);
+  }
+});
+
+test('예약 — 단어장을 못 찾는 줄 하나는 못낸, 나머지는 걸린다 · 같은 아이 다른 단어장 두 줄도 된다', () => {
+  const e = 시계판();
+  assert.equal(e.비서('해법단어장넣기', ['해법 I2_30_2', 본문(12), 6]).ok, true);
+  const 낸 = e.비서('진도숙제내기', [[
+    { 이름: '홍길동', 단어장: '해법 I2_30_2', 시작: 1, 끝: 6 },
+    { 이름: '홍길동', 단어장: '교재A', 시작: 1, 끝: 9 },
+    { 이름: '홍길동', 단어장: '교재A', 시작: 10, 끝: 18 },
+    { 이름: '김영희', 단어장: '없는책', 시작: 1, 끝: 9 },
+    { 이름: '박철수', 단어장: '교재A', 시작: 1, 끝: 9 }
+  ], 공통값, null, { 날짜: '2026-11-26', 시각: '08:00' }]);
+  assert.equal(낸.ok, true);
+  assert.equal(낸.예약수, 3);
+  assert.deepEqual(낸.못낸, [
+    { 이름: '홍길동', 까닭: '같은 아이 같은 교재가 두 번 들어 있어요' },
+    { 이름: '김영희', 까닭: '교재를 단어장에서 못 찾았어요' }
+  ]);
+  assert.deepEqual(예약줄들(e.store).map(x => { const h = JSON.parse(x[4]); return [h.학생들[0], h.단어장, h.시작]; }),
+    [['홍길동', '해법 I2_30_2', 1], ['홍길동', '교재A', 1], ['박철수', '교재A', 1]]);
+});
+
+test('예약 + 시험 — 시험도 따로 걸리고 숙제 예약과 한 묶음', () => {
+  const e = 시계판();
+  const 낸 = e.비서('진도숙제내기', [세줄.slice(0, 2), 공통값, { 이름들: ['김영희'], 날짜: '2026-11-28', 시각: '15:00' },
+    { 날짜: '2026-11-25', 시각: '17:00' }]);
+  assert.deepEqual([낸.ok, 낸.낸수, 낸.예약수, 낸.시험수, 낸.못낸], [true, 0, 2, 1, []]);
+  assert.equal(숙제줄들(e.store).length, 0);
+  const 줄 = 예약줄들(e.store);
+  assert.equal(줄.length, 3);
+  assert.ok(줄.every(x => x[8] === 낸.묶음));
+  const 시험 = 줄.map(x => JSON.parse(x[4])).filter(h => h.종류 === '시험');
+  assert.deepEqual(시험.map(h => [h.학생들, h.시작, h.끝, h.마감일]), [[['김영희'], 11, 20, '2026-11-28']]);
+});
+
+test('예약 — 그 시각에 scheduledHomework 가 아이마다 한 줄씩 내고, 선생님 화면에서 건 예약과 똑같이 나간다', () => {
+  const e = 시계판();
+  e.비서('진도숙제내기', [세줄, { ...공통값, 문항수: 15 }, null, { 날짜: '2026-11-25', 시각: '17:00' }]);
+  /* 맞대 볼 것 — 선생님 화면 「숙제 예약」 이 보내는 꾸러미 (teacher.html 숙제예약걸기_) 로 김영희 한 줄 */
+  const t = 시계판();
+  assert.equal(일반(t.엔.call('숙제예약저장', [비번, '', { 날짜: '2026-11-25', 시각: '17:00', 알림함께: false,
+    내용: { 단어장: '교재A', 시작: 11, 끝: 20, 유형: '스펠링', 종류: '당일', 마감일: '', 문항수: 15, 학생들: ['김영희'], 칸: '', 바뀐줄만: true } }])).ok, true);
+  assert.equal(예약줄들(e.store)[1][3], 예약줄들(t.store)[0][3], '요약이 같다');
+  e.때('2026-11-25T16:55:00');
+  assert.equal(일반(e.엔.scheduledHomework(서울('2026-11-25T16:55:00'))).찍은수, 0, '아직 이르다');
+  e.때('2026-11-25T17:05:00'); t.때('2026-11-25T17:05:00');
+  일반(e.엔.scheduledHomework(서울('2026-11-25T17:05:00')));
+  일반(t.엔.scheduledHomework(서울('2026-11-25T17:05:00')));
+  const 낸 = 숙제줄들(e.store);
+  assert.deepEqual(낸.map(x => [x[1], x[2], x[3], x[7]]), [['교재A', 1, 10, '홍길동'], ['교재A', 11, 20, '김영희'], ['교재A', 21, 30, '박철수']]);
+  assert.ok(예약줄들(e.store).every(x => x[6] && !String(x[6]).includes('못 냄')), '보낸때가 찍히고 못 냄이 없다');
+  const 뺀 = r => r.filter((_, i) => i !== 6 && i !== 19);          // 등록시각 · 숙제코드 는 그때마다 다르다
+  assert.deepEqual(뺀(낸[1]), 뺀(숙제줄들(t.store)[0]), '선생님 화면에서 건 예약과 같은 숙제 줄');
+});
+
 /* ---------------- 저장소 쪽 — bridge 만 ---------------- */
 async function 저장소판(store) {
   const db = fakeDb();
