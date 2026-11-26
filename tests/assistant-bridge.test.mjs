@@ -18,7 +18,7 @@ register('data:text/javascript,' + encodeURIComponent(
   `export async function resolve(s, c, n) { return s === 'firebase/firestore' ? { url: ${JSON.stringify(흉내)}, shortCircuit: true } : n(s, c); }`));
 const { FirestoreRepository, digest } = await import('../services/firestore-repository.mjs');
 const { 비서엔진기능, 비서표기능 } = await import('../services/assistant-names.mjs');
-const { 비서표함수, 옛숙제정리, 숙제예약정리 } = await import('../services/assistant-tables.mjs');
+const { 비서표함수, 옛숙제정리, 숙제예약정리, 숙제지우기, 숙제예약지우기 } = await import('../services/assistant-tables.mjs');
 
 const 일반 = x => JSON.parse(JSON.stringify(x));
 const 비번 = 'S3cret-9871';
@@ -446,4 +446,153 @@ test('옛숙제정리 · 숙제예약정리 는 선생님 · 학생 · 아무나
       await assert.rejects(() => 누구.call(fn, a), /쓸 수 없는 기능/);
     }
   }
+});
+
+/* ---------------- 골라 지우기 — 숙제 · 숙제 예약 (휴지통으로, 한 아이만 빼기) ---------------- */
+function 지울판() {
+  const store = 판();
+  const 숙 = store.getSheetByName('숙제');
+  const 줄 = (책, 시작, 끝, 마감, 학생, 종류 = '당일') => { const r = Array(20).fill(''); r[1] = 책; r[2] = 시작; r[3] = 끝; r[4] = '스펠링'; r[5] = 마감; r[6] = 날전(1); r[7] = 학생; r[8] = 종류; return r; };
+  숙.appendRow(줄('교재A', 1, 10, '2026-11-27', '홍길동'));          // 2
+  숙.appendRow(줄('교재A', 11, 20, '2026-11-27', '가, 나, 다'));      // 3
+  숙.appendRow(줄('교재A', 21, 30, '2026-11-27', '나'));              // 4
+  숙.appendRow(줄('교재B', 1, 10, '2026-11-27', ''));                 // 5 — 교재로 받는 숙제
+  숙.appendRow(줄('교재A', 31, 40, '2026-11-28', '가, 나', '시험'));  // 6
+  const 기록 = store.getSheetByName('기록');
+  const r = Array(20).fill(''); r[0] = 날전(1); r[2] = '나'; r[3] = '교재A'; r[4] = '11~20'; r[8] = 90;
+  기록.appendRow(r);
+  const 예 = store.insertSheet('숙제예약');
+  예.appendRow(['만든때', '날짜', '시각', '요약', '내용', '알림함께', '보낸때', '켬', '묶음']);
+  예.appendRow([날전(1), '2026-11-27', '15:00', '가 교재A', '{}', '', 날전(0), 'O', 'g1']);   // 2 보냄
+  예.appendRow([날전(1), '2026-11-27', '17:00', '나 교재A', '{}', '', '', 'O', 'g1']);         // 3
+  예.appendRow([날전(1), '2026-11-27', '17:00', '다 교재A', '{}', '', '', 'O', 'g2']);         // 4
+  예.appendRow([날전(1), '2026-11-28', '17:00', '가 교재A', '{}', '', '', 'O', 'g2']);         // 5
+  return store;
+}
+const 학생칸 = (store, 행) => store.getSheetByName('숙제').getRange(행, 8).getValue();
+
+test('숙제지우기 — 빈 골라 · 시작만 은 거절한다', () => {
+  for (const 골라 of [undefined, null, {}, { 시작: 1 }, { 시작: 1, 끝: 10, 종류: '당일' }, { 행들: [] }, { 행들: [1] }, []]) {
+    const r = 일반(숙제지우기(지울판(), [골라, false]));
+    assert.equal(r.ok, false, JSON.stringify(골라));
+    assert.equal(r.메시지, '무엇을 지울지 골라 주세요.');
+  }
+  assert.equal(일반(숙제예약지우기(지울판(), [{}, false])).ok, false);
+  assert.equal(일반(숙제예약지우기(지울판(), [{ 보낸것만: true }, false])).메시지, '무엇을 지울지 골라 주세요.');
+});
+
+test('숙제지우기 — 행 하나는 지움, 휴지통 · 지운사람 비서 · 되살리기', async () => {
+  const store = 지울판();
+  const 봄 = 일반(숙제지우기(store, [{ 행들: [2] }, false]));
+  assert.deepEqual([봄.ok, 봄.개수, 봄.줄들[0].할일, 봄.줄들[0].학생, 봄.줄들[0].범위, 봄.줄들[0].마감일], [true, 1, '지움', '홍길동', '1~10', '2026-11-27']);
+  const 지움 = 일반(숙제지우기(store, [{ 행들: [2] }, true, 봄.확인값]));
+  assert.deepEqual([지움.ok, 지움.지운.length, 지움.이름뺀.length, 지움.못한.length], [true, 1, 0, 0]);
+  assert.equal(store.getSheetByName('숙제').getLastRow(), 5);
+  const 통 = store.getSheetByName('휴지통');
+  assert.equal(통.getLastRow(), 2);
+  assert.equal(통.getRange(2, 8).getValue(), '비서');
+  const { 되살리기 } = await import('../services/table-edit.mjs');
+  되살리기(store, { 번호들: [지움.지운[0].번호] });
+  assert.equal(store.getSheetByName('숙제').getLastRow(), 6);
+  assert.equal(학생칸(store, 2), '홍길동');
+});
+
+test('숙제지우기 — 가, 나, 다 에서 나 는 이름뺌 · 나 혼자는 지움 · 교재로 받는 줄은 못함', () => {
+  const store = 지울판();
+  const 봄 = 일반(숙제지우기(store, [{ 학생: '나', 단어장: '교재A', 마감일: '2026-11-27' }, false]));
+  assert.deepEqual(봄.줄들.map(j => [j.행, j.할일]), [[3, '이름뺌'], [4, '지움']]);
+  assert.equal(봄.줄들[0].교재로받음, false);
+  const 교재 = 일반(숙제지우기(store, [{ 학생: '나', 단어장: '교재B' }, false]));
+  assert.deepEqual(교재.줄들.map(j => [j.행, j.할일, j.교재로받음, j.까닭]), [[5, '못함', true, '교재로 나간 숙제라 한 아이만 뺄 수 없어요 — 선생님 화면에서']]);
+  const 안함 = 일반(숙제지우기(store, [{ 학생: '나', 단어장: '교재B' }, true, 교재.확인값]));
+  assert.deepEqual(안함, { ok: true, 개수: 0, 지운: [], 이름뺀: [], 못한: [{ 행: 5, 까닭: '교재로 나간 숙제라 한 아이만 뺄 수 없어요 — 선생님 화면에서' }] });
+  assert.equal(store.getSheetByName('숙제').getLastRow(), 6, '아무것도 안 바뀐다');
+  assert.equal(store.getSheetByName('휴지통'), null);
+  const 책만 = 일반(숙제지우기(store, [{ 단어장: '교재B' }, false]));
+  assert.deepEqual(책만.줄들.map(j => [j.행, j.할일, j.교재로받음]), [[5, '지움', true]]);
+});
+
+test('숙제지우기 — 이름뺌(아래 줄)과 지움(위 줄)을 한 번에 해도 행이 밀려 엉뚱한 줄을 고치지 않는다', () => {
+  const store = 지울판();
+  const 골라 = { 학생: '나', 단어장: '교재A' };   // 3행 가,나,다 → 이름뺌 · 4행 나 → 지움 · 6행 가,나 → 이름뺌
+  const 봄 = 일반(숙제지우기(store, [골라, false]));
+  assert.deepEqual(봄.줄들.map(j => [j.행, j.할일]), [[3, '이름뺌'], [4, '지움'], [6, '이름뺌']]);
+  const 됨 = 일반(숙제지우기(store, [골라, true, 봄.확인값]));
+  assert.deepEqual(됨.지운.map(j => j.행), [4]);
+  assert.deepEqual(됨.이름뺀, [{ 행: 3, 전: '가, 나, 다', 학생: '가, 다' }, { 행: 6, 전: '가, 나', 학생: '가' }]);
+  assert.equal(store.getSheetByName('숙제').getLastRow(), 5);
+  assert.deepEqual([2, 3, 4, 5].map(행 => 학생칸(store, 행)), ['홍길동', '가, 다', '', '가']);
+  assert.deepEqual(store.getSheetByName('숙제').getRange(5, 2, 1, 3).getValues()[0], ['교재A', 31, 40], '밀린 6행이 제 줄 그대로');
+});
+
+test('숙제예약지우기 — 묶음은 그 묶음만, 날짜 + 보낸것만 은 보낸 줄만', () => {
+  const store = 지울판();
+  const 봄 = 일반(숙제예약지우기(store, [{ 묶음: 'g1' }, false]));
+  assert.deepEqual(봄.줄들.map(j => j.행), [2, 3]);
+  const 지움 = 일반(숙제예약지우기(store, [{ 묶음: 'g1' }, true, 봄.확인값]));
+  assert.deepEqual([지움.ok, 지움.개수], [true, 2]);
+  assert.deepEqual(store.getSheetByName('숙제예약').getRange(2, 9, 2, 1).getValues().map(x => x[0]), ['g2', 'g2']);
+  const 판2 = 지울판();
+  const 날 = 일반(숙제예약지우기(판2, [{ 날짜: '2026-11-27', 보낸것만: true }, false]));
+  assert.deepEqual(날.줄들.map(j => j.행), [2]);
+  assert.deepEqual(일반(숙제예약지우기(판2, [{ 날짜: '2026-11-27' }, false])).줄들.map(j => j.행), [2, 3, 4]);
+  assert.deepEqual(일반(숙제예약지우기(판2, [{ 행들: [5] }, false])).줄들.map(j => j.묶음), ['g2']);
+  const 됨 = 일반(숙제예약지우기(판2, [{ 날짜: '2026-11-27', 보낸것만: true }, true, 날.확인값]));
+  assert.equal(됨.개수, 1);
+  assert.equal(판2.getSheetByName('숙제예약').getLastRow(), 4);
+});
+
+test('숙제지우기 — 301줄이면 안 지운다', () => {
+  const store = 판();
+  const 숙 = store.getSheetByName('숙제');
+  for (let i = 0; i < 301; i++) { const r = Array(20).fill(''); r[1] = '교재A'; r[2] = 1; r[3] = 2; r[5] = '2026-11-27'; 숙.appendRow(r); }
+  assert.match(일반(숙제지우기(store, [{ 단어장: '교재A' }, false])).메시지, /너무 많아요/);
+  assert.equal(일반(숙제지우기(store, [{ 단어장: '교재A' }, true, 'x'])).ok, false);
+  assert.equal(숙.getLastRow(), 302);
+  assert.equal(store.getSheetByName('휴지통'), null);
+});
+
+test('__비서 숙제지우기 — 미리보기 뒤 숙제가 늘면 안 하고, 맞으면 이름뺌 · 지움 · journal 전후 · 기록은 그대로', async () => {
+  const db = await 저장소판(지울판());
+  const 비서 = new FirestoreRepository(db, 't', { role: 'bridge', user: { uid: 'assistant' } });
+  const 줄수 = 이름 => Object.keys(표(db, 이름).cells ?? {}).filter(k => k.endsWith(':1')).length;
+  const 기록전 = [줄수('기록'), 줄수('기록보관')];
+  const 골라 = { 학생: '나', 단어장: '교재A', 마감일: '2026-11-27' };
+  const 봄 = await 비서.call('__비서', ['숙제지우기', [골라, false]]);
+  assert.deepEqual(봄.줄들.map(j => j.할일), ['이름뺌', '지움']);
+  const 낸 = await 비서.call('__비서', ['진도숙제내기', [[{ 이름: '김영희', 단어장: '교재A', 시작: 1, 끝: 10 }], { 유형: '스펠링', 종류: '당일' }]]);
+  assert.equal(낸.낸수, 1);
+  const 바뀜 = await 비서.call('__비서', ['숙제지우기', [골라, true, 봄.확인값]]);
+  assert.deepEqual(바뀜, { ok: false, 메시지: '그 사이 숙제 표가 바뀌었어요. 다시 보여 드릴게요.' });
+  assert.equal(표(db, '숙제').cells['3:8'].value, '가, 나, 다', '하나도 안 했다');
+  const 다시 = await 비서.call('__비서', ['숙제지우기', [골라, false]]);
+  const 됨 = await 비서.call('__비서', ['숙제지우기', [골라, true, 다시.확인값]]);
+  assert.deepEqual([됨.ok, 됨.지운.length, 됨.이름뺀[0].학생], [true, 1, '가, 다']);
+  assert.equal(표(db, '숙제').cells['3:8'].value, '가, 다');
+  assert.equal(표(db, '휴지통').cells['2:8'].value, '비서');
+  assert.deepEqual([줄수('기록'), 줄수('기록보관')], 기록전, '기록 · 기록보관 은 그대로');
+  const journal = [...db.docs.entries()].filter(([k]) => /\/journal\/[^/]+$/.test(k)).map(([, v]) => v).filter(v => v.누가 === '비서');
+  assert.equal(journal.length, 1);
+  assert.equal(journal[0].표, '숙제');
+  assert.match(journal[0].result, /가, 나, 다/, 'journal 에 고치기 전');
+  assert.match(journal[0].result, /"가, 다"/, 'journal 에 고친 뒤');
+});
+
+test('숙제지우기 · 숙제예약지우기 는 선생님 · 학생 · 아무나 로는 못 부른다', async () => {
+  const db = await 저장소판(지울판());
+  const 선생님 = new FirestoreRepository(db, 't', { user: { uid: 'teacher-uid-abc', getIdToken: async () => '' } });
+  assert.deepEqual(await 선생님.call('선생님로그인', [비번]), { ok: true });
+  const 학생 = new FirestoreRepository(db, 't', { user: { uid: 'student-uid-abc', getIdToken: async () => '' } });
+  assert.equal((await 학생.call('로그인', ['홍길동', '1111'])).ok, true);
+  const 아무나 = new FirestoreRepository(db, 't', { user: { uid: 'anon-uid-abc', getIdToken: async () => '' } });
+  for (const 누구 of [선생님, 학생, 아무나]) {
+    for (const [fn, a] of [['숙제지우기', [{ 행들: [2] }, false]], ['숙제예약지우기', [{ 묶음: 'g1' }, false]]]) {
+      assert.equal((await 누구.call('__비서', [fn, a])).ok, false);
+      /* 숙제예약지우기 는 엔진에도 선생님 기능(비번, 행, 키)으로 있다 — 바로 부르면 엔진이 비번에서 막는다 */
+      if (fn === '숙제예약지우기') assert.equal((await 누구.call(fn, a).catch(e => ({ ok: false, e }))).ok, false);
+      else await assert.rejects(() => 누구.call(fn, a), /쓸 수 없는 기능/);
+    }
+  }
+  assert.equal(표(db, '숙제').cells['2:8'].value, '홍길동');
+  assert.equal(표(db, '숙제예약').cells['2:9'].value, 'g1', '예약도 그대로');
 });

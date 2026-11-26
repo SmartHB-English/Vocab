@@ -59,7 +59,7 @@ const 적을답 = (fn,answer) => ['__예약알림','__예약숙제','__알림거
 // 비서 문 가운데 표를 치우는 둘(옛숙제정리 · 숙제예약정리)은 엔진으로 안 보내고 여기서 줄지우기(휴지통) 길로 — 저장은 __자료지우기 와 같다.
 // 이름 목록은 services/assistant-names.mjs 한 곳. 답은 그대로 준다 (날짜는 글로 바꿔 둔다)
 const 비서표하기 = (일,store,args,how) => { try { return 일(store,Array.isArray(args[1])?args[1]:[],how); } catch(e) { if(e instanceof Error&&!e.code?.startsWith?.('permission'))return {ok:false,충돌:e.code==='충돌',메시지:e.message}; throw e; } };
-const 비서표이름 = {옛숙제정리:'숙제',숙제예약정리:'숙제예약'};
+const 비서표이름 = {옛숙제정리:'숙제',숙제예약정리:'숙제예약',숙제지우기:'숙제',숙제예약지우기:'숙제예약'};
 const 자료하기 = (일,store,args,how) => { try { return {ok:true,자료:pack(일(store,args[0]??{},how))}; } catch(e) { if(e instanceof Error&&!e.code?.startsWith?.('permission'))return {ok:false,충돌:e.code==='충돌',메시지:e.message}; throw e; } };
 
 export class FirestoreRepository {
