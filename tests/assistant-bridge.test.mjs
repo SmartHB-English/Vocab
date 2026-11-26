@@ -70,13 +70,13 @@ test('엔진 — 목록 밖의 기능은 막힌다 (설정 · 학생 고치기 �
   }
 });
 
-test('엔진 — 열린 아홉은 전부 열린기능_ 에 있고 첫 칸이 비번이다', () => {
+test('엔진 — 열린 열은 전부 열린기능_ 에 있고 첫 칸이 비번이다', () => {
   const code = readFileSync(new URL('./fixtures/legacy/Code.gs', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
   for (const fn of 열린것) {
     assert.match(code, new RegExp(`  ${fn}: ${fn},`), fn + ' 은 열린기능_ 에');
     assert.match(code, new RegExp(`function ${fn}\\(비번[,)]`), fn + ' 의 첫 칸은 비번');
   }
-  assert.deepEqual(열린것, ['선생님기본', '선생님기록', '체크자료', '숙제예약목록', '다음숙제뽑기', '진도숙제내기', '명단가져오기', '교재일괄', '해법단어장넣기']);
+  assert.deepEqual(열린것, ['선생님기본', '선생님기록', '체크자료', '숙제예약목록', '다음숙제뽑기', '진도숙제내기', '명단가져오기', '교재일괄', '해법단어장넣기', '오래된기록정리API']);
   const 만들기 = readFileSync(new URL('../scripts/build-legacy.mjs', import.meta.url), 'utf8');
   assert.ok(만들기.includes('${JSON.stringify(비서엔진기능)}.includes(name)'), 'build-legacy 는 assistant-names 의 목록을 박는다');
   const 엔진 = readFileSync(new URL('../services/legacy-engine.generated.mjs', import.meta.url), 'utf8');
